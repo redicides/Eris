@@ -1,0 +1,46 @@
+{
+  "name": "charmie",
+  "version": "1.0.0",
+  "description": "A discord moderation & utility bot built with reliability in mind.",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "compile": "tsc && tsc-alias",
+    "start": "bun run dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charmie-dev/charmie.git"
+  },
+  "keywords": [
+    "Discord",
+    "Discord-Bot",
+    "Discord-Moderation-Bot"
+  ],
+  "author": {
+    "name": "redicides",
+    "url": "https://github.com/redicides"
+  },
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/charmie-dev/charmie/issues"
+  },
+  "homepage": "https://github.com/charmie-dev/charmie#readme",
+  "dependencies": {
+    "@sentry/node": "^8.30.0",
+    "discord.js": "14.15.3",
+    "prisma": "^5.19.1",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.19.1",
+    "@types/bun": "^1.1.9",
+    "dotenv": "^16.4.5",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.6.2"
+  },
+  "overrides": {
+    "@discordjs/builders": "1.8.2"
+  }
+}
