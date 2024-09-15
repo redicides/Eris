@@ -24,6 +24,12 @@ export default abstract class Command<T extends CommandInteraction> {
   public readonly category: CommandCategory | null;
 
   /**
+   * Whether the command is guarded (meaning it can only be ran by the developers).
+   */
+
+  public readonly isGuarded: boolean;
+
+  /**
    * The (application command) data for the command.
    */
 
@@ -40,6 +46,12 @@ export default abstract class Command<T extends CommandInteraction> {
    */
 
   public readonly requiredPermissions: PermissionsBitField | null;
+
+  /**
+   * Usage example for the command.
+   */
+
+  public readonly usage: string | string[] | null;
 
   /**
    * @param options The options for the command.
@@ -60,6 +72,8 @@ export default abstract class Command<T extends CommandInteraction> {
       ? new PermissionsBitField(options.requiredPermissions).freeze()
       : null;
     this.allowInDms = options.allowInDms ?? false;
+    this.usage = options.usage ?? null;
+    this.isGuarded = options.guarded ?? false;
   }
 
   /**
@@ -101,14 +115,15 @@ export default abstract class Command<T extends CommandInteraction> {
 }
 
 interface CommandOptions {
+  guarded?: boolean;
   category?: CommandCategory;
-  requiredPermissions?: bigint | bigint[];
   allowInDms?: boolean;
+  requiredPermissions?: bigint | bigint[];
+  usage?: string | string[];
   data: ApplicationCommandData;
 }
 
 export enum CommandCategory {
-  Management = 'Management',
-  Moderation = 'Moderation',
+  Developer = 'Developer',
   Utility = 'Utility'
 }

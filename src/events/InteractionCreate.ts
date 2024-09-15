@@ -5,6 +5,7 @@ import { Sentry } from '..';
 import CommandManager from '@/managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
 import Logger from '@/utils/logger';
+import ConfigManager from '@/managers/config/ConfigManager';
 
 export default class InteractionCreate extends EventListener {
   constructor() {
@@ -33,9 +34,15 @@ export default class InteractionCreate extends EventListener {
       });
     }
 
-    if (!interaction.inCachedGuild() && !command.allowInDms) {
-      content = `You cannot execute this command in DMs.`;
-      return InteractionCreate._handleReply(interaction, content);
+    if (command.isGuarded) {
+      if (!ConfigManager.global_config.developers.includes(interaction.user.id)) {
+        content = `I don't think you should be using this command.`;
+        description = `Out of curiosity, what were you trying to do?`;
+        return InteractionCreate._handleReply(interaction, {
+          content,
+          embeds: [{ description, color: Colors.NotQuiteBlack }]
+        });
+      }
     }
 
     try {

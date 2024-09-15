@@ -9,7 +9,8 @@ import { sleep } from './utils';
 
 import EventListenerManager from '@managers/events/EventListenerManager';
 import Logger, { AnsiColor } from '@utils/logger';
-import CommandManager from './managers/commands/CommandManager';
+import CommandManager from '@managers/commands/CommandManager';
+import ConfigManager from '@managers/config/ConfigManager';
 
 /**
  * The main client instance.
@@ -84,6 +85,10 @@ async function main() {
     throw new Error('The environment variable SENTRY_DSN is not defined.');
   }
 
+  // Cache global config
+
+  await ConfigManager.cacheGlobalConfig();
+
   // Cache commands
 
   await CommandManager.cache();
@@ -108,6 +113,7 @@ async function main() {
 
   // Wait 2 seconds to ensure the bot is ready
 
+  Logger.warn('Waiting 2 seconds to ensure the client is ready before publishing commands...');
   await sleep(2000);
 
   // Publish commands

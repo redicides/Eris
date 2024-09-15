@@ -78,8 +78,6 @@ export default class CommandManager {
     Logger.log('GLOBAL', logMessage(publishedCommands.size), {
       color: AnsiColor.Purple
     });
-
-    Logger.info('Finished publishing commands.');
   }
 
   static _get(commandId: Snowflake, commandName: string): Command<CommandInteraction> | null {

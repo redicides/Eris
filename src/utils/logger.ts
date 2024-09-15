@@ -40,27 +40,25 @@ export default class Logger {
     Logger.log('WARN', message, {
       color: AnsiColor.Yellow
     });
-    console.warn(values);
-  }
-
-  static error(message: string, ...values: readonly unknown[]): void {
-    Logger.log('ERROR', message, {
-      color: AnsiColor.Red
-    });
-    console.error(values);
   }
 
   static debug(message: string, ...values: readonly unknown[]): void {
     Logger.log('DEBUG', message, {
       color: AnsiColor.Orange
     });
-    console.debug(values);
+  }
+
+  static error(message: string, ...values: readonly unknown[]): void {
+    Logger.log('ERROR', message, {
+      color: AnsiColor.Red
+    });
+    console.error(...values);
   }
 
   static fatal(message: string, ...values: readonly unknown[]): void {
     Logger.log('FATAL', message, {
       color: AnsiColor.Red
     });
-    console.error(values);
+    console.error(...values);
   }
 }
