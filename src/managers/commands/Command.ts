@@ -1,5 +1,3 @@
-import { client } from '@/index';
-import Logger from '@/utils/logger';
 import {
   ApplicationCommandData,
   Colors,
@@ -8,6 +6,8 @@ import {
   PermissionFlagsBits,
   PermissionsBitField
 } from 'discord.js';
+
+import { client } from '@/index';
 
 // The base class for all commands.
 export default abstract class Command<T extends CommandInteraction> {

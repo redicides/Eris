@@ -1,7 +1,8 @@
 import 'dotenv/config';
-import * as SentryClient from '@sentry/node';
 
 import { Client } from 'discord.js';
+
+import * as SentryClient from '@sentry/node';
 
 import { CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_CACHE_OPTIONS, CLIENT_SWEEPER_OPTIONS } from '@utils/constants';
 import { sleep } from './utils';

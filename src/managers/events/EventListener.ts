@@ -1,5 +1,6 @@
-import { client } from '@/index';
 import { ClientEvents, Events } from 'discord.js';
+
+import { client } from '@/index';
 
 // The base class for all event listeners.
 export default abstract class EventListener {
