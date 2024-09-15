@@ -20,6 +20,7 @@ export default class ViewAvatar extends Command<UserContextMenuCommandInteractio
       embeds: [
         {
           author: { name: `${target.username}'s Avatar`, icon_url: target.displayAvatarURL() },
+          description: `[Avatar URL](${target.displayAvatarURL({ size: 4096 })})`,
           image: { url: target.displayAvatarURL({ size: 4096 }) },
           color: Colors.NotQuiteBlack,
           footer: {

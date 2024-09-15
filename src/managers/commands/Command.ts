@@ -1,4 +1,5 @@
 import { client } from '@/index';
+import Logger from '@/utils/logger';
 import {
   ApplicationCommandData,
   Colors,

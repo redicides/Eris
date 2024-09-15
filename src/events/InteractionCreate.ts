@@ -66,9 +66,11 @@ export default class InteractionCreate extends EventListener {
     }
   }
 
-  static _handleReply(interaction: CommandInteraction, options: string | InteractionReplyOptions) {
+  static _handleReply(interaction: CommandInteraction, options: string | Omit<InteractionReplyOptions, 'ephemeral'>) {
     return !interaction.deferred && !interaction.replied
-      ? interaction.reply(options).catch(() => {})
+      ? typeof options === 'string'
+        ? interaction.reply({ content: options, ephemeral: true }).catch(() => {})
+        : interaction.reply({ ...options, ephemeral: true }).catch(() => {})
       : interaction.editReply(options).catch(() => {});
   }
 }

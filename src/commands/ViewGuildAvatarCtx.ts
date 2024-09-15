@@ -7,20 +7,26 @@ export default class ViewGuildAvatar extends Command<UserContextMenuCommandInter
     super({
       category: CommandCategory.Utility,
       data: {
-        name: 'View Guild Avatar',
+        name: 'View Server Avatar',
         type: ApplicationCommandType.User
       }
     });
   }
 
   async execute(interaction: UserContextMenuCommandInteraction<'cached'>) {
-    const target = await interaction.guild.members.fetch(interaction.targetId);
-    if (!target) return this.error(interaction, `Could not find the member "${interaction.targetUser}" in this guild.`);
+    const target = await interaction.guild.members.fetch(interaction.targetId).catch(() => null);
+
+    if (!target) {
+      return this.error(interaction, `${interaction.targetUser} is not a member of this server.`);
+    }
 
     return interaction.reply({
       embeds: [
         {
           author: { name: `${target.user.username}'s Avatar`, icon_url: target.displayAvatarURL() },
+          description: `[Avatar URL](${target.displayAvatarURL({
+            size: 4096
+          })})\n[Global Avatar URL](${interaction.targetUser.displayAvatarURL({ size: 4096 })})`,
           image: { url: target.displayAvatarURL({ size: 4096 }) },
           color: Colors.NotQuiteBlack,
           footer: {
