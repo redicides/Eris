@@ -2,7 +2,7 @@ import { ApplicationCommandType, Colors, UserContextMenuCommandInteraction } fro
 
 import Command, { CommandCategory } from '@/managers/commands/Command';
 
-export default class ViewGuildAvatar extends Command<UserContextMenuCommandInteraction<'cached'>> {
+export default class ViewServerAvatar extends Command<UserContextMenuCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Utility,
@@ -24,7 +24,7 @@ export default class ViewGuildAvatar extends Command<UserContextMenuCommandInter
       embeds: [
         {
           author: { name: `${target.user.username}'s Avatar`, icon_url: target.displayAvatarURL() },
-          description: `[Avatar URL](${target.displayAvatarURL({
+          description: `[Server Avatar URL](${target.displayAvatarURL({
             size: 4096
           })})\n[Global Avatar URL](${interaction.targetUser.displayAvatarURL({ size: 4096 })})`,
           image: { url: target.displayAvatarURL({ size: 4096 }) },
