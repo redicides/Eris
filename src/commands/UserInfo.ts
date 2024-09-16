@@ -48,7 +48,7 @@ export default class Userinfo extends Command<ChatInputCommandInteraction<'cache
       .setFields(this._formatFields(target, member))
       .setFooter({ text: `User ID: ${target.id}` });
 
-    return interaction.reply({ embeds: [embed] });
+    return interaction.reply({ embeds: [embed], ephemeral: true });
   }
 
   /**
