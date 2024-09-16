@@ -26,22 +26,14 @@ export default class InteractionCreate extends EventListener {
 
     if (!command) {
       Logger.error(`Command "${interaction.commandName}" does not exist.`);
-      content = `I cannot execute the command \`${interaction.commandName}\` as it does not exist.`;
-      description = `If you believe this is a mistake, please report it to the developers.`;
-      return InteractionCreate._handleReply(interaction, {
-        content,
-        embeds: [{ description, color: Colors.NotQuiteBlack }]
-      });
+      content = `I cannot execute the command \`${interaction.commandName}\` as it does not exist.\nIf you believe this is a mistake, please report it to the developers.`;
+      return InteractionCreate._handleReply(interaction, content);
     }
 
     if (command.isGuarded) {
       if (!ConfigManager.global_config.developers.includes(interaction.user.id)) {
-        content = `I don't think you should be using this command.`;
-        description = `Out of curiosity, what were you trying to do?`;
-        return InteractionCreate._handleReply(interaction, {
-          content,
-          embeds: [{ description, color: Colors.NotQuiteBlack }]
-        });
+        content = `I don't think you should be using this command.\nBut out of curiosity, what were you trying to do?`;
+        return InteractionCreate._handleReply(interaction, content);
       }
     }
 
@@ -63,13 +55,9 @@ export default class InteractionCreate extends EventListener {
       });
 
       Logger.error(`Error executing command "${interaction.commandName}" (${sentryId})`, error);
-      content = `An error occurred while executing this command...`;
-      description = `Report it using the ID \`${sentryId}\`.`;
+      content = `An error occurred while executing this command, please include this ID when reporting the bug: \`${sentryId}\`.`;
 
-      return InteractionCreate._handleReply(interaction, {
-        content,
-        embeds: [{ description, color: Colors.NotQuiteBlack }]
-      });
+      return InteractionCreate._handleReply(interaction, content);
     }
   }
 
