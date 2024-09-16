@@ -73,7 +73,7 @@ export default class Userinfo extends Command<ChatInputCommandInteraction<'cache
 
     fields.push({
       name: `Avatar URL${member ? 's' : ''}`,
-      value: `[Global](${user.displayAvatarURL()})${member ? ` | [Server](${member.displayAvatarURL()})` : ``}`,
+      value: `[Global](${user.displayAvatarURL()})${member ? ` / [Server](${member.displayAvatarURL()})` : ``}`,
       inline: true
     });
 
