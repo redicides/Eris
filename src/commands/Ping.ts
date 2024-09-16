@@ -7,7 +7,7 @@ export default class Ping extends Command<ChatInputCommandInteraction<'cached'>>
       category: CommandCategory.Utility,
       data: {
         name: 'ping',
-        description: 'Get the websocket heartbeat and roundtrip latency,',
+        description: 'Get the websocket heartbeat and roundtrip latency.',
         type: ApplicationCommandType.ChatInput
       }
     });
