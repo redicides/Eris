@@ -55,7 +55,7 @@ export default class InteractionCreate extends EventListener {
       });
 
       Logger.error(`Error executing command "${interaction.commandName}" (${sentryId})`, error);
-      content = `Something went wrong while executing this command... (Error ID \`${sentryId}\`).`;
+      content = `An error occured while executing this command... (ID \`${sentryId}\`)`;
 
       return InteractionCreate._handleReply(interaction, content);
     }
