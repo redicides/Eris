@@ -8,7 +8,7 @@ export default class ViewAvatar extends Command<UserContextMenuCommandInteractio
       category: CommandCategory.Utility,
       allowInDms: true,
       data: {
-        name: 'View Avatar',
+        name: 'View Global Avatar',
         type: ApplicationCommandType.User
       }
     });
