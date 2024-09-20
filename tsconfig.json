@@ -13,7 +13,7 @@
   
       // Source Map Options
       "sourceMap": true,
-      "sourceRoot": "src",
+      "sourceRoot": "/",
       "inlineSources": true,
   
       // Advanced Options
