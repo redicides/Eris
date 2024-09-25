@@ -143,3 +143,13 @@ async function main() {
 main().catch(error => {
   Logger.error(`An error occurred while starting the bot...`, error);
 });
+
+// Process events
+
+process.on('unhandledRejection', error => {
+  Logger.error('An unhandled promise rejection occurred:', error);
+});
+
+process.on('uncaughtException', error => {
+  Logger.error('An uncaught exception occurred:', error);
+});
