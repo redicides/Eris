@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import { Client } from 'discord.js';
+import { PrismaClient} from '@prisma/client';
 
 import * as SentryClient from '@sentry/node';
 
@@ -25,7 +26,7 @@ export const client = new Client({
    * 1. Server Members Intent - For handling guild member events
    * 2. Message Content Intent - For handling legacy commands/automoderation
    *
-   * If these intents have not been granted the client will not login
+   * If these intents have not been granted the client will not log in
    * @see https://discord.com/developers/docs/topics/gateway#gateway-intents
    */
 
@@ -51,10 +52,6 @@ export const client = new Client({
    *
    * guildMembers - Sweeps the guild member cache but excludes the client
    *
-   * Note: We automatically sweep messages as they get queued for database storing on {@link Events.MessageCreate}
-   *       so keeping them in 2 caches is not neccessary
-   *       Messages are sweeped every 2 hours, and they must be older than 1 hour to get sweeped
-   *
    * Warning: These cache settings do lead in higher memory usage
    *          If you do not have appropriate available memory please lower these numbers
    */
@@ -72,6 +69,12 @@ export const client = new Client({
 
 export const Sentry = SentryClient;
 
+/**
+ * The prisma client
+ */
+
+export const prisma = new PrismaClient()
+
 async function main() {
   if (!process.env.BOT_TOKEN) {
     throw new Error('The environment variable BOT_TOKEN is not defined.');
@@ -83,6 +86,10 @@ async function main() {
 
   if (!process.env.SENTRY_DSN) {
     throw new Error('The environment variable SENTRY_DSN is not defined.');
+  }
+
+  if (!process.env.DATABASE_URL) {
+    throw new Error('The environment variable DATABASE_URL is not defined.');
   }
 
   // Cache global config
@@ -106,6 +113,14 @@ async function main() {
   });
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
+
+  // Connect to the database
+
+  await prisma.$connect().then(() => {
+    Logger.log('PRISMA', 'Successfully connected to the database.', { color: AnsiColor.Green, full: true });
+  }).catch(error => {
+    Logger.error('An error occurred while connecting to the database.', error);
+  })
 
   // Login to Discord
 

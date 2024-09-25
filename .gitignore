@@ -15,3 +15,7 @@ sourcemaps.bat
 
 # Config
 charmie.cfg.yml
+
+# Webstorm stuff
+
+/.idea
