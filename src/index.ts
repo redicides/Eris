@@ -98,7 +98,8 @@ async function main() {
 
   // Cache commands
 
-  await CommandManager.cache();
+  await CommandManager.cacheApplicationCommads();
+  await CommandManager.cacheMessageCommands();
 
   // Register event listeners
 

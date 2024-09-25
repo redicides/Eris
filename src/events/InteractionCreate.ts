@@ -20,7 +20,7 @@ export default class InteractionCreate extends EventListener {
   }
 
   static async handleApplicationCommand(interaction: CommandInteraction) {
-    const command = CommandManager._get(interaction.commandId, interaction.commandName);
+    const command = CommandManager.getApplicationCommand(interaction.commandId, interaction.commandName);
     let content: string;
     let description: string;
 

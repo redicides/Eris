@@ -10,7 +10,7 @@ import {
 import { client } from '@/index';
 
 // The base class for all commands.
-export default abstract class Command<T extends CommandInteraction> {
+export default abstract class ApplicationCommand<T extends CommandInteraction> {
   /**
    * The client that owns this command.
    */

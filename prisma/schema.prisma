@@ -10,4 +10,7 @@ datasource db {
 model Guild {
   id   String @id
   name String
+
+  msgCmdsEnabled Boolean @default(true)
+  msgCmdsPrefix  String  @default(",")
 }

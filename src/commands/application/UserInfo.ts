@@ -1,4 +1,4 @@
-import Command, { CommandCategory } from '@/managers/commands/Command';
+import ApplicationCommand , { CommandCategory } from '@managers/commands/ApplicationCommand';
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
@@ -10,7 +10,7 @@ import {
   User
 } from 'discord.js';
 
-export default class Userinfo extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Userinfo extends ApplicationCommand<ChatInputCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Utility,

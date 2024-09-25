@@ -1,8 +1,8 @@
 import { ApplicationCommandType, Colors, UserContextMenuCommandInteraction } from 'discord.js';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
+import ApplicationCommand , { CommandCategory } from '@managers/commands/ApplicationCommand';
 
-export default class ViewServerAvatar extends Command<UserContextMenuCommandInteraction<'cached'>> {
+export default class ViewServerAvatar extends ApplicationCommand<UserContextMenuCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Utility,

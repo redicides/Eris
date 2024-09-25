@@ -11,12 +11,12 @@ import {
 import util from 'util';
 import ms from 'ms';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
+import ApplicationCommand , { CommandCategory } from '@managers/commands/ApplicationCommand';
 import { uploadData } from '@/utils';
 
 let _;
 
-export default class Evaluate extends Command<ChatInputCommandInteraction> {
+export default class Evaluate extends ApplicationCommand<ChatInputCommandInteraction> {
   constructor() {
     super({
       guarded: true,
