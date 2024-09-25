@@ -114,12 +114,16 @@ async function main() {
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
 
-  // Connect to the database
+  /**
+   * Connect to the database.
+   * If connection fails, the bot will not start.
+   */
 
   await prisma.$connect().then(() => {
     Logger.log('PRISMA', 'Successfully connected to the database.', { color: AnsiColor.Green, full: true });
   }).catch(error => {
     Logger.error('An error occurred while connecting to the database.', error);
+    process.exit(1);
   })
 
   // Login to Discord
