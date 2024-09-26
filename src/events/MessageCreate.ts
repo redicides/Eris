@@ -1,9 +1,11 @@
-import EventListener from '@/managers/events/EventListener';
 import { Colors, Events, Message } from 'discord.js';
-import { client, prisma } from '@/index';
+import { client } from '@/index';
+
 import ConfigManager from '@managers/config/ConfigManager';
 import CommandManager from '@managers/commands/CommandManager';
+import EventListener from '@/managers/events/EventListener';
 import Logger from '@utils/logger';
+import GuildCache from '@managers/database/GuildCache';
 
 export default class MessageCreate extends EventListener {
   constructor() {
@@ -49,7 +51,7 @@ export default class MessageCreate extends EventListener {
 
     if (mentionPrefix) {
       if (message.content.length === mentionPrefix.length) {
-        await message.reply(`Hello!`);
+        client.emit(Events.MentionPrefix, message);
         return null;
       }
       return mentionPrefix;
@@ -60,11 +62,7 @@ export default class MessageCreate extends EventListener {
     }
 
     if (message.inGuild()) {
-      const guild = await prisma.guild.findUnique({
-        where: { id: message.guildId },
-        select: { msgCmdsPrefix: true }
-      });
-      return guild?.msgCmdsPrefix ?? null;
+      return (await GuildCache.get(message.guildId)).msgCmdsPrefix;
     }
 
     return ConfigManager.global_config.commands.prefix;

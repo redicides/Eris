@@ -1,9 +1,8 @@
 import { Events, Guild } from 'discord.js';
 
-import { prisma } from '@/index';
-
 import EventListener from '@managers/events/EventListener';
 import Logger from '@utils/logger';
+import GuildCache from '@managers/database/GuildCache';
 
 export default class GuildCreate extends EventListener {
   constructor() {
@@ -11,12 +10,7 @@ export default class GuildCreate extends EventListener {
   }
 
   async execute(guild: Guild) {
-    await prisma.guild.upsert({
-      where: { id: guild.id },
-      create: { id: guild.id, name: guild.name },
-      update: {}
-    });
-
+    await GuildCache.confirm(guild.id);
     Logger.debug(`Confirmed database guild entry for guild ${guild.name} with ID ${guild.id}.`);
   }
 }

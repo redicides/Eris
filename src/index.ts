@@ -1,10 +1,9 @@
 import 'dotenv/config';
 
-import { PrismaClient } from '@prisma/client';
-
 import * as SentryClient from '@sentry/node';
 
-import { sleep } from './utils';
+import { sleep } from '@/utils';
+import { ExtendedClient } from '@utils/prisma';
 
 import EventListenerManager from '@managers/events/EventListenerManager';
 import Logger, { AnsiColor } from '@utils/logger';
@@ -28,7 +27,7 @@ export const Sentry = SentryClient;
  * The prisma client
  */
 
-export const prisma = new PrismaClient();
+export const prisma = ExtendedClient;
 
 async function main() {
   if (!process.env.BOT_TOKEN) {
@@ -112,3 +111,13 @@ process.on('unhandledRejection', error => {
 process.on('uncaughtException', error => {
   Logger.error('An uncaught exception occurred:', error);
 });
+
+declare module 'discord.js' {
+  interface ClientEvents {
+    mentionPrefix: [Message];
+  }
+
+  export enum Events {
+    MentionPrefix = 'mentionPrefix'
+  }
+}

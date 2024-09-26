@@ -8,8 +8,9 @@ datasource db {
 }
 
 model Guild {
-  id   String @id
-  name String
+  id String @id
+
+  disabledMentionPrefix Boolean @default(false)
 
   msgCmdsEnabled Boolean @default(true)
   msgCmdsPrefix  String  @default(",")
