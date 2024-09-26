@@ -1,4 +1,4 @@
-import ApplicationCommand , { CommandCategory } from '@managers/commands/ApplicationCommand';
+import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,

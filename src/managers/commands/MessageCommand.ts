@@ -2,7 +2,6 @@ import { Message, PermissionsBitField } from 'discord.js';
 import { client } from '@/index';
 import { CommandCategory } from '@managers/commands/ApplicationCommand';
 
-
 export default abstract class MessageCommand {
   /**
    * The client that owns this command.
@@ -26,7 +25,7 @@ export default abstract class MessageCommand {
    * The description of the command.
    */
 
-  public readonly description: string | null
+  public readonly description: string | null;
 
   /**
    * The category of the command.
@@ -80,11 +79,12 @@ export default abstract class MessageCommand {
   /**
    * Handles the message command. Mentions are disabled by default.
    * @param message The message to handle.
+   * @param parameters The parameters of the command.
    */
-  abstract execute(message: Message): unknown;
+  abstract execute(message: Message, parameters: string): unknown;
 }
 
-interface  MessageCommandOptions {
+interface MessageCommandOptions {
   category?: CommandCategory;
   name: string;
   aliases?: string[];

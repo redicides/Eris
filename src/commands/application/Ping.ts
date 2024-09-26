@@ -1,6 +1,6 @@
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
 
-import ApplicationCommand , { CommandCategory } from '@managers/commands/ApplicationCommand';
+import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 
 export default class Ping extends ApplicationCommand<ChatInputCommandInteraction<'cached'>> {
   constructor() {

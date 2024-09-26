@@ -14,6 +14,7 @@ import Logger, { AnsiColor } from '@/utils/logger';
 export default class CommandManager {
   public static readonly application_commands = new Collection<string, ApplicationCommand<CommandInteraction>>();
   public static readonly message_commands = new Collection<string, MessageCommand>();
+  public static readonly messaage_command_aliases = new Map<string, string>();
 
   static async cacheApplicationCommands() {
     const dirpath = path.resolve('src/commands/application');
@@ -43,8 +44,8 @@ export default class CommandManager {
 
         CommandManager.application_commands.set(command.data.name, command);
 
-        logMessage = `Cached global command "${command.data.name}"`;
-        level = 'APPLICATION';
+        logMessage = `Cached command "${command.data.name}"`;
+        level = 'APPLICATION_COMMANDS';
 
         Logger.log(level, logMessage, {
           color: AnsiColor.Purple
@@ -55,7 +56,7 @@ export default class CommandManager {
     } catch (error) {
       Logger.error(`Error when caching commands:`, error);
     } finally {
-      Logger.info(`Cached ${commandCount} ${pluralize(commandCount, 'command')}.`);
+      Logger.info(`Cached ${commandCount} ${pluralize(commandCount, 'application command')}.`);
     }
   }
 
@@ -86,12 +87,13 @@ export default class CommandManager {
         let level: string;
 
         CommandManager.message_commands.set(command.name, command);
+        command.aliases.forEach(alias => this.messaage_command_aliases.set(alias, command.name));
 
-        logMessage = `Cached message command "${command.name}"`;
-        level = 'CLIENT';
+        logMessage = `Cached command "${command.name}"`;
+        level = 'MESSAGE_COMMANDS';
 
         Logger.log(level, logMessage, {
-          color: AnsiColor.Orange
+          color: AnsiColor.Purple
         });
 
         commandCount++;
@@ -140,7 +142,11 @@ export default class CommandManager {
     return null;
   }
 
-  static getMessageCommand(commandName: string): MessageCommand | null {
-    return CommandManager.message_commands.get(commandName) ?? null;
+  static getMessageCommand(name: string): MessageCommand | null {
+    return (
+      (CommandManager.message_commands.get(name) ||
+        CommandManager.message_commands.get(CommandManager.messaage_command_aliases.get(name) as string)) ??
+      null
+    );
   }
 }
