@@ -1,4 +1,4 @@
-import { Colors, CommandInteraction, Events, Interaction, InteractionReplyOptions, InteractionType } from 'discord.js';
+import { CommandInteraction, Events, Interaction, InteractionReplyOptions, InteractionType } from 'discord.js';
 
 import { Sentry } from '..';
 
@@ -22,7 +22,6 @@ export default class InteractionCreate extends EventListener {
   static async handleApplicationCommand(interaction: CommandInteraction) {
     const command = CommandManager.getApplicationCommand(interaction.commandId, interaction.commandName);
     let content: string;
-    let description: string;
 
     if (!command) {
       Logger.error(`Command "${interaction.commandName}" does not exist.`);

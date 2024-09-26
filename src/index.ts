@@ -24,7 +24,7 @@ export const client = new Client({
    * The following privileged intents are required for the bot to work:
    *
    * 1. Server Members Intent - For handling guild member events
-   * 2. Message Content Intent - For handling legacy commands/automoderation
+   * 2. Message Content Intent - For handling legacy commands/auto-moderation
    *
    * If these intents have not been granted the client will not log in
    * @see https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -98,7 +98,7 @@ async function main() {
 
   // Cache commands
 
-  await CommandManager.cacheApplicationCommads();
+  await CommandManager.cacheApplicationCommands();
   await CommandManager.cacheMessageCommands();
 
   // Register event listeners

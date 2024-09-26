@@ -15,7 +15,7 @@ export default class CommandManager {
   public static readonly application_commands = new Collection<string, ApplicationCommand<CommandInteraction>>();
   public static readonly message_commands = new Collection<string, MessageCommand>();
 
-  static async cacheApplicationCommads() {
+  static async cacheApplicationCommands() {
     const dirpath = path.resolve('src/commands/application');
 
     if (!fs.existsSync(dirpath)) {

@@ -2,7 +2,7 @@ import { fromZodError } from 'zod-validation-error';
 
 import fs from 'fs';
 
-import { readYamlFile } from '@utils/index';
+import { readYamlFile } from '@/utils';
 import { GlobalConfig, globalConfigSchema } from './ConfigSchema';
 
 import Logger, { AnsiColor } from '@utils/logger';

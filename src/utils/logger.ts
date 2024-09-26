@@ -40,12 +40,14 @@ export default class Logger {
     Logger.log('WARN', message, {
       color: AnsiColor.Yellow
     });
+    console.warn(...values);
   }
 
   static debug(message: string, ...values: readonly unknown[]): void {
     Logger.log('DEBUG', message, {
       color: AnsiColor.Orange
     });
+    console.debug(...values);
   }
 
   static error(message: string, ...values: readonly unknown[]): void {
