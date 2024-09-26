@@ -1,4 +1,4 @@
-import { Message, PermissionsBitField } from 'discord.js';
+import { Awaitable, Message, PermissionsBitField } from 'discord.js';
 import { client } from '@/index';
 import { CommandCategory } from '@managers/commands/ApplicationCommand';
 
@@ -81,7 +81,7 @@ export default abstract class MessageCommand {
    * @param message The message to handle.
    * @param parameters The parameters of the command.
    */
-  abstract execute(message: Message, parameters: string): unknown;
+  abstract execute(message: Message, parameters: string): Awaitable<unknown>;
 }
 
 interface MessageCommandOptions {

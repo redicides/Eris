@@ -1,5 +1,6 @@
 import {
   ApplicationCommandData,
+  Awaitable,
   Colors,
   CommandInteraction,
   InteractionReplyOptions,
@@ -111,7 +112,7 @@ export default abstract class ApplicationCommand<T extends CommandInteraction> {
    * Handles the command interaction. Mentions are disabled by default.
    * @param interaction The interaction to handle.
    */
-  abstract execute(interaction: T): unknown;
+  abstract execute(interaction: T): Awaitable<unknown>;
 }
 
 interface CommandOptions {
