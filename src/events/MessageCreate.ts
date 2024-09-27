@@ -1,5 +1,5 @@
 import { Colors, Events, Message } from 'discord.js';
-import { client } from '@/index';
+import { client, Sentry } from '@/index';
 
 import ConfigManager from '@managers/config/ConfigManager';
 import CommandManager from '@managers/commands/CommandManager';
@@ -104,16 +104,21 @@ export default class MessageCreate extends EventListener {
   }
 
   private static _handleNonStringError(message: Message, commandName: string, error: any) {
-    Logger.error(`Error executing message command "${commandName}"`, error);
-
-    return message.channel.send({
-      embeds: [
-        {
-          description: `An error occurred while executing the command \`${commandName}\`.`,
-          color: Colors.Red
+    const sentryId = Sentry.captureException(error, { 
+       user: { 
+         id: message.author.id,
+         name: messsage.author.displayName,
+         username: message.author.username
+       },
+        extra: {
+          guild: message.guild?.id,
+          channel: message.channel?.id,
+          command: commandName
         }
-      ]
-    });
+    })
+
+    Logger.error(`Error executing message command "${commandName}" (${sentryId})`, error);
+    return MessageCreate._handleStringError(message, `An error occurred while executing this command... (ID \`${sentryId}\`)`, true);
   }
 
   private static async _handleStringError(
