@@ -1,5 +1,5 @@
 import { Awaitable, Message, PermissionsBitField } from 'discord.js';
-import { client } from '@/index';
+import { client, prisma } from '@/index';
 import { CommandCategory } from '@managers/commands/ApplicationCommand';
 
 export default abstract class MessageCommand {
@@ -8,6 +8,12 @@ export default abstract class MessageCommand {
    */
 
   public client = client;
+
+  /**
+   * Attached prisma client for ease of use
+   */
+
+  public prisma = prisma;
 
   /**
    * The name of the command.
