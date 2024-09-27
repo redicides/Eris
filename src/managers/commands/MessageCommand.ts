@@ -66,6 +66,14 @@ export default abstract class MessageCommand {
   /**
    *
    * @param options
+   * @param options.name The name of the command.
+   * @param options.aliases The aliases of the command.
+   * @param options.description The description of the command.
+   * @param options.category The category of the command.
+   * @param options.isGuarded Whether the command is guarded (meaning it can only be used by the developers).
+   * @param options.allowInDms Whether the command can be used outside of guilds.
+   * @param options.usage Usage example for the command.
+   * @param options.requiredPermissions The permissions required by the client to run the command.
    * @protected
    */
 
