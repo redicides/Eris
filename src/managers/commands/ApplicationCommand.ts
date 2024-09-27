@@ -8,7 +8,7 @@ import {
   PermissionsBitField
 } from 'discord.js';
 
-import { client } from '@/index';
+import { client, prisma } from '@/index';
 
 // The base class for all commands.
 export default abstract class ApplicationCommand<T extends CommandInteraction> {
@@ -17,6 +17,12 @@ export default abstract class ApplicationCommand<T extends CommandInteraction> {
    */
 
   public client = client;
+
+  /**
+   * Attached prisma client for ease of use
+   */
+
+  public prisma = prisma;
 
   /**
    * The category of the command.
