@@ -13,7 +13,7 @@ export default class MentionPrefix extends EventListener {
       const guild = await GuildCache.get(message.guildId);
       if (guild.disabledMentionPrefix) return;
 
-      return message.reply(`My prefix for this server is \`${guild.msgCmdsPrefix}\`.`);
+      return message.reply(`My prefix for this server is set to \`${guild.msgCmdsPrefix}\`.`);
     }
   }
 }

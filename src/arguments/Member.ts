@@ -1,9 +1,11 @@
-import { Argument, ArgumentContext, ArgumentResult, AsyncArgumentResult } from '@/managers/arguments/Argument';
-import { ArgumentIdentifier } from '@/managers/arguments/ArgumentIdentifier';
 import { SnowflakeRegex, UserOrMemberMentionRegex } from '@sapphire/discord.js-utilities';
 import { Result } from '@sapphire/result';
 import { isNullish } from '@sapphire/utilities';
+
 import { Guild, GuildMember, Snowflake } from 'discord.js';
+
+import { ArgumentIdentifier } from '@/managers/arguments/ArgumentIdentifier';
+import { Argument, ArgumentContext, AsyncArgumentResult } from '@/managers/arguments/Argument';
 
 export default class Member extends Argument<GuildMember> {
   constructor() {

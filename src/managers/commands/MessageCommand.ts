@@ -161,3 +161,8 @@ export interface MessageCommandRunContext extends Record<PropertyKey, unknown> {
    */
   commandPrefix: string;
 }
+
+export namespace MessageCommand {
+  export type Options = MessageCommandOptions;
+  export type RunContext = MessageCommandRunContext;
+}

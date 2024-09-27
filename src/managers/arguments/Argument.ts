@@ -2,10 +2,10 @@ import { Awaitable, Message } from 'discord.js';
 import { Result } from '@sapphire/result';
 
 import { Args } from './Args';
+import { client } from '@/index';
 import { ArgumentError, ArgumentErrorOptions } from '@utils/errors';
 
 import MessageCommand, { MessageCommandRunContext } from '../commands/MessageCommand';
-import { client } from '@/index';
 
 export type ArgumentResult<T> = Result<T, ArgumentError<T>>;
 export type AwaitableArgumentResult<T> = Awaitable<ArgumentResult<T>>;
@@ -38,7 +38,7 @@ export abstract class Argument<T = unknown> implements IArgument<T> {
 
   public client = client;
 
-  public constructor(options: ArgumentOptions) {
+  protected constructor(options: ArgumentOptions) {
     this.name = options.name;
   }
 
@@ -71,10 +71,10 @@ export interface ArgumentContext<T = unknown> extends Record<PropertyKey, unknow
   inclusive?: boolean;
 }
 
-// export namespace Argument {
-//   export type Options = ArgumentOptions;
-//   export type Context<T = unknown> = ArgumentContext<T>;
-//   export type Result<T> = ArgumentResult<T>;
-//   export type AwaitableResult<T> = AwaitableArgumentResult<T>;
-//   export type AsyncResult<T> = AsyncArgumentResult<T>;
-// }
+export namespace Argument {
+  export type Options = ArgumentOptions;
+  export type Context<T = unknown> = ArgumentContext<T>;
+  export type Result<T> = ArgumentResult<T>;
+  export type AwaitableResult<T> = AwaitableArgumentResult<T>;
+  export type AsyncResult<T> = AsyncArgumentResult<T>;
+}

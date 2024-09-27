@@ -134,3 +134,7 @@ export enum CommandCategory {
   Developer = 'Developer',
   Utility = 'Utility'
 }
+
+export namespace ApplicationCommand {
+  export type Options = CommandOptions;
+}

@@ -1,4 +1,6 @@
 import { Colors, Events, Message } from 'discord.js';
+import { reply, send } from '@skyra/editable-commands';
+
 import { client, Sentry } from '@/index';
 
 import ConfigManager from '@managers/config/ConfigManager';
@@ -6,7 +8,6 @@ import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
 import Logger from '@utils/logger';
 import GuildCache from '@managers/database/GuildCache';
-import { reply, send } from '@skyra/editable-commands';
 
 export default class MessageCreate extends EventListener {
   constructor() {

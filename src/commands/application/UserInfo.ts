@@ -1,4 +1,3 @@
-import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
@@ -9,6 +8,8 @@ import {
   time,
   User
 } from 'discord.js';
+
+import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 
 export default class Userinfo extends ApplicationCommand<ChatInputCommandInteraction<'cached'>> {
   constructor() {

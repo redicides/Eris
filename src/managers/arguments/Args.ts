@@ -1,12 +1,14 @@
 import { DMChannel, GuildMember, Message, Role, User } from 'discord.js';
-import MessageCommand, { MessageCommandRunContext } from '../commands/MessageCommand';
 import { ArgumentStream, join, Parameter } from '@sapphire/lexure';
-import { ArgumentContext, IArgument } from './Argument';
 import { Option, Result } from '@sapphire/result';
-import { UserError, ArgumentError, ArgumentErrorOptions } from '@utils/errors';
 import { ChannelTypes } from '@sapphire/discord.js-utilities';
-import ArgumentManager from './ArgumentManager';
+
+import { UserError, ArgumentError, ArgumentErrorOptions } from '@utils/errors';
+import { Argument, IArgument } from './Argument';
 import { ArgumentIdentifier } from './ArgumentIdentifier';
+
+import ArgumentManager from './ArgumentManager';
+import MessageCommand, { MessageCommandRunContext } from '../commands/MessageCommand';
 
 export class Args {
   /**
@@ -266,7 +268,7 @@ export interface ArgType {
   user: User;
 }
 
-export interface ArgOptions extends Omit<ArgumentContext, 'message' | 'command'> {}
+export interface ArgOptions extends Omit<Argument.Context, 'message' | 'command'> {}
 
 export interface RepeatArgOptions extends ArgOptions {
   /**
@@ -277,7 +279,7 @@ export interface RepeatArgOptions extends ArgOptions {
 }
 
 /**
- * The callback used for {@link Args.nextMaybe} and {@link Args.next}.
+ * The callback used for {@link Args.next}.
  */
 export interface ArgsNextCallback<T> {
   /**
