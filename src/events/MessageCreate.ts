@@ -107,7 +107,7 @@ export default class MessageCreate extends EventListener {
     const sentryId = Sentry.captureException(error, { 
        user: { 
          id: message.author.id,
-         name: messsage.author.displayName,
+         name: message.author.displayName,
          username: message.author.username
        },
         extra: {
