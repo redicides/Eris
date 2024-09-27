@@ -10,6 +10,7 @@ import Logger, { AnsiColor } from '@utils/logger';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import CharmieClient from '@utils/client';
+import ArgumentManager from './managers/arguments/ArgumentManager';
 
 /**
  * The main client instance.
@@ -54,6 +55,10 @@ async function main() {
 
   await CommandManager.cacheApplicationCommands();
   await CommandManager.cacheMessageCommands();
+
+  // Cache arguments
+
+  await ArgumentManager.cache();
 
   // Register event listeners
 

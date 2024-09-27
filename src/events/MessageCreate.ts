@@ -6,6 +6,7 @@ import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
 import Logger from '@utils/logger';
 import GuildCache from '@managers/database/GuildCache';
+import { reply, send } from '@skyra/editable-commands';
 
 export default class MessageCreate extends EventListener {
   constructor() {
@@ -37,9 +38,10 @@ export default class MessageCreate extends EventListener {
     }
 
     const parameters = spaceIndex === -1 ? '' : prefixLess.substring(spaceIndex + 1).trim();
+    const args = await command.parse(message, parameters, { prefix, commandName, commandPrefix });
 
     try {
-      await command.execute(message, parameters);
+      await command.execute(message, args);
     } catch (error) {
       return MessageCreate._handleCommandError(message, command.name, error);
     }
@@ -104,21 +106,25 @@ export default class MessageCreate extends EventListener {
   }
 
   private static _handleNonStringError(message: Message, commandName: string, error: any) {
-    const sentryId = Sentry.captureException(error, { 
-       user: { 
-         id: message.author.id,
-         name: message.author.displayName,
-         username: message.author.username
-       },
-        extra: {
-          guild: message.guild?.id,
-          channel: message.channel?.id,
-          command: commandName
-        }
-    })
+    const sentryId = Sentry.captureException(error, {
+      user: {
+        id: message.author.id,
+        name: message.author.displayName,
+        username: message.author.username
+      },
+      extra: {
+        guild: message.guild?.id,
+        channel: message.channel?.id,
+        command: commandName
+      }
+    });
 
     Logger.error(`Error executing message command "${commandName}" (${sentryId})`, error);
-    return MessageCreate._handleStringError(message, `An error occurred while executing this command... (ID \`${sentryId}\`)`, true);
+    return MessageCreate._handleStringError(
+      message,
+      `An error occurred while executing this command... (ID \`${sentryId}\`)`,
+      true
+    );
   }
 
   private static async _handleStringError(
@@ -127,14 +133,14 @@ export default class MessageCreate extends EventListener {
     preserve: boolean = false,
     delay: number = 7500
   ) {
-    const reply = await message.reply({ embeds: [{ description: error, color: Colors.Red }] }).catch(async () => {
-      return await message.channel.send({ embeds: [{ description: error, color: Colors.Red }] });
+    const repl = await reply(message, { embeds: [{ description: error, color: Colors.Red }] }).catch(async () => {
+      return await send(message, { embeds: [{ description: error, color: Colors.Red }] });
     });
 
     if (preserve) return;
 
     setTimeout(async () => {
-      await reply?.delete().catch(() => {});
+      await repl?.delete().catch(() => {});
       await message.delete().catch(() => {});
     }, delay);
   }

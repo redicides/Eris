@@ -1,6 +1,10 @@
 import { Awaitable, Message, PermissionsBitField } from 'discord.js';
+import { ArgumentStream, IUnorderedStrategy, Lexer, Parser } from '@sapphire/lexure';
+
 import { client, prisma } from '@/index';
 import { CommandCategory } from '@managers/commands/ApplicationCommand';
+import { FlagStrategyOptions, FlagUnorderedStrategy } from '@utils/strategies';
+import { Args } from '../arguments/Args';
 
 export default abstract class MessageCommand {
   /**
@@ -64,6 +68,16 @@ export default abstract class MessageCommand {
   public readonly requiredPermissions: PermissionsBitField | null;
 
   /**
+   * The lexer to be used for command parsing
+   */
+  protected lexer: Lexer;
+
+  /**
+   * The strategy to use for the lexer.
+   */
+  public strategy: IUnorderedStrategy;
+
+  /**
    *
    * @param options
    * @param options.name The name of the command.
@@ -88,17 +102,38 @@ export default abstract class MessageCommand {
     this.requiredPermissions = options.requiredPermissions
       ? new PermissionsBitField(options.requiredPermissions).freeze()
       : null;
+    this.strategy = new FlagUnorderedStrategy(options);
+    this.lexer = new Lexer({
+      quotes: options.quotes ?? [
+        ['"', '"'], // Double quotes
+        ['“', '”'], // Fancy quotes (on iOS)
+        ['「', '」'], // Corner brackets (CJK)
+        ['«', '»'] // French quotes (guillemets)
+      ]
+    });
   }
 
   /**
    * Handles the message command. Mentions are disabled by default.
    * @param message The message to handle.
-   * @param parameters The parameters of the command.
+   * @param args The arguments for the command.
    */
-  abstract execute(message: Message, parameters: string): Awaitable<unknown>;
+  abstract execute(message: Message, args: Args): Awaitable<unknown>;
+
+  /**
+   * The message parse method. This method returns the arguments for the command.
+   * @param message The message that triggered the command.
+   * @param parameters The raw parameters as a single string.
+   * @param context The command-context used in this execution.
+   */
+  public parse(message: Message, parameters: string, context: MessageCommandRunContext): Awaitable<Args> {
+    const parser = new Parser(this.strategy);
+    const args = new ArgumentStream(parser.run(this.lexer.run(parameters)));
+    return new Args(message, this, args, context);
+  }
 }
 
-interface MessageCommandOptions {
+interface MessageCommandOptions extends FlagStrategyOptions {
   category?: CommandCategory;
   name: string;
   aliases?: string[];
@@ -107,4 +142,22 @@ interface MessageCommandOptions {
   requiredPermissions?: bigint | bigint[];
   isGuarded?: boolean;
   allowInDms?: boolean;
+  quotes?: [string, string][];
+}
+
+export interface MessageCommandRunContext extends Record<PropertyKey, unknown> {
+  /**
+   * The prefix used to run this command.
+   *
+   * This is a string for the mention and default prefix, and a RegExp for the `regexPrefix`.
+   */
+  prefix: string | RegExp;
+  /**
+   * The alias used to run this command.
+   */
+  commandName: string;
+  /**
+   * The matched prefix.
+   */
+  commandPrefix: string;
 }

@@ -1,12 +1,20 @@
 import { ClientEvents, Events } from 'discord.js';
 
-import { client } from '@/index';
+import { client, prisma } from '@/index';
 
 // The base class for all event listeners.
 export default abstract class EventListener {
-  // The client instance this event listener is attached to.
+  /**
+   * The client that owns this command.
+   */
 
   public client = client;
+
+  /**
+   * Attached prisma client for ease of use
+   */
+
+  public prisma = prisma;
 
   /**
    * @param event The event to listen for
