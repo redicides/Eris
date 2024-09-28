@@ -31,7 +31,7 @@ export default class MessageCreate extends EventListener {
     const commandName = spaceIndex === -1 ? prefixLess : prefixLess.slice(0, spaceIndex);
     if (commandName.length === 0) return;
 
-    const command = CommandManager.getMessageCommand(commandName);
+    const command = CommandManager.getMessageCommand(commandName.toLowerCase());
     if (!command) return;
 
     if (!command.allowInDms && !message.inGuild()) {
