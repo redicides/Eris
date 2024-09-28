@@ -1,4 +1,4 @@
-import { Collection, CommandInteraction, Snowflake } from 'discord.js';
+import { Awaitable, Collection, CommandInteraction, Snowflake } from 'discord.js';
 
 import path from 'path';
 import fs from 'fs';
@@ -7,17 +7,15 @@ import { pluralize } from '@/utils';
 import { client } from '@/index';
 
 import ApplicationCommand from './ApplicationCommand';
-import MessageCommand from './MessageCommand';
 
 import Logger, { AnsiColor } from '@/utils/logger';
+import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
 
 export default class CommandManager {
   public static readonly application_commands = new Collection<string, ApplicationCommand<CommandInteraction>>();
-  public static readonly message_commands = new Collection<string, MessageCommand>();
-  public static readonly messaage_command_aliases = new Map<string, string>();
 
-  static async cacheApplicationCommands() {
-    const dirpath = path.resolve('src/commands/application');
+  static async cacheCommands() {
+    const dirpath = path.resolve('src/commands');
 
     if (!fs.existsSync(dirpath)) {
       Logger.info(`Skipping application command caching: commands directory not found.`);
@@ -30,7 +28,7 @@ export default class CommandManager {
 
     try {
       for (const file of files) {
-        const commandModule = require(`../../commands/application/${file.slice(0, -3)}`);
+        const commandModule = require(`../../commands/${file.slice(0, -3)}`);
         const commandClass = commandModule.default;
         const command = new commandClass();
 
@@ -60,51 +58,6 @@ export default class CommandManager {
     }
   }
 
-  static async cacheMessageCommands() {
-    const dirpath = path.resolve('src/commands/message');
-
-    if (!fs.existsSync(dirpath)) {
-      Logger.info(`Skipping message command caching: commands directory not found.`);
-      return;
-    }
-
-    let commandCount = 0;
-
-    const files = fs.readdirSync(dirpath);
-
-    try {
-      for (const file of files) {
-        const commandModule = require(`../../commands/message/${file.slice(0, -3)}`);
-        const commandClass = commandModule.default;
-        const command = new commandClass();
-
-        if (!(command instanceof MessageCommand)) {
-          Logger.warn(`Skipping message command caching: ${file} is not an instance of Command.`);
-          continue;
-        }
-
-        let logMessage: string;
-        let level: string;
-
-        CommandManager.message_commands.set(command.name, command);
-        command.aliases.forEach(alias => this.messaage_command_aliases.set(alias, command.name));
-
-        logMessage = `Cached command "${command.name}"`;
-        level = 'MESSAGE_COMMANDS';
-
-        Logger.log(level, logMessage, {
-          color: AnsiColor.Purple
-        });
-
-        commandCount++;
-      }
-    } catch (error) {
-      Logger.error(`Error when caching message commands:`, error);
-    } finally {
-      Logger.info(`Cached ${commandCount} ${pluralize(commandCount, 'message command')}.`);
-    }
-  }
-
   static async publish() {
     Logger.info('Publishing commands...');
 
@@ -129,10 +82,7 @@ export default class CommandManager {
     });
   }
 
-  static getApplicationCommand(
-    commandId: Snowflake,
-    commandName: string
-  ): ApplicationCommand<CommandInteraction> | null {
+  static getCommand(commandId: Snowflake, commandName: string): ApplicationCommand<CommandInteraction> | null {
     const isGlobalCommand = client.application?.commands.cache.has(commandId);
 
     if (isGlobalCommand) {
@@ -142,11 +92,10 @@ export default class CommandManager {
     return null;
   }
 
-  static getMessageCommand(name: string): MessageCommand | null {
-    return (
-      (CommandManager.message_commands.get(name) ||
-        CommandManager.message_commands.get(CommandManager.messaage_command_aliases.get(name) as string)) ??
-      null
-    );
+  static handleCommand(
+    interaction: CommandInteraction
+  ): Awaitable<InteractionReplyData> | Awaitable<InteractionErrorData> | Awaitable<null> {
+    const command = CommandManager.getCommand(interaction.commandId, interaction.commandName)!;
+    return command.execute(interaction);
   }
 }

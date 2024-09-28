@@ -18,10 +18,11 @@ const zSnowflake = z.string().regex(/^\d{17,19}$/gm);
  */
 
 export const globalConfigSchema = z.object({
+  developers: z.array(zSnowflake).default([]),
   commands: z.object({
-    prefix: z.string().default(',')
-  }),
-  developers: z.array(zSnowflake).default([])
+    error_ttl: z.number().default(7500),
+    reply_ttl: z.number().default(10000)
+  })
 });
 
 export type GlobalConfig = z.infer<typeof globalConfigSchema>;

@@ -9,6 +9,8 @@ import {
   User
 } from 'discord.js';
 
+import { InteractionReplyData } from '@/utils/types';
+
 import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 
 export default class Userinfo extends ApplicationCommand<ChatInputCommandInteraction<'cached'>> {
@@ -38,7 +40,7 @@ export default class Userinfo extends ApplicationCommand<ChatInputCommandInterac
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>) {
+  async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
     const target = interaction.options.getUser('target') ?? interaction.user;
     const member = await interaction.guild.members.fetch(target.id).catch(() => null);
 
@@ -49,7 +51,7 @@ export default class Userinfo extends ApplicationCommand<ChatInputCommandInterac
       .setFields(this._formatFields(target, member))
       .setFooter({ text: `User ID: ${target.id}` });
 
-    return interaction.reply({ embeds: [embed], ephemeral: true });
+    return { embeds: [embed] };
   }
 
   /**

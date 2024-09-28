@@ -10,8 +10,6 @@ datasource db {
 model Guild {
   id String @id
 
-  disabledMentionPrefix Boolean @default(false)
-
-  msgCmdsEnabled Boolean @default(true)
-  msgCmdsPrefix  String  @default(",")
+  commandErrorTtl          Int @default(7500)
+  commandTemporaryReplyTtl Int @default(5000)
 }

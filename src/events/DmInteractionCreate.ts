@@ -1,34 +1,28 @@
-import { Colors, CommandInteraction, Events, Interaction, InteractionReplyOptions, InteractionType } from 'discord.js';
+import { CommandInteraction, Events, Interaction, InteractionType } from 'discord.js';
 
-import { Sentry } from '@/index';
-import { Guild } from '@prisma/client';
 import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { Sentry } from '@/index';
+import { getOptions, handleReply } from './InteractionCreate';
 
 import CommandManager from '@/managers/commands/CommandManager';
-import EventListener from '@/managers/events/EventListener';
 import ConfigManager from '@/managers/config/ConfigManager';
-import GuildCache from '@/managers/database/GuildCache';
+import EventListener from '@/managers/events/EventListener';
 import Logger from '@/utils/logger';
 
-export default class InteractionCreate extends EventListener {
+export default class DmInteractionCreate extends EventListener {
   constructor() {
-    super(Events.InteractionCreate);
+    super(Events.DmInteractionCreate);
   }
 
   async execute(interaction: Interaction) {
-    if (!interaction.inCachedGuild()) {
-      return this.client.emit(Events.DmInteractionCreate, interaction);
-    }
-
     switch (interaction.type) {
       case InteractionType.ApplicationCommand:
-        return InteractionCreate.ApplicationCommand(interaction);
+        return DmInteractionCreate.ApplicationCommand(interaction);
     }
   }
 
-  static async ApplicationCommand(interaction: CommandInteraction<'cached'>) {
+  private static async ApplicationCommand(interaction: CommandInteraction) {
     const command = CommandManager.getCommand(interaction.commandId, interaction.commandName);
-    const config = await GuildCache.get(interaction.guildId);
 
     let content: string;
 
@@ -46,7 +40,7 @@ export default class InteractionCreate extends EventListener {
     }
 
     try {
-      await InteractionCreate._handleCommand(interaction, config);
+      await DmInteractionCreate._handleCommand(interaction);
     } catch (error) {
       const sentryId = Sentry.captureException(error, {
         user: {
@@ -69,7 +63,7 @@ export default class InteractionCreate extends EventListener {
     }
   }
 
-  private static async _handleCommand(interaction: CommandInteraction, config: Guild) {
+  private static async _handleCommand(interaction: CommandInteraction) {
     let response: InteractionReplyData | InteractionErrorData | null;
     response = await CommandManager.handleCommand(interaction);
 
@@ -93,42 +87,12 @@ export default class InteractionCreate extends EventListener {
 
     setTimeout(async () => {
       await interaction.deleteReply().catch(() => null);
-    }, getTTL(response, config));
+    }, getTTL(response));
   }
 }
 
-function getTTL(options: InteractionReplyData | InteractionErrorData, config: Guild) {
-  return 'message' in options ? config.commandErrorTtl : config.commandTemporaryReplyTtl;
-}
-
-export function handleReply(interaction: CommandInteraction, options: Omit<InteractionReplyOptions, 'ephemeral'>) {
-  return !interaction.deferred && !interaction.replied
-    ? interaction.reply({ ...options, ephemeral: true }).catch(() => {})
-    : interaction.editReply(options).catch(() => {});
-}
-
-export function getOptions(
-  response: InteractionReplyData | InteractionErrorData
-): InteractionReplyOptions & { temporary?: boolean } {
-  const baseOptions = {
-    ephemeral: true,
-    allowedMentions: { parse: [] }
-  };
-
-  if ('message' in response) {
-    return {
-      ...baseOptions,
-      ...response,
-      embeds: [
-        {
-          description: response.message,
-          color: Colors.Red
-        },
-        ...(response.embeds || [])
-      ]
-    };
-  }
-
-  const { temporary, ...rest } = response;
-  return { ...baseOptions, ...rest, temporary };
+function getTTL(options: InteractionReplyData | InteractionErrorData): number {
+  return 'message' in options
+    ? ConfigManager.global_config.commands.error_ttl
+    : ConfigManager.global_config.commands.reply_ttl;
 }

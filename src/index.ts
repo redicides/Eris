@@ -10,7 +10,6 @@ import Logger, { AnsiColor } from '@utils/logger';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import CharmieClient from '@utils/client';
-import ArgumentManager from './managers/arguments/ArgumentManager';
 
 /**
  * The main client instance.
@@ -53,12 +52,7 @@ async function main() {
 
   // Cache commands
 
-  await CommandManager.cacheApplicationCommands();
-  await CommandManager.cacheMessageCommands();
-
-  // Cache arguments
-
-  await ArgumentManager.cache();
+  await CommandManager.cacheCommands();
 
   // Register event listeners
 
@@ -119,10 +113,10 @@ process.on('uncaughtException', error => {
 
 declare module 'discord.js' {
   interface ClientEvents {
-    mentionPrefix: [Message];
+    dmInteractionCreate: [interaction: Interaction];
   }
 
-  export enum Events {
-    MentionPrefix = 'mentionPrefix'
+  enum Events {
+    DmInteractionCreate = 'dmInteractionCreate'
   }
 }

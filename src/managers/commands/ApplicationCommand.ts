@@ -9,6 +9,7 @@ import {
 } from 'discord.js';
 
 import { client, prisma } from '@/index';
+import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
 
 // The base class for all commands.
 export default abstract class ApplicationCommand<T extends CommandInteraction> {
@@ -118,7 +119,7 @@ export default abstract class ApplicationCommand<T extends CommandInteraction> {
    * Handles the command interaction. Mentions are disabled by default.
    * @param interaction The interaction to handle.
    */
-  abstract execute(interaction: T): Awaitable<unknown>;
+  abstract execute(interaction: T): Awaitable<InteractionReplyData> | Awaitable<InteractionErrorData> | Awaitable<null>;
 }
 
 interface CommandOptions {

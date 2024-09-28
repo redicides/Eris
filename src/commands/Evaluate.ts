@@ -12,6 +12,7 @@ import util from 'util';
 import ms from 'ms';
 
 import { uploadData } from '@/utils';
+import { InteractionReplyData } from '@/utils/types';
 
 import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 
@@ -64,7 +65,7 @@ export default class Evaluate extends ApplicationCommand<ChatInputCommandInterac
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction): Promise<InteractionReplyData> {
     const code = interaction.options.getString('code', true);
     const async = interaction.options.getBoolean('async') ?? false;
     const depth = interaction.options.getInteger('depth') ?? 0;
@@ -114,17 +115,14 @@ export default class Evaluate extends ApplicationCommand<ChatInputCommandInterac
             failed = true;
           });
 
-        return interaction.editReply({
+        return {
           content: failed
             ? 'The output could not be sent to your DMs. Please make sure they are enabled.'
             : 'Successfully sent the output to your DMs.'
-        });
+        };
       }
 
-      return interaction.editReply({
-        content: `**Return Type:** \`${type}\`\n**Time Taken:** \`${unit}\``,
-        components: [actionRow]
-      });
+      return { content: `**Return Type:** \`${type}\`\n**Time Taken:** \`${unit}\``, components: [actionRow] };
     }
 
     const content = error
@@ -138,13 +136,13 @@ export default class Evaluate extends ApplicationCommand<ChatInputCommandInterac
         failed = true;
       });
 
-      return interaction.editReply({
+      return {
         content: failed
           ? 'The output could not be sent to your DMs. Please make sure they are enabled.'
           : 'Successfully sent the output to your DMs.'
-      });
+      };
     }
 
-    return interaction.editReply({ content });
+    return { content };
   }
 }

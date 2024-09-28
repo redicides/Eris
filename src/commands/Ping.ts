@@ -1,5 +1,7 @@
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
 
+import { InteractionReplyData } from '@/utils/types';
+
 import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 
 export default class Ping extends ApplicationCommand<ChatInputCommandInteraction<'cached'>> {
@@ -14,13 +16,11 @@ export default class Ping extends ApplicationCommand<ChatInputCommandInteraction
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>) {
+  async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
     const start = performance.now();
     await interaction.deferReply({ ephemeral: true });
     const end = performance.now();
 
-    return interaction.editReply(
-      `Pong! Roundtrip took: ${Math.round(end - start)}ms. Heartbeat: ${this.client.ws.ping}ms.`
-    );
+    return { content: `Pong! Roundtrip took: ${Math.round(end - start)}ms. Heartbeat: ${this.client.ws.ping}ms.` };
   }
 }
