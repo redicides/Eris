@@ -63,7 +63,7 @@ export default class Userinfo extends ApplicationCommand<ChatInputCommandInterac
 
     fields.push({
       name: 'Created',
-      value: time(user instanceof GuildMember ? user.user.createdAt : user.createdAt, 'R'),
+      value: time(user.createdAt, 'R'),
       inline: true
     });
 
