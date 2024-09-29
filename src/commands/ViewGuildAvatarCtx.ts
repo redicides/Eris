@@ -22,7 +22,7 @@ export default class ViewServerAvatar extends ApplicationCommand<UserContextMenu
 
     if (!target) {
       return {
-        message: `Failed to fetch member with ID \`${interaction.targetId}\`.`,
+        message: `${interaction.targetUser} is not a member of this server.`,
         temporary: true,
         ephemeral: true
       };
