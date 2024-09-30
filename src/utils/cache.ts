@@ -3,7 +3,7 @@ import { Collection } from 'discord.js';
 
 import { prisma } from '@/index';
 
-export default class GuildCache {
+export class GuildCache {
   /**
    * Collection cache for guilds to avoid database queries.
    */
@@ -67,7 +67,7 @@ export default class GuildCache {
    * @returns boolean - If the guild was present in the cache and is now wiped
    */
 
-  public static wipeCache(guildId: string): boolean {
+  public static free(guildId: string): boolean {
     return this.cache.delete(guildId);
   }
 
@@ -75,7 +75,7 @@ export default class GuildCache {
    * Removes all guilds from the cache.
    */
 
-  public static wipeAll(): void {
+  public static freeAll(): void {
     return this.cache.clear();
   }
 }

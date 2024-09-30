@@ -1,8 +1,9 @@
 import { Events, Guild } from 'discord.js';
 
+import { GuildCache } from '@utils/cache';
+
 import EventListener from '@managers/events/EventListener';
 import Logger from '@utils/logger';
-import GuildCache from '@managers/database/GuildCache';
 
 export default class GuildCreate extends EventListener {
   constructor() {

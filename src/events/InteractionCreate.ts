@@ -3,12 +3,12 @@ import { Guild } from '@prisma/client';
 
 import { Sentry } from '@/index';
 import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { GuildCache } from '@/utils/cache';
 import { CUSTOM_EVENTS } from '@utils/constants';
 
 import CommandManager from '@/managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
 import ConfigManager from '@/managers/config/ConfigManager';
-import GuildCache from '@/managers/database/GuildCache';
 import Logger from '@/utils/logger';
 
 export default class InteractionCreate extends EventListener {
