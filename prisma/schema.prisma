@@ -71,12 +71,12 @@ model Guild {
   muteRequestsImmuneRoles String[]
   muteRequestsImmuneUsers String[]
 
-  infractions    Infraction[]
-  messageReports MessageReport[]
-  userReports    UserReport[]
-  banRequests    BanRequest[]
-  muteRequests   MuteRequest[]
-  Task           Task[]
+  infractions     Infraction[]
+  messageReports  MessageReport[]
+  userReports     UserReport[]
+  banRequests     BanRequest[]
+  muteRequests    MuteRequest[]
+  tasks           Task[]
 }
 
 model Infraction {
