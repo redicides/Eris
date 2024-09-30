@@ -1,6 +1,7 @@
-import { ClientEvents, Events } from 'discord.js';
+import { Events } from 'discord.js';
 
 import { client, prisma } from '@/index';
+import { CUSTOM_EVENTS } from '@utils/constants';
 
 // The base class for all event listeners.
 export default abstract class EventListener {
@@ -23,7 +24,7 @@ export default abstract class EventListener {
    * @protected
    */
   protected constructor(
-    public readonly event: Extract<Events, keyof ClientEvents>,
+    public readonly event: Events | CUSTOM_EVENTS | string,
     public readonly options?: { once: boolean }
   ) {}
 

@@ -41,15 +41,15 @@ export default class Userinfo extends ApplicationCommand<ChatInputCommandInterac
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    const target = interaction.options.getUser('target') ?? interaction.user;
-    const member = await interaction.guild.members.fetch(target.id).catch(() => null);
+    const user = interaction.options.getUser('target') ?? interaction.user;
+    const member = interaction.options.getMember('user') ?? interaction.member;
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${target.username}`, iconURL: target.displayAvatarURL() })
+      .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
       .setColor(Colors.NotQuiteBlack)
-      .setThumbnail(target.displayAvatarURL())
-      .setFields(this._formatFields(target, member))
-      .setFooter({ text: `User ID: ${target.id}` });
+      .setThumbnail(user.displayAvatarURL())
+      .setFields(this._formatFields(user, member))
+      .setFooter({ text: `User ID: ${user.id}` });
 
     return { embeds: [embed] };
   }

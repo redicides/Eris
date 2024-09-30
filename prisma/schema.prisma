@@ -7,9 +7,186 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum InfractionType {
+  Warn
+  Mute
+  Kick
+  Ban
+  Unmute
+  Unban
+}
+
+enum TaskType {
+  Mute
+  Ban
+}
+
+enum InfractionFlag {
+  Automatic
+  Native
+}
+
+enum ReportStatus {
+  Pending
+  Disregarded
+  Accepted
+  Denied
+}
+
+enum RequestStatus {
+  Pending
+  Accepted
+  Denied
+}
+
 model Guild {
   id String @id
 
-  commandErrorTtl          Int @default(7500)
-  commandTemporaryReplyTtl Int @default(5000)
+  commandDisabledList      String[]
+  commandErrorTTL          Int      @default(7500)
+  commandTemporaryReplyTTL Int      @default(5000)
+
+  infractionLoggingEnabled Boolean @default(true)
+  infractionLoggingWebhook String?
+
+  messageReportsEnabled        Boolean  @default(false)
+  messageReportsWebhook        String?
+  messageReportsImmuneRoles    String[]
+  messageReportsBlacklist      String[]
+  messageReportsDisregardAfter BigInt   @default(2592000000)
+
+  userReportsEnabled        Boolean  @default(false)
+  userReportsWebhook        String?
+  userReportsImmuneRoles    String[]
+  userReportsBlacklist      String[]
+  userReportsDisregardAfter BigInt   @default(2592000000)
+
+  banRequestsEnabled     Boolean  @default(false)
+  banRequestsWebhook     String?
+  banRequestsImmuneRoles String[]
+  banRequestsImmuneUsers String[]
+
+  muteRequestsEnabled     Boolean  @default(false)
+  muteRequestsWebhook     String?
+  muteRequestsImmuneRoles String[]
+  muteRequestsImmuneUsers String[]
+
+  infractions    Infraction[]
+  messageReports MessageReport[]
+  userReports    UserReport[]
+  banRequests    BanRequest[]
+  muteRequests   MuteRequest[]
+  Task           Task[]
+}
+
+model Infraction {
+  id         Int              @id @default(autoincrement())
+  guildId    String
+  targetId   String
+  executorId String
+  type       InfractionType   @default(Warn)
+  reason     String
+  createdAt  BigInt
+  expiresAt  BigInt?
+  flags      InfractionFlag[]
+
+  task  Task?
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id           Int      @id @default(autoincrement())
+  guildId      String
+  targetId     String
+  infractionId Int      @unique
+  type         TaskType
+  expiresAt    BigInt
+
+  infraction Infraction @relation(fields: [infractionId], references: [id], onDelete: Cascade)
+  guild      Guild      @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([targetId, guildId, type])
+}
+
+model MessageReport {
+  id         Int     @id @default(autoincrement())
+  guildId    String
+  messageId  String  @unique
+  messageUrl String?
+  channelId  String
+  authorId   String
+  content    String?
+  createdAt  BigInt
+
+  reportedAt BigInt
+  reportedBy String
+
+  status ReportStatus @default(Pending)
+
+  resolvedAt    BigInt?
+  resolvedBy    String?
+  resolveReason Boolean?
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model UserReport {
+  id       Int    @id @default(autoincrement())
+  guildId  String
+  targetId String
+
+  reportedAt   BigInt
+  reportedBy   String
+  reportReason String
+
+  status RequestStatus @default(Pending)
+
+  resolvedAt    BigInt?
+  resolvedBy    String?
+  resolveReason String?
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model BanRequest {
+  // Id of the log message
+  id       String @id
+  guildId  String
+  targetId String
+
+  status RequestStatus @default(Pending)
+
+  resolvedAt BigInt?
+  resolvedBy String?
+
+  requestedAt   BigInt
+  requestedBy   String
+  requestReason String
+
+  expiresAt BigInt?
+  reason    String
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model MuteRequest {
+  // Id of the log message
+  id       String @id
+  guildId  String
+  targetId String
+
+  status RequestStatus @default(Pending)
+
+  resolvedAt    BigInt?
+  resolvedBy    String?
+  resolveReason String?
+
+  requestedAt   BigInt
+  requestedBy   String
+  requestReason String
+
+  expiresAt BigInt
+  reason    String
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }

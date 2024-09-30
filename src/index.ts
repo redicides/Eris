@@ -110,13 +110,3 @@ process.on('unhandledRejection', error => {
 process.on('uncaughtException', error => {
   Logger.error('An uncaught exception occurred:', error);
 });
-
-declare module 'discord.js' {
-  interface ClientEvents {
-    dmInteractionCreate: [interaction: Interaction];
-  }
-
-  enum Events {
-    DmInteractionCreate = 'dmInteractionCreate'
-  }
-}

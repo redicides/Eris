@@ -1,6 +1,7 @@
-import { CommandInteraction, Events, Interaction, InteractionType } from 'discord.js';
+import { CommandInteraction, Interaction, InteractionType } from 'discord.js';
 
 import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { CUSTOM_EVENTS } from '@utils/constants';
 import { Sentry } from '@/index';
 import { getOptions, handleReply } from './InteractionCreate';
 
@@ -9,15 +10,15 @@ import ConfigManager from '@/managers/config/ConfigManager';
 import EventListener from '@/managers/events/EventListener';
 import Logger from '@/utils/logger';
 
-export default class DmInteractionCreate extends EventListener {
+export default class DmInteraction extends EventListener {
   constructor() {
-    super(Events.DmInteractionCreate);
+    super(CUSTOM_EVENTS.DmInteraction);
   }
 
   async execute(interaction: Interaction) {
     switch (interaction.type) {
       case InteractionType.ApplicationCommand:
-        return DmInteractionCreate.ApplicationCommand(interaction);
+        return DmInteraction.ApplicationCommand(interaction);
     }
   }
 
@@ -40,7 +41,7 @@ export default class DmInteractionCreate extends EventListener {
     }
 
     try {
-      await DmInteractionCreate._handleCommand(interaction);
+      await DmInteraction._handleCommand(interaction);
     } catch (error) {
       const sentryId = Sentry.captureException(error, {
         user: {

@@ -1,8 +1,9 @@
 import { Colors, CommandInteraction, Events, Interaction, InteractionReplyOptions, InteractionType } from 'discord.js';
+import { Guild } from '@prisma/client';
 
 import { Sentry } from '@/index';
-import { Guild } from '@prisma/client';
 import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { CUSTOM_EVENTS } from '@utils/constants';
 
 import CommandManager from '@/managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
@@ -16,8 +17,8 @@ export default class InteractionCreate extends EventListener {
   }
 
   async execute(interaction: Interaction) {
-    if (!interaction.inCachedGuild()) {
-      return this.client.emit(Events.DmInteractionCreate, interaction);
+    if (!interaction.inCachedGuild() || !interaction.inGuild()) {
+      return this.client.emit(CUSTOM_EVENTS.DmInteraction, interaction);
     }
 
     switch (interaction.type) {
@@ -91,14 +92,17 @@ export default class InteractionCreate extends EventListener {
       return;
     }
 
-    setTimeout(async () => {
-      await interaction.deleteReply().catch(() => null);
-    }, getTTL(response, config));
+    setTimeout(
+      async () => {
+        await interaction.deleteReply().catch(() => null);
+      },
+      getTTL(response, config)
+    );
   }
 }
 
 function getTTL(options: InteractionReplyData | InteractionErrorData, config: Guild) {
-  return 'message' in options ? config.commandErrorTtl : config.commandTemporaryReplyTtl;
+  return 'message' in options ? config.commandErrorTTL : config.commandTemporaryReplyTTL;
 }
 
 export function handleReply(interaction: CommandInteraction, options: Omit<InteractionReplyOptions, 'ephemeral'>) {
