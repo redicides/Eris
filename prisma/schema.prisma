@@ -139,7 +139,7 @@ model UserReport {
   reportedBy   String
   reportReason String
 
-  status RequestStatus @default(Pending)
+  status ReportStatus @default(Pending)
 
   resolvedAt    BigInt?
   resolvedBy    String?
