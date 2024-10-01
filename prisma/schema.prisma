@@ -161,7 +161,6 @@ model BanRequest {
 
   requestedAt   BigInt
   requestedBy   String
-  requestReason String
 
   expiresAt BigInt?
   reason    String
@@ -179,11 +178,9 @@ model MuteRequest {
 
   resolvedAt    BigInt?
   resolvedBy    String?
-  resolveReason String?
 
   requestedAt   BigInt
   requestedBy   String
-  requestReason String
 
   expiresAt BigInt
   reason    String
