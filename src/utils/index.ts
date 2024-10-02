@@ -1,5 +1,6 @@
 import YAML from 'yaml';
 import fs from 'fs';
+import { Snowflake } from 'discord.js';
 
 /**
  * Pluralizes a word based on the given count
@@ -53,4 +54,15 @@ export async function uploadData(data: any, ext: string = 'js'): Promise<string>
   if (!binReq.ok) throw `Error uploading to hastebin. Status code \`${binReq.status}\`.`;
   const bin = (await binReq.json()) as { key: string };
   return `https://hst.sh/${bin.key}.${ext}`;
+}
+
+/**
+ * Converts a { Snowflake } to a formatted string with the format <@${Snowflake}}> (\`${Snowflake}\`).
+ *
+ * @param user - The user to convert
+ * @returns string - The formatted string
+ */
+
+export function userMentionWithId(id: Snowflake): `<@${Snowflake}> (\`${Snowflake}\`)` {
+  return `<@${id}> (\`${id}\`)`;
 }

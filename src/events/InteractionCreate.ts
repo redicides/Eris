@@ -2,7 +2,7 @@ import { Colors, CommandInteraction, Events, Interaction, InteractionReplyOption
 import { Guild } from '@prisma/client';
 
 import { Sentry } from '@/index';
-import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/types';
 import { GuildCache } from '@/utils/cache';
 import { CUSTOM_EVENTS } from '@utils/constants';
 
@@ -71,7 +71,7 @@ export default class InteractionCreate extends EventListener {
   }
 
   private static async _handleCommand(interaction: CommandInteraction, config: Guild) {
-    let response: InteractionReplyData | InteractionErrorData | null;
+    let response: InteractionReplyData | null;
     response = await CommandManager.handleCommand(interaction);
 
     // The interaction's response was handled by the command.
@@ -80,59 +80,50 @@ export default class InteractionCreate extends EventListener {
       return;
     }
 
-    const options = getOptions(response);
+    const defaultOptions = {
+      ephemeral: true,
+      allowedMentions: { parse: [] }
+    };
+
+    const options = response;
+
+    const isTemporary = options.temporary;
+    delete options.temporary;
+
+    const error = options.error;
+    delete options.error;
+
+    const replyOptions = error
+      ? {
+          ...defaultOptions,
+          ...options,
+          embeds: [{ description: error, color: Colors.Red }, ...(options.embeds ?? [])]
+        }
+      : { ...defaultOptions, ...options };
 
     if (!interaction.deferred && !interaction.replied) {
-      await interaction.reply(options);
+      await interaction.reply({ ...replyOptions });
     } else {
-      await interaction.editReply(options);
+      const { ephemeral, ...rest } = replyOptions;
+      await interaction.editReply({ ...rest });
     }
 
-    if (!options.temporary) {
+    if (!isTemporary) {
       return;
     }
 
-    setTimeout(
-      async () => {
-        await interaction.deleteReply().catch(() => null);
-      },
-      getTTL(response, config)
-    );
+    setTimeout(() => {
+      interaction.deleteReply().catch(() => null);
+    }, getTTL(response, config));
   }
 }
 
-function getTTL(options: InteractionReplyData | InteractionErrorData, config: Guild) {
-  return 'message' in options ? config.commandErrorTTL : config.commandTemporaryReplyTTL;
+function getTTL(options: InteractionReplyData, config: Guild) {
+  return 'error' in options ? config.commandErrorTTL : config.commandTemporaryReplyTTL;
 }
 
 export function handleReply(interaction: CommandInteraction, options: Omit<InteractionReplyOptions, 'ephemeral'>) {
   return !interaction.deferred && !interaction.replied
     ? interaction.reply({ ...options, ephemeral: true }).catch(() => {})
     : interaction.editReply(options).catch(() => {});
-}
-
-export function getOptions(
-  response: InteractionReplyData | InteractionErrorData
-): InteractionReplyOptions & { temporary?: boolean } {
-  const baseOptions = {
-    ephemeral: true,
-    allowedMentions: { parse: [] }
-  };
-
-  if ('message' in response) {
-    return {
-      ...baseOptions,
-      ...response,
-      embeds: [
-        {
-          description: response.message,
-          color: Colors.Red
-        },
-        ...(response.embeds || [])
-      ]
-    };
-  }
-
-  const { temporary, ...rest } = response;
-  return { ...baseOptions, ...rest, temporary };
 }

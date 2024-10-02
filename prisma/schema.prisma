@@ -71,12 +71,12 @@ model Guild {
   muteRequestsImmuneRoles String[]
   muteRequestsImmuneUsers String[]
 
-  infractions     Infraction[]
-  messageReports  MessageReport[]
-  userReports     UserReport[]
-  banRequests     BanRequest[]
-  muteRequests    MuteRequest[]
-  tasks           Task[]
+  infractions    Infraction[]
+  messageReports MessageReport[]
+  userReports    UserReport[]
+  banRequests    BanRequest[]
+  muteRequests   MuteRequest[]
+  tasks          Task[]
 }
 
 model Infraction {
@@ -112,20 +112,18 @@ model MessageReport {
   id         Int     @id @default(autoincrement())
   guildId    String
   messageId  String  @unique
-  messageUrl String?
+  messageUrl String
   channelId  String
   authorId   String
   content    String?
-  createdAt  BigInt
 
   reportedAt BigInt
   reportedBy String
 
   status ReportStatus @default(Pending)
 
-  resolvedAt    BigInt?
-  resolvedBy    String?
-  resolveReason Boolean?
+  resolvedAt BigInt?
+  resolvedBy String?
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
@@ -141,9 +139,8 @@ model UserReport {
 
   status ReportStatus @default(Pending)
 
-  resolvedAt    BigInt?
-  resolvedBy    String?
-  resolveReason String?
+  resolvedAt BigInt?
+  resolvedBy String?
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
@@ -159,8 +156,8 @@ model BanRequest {
   resolvedAt BigInt?
   resolvedBy String?
 
-  requestedAt   BigInt
-  requestedBy   String
+  requestedAt BigInt
+  requestedBy String
 
   expiresAt BigInt?
   reason    String
@@ -176,11 +173,11 @@ model MuteRequest {
 
   status RequestStatus @default(Pending)
 
-  resolvedAt    BigInt?
-  resolvedBy    String?
+  resolvedAt BigInt?
+  resolvedBy String?
 
-  requestedAt   BigInt
-  requestedBy   String
+  requestedAt BigInt
+  requestedBy String
 
   expiresAt BigInt
   reason    String

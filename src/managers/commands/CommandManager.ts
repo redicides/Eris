@@ -9,7 +9,7 @@ import { client } from '@/index';
 import ApplicationCommand from './ApplicationCommand';
 
 import Logger, { AnsiColor } from '@/utils/logger';
-import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/types';
 
 export default class CommandManager {
   public static readonly application_commands = new Collection<string, ApplicationCommand<CommandInteraction>>();
@@ -92,9 +92,7 @@ export default class CommandManager {
     return null;
   }
 
-  static handleCommand(
-    interaction: CommandInteraction
-  ): Awaitable<InteractionReplyData> | Awaitable<InteractionErrorData> | Awaitable<null> {
+  static handleCommand(interaction: CommandInteraction): Awaitable<InteractionReplyData> | Awaitable<null> {
     const command = CommandManager.getCommand(interaction.commandId, interaction.commandName)!;
     return command.execute(interaction);
   }

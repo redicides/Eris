@@ -1,9 +1,9 @@
-import { CommandInteraction, Interaction, InteractionType } from 'discord.js';
+import { Colors, CommandInteraction, Interaction, InteractionType } from 'discord.js';
 
-import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/types';
 import { CUSTOM_EVENTS } from '@utils/constants';
 import { Sentry } from '@/index';
-import { getOptions, handleReply } from './InteractionCreate';
+import { handleReply } from './InteractionCreate';
 
 import CommandManager from '@/managers/commands/CommandManager';
 import ConfigManager from '@/managers/config/ConfigManager';
@@ -65,7 +65,7 @@ export default class DmInteraction extends EventListener {
   }
 
   private static async _handleCommand(interaction: CommandInteraction) {
-    let response: InteractionReplyData | InteractionErrorData | null;
+    let response: InteractionReplyData | null;
     response = await CommandManager.handleCommand(interaction);
 
     // The interaction's response was handled by the command.
@@ -74,26 +74,46 @@ export default class DmInteraction extends EventListener {
       return;
     }
 
-    const options = getOptions(response);
+    const defaultOptions = {
+      ephemeral: true,
+      allowedMentions: { parse: [] }
+    };
+
+    const options = response;
+
+    const isTemporary = options.temporary;
+    delete options.temporary;
+
+    const error = options.error;
+    delete options.error;
+
+    const replyOptions = error
+      ? {
+          ...defaultOptions,
+          ...options,
+          embeds: [{ description: error, color: Colors.Red }, ...(options.embeds ?? [])]
+        }
+      : { ...defaultOptions, ...options };
 
     if (!interaction.deferred && !interaction.replied) {
-      await interaction.reply(options);
+      await interaction.reply({ ...replyOptions });
     } else {
-      await interaction.editReply(options);
+      const { ephemeral, ...rest } = replyOptions;
+      await interaction.editReply({ ...rest });
     }
 
-    if (!options.temporary) {
+    if (!isTemporary) {
       return;
     }
 
-    setTimeout(async () => {
-      await interaction.deleteReply().catch(() => null);
+    setTimeout(() => {
+      interaction.deleteReply().catch(() => null);
     }, getTTL(response));
   }
 }
 
-function getTTL(options: InteractionReplyData | InteractionErrorData): number {
-  return 'message' in options
+function getTTL(options: InteractionReplyData): number {
+  return 'error' in options
     ? ConfigManager.global_config.commands.error_ttl
     : ConfigManager.global_config.commands.reply_ttl;
 }

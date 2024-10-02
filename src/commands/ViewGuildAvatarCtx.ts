@@ -1,6 +1,6 @@
 import { ApplicationCommandType, Colors, EmbedBuilder, UserContextMenuCommandInteraction } from 'discord.js';
 
-import { InteractionErrorData, InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/types';
 
 import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
 
@@ -15,16 +15,13 @@ export default class ViewServerAvatar extends ApplicationCommand<UserContextMenu
     });
   }
 
-  async execute(
-    interaction: UserContextMenuCommandInteraction<'cached'>
-  ): Promise<InteractionReplyData | InteractionErrorData> {
+  async execute(interaction: UserContextMenuCommandInteraction<'cached'>): Promise<InteractionReplyData> {
     const target = interaction.targetMember;
 
     if (!target) {
       return {
-        message: `${interaction.targetUser} is not a member of this server.`,
-        temporary: true,
-        ephemeral: true
+        error: `${interaction.targetUser} is not a member of this server.`,
+        temporary: true
       };
     }
 
