@@ -7,8 +7,9 @@ import {
 
 import ms from 'ms';
 
-import { InteractionReplyData } from '@/utils/types';
-import { parseDuration } from '@/utils';
+import { InteractionReplyData } from '@utils/types';
+import { parseDuration } from '@utils/index';
+import { GuildCache } from '@utils/cache';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
@@ -47,7 +48,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    const config = await this.prisma.guild.findUnique({ where: { id: interaction.guildId } });
+    const config = await GuildCache.get(interaction.guildId);
 
     const target = interaction.options.getMember('member');
     const rawDuration = interaction.options.getString('duration', true);
@@ -122,7 +123,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
     }).catch(async () => {
       await InfractionManager.deleteInfraction({ where: { id: infraction.id } });
       return {
-        error: 'Failed to mute the member. As a result, the related infraction has been deleted.',
+        error: 'Failed to mute the member; the related infraction has been deleted.',
         temporary: true
       };
     });
