@@ -128,7 +128,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       };
     });
 
-    InfractionManager.logInfraction({ config: config!, infraction });
+    InfractionManager.logInfraction({ config, infraction });
 
     return { content: `Successfully muted ${target} for **${ms(duration, { long: true })}** - \`#${infraction.id}\`` };
   }
