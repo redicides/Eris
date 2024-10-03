@@ -119,7 +119,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       target,
       action: 'Mute',
       reason: reason ?? DEFAULT_INFRACTION_REASON,
-      duration: expiresAt
+      duration
     }).catch(async () => {
       await InfractionManager.deleteInfraction({ where: { id: infraction.id } });
       return {
