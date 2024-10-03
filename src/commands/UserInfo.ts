@@ -11,9 +11,9 @@ import {
 
 import { InteractionReplyData } from '@/utils/types';
 
-import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
+import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class Userinfo extends ApplicationCommand<ChatInputCommandInteraction<'cached'>> {
+export default class Userinfo extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Utility,

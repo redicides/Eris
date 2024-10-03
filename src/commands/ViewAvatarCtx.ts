@@ -2,9 +2,9 @@ import { ApplicationCommandType, Colors, EmbedBuilder, UserContextMenuCommandInt
 
 import { InteractionReplyData } from '@/utils/types';
 
-import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
+import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class ViewAvatar extends ApplicationCommand<UserContextMenuCommandInteraction> {
+export default class ViewAvatar extends Command<UserContextMenuCommandInteraction> {
   constructor() {
     super({
       category: CommandCategory.Utility,

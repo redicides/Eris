@@ -6,13 +6,13 @@ import fs from 'fs';
 import { pluralize } from '@/utils';
 import { client } from '@/index';
 
-import ApplicationCommand from './ApplicationCommand';
+import Command from './Command';
 
 import Logger, { AnsiColor } from '@/utils/logger';
 import { InteractionReplyData } from '@/utils/types';
 
 export default class CommandManager {
-  public static readonly application_commands = new Collection<string, ApplicationCommand<CommandInteraction>>();
+  public static readonly application_commands = new Collection<string, Command<CommandInteraction>>();
 
   static async cacheCommands() {
     const dirpath = path.resolve('src/commands');
@@ -32,7 +32,7 @@ export default class CommandManager {
         const commandClass = commandModule.default;
         const command = new commandClass();
 
-        if (!(command instanceof ApplicationCommand)) {
+        if (!(command instanceof Command)) {
           Logger.warn(`Skipping command caching: ${file} is not an instance of Command.`);
           continue;
         }
@@ -82,7 +82,7 @@ export default class CommandManager {
     });
   }
 
-  static getCommand(commandId: Snowflake, commandName: string): ApplicationCommand<CommandInteraction> | null {
+  static getCommand(commandId: Snowflake, commandName: string): Command<CommandInteraction> | null {
     const isGlobalCommand = client.application?.commands.cache.has(commandId);
 
     if (isGlobalCommand) {

@@ -2,9 +2,9 @@ import { ApplicationCommandType, Colors, EmbedBuilder, UserContextMenuCommandInt
 
 import { InteractionReplyData } from '@/utils/types';
 
-import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
+import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class ViewServerAvatar extends ApplicationCommand<UserContextMenuCommandInteraction<'cached'>> {
+export default class ViewServerAvatar extends Command<UserContextMenuCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Utility,

@@ -1,6 +1,8 @@
+import { GuildMember, Snowflake } from 'discord.js';
+
 import YAML from 'yaml';
 import fs from 'fs';
-import { Snowflake } from 'discord.js';
+import ms from 'ms';
 
 /**
  * Pluralizes a word based on the given count
@@ -65,4 +67,46 @@ export async function uploadData(data: any, ext: string = 'js'): Promise<string>
 
 export function userMentionWithId(id: Snowflake): `<@${Snowflake}> (\`${Snowflake}\`)` {
   return `<@${id}> (\`${id}\`)`;
+}
+
+/**
+ * Check if a member has a higher role than another member.
+ *
+ * @param executor The executor
+ * @param target The target
+ * @returns boolean (Whether the executor has a higher role than the target)
+ */
+
+export function hierarchyCheck(executor: GuildMember, target: GuildMember): boolean {
+  if (executor.guild.ownerId === executor.id) return true;
+  if (target.guild.ownerId === target.id) return false;
+  return executor.roles.highest.comparePositionTo(target.roles.highest) > 0;
+}
+
+/**
+ * Capitalize the first letter of a string.
+ *
+ * @param str The string to capitalize
+ * @returns The capitalized string
+ */
+
+export function capitalize(str: string): string {
+  if (str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Parse a duration string into a number of milliseconds.
+ *
+ * @param durationStr The duration string to parse
+ * @returns The duration in milliseconds
+ */
+
+export function parseDuration(durationStr: string | null): number {
+  if (durationStr === null) return NaN;
+
+  const numericValue = Number(durationStr);
+
+  if (!isNaN(numericValue)) return numericValue * 1000;
+  return ms(durationStr) ?? NaN;
 }

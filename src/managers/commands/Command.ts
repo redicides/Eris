@@ -12,7 +12,7 @@ import { client, prisma } from '@/index';
 import { InteractionReplyData } from '@/utils/types';
 
 // The base class for all commands.
-export default abstract class ApplicationCommand<T extends CommandInteraction> {
+export default abstract class Command<T extends CommandInteraction> {
   /**
    * The client that owns this command.
    */
@@ -133,9 +133,6 @@ interface CommandOptions {
 
 export enum CommandCategory {
   Developer = 'Developer',
+  Moderation = 'Moderation',
   Utility = 'Utility'
-}
-
-export namespace ApplicationCommand {
-  export type Options = CommandOptions;
 }

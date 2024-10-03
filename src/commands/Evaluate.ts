@@ -14,11 +14,11 @@ import ms from 'ms';
 import { uploadData } from '@/utils';
 import { InteractionReplyData } from '@/utils/types';
 
-import ApplicationCommand, { CommandCategory } from '@managers/commands/ApplicationCommand';
+import Command, { CommandCategory } from '@managers/commands/Command';
 
 let _;
 
-export default class Evaluate extends ApplicationCommand<ChatInputCommandInteraction> {
+export default class Evaluate extends Command<ChatInputCommandInteraction> {
   constructor() {
     super({
       guarded: true,
