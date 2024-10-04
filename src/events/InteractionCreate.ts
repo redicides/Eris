@@ -29,22 +29,46 @@ export default class InteractionCreate extends EventListener {
 
   static async ApplicationCommand(interaction: CommandInteraction<'cached'>) {
     const command = CommandManager.getCommand(interaction.commandId, interaction.commandName);
-    const config = await GuildCache.get(interaction.guildId);
-
-    let content: string;
 
     if (!command) {
-      Logger.error(`Failed to find data for command "${interaction.commandName}"`);
-      content = `I am unable to find the data for command \`${interaction.commandName}\`.\nIf you believe this is a mistake, please report it to the developers.`;
-      return handleReply(interaction, { content });
+      const sentryId = Sentry.captureException(
+        new Error(`Failed to fetch data for command "${interaction.commandName}"`)
+      );
+      return handleReply(interaction, {
+        embeds: [
+          {
+            description: `Failed to fetch data for command "${interaction.commandName}", please include this ID when reporting the bug: \`${sentryId}\`.`,
+            color: Colors.NotQuiteBlack
+          }
+        ]
+      });
     }
 
     if (command.isGuarded) {
       if (!ConfigManager.global_config.developers.includes(interaction.user.id)) {
-        content = `You cannot execute the command \`${interaction.commandName}\` as it is guarded.`;
-        return handleReply(interaction, { content });
+        return handleReply(interaction, {
+          embeds: [{ description: `This command is reserved to developers..`, color: Colors.NotQuiteBlack }]
+        });
       }
     }
+
+    if (command.requiredPermissions) {
+      if (!interaction.appPermissions.has(command.requiredPermissions)) {
+        return handleReply(interaction, {
+          embeds: [
+            {
+              description: `I require the following permissions to execute this command: \`${command.requiredPermissions
+                .toArray()
+                .join(', ')
+                .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`,
+              color: Colors.Red
+            }
+          ]
+        });
+      }
+    }
+
+    const config = await GuildCache.get(interaction.guildId);
 
     try {
       await InteractionCreate._handleCommand(interaction, config);
@@ -64,17 +88,23 @@ export default class InteractionCreate extends EventListener {
       });
 
       Logger.error(`Error executing command "${interaction.commandName}" (${sentryId})`, error);
-      content = `An error occured while executing this command... (ID \`${sentryId}\`)`;
 
-      return handleReply(interaction, { content });
+      return handleReply(interaction, {
+        embeds: [
+          {
+            description: `An error occured while executing this command, please include this ID when reporting the bug: \`${sentryId}\`.`,
+            color: Colors.NotQuiteBlack
+          }
+        ]
+      });
     }
   }
 
   private static async _handleCommand(interaction: CommandInteraction, config: Guild) {
     let response: InteractionReplyData | null;
-    response = await CommandManager.handleCommand(interaction);
+    response = await CommandManager.handleCommand(interaction, config);
 
-    // The interaction's response was handled by the command.
+    // The interaction's response was handled manually.
 
     if (response === null) {
       return;
@@ -112,9 +142,12 @@ export default class InteractionCreate extends EventListener {
       return;
     }
 
-    setTimeout(() => {
-      interaction.deleteReply().catch(() => null);
-    }, getTTL(response, config));
+    setTimeout(
+      () => {
+        interaction.deleteReply().catch(() => null);
+      },
+      getTTL(response, config)
+    );
   }
 }
 

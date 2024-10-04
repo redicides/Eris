@@ -102,8 +102,8 @@ model Task {
   type         TaskType
   expiresAt    BigInt
 
-  infraction Infraction @relation(fields: [infractionId], references: [id], onDelete: Cascade)
-  guild      Guild      @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  infraction Infraction? @relation(fields: [infractionId], references: [id], onDelete: Cascade)
+  guild      Guild       @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   @@unique([targetId, guildId, type])
 }

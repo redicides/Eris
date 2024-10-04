@@ -1,4 +1,5 @@
 import { Awaitable, Collection, CommandInteraction, Snowflake } from 'discord.js';
+import { Guild as Config } from '@prisma/client';
 
 import path from 'path';
 import fs from 'fs';
@@ -92,8 +93,11 @@ export default class CommandManager {
     return null;
   }
 
-  static handleCommand(interaction: CommandInteraction): Awaitable<InteractionReplyData> | Awaitable<null> {
+  static handleCommand(
+    interaction: CommandInteraction,
+    config?: Config
+  ): Awaitable<InteractionReplyData> | Awaitable<null> {
     const command = CommandManager.getCommand(interaction.commandId, interaction.commandName)!;
-    return command.execute(interaction);
+    return command.execute(interaction, config);
   }
 }

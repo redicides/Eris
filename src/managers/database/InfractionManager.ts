@@ -1,4 +1,15 @@
-import { APIMessage, EmbedBuilder, GuildMember, Snowflake, WebhookClient, Guild, User, Colors, time } from 'discord.js';
+import {
+  APIMessage,
+  EmbedBuilder,
+  GuildMember,
+  Snowflake,
+  WebhookClient,
+  Guild,
+  User,
+  Colors,
+  time,
+  Message
+} from 'discord.js';
 import { Infraction, InfractionType, Prisma, Guild as Config } from '@prisma/client';
 
 import { client, prisma } from '@/index';
@@ -29,31 +40,6 @@ export default class InfractionManager {
         type: 'Mute'
       }
     });
-  }
-
-  static async logInfraction(data: { config: Config; infraction: Infraction }): Promise<APIMessage | null> {
-    const { config, infraction } = data;
-
-    if (!config.infractionLoggingEnabled || !config.infractionLoggingWebhook) return null;
-    const webhook = new WebhookClient({ url: config.infractionLoggingWebhook });
-
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.type} #${infraction.id}` })
-      .setColor(INFRACTION_COLORS[infraction.type])
-      .setFields([
-        { name: 'Executor', value: userMentionWithId(infraction.executorId) },
-        { name: 'Target', value: userMentionWithId(infraction.targetId) },
-        { name: 'Reason', value: infraction.reason }
-      ])
-      .setTimestamp(Number(infraction.createdAt));
-
-    if (infraction.expiresAt)
-      embed.addFields({
-        name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expiresAt)
-      });
-
-    return webhook.send({ embeds: [embed] }).catch(() => null);
   }
 
   public static async validateAction(data: {
@@ -89,6 +75,57 @@ export default class InfractionManager {
     return { success: true };
   }
 
+  static async logInfraction(data: { config: Config; infraction: Infraction }): Promise<APIMessage | null> {
+    const { config, infraction } = data;
+
+    if (!config.infractionLoggingEnabled || !config.infractionLoggingWebhook) return null;
+    const webhook = new WebhookClient({ url: config.infractionLoggingWebhook });
+
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: `${infraction.type} - ID #${infraction.id}` })
+      .setColor(INFRACTION_COLORS[infraction.type])
+      .setFields([
+        { name: 'Executor', value: userMentionWithId(infraction.executorId) },
+        { name: 'Target', value: userMentionWithId(infraction.targetId) },
+        { name: 'Reason', value: infraction.reason }
+      ])
+      .setTimestamp(Number(infraction.createdAt));
+
+    if (infraction.expiresAt)
+      embed.addFields({
+        name: 'Expiration',
+        value: InfractionManager.formatExpiration(infraction.expiresAt)
+      });
+
+    return webhook.send({ embeds: [embed] }).catch(() => null);
+  }
+
+  static async sendNotificationDM(data: {
+    guild: Guild;
+    config: Config;
+    target: GuildMember;
+    infraction: Infraction;
+  }): Promise<Message | null> {
+    const { guild, config, target, infraction } = data;
+
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
+      .setColor(INFRACTION_COLORS[infraction.type])
+      .setTitle(
+        `You've been ${InfractionManager.getPastTense(infraction.type)} ${InfractionManager.getPreposition(
+          infraction.type
+        )} ${guild.name}`
+      )
+      .setFields([
+        { name: 'Reason', value: infraction.reason },
+        { name: 'Expiration', value: InfractionManager.formatExpiration(infraction.expiresAt) }
+      ])
+      .setFooter({ text: `Infraction ID: ${infraction.id}` })
+      .setTimestamp(Number(infraction.createdAt));
+
+    return target.send({ embeds: [embed] }).catch(() => null);
+  }
+
   public static async resolvePunishment(data: {
     guild: Guild;
     executor: GuildMember;
@@ -118,10 +155,7 @@ export default class InfractionManager {
         return guild.members.unban(target.id, InfractionManager.formatAuditLogReason(executor, action, reason));
 
       case 'Unmute':
-        return (target as GuildMember).timeout(
-          null,
-          InfractionManager.formatAuditLogReason(executor, action, reason)
-        );
+        return (target as GuildMember).timeout(null, InfractionManager.formatAuditLogReason(executor, action, reason));
     }
   }
 
@@ -135,10 +169,40 @@ export default class InfractionManager {
     )} by ${executor.user.username} (${executor.id})] ${reason}`;
   }
 
+  private static getPreposition(type: InfractionType): string {
+    return type === 'Ban' || type === 'Unban' ? 'from' : 'in';
+  }
+
+  private static getPastTense(type: InfractionType): string {
+    return PAST_TENSE_INFRACTIONS[type.toLowerCase() as keyof typeof PAST_TENSE_INFRACTIONS];
+  }
+
   public static formatExpiration(expiration: bigint | number | null): string {
     return expiration === null
       ? 'Never'
       : `${time(Math.floor(Number(expiration) / 1000))} (${time(Math.floor(Number(expiration) / 1000), 'R')})`;
+  }
+
+  public static getSuccessMessage(data: { target: GuildMember | User; infraction: Infraction }): string {
+    const { target, infraction } = data;
+    const { type, id, expiresAt } = infraction;
+
+    const expirationText = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000), 'R')}` : '';
+
+    const messages: Record<Infraction['type'], string> = {
+      Warn: `Successfully added a warning for ${target} that will expire ${expirationText}`,
+      Mute: `Successfully set ${target} on a timeout that will end ${expirationText}`,
+      Kick: `Successfully kicked ${target}`,
+      Ban: `Successfully banned ${target}${expiresAt ? ` until ${expirationText}` : ''}`,
+      Unmute: `Successfully unmuted ${target}`,
+      Unban: `Successfully unbanned ${target}`
+    };
+
+    return `${messages[type]} - ID \`#${id}\``;
+  }
+
+  public static mapActionToColor(data: { infraction: Infraction }): number {
+    return INFRACTION_COLORS[data.infraction.type];
   }
 }
 

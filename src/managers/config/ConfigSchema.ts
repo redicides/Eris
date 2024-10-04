@@ -9,6 +9,16 @@ import { z } from 'zod';
  */
 const zSnowflake = z.string().regex(/^\d{17,19}$/gm);
 
+/**
+ * Cron schema
+ */
+
+const zCron = z
+  .string()
+  .regex(
+    /^(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|((((\d+,)+\d+|([\d*]+[/-]\d+)|\d+|\*) ?){5,7})$/gm
+  );
+
 // ————————————————————————————————————————————————————————————————————————————————
 // Global Configuration
 // ————————————————————————————————————————————————————————————————————————————————
@@ -19,6 +29,9 @@ const zSnowflake = z.string().regex(/^\d{17,19}$/gm);
 
 export const globalConfigSchema = z.object({
   developers: z.array(zSnowflake).default([]),
+  database: z.object({
+    task_runner_cron: zCron
+  }),
   commands: z.object({
     error_ttl: z.number().default(7500),
     reply_ttl: z.number().default(10000)

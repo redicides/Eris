@@ -6,41 +6,32 @@ import {
 } from 'discord.js';
 import { Guild as Config } from '@prisma/client';
 
-import ms from 'ms';
-
-import { InteractionReplyData } from '@utils/types';
-import { parseDuration } from '@utils/index';
+import { InteractionReplyData } from '@/utils/types';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
 import TaskManager from '@/managers/database/TaskManager';
 
-export default class Mute extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Unmute extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Moderation,
       requiredPermissions: PermissionFlagsBits.ModerateMembers,
-      usage: '<target> <duration> [reason]',
+      usage: '<target> [reason]',
       data: {
-        name: 'mute',
-        description: 'Mute a member in the server.',
+        name: 'unmute',
+        description: 'Unmute a member in the server.',
         type: ApplicationCommandType.ChatInput,
         options: [
           {
             name: 'target',
-            description: 'The member to mute.',
+            description: 'The member to unmute.',
             type: ApplicationCommandOptionType.User,
             required: true
           },
           {
-            name: 'duration',
-            description: 'The duration of the mute.',
-            type: ApplicationCommandOptionType.String,
-            required: true
-          },
-          {
             name: 'reason',
-            description: 'The reason for muting the target.',
+            description: 'The reason for unmuting the target.',
             type: ApplicationCommandOptionType.String,
             required: false,
             max_length: 1000
@@ -52,7 +43,6 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>, config: Config): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
-    const rawDuration = interaction.options.getString('duration', true);
     const rawReason = interaction.options.getString('reason', false);
 
     if (!target) {
@@ -66,7 +56,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       guild: interaction.guild,
       target,
       executor: interaction.member!,
-      action: 'Mute'
+      action: 'Unmute'
     });
 
     if (!vResult.success) {
@@ -76,71 +66,43 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       };
     }
 
-    const duration = parseDuration(rawDuration);
-
-    if (!duration) {
-      return {
-        error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
-        temporary: true
-      };
-    }
-
-    if (duration < 1000) {
-      return {
-        error: 'The duration must be at least 1 second.',
-        temporary: true
-      };
-    }
-
-    if (duration > ms('28d')) {
-      return {
-        error: 'The duration must not exceed 28 days.',
-        temporary: true
-      };
-    }
-
-    const createdAt = Date.now();
-    const expiresAt = createdAt + duration;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
-
-    await interaction.deferReply({ ephemeral: true });
 
     let mResult = true;
 
+    await interaction.deferReply({ ephemeral: true });
+
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member!,
       target,
+      executor: interaction.member!,
       action: 'Mute',
       reason,
-      duration
+      duration: null
     }).catch(() => {
       mResult = false;
     });
 
     if (!mResult) {
       return {
-        error: `Failed to mute ${target}; ensure the duration is correct and does not exceed 28 days.`
+        error: `Failed to unmute ${target}.`,
+        temporary: true
       };
     }
 
     const infraction = await InfractionManager.storeInfraction({
-      guildId: interaction.guildId,
+      guildId: interaction.guild.id,
       targetId: target.id,
       executorId: interaction.user.id,
-      type: 'Mute',
-      createdAt,
-      expiresAt,
-      reason
+      type: 'Unmute',
+      reason,
+      createdAt: Date.now(),
+      expiresAt: null
     });
 
-    await TaskManager.storeTask({
-      guildId: interaction.guildId,
-      targetId: target.id,
-      infractionId: infraction.id,
-      expiresAt,
-      type: 'Mute'
-    });
+    await TaskManager.deleteTask({
+      where: { targetId_guildId_type: { targetId: target.id, guildId: interaction.guild.id, type: 'Mute' } }
+    }).catch(() => null);
 
     InfractionManager.sendNotificationDM({ guild: interaction.guild, config, target, infraction });
     InfractionManager.logInfraction({ config, infraction });

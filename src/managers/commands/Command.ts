@@ -8,6 +8,8 @@ import {
   PermissionsBitField
 } from 'discord.js';
 
+import { Guild as Config } from '@prisma/client';
+
 import { client, prisma } from '@/index';
 import { InteractionReplyData } from '@/utils/types';
 
@@ -119,7 +121,7 @@ export default abstract class Command<T extends CommandInteraction> {
    * Handles the command interaction. Mentions are disabled by default.
    * @param interaction The interaction to handle.
    */
-  abstract execute(interaction: T): Awaitable<InteractionReplyData> | Awaitable<null>;
+  abstract execute(interaction: T, config?: Config): Awaitable<InteractionReplyData> | Awaitable<null>;
 }
 
 interface CommandOptions {

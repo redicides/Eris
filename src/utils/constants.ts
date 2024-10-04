@@ -68,3 +68,12 @@ export enum CUSTOM_EVENTS {
   DmInteraction = 'dmInteraction'
 }
 
+// ————————————————————————————————————————————————————————————————————————————————
+// Miscellaneous
+// ————————————————————————————————————————————————————————————————————————————————
+
+export const DEFAULT_TIMEZONE = 'GMT';
+
+export const CRON_SLUGS = {
+  TaskRunner: 'TASK_RUNNER'
+};
