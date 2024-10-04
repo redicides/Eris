@@ -101,24 +101,24 @@ export default class InfractionManager {
 
     switch (action) {
       case 'Mute':
-        return await (target as GuildMember).timeout(
+        return (target as GuildMember).timeout(
           duration,
           InfractionManager.formatAuditLogReason(executor, action, reason)
         );
 
       case 'Kick':
-        return await guild.members.kick(target.id, InfractionManager.formatAuditLogReason(executor, action, reason));
+        return guild.members.kick(target.id, InfractionManager.formatAuditLogReason(executor, action, reason));
 
       case 'Ban':
-        return await guild.members.ban(target.id, {
+        return guild.members.ban(target.id, {
           reason: InfractionManager.formatAuditLogReason(executor, action, reason)
         });
 
       case 'Unban':
-        return await guild.members.unban(target.id, InfractionManager.formatAuditLogReason(executor, action, reason));
+        return guild.members.unban(target.id, InfractionManager.formatAuditLogReason(executor, action, reason));
 
       case 'Unmute':
-        return await (target as GuildMember).timeout(
+        return (target as GuildMember).timeout(
           null,
           InfractionManager.formatAuditLogReason(executor, action, reason)
         );
