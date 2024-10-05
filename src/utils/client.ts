@@ -10,7 +10,7 @@ export default class CharmieClient extends Client {
        * The following privileged intents are required for the bot to work:
        *
        * 1. Server Members Intent - For handling guild member events
-       * 2. Message Content Intent - For handling legacy commands/auto-moderation
+       * 2. Message Content Intent - For handling auto-moderation
        *
        * If these intents have not been granted the client will not log in
        * @see https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -27,8 +27,7 @@ export default class CharmieClient extends Client {
       /**
        * Cache settings for the client.
        *
-       * A message cache of 100 or above is required for proper storing of messages
-       * Message database storing is essential and used for many utility related functions
+       * A message cache of 100 or above is recommended.
        */
 
       makeCache: CLIENT_CACHE_OPTIONS,
