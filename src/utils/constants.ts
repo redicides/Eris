@@ -45,6 +45,10 @@ export const CLIENT_CACHE_OPTIONS = Options.cacheWithLimits({
 
 /**
  * The sweeper options for the client.
+
+ * Guild members are sweeped every 10 minutes and must be older than 30 minutes.
+ * Messages sweeped every hour and must be older than 6 hours.
+ *
  */
 
 export const CLIENT_SWEEPER_OPTIONS = {
@@ -52,14 +56,14 @@ export const CLIENT_SWEEPER_OPTIONS = {
   guildMembers: {
     interval: 600,
     filter: Sweepers.filterByLifetime({
-      lifetime: 600,
+      lifetime: 1800,
       excludeFromSweep: (member: GuildMember) => member.id !== process.env.BOT_ID!
     })
   },
   messages: {
-    interval: 7200,
+    interval: 3600,
     filter: Sweepers.filterByLifetime({
-      lifetime: 7200 / 2
+      lifetime: 10800
     })
   }
 };
