@@ -69,7 +69,7 @@ export class CronUtils {
     return CronUtils.startJob('TASK_RUNNER', ConfigManager.global_config.database.task_runner_cron, async () => {
       await prisma.infraction.deleteMany({
         where: {
-          type: 'Mute',
+          type: 'Warn',
           expiresAt: { lte: Date.now() }
         }
       });
