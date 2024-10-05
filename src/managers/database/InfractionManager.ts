@@ -117,11 +117,16 @@ export default class InfractionManager {
         )} ${guild.name}`
       )
       .setFields([
-        { name: 'Reason', value: infraction.reason },
-        { name: 'Expiration', value: InfractionManager.formatExpiration(infraction.expiresAt) }
+        { name: 'Reason', value: infraction.reason }
       ])
       .setFooter({ text: `Infraction ID: ${infraction.id}` })
       .setTimestamp(Number(infraction.createdAt));
+
+    if (infraction.expiresAt)
+      embed.addFields({
+        name: 'Expiration',
+        value: InfractionManager.formatExpiration(infraction.expiresAt)
+      });
 
     return target.send({ embeds: [embed] }).catch(() => null);
   }
