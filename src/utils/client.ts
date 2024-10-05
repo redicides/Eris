@@ -2,8 +2,6 @@ import { Client } from 'discord.js';
 import { CLIENT_CACHE_OPTIONS, CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_SWEEPER_OPTIONS } from '@utils/constants';
 
 export default class CharmieClient extends Client {
-  public readonly regexPrefix: RegExp = /^(hey +)?(charmie|ch)[,! ]/i;
-
   constructor() {
     super({
       /**
