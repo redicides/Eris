@@ -9,7 +9,9 @@ export default class GuildBanRemove extends EventListener {
   }
 
   async execute(ban: GuildBan) {
-    // User was most likely unbanned manually, so we delete all ban task for this user (if any)
+    /**
+     * If a user was unbanned (most likely manually) we delete any ban related tasks (if any).
+     */
 
     await TaskManager.deleteTask({
       where: { targetId_guildId_type: { guildId: ban.guild.id, targetId: ban.user.id, type: 'Ban' } }

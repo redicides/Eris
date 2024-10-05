@@ -116,9 +116,7 @@ export default class InfractionManager {
           infraction.type
         )} ${guild.name}`
       )
-      .setFields([
-        { name: 'Reason', value: infraction.reason }
-      ])
+      .setFields([{ name: 'Reason', value: infraction.reason }])
       .setFooter({ text: `Infraction ID: ${infraction.id}` })
       .setTimestamp(Number(infraction.createdAt));
 
@@ -138,6 +136,7 @@ export default class InfractionManager {
     action: Exclude<InfractionType, 'Warn'>;
     reason: string;
     duration: number | null;
+    deleteMessages?: number;
   }) {
     const { guild, executor, target, action, duration, reason } = data;
 
@@ -153,7 +152,8 @@ export default class InfractionManager {
 
       case 'Ban':
         return guild.members.ban(target.id, {
-          reason: InfractionManager.formatAuditLogReason(executor, action, reason)
+          reason: InfractionManager.formatAuditLogReason(executor, action, reason),
+          deleteMessageSeconds: data.deleteMessages
         });
 
       case 'Unban':
@@ -192,11 +192,12 @@ export default class InfractionManager {
     const { target, infraction } = data;
     const { type, id, expiresAt } = infraction;
 
-    const expirationText = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000), 'R')}` : '';
+    const relativeExpiration = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000), 'R')}` : '';
+    const expirationText = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000))}` : '';
 
     const messages: Record<Infraction['type'], string> = {
-      Warn: `Successfully added a warning for ${target} that will expire ${expirationText}`,
-      Mute: `Successfully set ${target} on a timeout that will end ${expirationText}`,
+      Warn: `Successfully added a warning for ${target} that will expire ${relativeExpiration}`,
+      Mute: `Successfully set ${target} on a timeout that will end ${relativeExpiration}`,
       Kick: `Successfully kicked ${target}`,
       Ban: `Successfully banned ${target}${expiresAt ? ` until ${expirationText}` : ''}`,
       Unmute: `Successfully unmuted ${target}`,
