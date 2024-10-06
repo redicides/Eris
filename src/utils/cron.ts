@@ -73,17 +73,17 @@ export class CronUtils {
         }
       });
 
-      const guilds = await prisma.guild.findMany({
+      const dbGuilds = await prisma.guild.findMany({
         select: { id: true, tasks: { where: { expiresAt: { lte: Date.now() } } } }
       });
 
-      for (const guildTasks of guilds) {
-        const guild = await client.guilds.fetch(guildTasks.id).catch(() => null);
+      for (const dbGuild of dbGuilds) {
+        const discordGuild = await client.guilds.fetch(dbGuild.id).catch(() => null);
 
-        if (!guild) {
+        if (!discordGuild) {
           await prisma.task.deleteMany({
             where: {
-              guildId: guildTasks.id,
+              guildId: dbGuild.id,
               expiresAt: { lte: Date.now() }
             }
           });
@@ -91,14 +91,14 @@ export class CronUtils {
           continue;
         }
 
-        const config = await GuildCache.get(guild.id);
-        const permissions = guild.members.me!.permissions;
+        const config = await GuildCache.get(discordGuild.id);
+        const permissions = discordGuild.members.me!.permissions;
         const banPermissions = permissions.has(PermissionFlagsBits.BanMembers);
 
         if (!banPermissions) {
           await prisma.task.deleteMany({
             where: {
-              guildId: guild.id,
+              guildId: discordGuild.id,
               type: 'Ban',
               expiresAt: { lte: Date.now() }
             }
@@ -107,11 +107,11 @@ export class CronUtils {
           continue;
         }
 
-        for (const task of guildTasks.tasks) {
+        for (const task of dbGuild.tasks) {
           if (task.type === 'Ban') {
-            await guild.members.unban(task.targetId).catch(() => {});
+            await discordGuild.members.unban(task.targetId).catch(() => {});
           } else {
-            const member = await guild.members.fetch(task.targetId).catch(() => null);
+            const member = await discordGuild.members.fetch(task.targetId).catch(() => null);
 
             if (member) {
               if (
@@ -131,9 +131,9 @@ export class CronUtils {
               }
 
               const embed = new EmbedBuilder()
-                .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
+                .setAuthor({ name: discordGuild.name, iconURL: discordGuild.iconURL() ?? undefined })
                 .setColor(INFRACTION_COLORS.Unmute)
-                .setTitle(`You've been unmuted in ${guild.name}`)
+                .setTitle(`You've been unmuted in ${discordGuild.name}`)
                 .setFields([{ name: 'Reason', value: 'Mute expired based on duration.' }])
                 .setTimestamp();
 
@@ -144,7 +144,7 @@ export class CronUtils {
           await TaskManager.deleteTask({ where: { id: task.id } });
 
           const infraction = await InfractionManager.storeInfraction({
-            guildId: guild.id,
+            guildId: discordGuild.id,
             targetId: task.targetId,
             executorId: client.user!.id,
             type: task.type === 'Ban' ? 'Unban' : 'Unmute',
