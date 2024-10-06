@@ -61,7 +61,7 @@ export default class InteractionCreate extends EventListener {
                 .toArray()
                 .join(', ')
                 .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`,
-              color: Colors.Red
+              color: Colors.NotQuiteBlack
             }
           ]
         });
@@ -127,7 +127,7 @@ export default class InteractionCreate extends EventListener {
       ? {
           ...defaultOptions,
           ...options,
-          embeds: [{ description: error, color: Colors.Red }, ...(options.embeds ?? [])]
+          embeds: [{ description: error, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
         }
       : { ...defaultOptions, ...options };
 
@@ -142,12 +142,9 @@ export default class InteractionCreate extends EventListener {
       return;
     }
 
-    setTimeout(
-      () => {
-        interaction.deleteReply().catch(() => null);
-      },
-      getTTL(response, config)
-    );
+    setTimeout(() => {
+      interaction.deleteReply().catch(() => null);
+    }, getTTL(response, config));
   }
 }
 
