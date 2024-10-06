@@ -169,9 +169,9 @@ export default class InfractionManager {
     punishment: Exclude<InfractionType, 'Warn'>,
     reason: string
   ): string {
-    return `[${capitalize(
-      PAST_TENSE_INFRACTIONS[punishment.toLowerCase() as keyof typeof PAST_TENSE_INFRACTIONS]
-    )} by ${executor.user.username} (${executor.id})] ${reason}`;
+    return `[${capitalize(InfractionManager.getPastTense(punishment))} by ${executor.user.username} (${
+      executor.id
+    })] ${reason}`;
   }
 
   private static getPreposition(type: InfractionType): string {
@@ -195,8 +195,8 @@ export default class InfractionManager {
     const relativeExpiration = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000), 'R')}` : '';
     const expirationText = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000))}` : '';
 
-    const messages: Record<Infraction['type'], string> = {
-      Warn: `Successfully added a warning for ${target} that will expire ${relativeExpiration}`,
+    const message: Record<Infraction['type'], string> = {
+      Warn: `Successfully added a warning for ${target}${expiresAt ? ` that will expire ${relativeExpiration}` : ''}`,
       Mute: `Successfully set ${target} on a timeout that will end ${relativeExpiration}`,
       Kick: `Successfully kicked ${target}`,
       Ban: `Successfully banned ${target}${expiresAt ? ` until ${expirationText}` : ''}`,
@@ -204,7 +204,7 @@ export default class InfractionManager {
       Unban: `Successfully unbanned ${target}`
     };
 
-    return `${messages[type]} - ID \`#${id}\``;
+    return `${message[type]} - ID \`#${id}\``;
   }
 
   public static mapActionToColor(data: { infraction: Infraction }): number {

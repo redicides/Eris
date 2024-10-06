@@ -81,3 +81,5 @@ export const DEFAULT_TIMEZONE = 'GMT';
 export const CRON_SLUGS = {
   TaskRunner: 'TASK_RUNNER'
 };
+
+export const PERMANENT_DURATION_KEYS = ['permanent', 'perm', 'p', 'infinity', 'inf', 'forever', 'never'];

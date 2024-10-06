@@ -14,6 +14,7 @@ import { parseDuration } from '@/utils';
 import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
 import TaskManager from '@/managers/database/TaskManager';
+import { PERMANENT_DURATION_KEYS } from '@/utils/constants';
 
 export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {
@@ -95,9 +96,19 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
     const duration = rawDuration ? parseDuration(rawDuration) : null;
 
-    if (Number.isNaN(duration) && rawDuration !== 'permanent')
-      throw 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).';
-    if (duration && duration < 1000) throw 'The duration must be at least 1 second.';
+    if (Number.isNaN(duration) && !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '')) {
+      return {
+        error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+        temporary: true
+      };
+    }
+
+    if (duration && duration < 1000) {
+      return {
+        error: 'The duration must be at least 1 second.',
+        temporary: true
+      };
+    }
 
     const deleteMessageSeconds = Math.floor(ms(rawDeleteMessages ?? '0s') / 1000);
 
