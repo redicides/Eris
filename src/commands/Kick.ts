@@ -6,10 +6,9 @@ import {
 } from 'discord.js';
 import { Guild as Config } from '@prisma/client';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
-
 import { InteractionReplyData } from '@/utils/types';
 
+import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
 
 export default class Kick extends Command<ChatInputCommandInteraction<'cached'>> {

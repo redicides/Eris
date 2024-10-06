@@ -4,13 +4,13 @@ import { Guild as Config } from '@prisma/client';
 import path from 'path';
 import fs from 'fs';
 
+import { InteractionReplyData } from '@/utils/types';
 import { pluralize } from '@/utils';
 import { client } from '@/index';
 
 import Command from './Command';
 
 import Logger, { AnsiColor } from '@/utils/logger';
-import { InteractionReplyData } from '@/utils/types';
 
 export default class CommandManager {
   public static readonly application_commands = new Collection<string, Command<CommandInteraction>>();

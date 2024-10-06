@@ -8,13 +8,13 @@ import { Guild as Config } from '@prisma/client';
 
 import ms from 'ms';
 
+import { PERMANENT_DURATION_KEYS } from '@/utils/constants';
 import { InteractionReplyData } from '@/utils/types';
 import { parseDuration } from '@/utils';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
 import TaskManager from '@/managers/database/TaskManager';
-import { PERMANENT_DURATION_KEYS } from '@/utils/constants';
 
 export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {

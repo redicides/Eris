@@ -1,6 +1,7 @@
+import { Snowflake } from 'discord.js';
+
 import { prisma } from '@/index';
 import { Prisma, Task, TaskType } from '@prisma/client';
-import { Snowflake } from 'discord.js';
 
 export default class TaskManager {
   public static async storeTask(data: {
