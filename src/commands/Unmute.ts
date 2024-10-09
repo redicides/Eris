@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { Guild as Config } from '@prisma/client';
 
-import { InteractionReplyData } from '@/utils/Types';
+import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';

@@ -1,14 +1,14 @@
 import { Colors, CommandInteraction, Interaction, InteractionType } from 'discord.js';
 
-import { InteractionReplyData } from '@/utils/Types';
-import { CUSTOM_EVENTS } from '@/utils/Constants';
+import { InteractionReplyData } from '@utils/Types';
+import { CUSTOM_EVENTS } from '@utils/Constants';
 import { Sentry } from '@/index';
 import { handleReply } from './InteractionCreate';
 
 import CommandManager from '@/managers/commands/CommandManager';
 import ConfigManager from '@/managers/config/ConfigManager';
 import EventListener from '@/managers/events/EventListener';
-import Logger from '@/utils/Logger';
+import Logger from '@utils/Logger';
 
 export default class DmInteraction extends EventListener {
   constructor() {

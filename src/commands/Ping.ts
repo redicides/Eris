@@ -1,6 +1,6 @@
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
 
-import { InteractionReplyData } from '@/utils/Types';
+import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 

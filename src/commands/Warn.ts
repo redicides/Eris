@@ -3,9 +3,9 @@ import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandI
 
 import ms from 'ms';
 
-import { parseDuration } from '@/utils';
-import { PERMANENT_DURATION_KEYS } from '@/utils/Constants';
-import { InteractionReplyData } from '@/utils/Types';
+import { parseDuration } from '@utils/index';
+import { PERMANENT_DURATION_KEYS } from '@utils/Constants';
+import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';

@@ -1,7 +1,7 @@
 import { Events } from 'discord.js';
 
 import { client, prisma } from '@/index';
-import { CUSTOM_EVENTS } from '@/utils/Constants';
+import { CUSTOM_EVENTS } from '@utils/Constants';
 
 // The base class for all event listeners.
 export default abstract class EventListener {

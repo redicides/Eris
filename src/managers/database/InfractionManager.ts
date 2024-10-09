@@ -13,8 +13,8 @@ import {
 import { Infraction, InfractionType, Prisma, Guild as Config } from '@prisma/client';
 
 import { client, prisma } from '@/index';
-import { capitalize, hierarchyCheck, userMentionWithId } from '@/utils';
-import { Result } from '@/utils/Types';
+import { capitalize, hierarchyCheck, userMentionWithId } from '@utils/index';
+import { Result } from '@utils/Types';
 
 export default class InfractionManager {
   static async storeInfraction(data: Prisma.InfractionCreateArgs['data']): Promise<Infraction> {

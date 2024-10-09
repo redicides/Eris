@@ -2,13 +2,13 @@ import { Colors, CommandInteraction, Events, Interaction, InteractionReplyOption
 import { Guild } from '@prisma/client';
 
 import { Sentry } from '@/index';
-import { InteractionReplyData } from '@/utils/Types';
-import { CUSTOM_EVENTS } from '@/utils/Constants';
+import { InteractionReplyData } from '@utils/Types';
+import { CUSTOM_EVENTS } from '@utils/Constants';
 
 import CommandManager from '@/managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
 import ConfigManager from '@/managers/config/ConfigManager';
-import Logger from '@/utils/Logger';
+import Logger from '@utils/Logger';
 import CacheManager from '@/managers/database/CacheManager';
 
 export default class InteractionCreate extends EventListener {

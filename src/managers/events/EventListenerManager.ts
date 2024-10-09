@@ -3,9 +3,9 @@ import { client } from '@/index';
 import path from 'path';
 import fs from 'fs';
 
-import { pluralize } from '@/utils';
+import { pluralize } from '@utils/index';
 
-import Logger, { AnsiColor } from '@/utils/Logger';
+import Logger, { AnsiColor } from '@utils/Logger';
 import EventListener from './EventListener';
 
 // Utility class for handling event listeners.

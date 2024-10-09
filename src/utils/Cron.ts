@@ -2,10 +2,10 @@ import { CronJob, CronJobParams } from 'cron';
 import { PermissionFlagsBits } from 'discord.js';
 import { EmbedBuilder } from '@discordjs/builders';
 
-import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@/utils/Constants';
+import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/Constants';
 import { client, prisma, Sentry } from '@/index';
 
-import Logger, { AnsiColor } from '@/utils/Logger';
+import Logger, { AnsiColor } from '@utils/Logger';
 import ConfigManager from '@/managers/config/ConfigManager';
 import InfractionManager, { INFRACTION_COLORS } from '@/managers/database/InfractionManager';
 import TaskManager from '@/managers/database/TaskManager';
