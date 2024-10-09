@@ -14,7 +14,7 @@ import { Infraction, InfractionType, Prisma, Guild as Config } from '@prisma/cli
 
 import { client, prisma } from '@/index';
 import { capitalize, hierarchyCheck, userMentionWithId } from '@/utils';
-import { Result } from '@/utils/types';
+import { Result } from '@/utils/Types';
 
 export default class InfractionManager {
   static async storeInfraction(data: Prisma.InfractionCreateArgs['data']): Promise<Infraction> {

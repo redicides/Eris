@@ -5,7 +5,7 @@ import fs from 'fs';
 import { readYamlFile } from '@/utils';
 import { GlobalConfig, globalConfigSchema } from './ConfigSchema';
 
-import Logger, { AnsiColor } from '@utils/logger';
+import Logger, { AnsiColor } from '@/utils/Logger';
 
 /**
  * The config manager class.

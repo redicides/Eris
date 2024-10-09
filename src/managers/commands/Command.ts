@@ -11,7 +11,7 @@ import {
 import { Guild as Config } from '@prisma/client';
 
 import { client, prisma } from '@/index';
-import { InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/Types';
 
 // The base class for all commands.
 export default abstract class Command<T extends CommandInteraction> {

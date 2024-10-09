@@ -9,7 +9,7 @@ import {
   User
 } from 'discord.js';
 
-import { InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 

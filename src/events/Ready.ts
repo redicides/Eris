@@ -1,9 +1,9 @@
 import { Events } from 'discord.js';
 
-import { CronUtils } from '@/utils/cron';
+import { CronUtils } from '@/utils/Cron';
 
 import EventListener from '@/managers/events/EventListener';
-import Logger, { AnsiColor } from '@/utils/logger';
+import Logger, { AnsiColor } from '@/utils/Logger';
 
 export default class Ready extends EventListener {
   constructor() {

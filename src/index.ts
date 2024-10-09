@@ -3,13 +3,13 @@ import 'dotenv/config';
 import * as SentryClient from '@sentry/node';
 
 import { sleep } from '@/utils';
-import { ExtendedClient } from '@utils/prisma';
+import { ExtendedClient } from '@/utils/Prisma';
 
 import EventListenerManager from '@managers/events/EventListenerManager';
-import Logger, { AnsiColor } from '@utils/logger';
+import Logger, { AnsiColor } from '@/utils/Logger';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
-import CharmieClient from '@utils/client';
+import CharmieClient from '@/utils/Client';
 
 /**
  * The main client instance.

@@ -5,7 +5,7 @@ import fs from 'fs';
 
 import { pluralize } from '@/utils';
 
-import Logger, { AnsiColor } from '@utils/logger';
+import Logger, { AnsiColor } from '@/utils/Logger';
 import EventListener from './EventListener';
 
 // Utility class for handling event listeners.

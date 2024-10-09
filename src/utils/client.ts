@@ -1,6 +1,6 @@
 import { Client } from 'discord.js';
 
-import { CLIENT_CACHE_OPTIONS, CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_SWEEPER_OPTIONS } from '@utils/constants';
+import { CLIENT_CACHE_OPTIONS, CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_SWEEPER_OPTIONS } from '@/utils/Constants';
 
 export default class CharmieClient extends Client {
   constructor() {

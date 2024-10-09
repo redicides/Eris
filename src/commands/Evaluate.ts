@@ -12,7 +12,7 @@ import util from 'util';
 import ms from 'ms';
 
 import { uploadData } from '@/utils';
-import { InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 

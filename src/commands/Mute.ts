@@ -8,7 +8,7 @@ import { Guild as Config } from '@prisma/client';
 
 import ms from 'ms';
 
-import { InteractionReplyData } from '@utils/types';
+import { InteractionReplyData } from '@/utils/Types';
 import { parseDuration } from '@utils/index';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';

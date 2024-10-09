@@ -2,14 +2,14 @@ import { CronJob, CronJobParams } from 'cron';
 import { PermissionFlagsBits } from 'discord.js';
 import { EmbedBuilder } from '@discordjs/builders';
 
-import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/constants';
+import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@/utils/Constants';
 import { client, prisma, Sentry } from '@/index';
-import { GuildCache } from '@utils/cache';
 
-import Logger, { AnsiColor } from '@utils/logger';
+import Logger, { AnsiColor } from '@/utils/Logger';
 import ConfigManager from '@/managers/config/ConfigManager';
 import InfractionManager, { INFRACTION_COLORS } from '@/managers/database/InfractionManager';
 import TaskManager from '@/managers/database/TaskManager';
+import CacheManager from '@/managers/database/CacheManager';
 
 /**
  * The class responsible for handling/managing cron utilities.
@@ -91,7 +91,7 @@ export class CronUtils {
           continue;
         }
 
-        const config = await GuildCache.get(discordGuild.id);
+        const config = await CacheManager.guilds.get(discordGuild.id);
         const permissions = discordGuild.members.me!.permissions;
         const banPermissions = permissions.has(PermissionFlagsBits.BanMembers);
 

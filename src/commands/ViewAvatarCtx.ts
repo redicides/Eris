@@ -1,6 +1,6 @@
 import { ApplicationCommandType, Colors, EmbedBuilder, UserContextMenuCommandInteraction } from 'discord.js';
 
-import { InteractionReplyData } from '@/utils/types';
+import { InteractionReplyData } from '@/utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 

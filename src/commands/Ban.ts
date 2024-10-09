@@ -8,8 +8,8 @@ import { Guild as Config } from '@prisma/client';
 
 import ms from 'ms';
 
-import { PERMANENT_DURATION_KEYS } from '@/utils/constants';
-import { InteractionReplyData } from '@/utils/types';
+import { PERMANENT_DURATION_KEYS } from '@/utils/Constants';
+import { InteractionReplyData } from '@/utils/Types';
 import { parseDuration } from '@/utils';
 
 import Command, { CommandCategory } from '@/managers/commands/Command';

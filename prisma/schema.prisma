@@ -109,7 +109,8 @@ model Task {
 }
 
 model MessageReport {
-  id         Int     @id @default(autoincrement())
+  // ID of the log
+  id         String  @id
   guildId    String
   messageId  String  @unique
   messageUrl String
@@ -129,7 +130,8 @@ model MessageReport {
 }
 
 model UserReport {
-  id       Int    @id @default(autoincrement())
+  // ID of the log
+  id       String @id
   guildId  String
   targetId String
 
@@ -146,7 +148,7 @@ model UserReport {
 }
 
 model BanRequest {
-  // Id of the log message
+  // ID of the log
   id       String @id
   guildId  String
   targetId String
@@ -166,7 +168,7 @@ model BanRequest {
 }
 
 model MuteRequest {
-  // Id of the log message
+  // ID of the log
   id       String @id
   guildId  String
   targetId String
