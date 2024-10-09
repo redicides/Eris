@@ -25,6 +25,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
         name: 'ban',
         description: 'Ban a member or user from the server.',
         type: ApplicationCommandType.ChatInput,
+        defaultMemberPermissions: PermissionFlagsBits.BanMembers,
         options: [
           {
             name: 'target',

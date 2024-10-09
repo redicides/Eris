@@ -1,5 +1,10 @@
 import { Guild as Config } from '@prisma/client';
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ChatInputCommandInteraction,
+  PermissionFlagsBits
+} from 'discord.js';
 
 import ms from 'ms';
 
@@ -18,6 +23,7 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
         name: 'warn',
         description: 'Issue a warning to a member.',
         type: ApplicationCommandType.ChatInput,
+        defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         options: [
           {
             name: 'target',

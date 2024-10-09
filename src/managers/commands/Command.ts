@@ -135,6 +135,7 @@ interface CommandOptions {
 
 export enum CommandCategory {
   Developer = 'Developer',
+  Management = 'Management',
   Moderation = 'Moderation',
   Utility = 'Utility'
 }

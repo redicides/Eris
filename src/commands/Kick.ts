@@ -20,6 +20,7 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
         name: 'kick',
         description: 'Kick a member from the server.',
         type: ApplicationCommandType.ChatInput,
+        defaultMemberPermissions: PermissionFlagsBits.KickMembers,
         options: [
           {
             name: 'target',

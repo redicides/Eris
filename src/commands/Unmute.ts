@@ -21,6 +21,7 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
       data: {
         name: 'unmute',
         description: 'Unmute a member in the server.',
+        defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         type: ApplicationCommandType.ChatInput,
         options: [
           {

@@ -20,6 +20,7 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
       data: {
         name: 'unban',
         description: 'Unban a user from the server.',
+        defaultMemberPermissions: PermissionFlagsBits.BanMembers,
         type: ApplicationCommandType.ChatInput,
         options: [
           {

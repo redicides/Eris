@@ -25,6 +25,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
         name: 'mute',
         description: 'Mute a member in the server.',
         type: ApplicationCommandType.ChatInput,
+        defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         options: [
           {
             name: 'target',
