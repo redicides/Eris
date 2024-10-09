@@ -117,6 +117,8 @@ export default class InteractionCreate extends EventListener {
 
     const options = response;
 
+    const ttl = getTTL(response, config);
+
     const isTemporary = options.temporary;
     delete options.temporary;
 
@@ -138,11 +140,13 @@ export default class InteractionCreate extends EventListener {
       await interaction.editReply({ ...rest });
     }
 
-    if (isTemporary) {
+    if (!isTemporary) {
+      return;
+    }
+
     setTimeout(async () => {
       await interaction.deleteReply().catch(() => null);
-     }, getTTL(response, config));
-    }
+     }, ttl);
   }
 }
 
