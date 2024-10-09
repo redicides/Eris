@@ -138,13 +138,11 @@ export default class InteractionCreate extends EventListener {
       await interaction.editReply({ ...rest });
     }
 
-    if (!isTemporary) {
-      return;
+    if (isTemporary) {
+    setTimeout(async () => {
+      await interaction.deleteReply().catch(() => null);
+     }, getTTL(response, config));
     }
-
-    setTimeout(() => {
-      interaction.deleteReply().catch(() => null);
-    }, getTTL(response, config));
   }
 }
 
