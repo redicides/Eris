@@ -87,41 +87,10 @@ export default abstract class Command<T extends CommandInteraction> {
   }
 
   /**
-   * Throws an error to the user.
-   *
-   * @param interaction  The interaction to reply to.
-   * @param options The options for the error.
-   * @returns The error message.
-   */
-
-  protected async error(interaction: T, options: string | InteractionReplyOptions) {
-    return !interaction.deferred && !interaction.replied
-      ? this.initialReply(interaction, options)
-      : this.editReply(interaction, options);
-  }
-
-  private initialReply(interaction: T, options: string | InteractionReplyOptions) {
-    const replyOptions =
-      typeof options === 'string'
-        ? { embeds: [{ description: options, color: Colors.Red }], ephemeral: true }
-        : options;
-
-    return interaction.reply(replyOptions);
-  }
-
-  private editReply(interaction: T, options: string | InteractionReplyOptions) {
-    const replyOptions =
-      typeof options === 'string' ? { embeds: [{ description: options, color: Colors.Red }] } : options;
-
-    const { ephemeral, ...editReplyOptions } = replyOptions;
-    return interaction.editReply(editReplyOptions);
-  }
-
-  /**
    * Handles the command interaction. Mentions are disabled by default.
    * @param interaction The interaction to handle.
    */
-  abstract execute(interaction: T, config?: Config): Awaitable<InteractionReplyData> | Awaitable<null>;
+  abstract execute(interaction: T, config?: Config): Awaitable<InteractionReplyData | null>;
 }
 
 interface CommandOptions {

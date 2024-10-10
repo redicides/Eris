@@ -1,15 +1,23 @@
-import { Colors, CommandInteraction, Events, Interaction, InteractionReplyOptions, InteractionType } from 'discord.js';
+import {
+  AutocompleteInteraction,
+  Colors,
+  CommandInteraction,
+  Events,
+  Interaction,
+  InteractionReplyOptions
+} from 'discord.js';
 import { Guild } from '@prisma/client';
 
 import { Sentry } from '@/index';
 import { InteractionReplyData } from '@utils/Types';
-import { CUSTOM_EVENTS } from '@utils/Constants';
 
 import CommandManager from '@/managers/commands/CommandManager';
 import EventListener from '@/managers/events/EventListener';
 import ConfigManager from '@/managers/config/ConfigManager';
 import Logger from '@utils/Logger';
 import CacheManager from '@/managers/database/CacheManager';
+import ComponentManager from '@/managers/components/ComponentManager';
+import Command from '@/managers/commands/Command';
 
 export default class InteractionCreate extends EventListener {
   constructor() {
@@ -17,61 +25,30 @@ export default class InteractionCreate extends EventListener {
   }
 
   async execute(interaction: Interaction) {
-    if (!interaction.inCachedGuild() || !interaction.inGuild()) {
-      return this.client.emit(CUSTOM_EVENTS.DmInteraction, interaction);
+    if (interaction.isAutocomplete()) {
+      return;
     }
 
-    switch (interaction.type) {
-      case InteractionType.ApplicationCommand:
-        return InteractionCreate.ApplicationCommand(interaction);
-    }
-  }
-
-  static async ApplicationCommand(interaction: CommandInteraction<'cached'>) {
-    const command = CommandManager.getCommand(interaction.commandId, interaction.commandName);
-
-    if (!command) {
-      const sentryId = Sentry.captureException(
-        new Error(`Failed to fetch data for command "${interaction.commandName}"`)
-      );
-      return handleReply(interaction, {
-        embeds: [
-          {
-            description: `Failed to fetch data for command "${interaction.commandName}", please include this ID when reporting the bug: \`${sentryId}\`.`,
-            color: Colors.NotQuiteBlack
-          }
-        ]
-      });
+    if (!interaction.inCachedGuild()) {
+      return handleReply(interaction, { content: 'Interactions are only supported in guilds.', ephemeral: true });
     }
 
-    if (command.isGuarded) {
-      if (!ConfigManager.global_config.developers.includes(interaction.user.id)) {
-        return handleReply(interaction, {
-          embeds: [{ description: `This command is reserved to developers..`, color: Colors.NotQuiteBlack }]
-        });
-      }
+    let commandOrComponent = interaction.isCommand()
+      ? CommandManager.getCommand(interaction.commandId, interaction.commandName)
+      : ComponentManager.getComponent(interaction.customId);
+
+    if (!commandOrComponent) {
+      return InteractionCreate._handleUnknownInteraction(interaction);
     }
 
-    if (command.requiredPermissions) {
-      if (!interaction.appPermissions.has(command.requiredPermissions)) {
-        return handleReply(interaction, {
-          embeds: [
-            {
-              description: `I require the following permissions to execute this command: \`${command.requiredPermissions
-                .toArray()
-                .join(', ')
-                .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`,
-              color: Colors.NotQuiteBlack
-            }
-          ]
-        });
-      }
+    if (commandOrComponent instanceof Command) {
+      await InteractionCreate._handleCommandChecks(interaction as CommandInteraction<'cached'>, commandOrComponent);
     }
 
     const config = await CacheManager.guilds.get(interaction.guildId);
 
     try {
-      await InteractionCreate._handleCommand(interaction, config);
+      await InteractionCreate.handleInteraction(interaction, config);
     } catch (error) {
       const sentryId = Sentry.captureException(error, {
         user: {
@@ -80,29 +57,44 @@ export default class InteractionCreate extends EventListener {
           username: interaction.user.username
         },
         extra: {
-          guild: interaction.guild?.id,
+          guild: interaction.guild.id,
           channel: interaction.channel?.id,
-          command: interaction.commandName,
-          commandId: interaction.commandId
+          commandOrComponent: interaction.isCommand() ? interaction.commandName : interaction.customId
         }
       });
 
-      Logger.error(`Error executing command "${interaction.commandName}" (${sentryId})`, error);
+      Logger.error(
+        `Error executing ${
+          interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
+        } (${sentryId})`,
+        error
+      );
 
       return handleReply(interaction, {
         embeds: [
           {
-            description: `An error occured while executing this command, please include this ID when reporting the bug: \`${sentryId}\`.`,
+            description: `An error occured while executing this ${
+              interaction.isCommand() ? 'command' : 'component'
+            }, please include this ID when reporting the bug: \`${sentryId}\`.`,
             color: Colors.NotQuiteBlack
           }
-        ]
+        ],
+        ephemeral: true
       });
     }
   }
 
-  private static async _handleCommand(interaction: CommandInteraction, config: Guild) {
+  private static async handleInteraction(
+    interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>,
+    config: Guild
+  ) {
     let response: InteractionReplyData | null;
-    response = await CommandManager.handleCommand(interaction, config);
+
+    if (interaction.isCommand()) {
+      response = await CommandManager.handleCommand(interaction, config);
+    } else {
+      response = await ComponentManager.handleComponent(interaction);
+    }
 
     // The interaction's response was handled manually.
 
@@ -146,7 +138,60 @@ export default class InteractionCreate extends EventListener {
 
     setTimeout(async () => {
       await interaction.deleteReply().catch(() => null);
-     }, ttl);
+    }, ttl);
+  }
+
+  private static _handleUnknownInteraction(interaction: Exclude<Interaction, AutocompleteInteraction>) {
+    const sentryId = Sentry.captureException(
+      new Error(
+        `Failed to fetch data for ${
+          interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
+        }.`
+      )
+    );
+
+    return handleReply(interaction, {
+      embeds: [
+        {
+          description: `Failed to fetch data for ${
+            interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
+          }, please include this ID when reporting the bug: \`${sentryId}\`.`,
+          color: Colors.NotQuiteBlack
+        }
+      ],
+      ephemeral: true
+    });
+  }
+
+  private static async _handleCommandChecks(
+    interaction: CommandInteraction<'cached'>,
+    command: Command<CommandInteraction<'cached'>>
+  ) {
+    if (command.isGuarded) {
+      if (!ConfigManager.global_config.developers.includes(interaction.user.id)) {
+        return handleReply(interaction, {
+          embeds: [{ description: `This command is reserved to developers..`, color: Colors.NotQuiteBlack }],
+          ephemeral: true
+        });
+      }
+    }
+
+    if (command.requiredPermissions) {
+      if (!interaction.appPermissions.has(command.requiredPermissions)) {
+        return handleReply(interaction, {
+          embeds: [
+            {
+              description: `I require the following permissions to execute this command: \`${command.requiredPermissions
+                .toArray()
+                .join(', ')
+                .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`,
+              color: Colors.NotQuiteBlack
+            }
+          ],
+          ephemeral: true
+        });
+      }
+    }
   }
 }
 
@@ -154,8 +199,13 @@ function getTTL(options: InteractionReplyData, config: Guild) {
   return 'error' in options ? config.commandErrorTTL : config.commandTemporaryReplyTTL;
 }
 
-export function handleReply(interaction: CommandInteraction, options: Omit<InteractionReplyOptions, 'ephemeral'>) {
+export function handleReply(
+  interaction: Exclude<Interaction, AutocompleteInteraction> | CommandInteraction,
+  options: InteractionReplyOptions
+) {
+  const { ephemeral, ...parsedOptions } = options;
+
   return !interaction.deferred && !interaction.replied
-    ? interaction.reply({ ...options, ephemeral: true }).catch(() => {})
-    : interaction.editReply(options).catch(() => {});
+    ? interaction.reply({ ephemeral, ...parsedOptions }).catch(() => {})
+    : interaction.editReply({ ...parsedOptions }).catch(() => {});
 }

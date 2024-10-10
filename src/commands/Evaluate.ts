@@ -22,7 +22,6 @@ export default class Evaluate extends Command<ChatInputCommandInteraction> {
   constructor() {
     super({
       guarded: true,
-      allowInDms: true,
       category: CommandCategory.Developer,
       usage: '<code> [async] [depth] [dm] [ephemeral]',
       data: {

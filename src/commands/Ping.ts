@@ -21,6 +21,8 @@ export default class Ping extends Command<ChatInputCommandInteraction<'cached'>>
     await interaction.deferReply({ ephemeral: true });
     const end = performance.now();
 
-    return { content: `Pong! Roundtrip took: ${Math.round(end - start)}ms. Heartbeat: ${this.client.ws.ping}ms.` };
+    return {
+      content: `Pong! Roundtrip took: ${Math.round(end - start)}ms. Heartbeat: ${this.client.ws.ping}ms.`
+    };
   }
 }

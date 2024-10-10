@@ -13,7 +13,7 @@ import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class Userinfo extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class UserInfo extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {
     super({
       category: CommandCategory.Utility,
@@ -48,7 +48,7 @@ export default class Userinfo extends Command<ChatInputCommandInteraction<'cache
       .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
       .setColor(Colors.NotQuiteBlack)
       .setThumbnail(user.displayAvatarURL())
-      .setFields(this._formatFields(user, member))
+      .setFields(UserInfo.formatFields(user, member))
       .setFooter({ text: `User ID: ${user.id}` });
 
     return { embeds: [embed] };
@@ -58,7 +58,7 @@ export default class Userinfo extends Command<ChatInputCommandInteraction<'cache
    * Format the fields for the embed
    */
 
-  private _formatFields(user: User, member: GuildMember | null): EmbedField[] {
+  static formatFields(user: User, member: GuildMember | null): EmbedField[] {
     const fields: EmbedField[] = [];
 
     fields.push({

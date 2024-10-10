@@ -30,7 +30,8 @@ const zCron = z
 export const globalConfigSchema = z.object({
   developers: z.array(zSnowflake).default([]),
   database: z.object({
-    task_runner_cron: zCron
+    task_runner_cron: zCron,
+    report_disregard_cron: zCron
   }),
   commands: z.object({
     error_ttl: z.number().default(7500),

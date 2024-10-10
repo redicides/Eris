@@ -15,6 +15,7 @@ import Logger, { AnsiColor } from '@utils/Logger';
 export default class CommandManager {
   public static readonly application_commands = new Collection<string, Command<CommandInteraction>>();
 
+  // Caches all commands from the commands directory.
   static async cacheCommands() {
     const dirpath = path.resolve('src/commands');
 
@@ -44,7 +45,7 @@ export default class CommandManager {
         CommandManager.application_commands.set(command.data.name, command);
 
         logMessage = `Cached command "${command.data.name}"`;
-        level = 'APPLICATION_COMMANDS';
+        level = 'GLOBAL';
 
         Logger.log(level, logMessage, {
           color: AnsiColor.Purple
@@ -93,10 +94,7 @@ export default class CommandManager {
     return null;
   }
 
-  static handleCommand(
-    interaction: CommandInteraction,
-    config?: Config
-  ): Awaitable<InteractionReplyData> | Awaitable<null> {
+  static handleCommand(interaction: CommandInteraction, config?: Config): Awaitable<InteractionReplyData | null> {
     const command = CommandManager.getCommand(interaction.commandId, interaction.commandName)!;
     return command.execute(interaction, config);
   }

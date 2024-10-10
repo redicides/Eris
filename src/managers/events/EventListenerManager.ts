@@ -8,7 +8,6 @@ import { pluralize } from '@utils/index';
 import Logger, { AnsiColor } from '@utils/Logger';
 import EventListener from './EventListener';
 
-// Utility class for handling event listeners.
 export default class EventListenerManager {
   // Mounts all event listeners from the events directory.
   static async mount(): Promise<void> {

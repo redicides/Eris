@@ -68,10 +68,6 @@ export const CLIENT_SWEEPER_OPTIONS = {
   }
 };
 
-export enum CUSTOM_EVENTS {
-  DmInteraction = 'dmInteraction'
-}
-
 // ————————————————————————————————————————————————————————————————————————————————
 // Miscellaneous
 // ————————————————————————————————————————————————————————————————————————————————
@@ -79,7 +75,8 @@ export enum CUSTOM_EVENTS {
 export const DEFAULT_TIMEZONE = 'GMT';
 
 export const CRON_SLUGS = {
-  TaskRunner: 'TASK_RUNNER'
+  TaskRunner: 'TASK_RUNNER',
+  ReportDisregardRunner: 'REPORT_DISREGARD_RUNNER'
 };
 
 export const PERMANENT_DURATION_KEYS = ['permanent', 'perm', 'p', 'infinity', 'inf', 'forever', 'never'];

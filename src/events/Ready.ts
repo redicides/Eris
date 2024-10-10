@@ -17,5 +17,6 @@ export default class Ready extends EventListener {
     });
 
     CronUtils.startTaskRunner();
+    CronUtils.startReportDisregardRunner();
   }
 }

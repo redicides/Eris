@@ -11,6 +11,8 @@ import InfractionManager, { INFRACTION_COLORS } from '@/managers/database/Infrac
 import TaskManager from '@/managers/database/TaskManager';
 import CacheManager from '@/managers/database/CacheManager';
 
+const { task_runner_cron, report_disregard_cron } = ConfigManager.global_config.database;
+
 /**
  * The class responsible for handling/managing cron utilities.
 
@@ -31,6 +33,7 @@ export class CronUtils {
   public static startJob(
     monitorSlug: string,
     cronTime: CronJobParams['cronTime'],
+    silent: boolean,
     onTick: () => Promise<void> | void
   ): void {
     const cronJobWithCheckIn = Sentry.cron.instrumentCron(CronJob, monitorSlug);
@@ -40,14 +43,14 @@ export class CronUtils {
         cronTime,
         timeZone: DEFAULT_TIMEZONE,
         onTick: async () => {
-          if (monitorSlug !== CRON_SLUGS.TaskRunner)
+          if (!silent)
             Logger.log(monitorSlug, 'Running cron job...', {
               color: AnsiColor.Cyan
             });
 
           await onTick();
 
-          if (monitorSlug !== CRON_SLUGS.TaskRunner)
+          if (!silent)
             Logger.log(monitorSlug, 'Successfully ran cron job.', {
               color: AnsiColor.Green
             });
@@ -55,7 +58,7 @@ export class CronUtils {
       })
       .start();
 
-    Logger.log(monitorSlug, `Cron job started: ${cronTime}`, {
+    Logger.log(monitorSlug, `${silent ? '(Silent) ' : ''}Cron job started: ${cronTime}`, {
       color: AnsiColor.Orange
     });
   }
@@ -65,7 +68,7 @@ export class CronUtils {
    */
 
   public static startTaskRunner(): void {
-    return CronUtils.startJob('TASK_RUNNER', ConfigManager.global_config.database.task_runner_cron, async () => {
+    return CronUtils.startJob('TASK_RUNNER', task_runner_cron, true, async () => {
       await prisma.infraction.deleteMany({
         where: {
           type: 'Warn',
@@ -155,6 +158,34 @@ export class CronUtils {
           await InfractionManager.logInfraction({ config, infraction });
         }
       }
+    });
+  }
+
+  /**
+   * Starts the task runner responsible for disregarding expired reports.
+   */
+
+  public static startReportDisregardRunner(): void {
+    return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, report_disregard_cron, true, async () => {
+      // Delete expired user reports
+
+      await prisma.$executeRaw`DELETE FROM "UserReport"
+      WHERE id IN (
+        SELECT R.id
+        FROM "UserReport" R
+        INNER JOIN "Guild" G ON R."guildId" = G.id
+        WHERE R."reportedAt" + G."userReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
+      )`;
+
+      // Delete expired message reports
+
+      await prisma.$executeRaw`DELETE FROM "MessageReport"
+      WHERE id IN (
+        SELECT R.id
+        FROM "MessageReport" R
+        INNER JOIN "Guild" G ON R."guildId" = G.id
+        WHERE R."reportedAt" + G."messageReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
+      )`;
     });
   }
 }
