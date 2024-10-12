@@ -58,6 +58,20 @@ export default class ReportUserCtx extends Command<UserContextMenuCommandInterac
       };
     }
 
+    if (target.id === interaction.user.id) { 
+      return { 
+        error: 'You cannot report yourself.',
+        temporary: true
+      }
+    }
+
+    if (target.id === this.client.user!.id) { 
+      return { 
+        error: 'You cannot report me.',
+        temporary: true
+      }
+    }
+
     if (targetMember) {
       if (targetMember.roles.cache.some(role => config.userReportsImmuneRoles.includes(role.id))) {
         return {
