@@ -25,7 +25,8 @@ export default class UserReportResolve extends Component {
     if (!report) {
       await interaction.message.delete().catch(() => null);
       return {
-        error: 'Failed to fetch the related report... Log deleted without resolving.'
+        error: 'Failed to fetch the related report... Log deleted without resolving.',
+        temporary: true
       };
     }
 
