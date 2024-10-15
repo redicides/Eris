@@ -1,4 +1,13 @@
-import { GatewayIntentBits, GuildMember, Options, Partials, Sweepers } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  GatewayIntentBits,
+  GuildMember,
+  Options,
+  Partials,
+  Sweepers
+} from 'discord.js';
 
 // ————————————————————————————————————————————————————————————————————————————————
 // Client configuration
@@ -80,3 +89,10 @@ export const CRON_SLUGS = {
 };
 
 export const PERMANENT_DURATION_KEYS = ['permanent', 'perm', 'p', 'infinity', 'inf', 'forever', 'never'];
+
+export const EMPTY_MESSAGE_CONTENT = 'Unknown message content.';
+
+export const YES_BUTTON = new ButtonBuilder().setCustomId('?yes').setLabel('Yes').setStyle(ButtonStyle.Success);
+export const NO_BUTTON = new ButtonBuilder().setCustomId('?no').setLabel('No').setStyle(ButtonStyle.Danger);
+
+export const YES_NO_ROW = new ActionRowBuilder<ButtonBuilder>().setComponents(YES_BUTTON, NO_BUTTON);

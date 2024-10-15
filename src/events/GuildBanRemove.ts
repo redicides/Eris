@@ -1,7 +1,7 @@
 import { Events, GuildBan } from 'discord.js';
 
-import TaskManager from '@/managers/database/TaskManager';
-import EventListener from '@/managers/events/EventListener';
+import TaskManager from '@managers/database/TaskManager';
+import EventListener from '@managers/events/EventListener';
 
 export default class GuildBanRemove extends EventListener {
   constructor() {

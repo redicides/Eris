@@ -8,9 +8,9 @@ import { Guild as Config } from '@prisma/client';
 
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
-import TaskManager from '@/managers/database/TaskManager';
+import Command, { CommandCategory } from '@managers/commands/Command';
+import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import TaskManager from '@managers/database/TaskManager';
 
 export default class Unban extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {

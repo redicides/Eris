@@ -12,9 +12,9 @@ import { PERMANENT_DURATION_KEYS } from '@utils/Constants';
 import { InteractionReplyData } from '@utils/Types';
 import { parseDuration } from '@utils/index';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
-import TaskManager from '@/managers/database/TaskManager';
+import Command, { CommandCategory } from '@managers/commands/Command';
+import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import TaskManager from '@managers/database/TaskManager';
 
 export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {

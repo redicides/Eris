@@ -11,13 +11,13 @@ import { Guild } from '@prisma/client';
 import { Sentry } from '@/index';
 import { InteractionReplyData } from '@utils/Types';
 
-import CommandManager from '@/managers/commands/CommandManager';
-import EventListener from '@/managers/events/EventListener';
-import ConfigManager from '@/managers/config/ConfigManager';
+import CommandManager from '@managers/commands/CommandManager';
+import EventListener from '@managers/events/EventListener';
+import ConfigManager from '@managers/config/ConfigManager';
 import Logger from '@utils/Logger';
-import CacheManager from '@/managers/database/CacheManager';
-import ComponentManager from '@/managers/components/ComponentManager';
-import Command from '@/managers/commands/Command';
+import CacheManager from '@managers/database/CacheManager';
+import ComponentManager from '@managers/components/ComponentManager';
+import Command from '@managers/commands/Command';
 
 export default class InteractionCreate extends EventListener {
   constructor() {
@@ -31,6 +31,12 @@ export default class InteractionCreate extends EventListener {
 
     if (!interaction.inCachedGuild()) {
       return handleReply(interaction, { content: 'Interactions are only supported in guilds.', ephemeral: true });
+    }
+
+    if (!interaction.isCommand()) {
+      if (interaction.customId.startsWith('?')) {
+        return;
+      }
     }
 
     let commandOrComponent = interaction.isCommand()

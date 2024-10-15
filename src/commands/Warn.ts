@@ -12,8 +12,8 @@ import { parseDuration } from '@utils/index';
 import { PERMANENT_DURATION_KEYS } from '@utils/Constants';
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
+import Command, { CommandCategory } from '@managers/commands/Command';
+import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
 export default class Warn extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {

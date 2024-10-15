@@ -8,9 +8,9 @@ import {
 } from 'discord.js';
 import { Guild as Config, ReportStatus } from '@prisma/client';
 
-import { InteractionReplyData } from '@/utils/Types';
+import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
+import Command, { CommandCategory } from '@managers/commands/Command';
 
 export default class ReportUserCtx extends Command<UserContextMenuCommandInteraction<'cached'>> {
   constructor() {
@@ -54,6 +54,34 @@ export default class ReportUserCtx extends Command<UserContextMenuCommandInterac
     if (!target) {
       return {
         error: 'The target user could not be found.',
+        temporary: true
+      };
+    }
+
+    if (!targetMember && config.userReportsRequireMember) {
+      return {
+        error: 'You cannot report this user because they are not a member of this server.',
+        temporary: true
+      };
+    }
+
+    if (target.id === interaction.user.id) {
+      return {
+        error: 'You cannot report yourself.',
+        temporary: true
+      };
+    }
+
+    if (target.id === interaction.guild.ownerId) {
+      return {
+        error: 'You cannot report the owner of this server.',
+        temporary: true
+      };
+    }
+
+    if (target.id === this.client.user!.id) {
+      return {
+        error: 'You cannot report me.',
         temporary: true
       };
     }

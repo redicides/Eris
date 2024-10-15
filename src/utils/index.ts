@@ -1,8 +1,10 @@
-import { GuildMember, Snowflake } from 'discord.js';
+import { codeBlock, escapeCodeBlock, GuildMember, hyperlink, Snowflake, StickerFormatType } from 'discord.js';
 
 import YAML from 'yaml';
 import fs from 'fs';
 import ms from 'ms';
+import { client } from '..';
+import { EMPTY_MESSAGE_CONTENT } from './Constants';
 
 /**
  * Pluralizes a word based on the given count
@@ -109,4 +111,72 @@ export function parseDuration(durationStr: string | null): number {
 
   if (!isNaN(numericValue)) return numericValue * 1000;
   return ms(durationStr) ?? NaN;
+}
+
+/**
+ * Crops a string if it exceeds the given length
+ *
+ * @param str - The string to crop
+ * @param maxLength - The maximum length of the string
+ * @returns The cropped string (if it exceeds the maximum length)
+ */
+export function elipsify(str: string, maxLength: number): string {
+  if (str.length > maxLength) {
+    const croppedStr = str.slice(0, maxLength - 23);
+    return `${croppedStr}…(${str.length - croppedStr.length} more characters)`;
+  }
+
+  return str;
+}
+
+/**
+ * Crops a string to a maximum number of lines.
+ *
+ * - Appends the number of lines cropped if the string exceeds the maximum number of lines.
+ *
+ * @param str - The string to crop
+ * @param maxLines - The maximum number of lines to keep
+ * @returns The cropped string
+ */
+export function cropLines(str: string, maxLines: number): string {
+  const lines = str.split('\n');
+  const diff = lines.length - maxLines;
+
+  if (diff > 0) {
+    const croppedLines = lines.slice(0, maxLines - 1);
+    croppedLines.push(`(${diff} more ${pluralize(diff, 'line')})`);
+
+    return croppedLines.join('\n');
+  }
+
+  return str;
+}
+
+export async function formatMessageContentForShortLog(
+  content: string | null,
+  stickerId: string | null,
+  url: string | null
+): Promise<string> {
+  let rawContent = url ? hyperlink('Jump to message', url) : '';
+
+  if (stickerId) {
+    const sticker = await client.fetchSticker(stickerId);
+
+    if (sticker.format !== StickerFormatType.Lottie) {
+      rawContent += ` \`|\` ${hyperlink(`Sticker: ${sticker.name}`, sticker.url)}`;
+    } else {
+      rawContent += ` \`|\` Lottie Sticker: ${sticker.name}`;
+    }
+  }
+
+  if (content) {
+    // Escape code blocks
+    content = escapeCodeBlock(content);
+    // Truncate the content if it's too long (account for the formatting characters)
+    content = elipsify(content, 1024 - rawContent.length - 6);
+  } else {
+    content = EMPTY_MESSAGE_CONTENT;
+  }
+
+  return rawContent + codeBlock(content);
 }

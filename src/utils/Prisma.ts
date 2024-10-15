@@ -1,4 +1,4 @@
-import CacheManager from '@/managers/database/CacheManager';
+import CacheManager from '@managers/database/CacheManager';
 
 import { PrismaClient } from '@prisma/client';
 

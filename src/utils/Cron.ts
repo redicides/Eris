@@ -6,10 +6,10 @@ import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/Constants';
 import { client, prisma, Sentry } from '@/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import ConfigManager from '@/managers/config/ConfigManager';
-import InfractionManager, { INFRACTION_COLORS } from '@/managers/database/InfractionManager';
-import TaskManager from '@/managers/database/TaskManager';
-import CacheManager from '@/managers/database/CacheManager';
+import ConfigManager from '@managers/config/ConfigManager';
+import InfractionManager, { INFRACTION_COLORS } from '@managers/database/InfractionManager';
+import TaskManager from '@managers/database/TaskManager';
+import CacheManager from '@managers/database/CacheManager';
 
 const { task_runner_cron, report_disregard_cron } = ConfigManager.global_config.database;
 

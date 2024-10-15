@@ -1,18 +1,19 @@
 import { ButtonInteraction, ComponentType } from 'discord.js';
 
 import { prisma } from '@/index';
+
 import { InteractionReplyData } from '@utils/Types';
 import { YES_NO_ROW } from '@utils/Constants';
 
 import Component from '@managers/components/Component';
 
-export default class UserReportResolveComponent extends Component {
+export default class MessageReportResolveComponent extends Component {
   constructor() {
-    super('user-report-resolve');
+    super('message-report-resolve');
   }
 
   async execute(interaction: ButtonInteraction<'cached'>): Promise<InteractionReplyData> {
-    const report = await prisma.userReport
+    const report = await prisma.messageReport
       .update({
         where: { id: interaction.message.id },
         data: {

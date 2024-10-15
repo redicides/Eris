@@ -1,11 +1,11 @@
 import { ButtonInteraction, Colors, EmbedBuilder } from 'discord.js';
 
-import { InteractionReplyData } from '@/utils/Types';
+import { InteractionReplyData } from '@utils/Types';
 
 import UserInfo from '@/commands/UserInfo';
-import Component from '@/managers/components/Component';
+import Component from '@managers/components/Component';
 
-export default class UserInfoC extends Component {
+export default class UserInfoComponent extends Component {
   constructor() {
     super({ matches: /^user-info-\d{17,19}$/m });
   }

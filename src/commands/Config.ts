@@ -6,13 +6,16 @@ import {
   ChannelType,
   TextChannel
 } from 'discord.js';
+import { Guild as DbConfig } from '@prisma/client';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
-import { InteractionReplyData } from '@/utils/Types';
-import CacheManager from '@/managers/database/CacheManager';
-import { client, prisma } from '..';
-import { parseDuration } from '@/utils';
 import ms from 'ms';
+
+import { client, prisma } from '..';
+import { parseDuration } from '@utils/index';
+import { InteractionReplyData } from '@utils/Types';
+
+import Command, { CommandCategory } from '@managers/commands/Command';
+import CacheManager from '@managers/database/CacheManager';
 
 export default class Config extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {
@@ -72,6 +75,23 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             description: 'Manage the report settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
+              {
+                name: ConfigSubcommand.RequireMember,
+                description: 'Require the user (or auther of a message) to be in the guild to report.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'report-type',
+                    description: 'The type of report.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'User Report', value: 'userReportsRequireMember' },
+                      { name: 'Message Report', value: 'messageReportsRequireMember' }
+                    ]
+                  }
+                ]
+              },
               {
                 name: ConfigSubcommand.Toggle,
                 description: 'Toggle message or user reports.',
@@ -191,30 +211,35 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
     const group = interaction.options.getSubcommandGroup() as ConfigSubcommandGroup;
-    const subcommand = interaction.options.getSubcommand();
+    const subcommand = interaction.options.getSubcommand() as ConfigSubcommand;
+
+    // Pre fetch the guild configuration to avoid multiple database calls on each subcommand.
+    const config = await CacheManager.guilds.get(interaction.guildId);
 
     switch (group) {
       case ConfigSubcommandGroup.Commands: {
         switch (subcommand) {
           case ConfigSubcommand.Toggle:
-            return Config.toggleCommand(interaction);
+            return Config.toggleCommand(interaction, config);
           case ConfigSubcommand.TimeToLive:
-            return Config.setTimeToLive(interaction);
+            return Config.setTimeToLive(interaction, config);
         }
       }
 
       case ConfigSubcommandGroup.Reports:
         switch (subcommand) {
           case ConfigSubcommand.Toggle:
-            return Config.toggleReport(interaction);
+            return Config.toggleReport(interaction, config);
+          case ConfigSubcommand.RequireMember:
+            return Config.requireMember(interaction, config);
           case ConfigSubcommand.SetAlertChannel:
-            return Config.setAlertChannel(interaction);
+            return Config.setAlertChannel(interaction, config);
           case ConfigSubcommand.AddImmuneRole:
             return Config.addImmuneRole(interaction);
           case ConfigSubcommand.RemoveImmuneRole:
             return Config.removeImmuneRole(interaction);
           case ConfigSubcommand.SetAutoDisregard:
-            return Config.setAutoDisregard(interaction);
+            return Config.setAutoDisregard(interaction, config);
         }
     }
 
@@ -225,10 +250,11 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
   }
 
   private static async toggleCommand(
-    interaction: ChatInputCommandInteraction<'cached'>
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: DbConfig
   ): Promise<InteractionReplyData> {
     const command = interaction.options.getString('command', true);
-    let { commandDisabledList } = await CacheManager.guilds.get(interaction.guildId);
+    let { commandDisabledList } = config;
 
     let toggle = true;
 
@@ -249,10 +275,34 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     };
   }
 
-  private static async setTimeToLive(
-    interaction: ChatInputCommandInteraction<'cached'>
+  private static async requireMember(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: DbConfig
   ): Promise<InteractionReplyData> {
-    const config = await CacheManager.guilds.get(interaction.guildId);
+    const type = interaction.options.getString('report-type', true) as keyof typeof config;
+
+    let toggle = true;
+
+    if (config[type] === true) {
+      toggle = false;
+    }
+
+    await prisma.guild.update({
+      where: { id: interaction.guildId },
+      data: { [type]: toggle }
+    });
+
+    return {
+      content: `${type === 'messageReportsRequireMember' ? 'Message authors' : 'Users'} must ${
+        toggle ? 'now' : 'no longer'
+      } be in the guild to submit a report.`
+    };
+  }
+
+  private static async setTimeToLive(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: DbConfig
+  ): Promise<InteractionReplyData> {
     const type = interaction.options.getString('type', true) as keyof typeof config;
     const rawDuration = interaction.options.getString('duration', true);
 
@@ -298,8 +348,10 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     };
   }
 
-  private static async toggleReport(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    const config = await CacheManager.guilds.get(interaction.guildId);
+  private static async toggleReport(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: DbConfig
+  ): Promise<InteractionReplyData> {
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
     let toggle = true;
@@ -321,9 +373,9 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
   }
 
   private static async setAlertChannel(
-    interaction: ChatInputCommandInteraction<'cached'>
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: DbConfig
   ): Promise<InteractionReplyData> {
-    const config = await CacheManager.guilds.get(interaction.guildId);
     const channel = interaction.options.getChannel('channel', true) as TextChannel;
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
@@ -477,8 +529,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     };
   }
 
-  private static async setAutoDisregard(interaction: ChatInputCommandInteraction<'cached'>) {
-    const config = await CacheManager.guilds.get(interaction.guildId);
+  private static async setAutoDisregard(interaction: ChatInputCommandInteraction<'cached'>, config: DbConfig) {
     const rawDuration = interaction.options.getString('duration', true);
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
@@ -538,5 +589,6 @@ enum ConfigSubcommand {
   SetAlertChannel = 'set-alert-channel',
   AddImmuneRole = 'add-immune-role',
   RemoveImmuneRole = 'remove-immune-role',
-  SetAutoDisregard = 'set-auto-disregard'
+  SetAutoDisregard = 'set-auto-disregard',
+  RequireMember = 'require-member'
 }

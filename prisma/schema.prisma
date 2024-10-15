@@ -53,12 +53,14 @@ model Guild {
   messageReportsWebhook        String?
   messageReportsImmuneRoles    String[]
   messageReportsBlacklist      String[]
+  messageReportsRequireMember  Boolean  @default(true)
   messageReportsDisregardAfter BigInt   @default(2592000000)
 
   userReportsEnabled        Boolean  @default(false)
   userReportsWebhook        String?
   userReportsImmuneRoles    String[]
   userReportsBlacklist      String[]
+  userReportsRequireMember  Boolean  @default(true)
   userReportsDisregardAfter BigInt   @default(2592000000)
 
   banRequestsEnabled     Boolean  @default(false)
@@ -112,14 +114,15 @@ model MessageReport {
   // ID of the log
   id         String  @id
   guildId    String
-  messageId  String  @unique
+  messageId  String
   messageUrl String
   channelId  String
   authorId   String
   content    String?
 
-  reportedAt BigInt
-  reportedBy String
+  reportedAt   BigInt
+  reportedBy   String
+  reportReason String
 
   status ReportStatus @default(Pending)
 

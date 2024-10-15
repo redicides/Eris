@@ -3,11 +3,11 @@ import { Awaitable, Collection } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 
-import { pluralize } from '@/utils';
+import { pluralize } from '@utils/index';
 
-import Logger, { AnsiColor } from '@/utils/Logger';
+import Logger, { AnsiColor } from '@utils/Logger';
 import Component, { ComponentInteraction, CustomID } from './Component';
-import { InteractionReplyData } from '@/utils/Types';
+import { InteractionReplyData } from '@utils/Types';
 
 export default class ComponentManager {
   public static readonly components = new Collection<CustomID, Component>();

@@ -11,9 +11,9 @@ import ms from 'ms';
 import { InteractionReplyData } from '@utils/Types';
 import { parseDuration } from '@utils/index';
 
-import Command, { CommandCategory } from '@/managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
-import TaskManager from '@/managers/database/TaskManager';
+import Command, { CommandCategory } from '@managers/commands/Command';
+import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import TaskManager from '@managers/database/TaskManager';
 
 export default class Mute extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {

@@ -12,13 +12,13 @@ import {
 import { Guild as Config } from '@prisma/client';
 
 import { prisma } from '@/index';
-import { userMentionWithId } from '@/utils';
-import { InteractionReplyData } from '@/utils/Types';
+import { userMentionWithId } from '@utils/index';
+import { InteractionReplyData } from '@utils/Types';
 
-import Component from '@/managers/components/Component';
-import CacheManager from '@/managers/database/CacheManager';
+import Component from '@managers/components/Component';
+import CacheManager from '@managers/database/CacheManager';
 
-export default class ReportUser extends Component {
+export default class ReportUserComponent extends Component {
   constructor() {
     super({ matches: /^report-user-\d{17,19}$/m });
   }
@@ -49,8 +49,8 @@ export default class ReportUser extends Component {
 
     const targetId = interaction.customId.split('-')[2];
 
-    const member = await interaction.guild.members.fetch(targetId).catch(() => null);
-    const target = member?.user ?? (await interaction.client.users.fetch(targetId).catch(() => null));
+    const targetMember = await interaction.guild.members.fetch(targetId).catch(() => null);
+    const target = targetMember?.user ?? (await interaction.client.users.fetch(targetId).catch(() => null));
 
     if (!target) {
       return {
@@ -59,8 +59,15 @@ export default class ReportUser extends Component {
       };
     }
 
-    if (member) {
-      if (member.roles.cache.some(role => config.userReportsImmuneRoles.includes(role.id))) {
+    if (!targetMember && config.userReportsRequireMember) {
+      return {
+        error: 'You cannot report this user because they are not a member of this server.',
+        temporary: true
+      };
+    }
+
+    if (targetMember) {
+      if (targetMember.roles.cache.some(role => config.userReportsImmuneRoles.includes(role.id))) {
         return {
           error: 'You cannot report this user.',
           temporary: true
@@ -77,7 +84,7 @@ export default class ReportUser extends Component {
       };
     }
 
-    return ReportUser._createReport({ interaction, config, target, reason });
+    return ReportUserComponent._createReport({ interaction, config, target, reason });
   }
 
   private static async _createReport(data: {
