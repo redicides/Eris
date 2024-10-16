@@ -62,7 +62,7 @@ export default class ReportMessageCtx extends Command<MessageContextMenuCommandI
 
     if (!targetMember && config.userReportsRequireMember) {
       return {
-        error: 'You cannot report the author of this message because they are not a member of this server.',
+        error: 'You cannot report this message because the author is not a member of this server.',
         temporary: true
       };
     }
