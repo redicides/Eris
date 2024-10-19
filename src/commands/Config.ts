@@ -34,12 +34,12 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             options: [
               {
                 name: ConfigSubcommand.Toggle,
-                description: 'Toggle a command.',
+                description: 'Enable or disable a command.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'command',
-                    description: 'The command to toggle.',
+                    description: 'The command to enable or disable.',
                     type: ApplicationCommandOptionType.String,
                     required: true
                   }
@@ -271,7 +271,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     });
 
     return {
-      content: `Command \`${command}\` has been ${toggle ? 'enabled' : 'disabled'}.`
+      content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${command}\`.`
     };
   }
 
