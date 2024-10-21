@@ -62,7 +62,7 @@ export default class MessageReportManagerComponent extends Component {
         await interaction.message?.delete().catch(() => null);
 
         return {
-          content: `Successfully accepted the report - ID \`#{report.id}\``,
+          content: `Successfully accepted the report - ID \`#${report.id}\``,
           temporary: true
         };
       }
@@ -84,7 +84,7 @@ export default class MessageReportManagerComponent extends Component {
         await interaction.message?.delete().catch(() => null);
 
         return {
-          content: `Successfully denied the report - ID \`#{report.id}\``,
+          content: `Successfully denied the report - ID \`#${report.id}\``,
           temporary: true
         };
       }
