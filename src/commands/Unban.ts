@@ -54,7 +54,7 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
       };
     }
 
-    const vResult = await InfractionManager.validateAction({
+    const vResult = InfractionManager.validateAction({
       guild: interaction.guild,
       target,
       executor: interaction.member!,
@@ -64,6 +64,13 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
     if (!vResult.success) {
       return {
         error: vResult.message,
+        temporary: true
+      };
+    }
+
+    if (!(await interaction.guild.bans.fetch(target.id).catch(() => null))) {
+      return {
+        error: 'You cannot unban someone who is not banned.',
         temporary: true
       };
     }

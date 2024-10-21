@@ -82,7 +82,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
       };
     }
 
-    const vResult = await InfractionManager.validateAction({
+    const vResult = InfractionManager.validateAction({
       guild: interaction.guild,
       target: member ?? target,
       executor: interaction.member!,

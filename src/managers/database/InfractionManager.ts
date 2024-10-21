@@ -24,12 +24,13 @@ export default class InfractionManager {
   static async getInfraction(options: Prisma.InfractionFindUniqueArgs): Promise<Infraction | null> {
     return prisma.infraction.findUnique({
       where: options.where,
-      include: options.include
+      include: options.include,
+      select: options.select
     });
   }
 
   static async deleteInfraction(options: Prisma.InfractionDeleteArgs): Promise<Infraction | null> {
-    return prisma.infraction.delete({ where: options.where, include: options.include });
+    return prisma.infraction.delete({ where: options.where, include: options.include, select: options.select });
   }
 
   static async getActiveMute(options: { guildId: Snowflake; targetId: Snowflake }): Promise<Infraction | null> {
@@ -42,12 +43,12 @@ export default class InfractionManager {
     });
   }
 
-  public static async validateAction(data: {
+  public static validateAction(data: {
     guild: Guild;
     target: GuildMember | User;
     executor: GuildMember;
     action: InfractionType;
-  }): Promise<Result> {
+  }): Result {
     const { target, executor, action, guild } = data;
     const lAction = action.toLowerCase();
 
@@ -55,8 +56,6 @@ export default class InfractionManager {
     if (target.id === client.user!.id) return { success: false, message: `You cannot ${lAction} me.` };
 
     if (target.id === guild.ownerId) return { success: false, message: `You cannot ${lAction} the server owner.` };
-    if (action === InfractionType.Unban && !(await guild.bans.fetch(target.id).catch(() => null)))
-      return { success: false, message: `You cannot ${lAction} someone who is not banned.` };
 
     if (target instanceof GuildMember) {
       if (!hierarchyCheck(executor, target))

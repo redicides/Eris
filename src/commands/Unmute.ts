@@ -55,7 +55,7 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
       };
     }
 
-    const vResult = await InfractionManager.validateAction({
+    const vResult = InfractionManager.validateAction({
       guild: interaction.guild,
       target,
       executor: interaction.member!,
