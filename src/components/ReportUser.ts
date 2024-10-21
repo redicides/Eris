@@ -6,14 +6,14 @@ import {
   Colors,
   EmbedBuilder,
   ModalSubmitInteraction,
+  roleMention,
   User,
   WebhookClient
 } from 'discord.js';
-import { Guild as Config } from '@prisma/client';
 
 import { prisma } from '@/index';
 import { userMentionWithId } from '@utils/index';
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Component from '@managers/components/Component';
 import CacheManager from '@managers/database/CacheManager';
@@ -89,7 +89,7 @@ export default class ReportUserComponent extends Component {
 
   private static async _createReport(data: {
     interaction: ModalSubmitInteraction<'cached'>;
-    config: Config;
+    config: GuildConfig;
     target: User;
     reason: string;
   }): Promise<InteractionReplyData> {
@@ -123,20 +123,42 @@ export default class ReportUserComponent extends Component {
       });
     }
 
-    const resolveButton = new ButtonBuilder()
-      .setCustomId(`user-report-resolve`)
-      .setLabel('Resolve')
+    const acceptButton = new ButtonBuilder()
+      .setCustomId(`user-report-accept`)
+      .setLabel('Accept')
       .setStyle(ButtonStyle.Success);
+
+    const denyButton = new ButtonBuilder()
+      .setCustomId('user-report-deny')
+      .setLabel('Deny')
+      .setStyle(ButtonStyle.Danger);
+
+    const disregardButton = new ButtonBuilder()
+      .setCustomId('user-report-disregard')
+      .setLabel('Disregard')
+      .setStyle(ButtonStyle.Secondary);
 
     const userInfoButton = new ButtonBuilder()
       .setCustomId(`user-info-${target.id}`)
       .setLabel('User Info')
       .setStyle(ButtonStyle.Secondary);
 
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(resolveButton, userInfoButton);
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
+      acceptButton,
+      denyButton,
+      disregardButton,
+      userInfoButton
+    );
+
+    const content =
+      config.userReportsPingRoles.length > 0
+        ? config.userReportsPingRoles.map(r => `${roleMention(r)}`).join(', ')
+        : undefined;
 
     const webhook = new WebhookClient({ url: config.userReportsWebhook! });
-    const log = await webhook.send({ embeds: [embed], components: [actionRow] }).catch(() => null);
+    const log = await webhook
+      .send({ content, embeds: [embed], components: [actionRow], allowedMentions: { parse: ['roles'] } })
+      .catch(() => null);
 
     if (!log) {
       return {

@@ -6,13 +6,12 @@ import {
   ChannelType,
   TextChannel
 } from 'discord.js';
-import { Guild as DbConfig } from '@prisma/client';
 
 import ms from 'ms';
 
 import { client, prisma } from '..';
 import { parseDuration } from '@utils/index';
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CacheManager from '@managers/database/CacheManager';
@@ -76,23 +75,6 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
-                name: ConfigSubcommand.RequireMember,
-                description: 'Require the user (or auther of a message) to be in the guild to report.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'report-type',
-                    description: 'The type of report.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'User Report', value: 'userReportsRequireMember' },
-                      { name: 'Message Report', value: 'messageReportsRequireMember' }
-                    ]
-                  }
-                ]
-              },
-              {
                 name: ConfigSubcommand.Toggle,
                 description: 'Toggle message or user reports.',
                 type: ApplicationCommandOptionType.Subcommand,
@@ -105,6 +87,40 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
                     choices: [
                       { name: 'User Report', value: 'userReportsEnabled' },
                       { name: 'Message Report', value: 'messageReportsEnabled' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.ToggleNotifications,
+                description: 'Toggle status notifications for a specific report type.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'report-type',
+                    description: 'The type of the report.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'User Report', value: 'userReportsNotifyStatus' },
+                      { name: 'Message Report', value: 'messageReportsNotifyStatus' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RequireMember,
+                description: 'Require the user (or auther of a message) to be in the guild to report.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'report-type',
+                    description: 'The type of report.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'User Report', value: 'userReportsRequireMember' },
+                      { name: 'Message Report', value: 'messageReportsRequireMember' }
                     ]
                   }
                 ]
@@ -180,6 +196,52 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
                 ]
               },
               {
+                name: ConfigSubcommand.AddPingRole,
+                description: 'Add a role to the ping roles list for a specific report type.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'role',
+                    description: 'The role to add to the ping roles list.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'report-type',
+                    description: 'The type of report to add the ping role to.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'User Report', value: 'userReportsPingRoles' },
+                      { name: 'Message Report', value: 'messageReportsPingRoles' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemovePingRole,
+                description: 'Remove a role from the ping roles list for a specific report type.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'role',
+                    description: 'The role to remove from the ping roles list.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'report-type',
+                    description: 'The type of report to remove the ping role from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'User Report', value: 'userReportsPingRoles' },
+                      { name: 'Message Report', value: 'messageReportsPingRoles' }
+                    ]
+                  }
+                ]
+              },
+              {
                 name: ConfigSubcommand.SetAutoDisregard,
                 description: 'Set the auto disregard duration for a specific report type.',
                 type: ApplicationCommandOptionType.Subcommand,
@@ -213,7 +275,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     const group = interaction.options.getSubcommandGroup() as ConfigSubcommandGroup;
     const subcommand = interaction.options.getSubcommand() as ConfigSubcommand;
 
-    // Pre fetch the guild configuration to avoid multiple database calls on each subcommand.
+    // Pre fetch the guild configuration manually instead of getting it from the execute method
     const config = await CacheManager.guilds.get(interaction.guildId);
 
     switch (group) {
@@ -230,6 +292,8 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
         switch (subcommand) {
           case ConfigSubcommand.Toggle:
             return Config.toggleReport(interaction, config);
+          case ConfigSubcommand.ToggleNotifications:
+            return Config.toggleNotifications(interaction, config);
           case ConfigSubcommand.RequireMember:
             return Config.requireMember(interaction, config);
           case ConfigSubcommand.SetAlertChannel:
@@ -238,6 +302,10 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             return Config.addImmuneRole(interaction);
           case ConfigSubcommand.RemoveImmuneRole:
             return Config.removeImmuneRole(interaction);
+          case ConfigSubcommand.AddPingRole:
+            return Config.addPingRole(interaction);
+          case ConfigSubcommand.RemovePingRole:
+            return Config.removePingRole(interaction);
           case ConfigSubcommand.SetAutoDisregard:
             return Config.setAutoDisregard(interaction, config);
         }
@@ -251,7 +319,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
   private static async toggleCommand(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: DbConfig
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const command = interaction.options.getString('command', true);
     let { commandDisabledList } = config;
@@ -277,7 +345,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
   private static async requireMember(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: DbConfig
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
@@ -301,7 +369,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
   private static async setTimeToLive(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: DbConfig
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const type = interaction.options.getString('type', true) as keyof typeof config;
     const rawDuration = interaction.options.getString('duration', true);
@@ -348,9 +416,33 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     };
   }
 
+  private static async toggleNotifications(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData> {
+    const type = interaction.options.getString('report-type', true) as keyof typeof config;
+
+    let toggle = true;
+
+    if (config[type] === true) {
+      toggle = false;
+    }
+
+    await prisma.guild.update({
+      where: { id: interaction.guildId },
+      data: { [type]: toggle }
+    });
+
+    return {
+      content: `Users will ${toggle ? 'now' : 'no longer'} receive status notifications for ${
+        type === 'messageReportsNotifyStatus' ? 'message reports' : 'user reports'
+      }.`
+    };
+  }
+
   private static async toggleReport(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: DbConfig
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
@@ -374,7 +466,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
   private static async setAlertChannel(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: DbConfig
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const channel = interaction.options.getChannel('channel', true) as TextChannel;
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
@@ -529,7 +621,79 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     };
   }
 
-  private static async setAutoDisregard(interaction: ChatInputCommandInteraction<'cached'>, config: DbConfig) {
+  private static async addPingRole(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+    const config = (await prisma.guild.findUnique({
+      where: {
+        id: interaction.guildId
+      },
+      select: {
+        userReportsPingRoles: true,
+        messageReportsPingRoles: true
+      }
+    }))!;
+
+    const role = interaction.options.getRole('role', true);
+    const type = interaction.options.getString('report-type', true) as keyof typeof config;
+
+    if (config[type].includes(role.id)) {
+      return {
+        error: `The role ${role.toString()} is already in the ping roles list for ${
+          type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+        }.`,
+        temporary: true
+      };
+    }
+
+    await prisma.guild.update({
+      where: { id: interaction.guildId },
+      data: { [type]: { push: role.id } }
+    });
+
+    return {
+      content: `The role ${role.toString()} has been added to the ping roles list for ${
+        type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+      }.`
+    };
+  }
+
+  private static async removePingRole(
+    interaction: ChatInputCommandInteraction<'cached'>
+  ): Promise<InteractionReplyData> {
+    const config = (await prisma.guild.findUnique({
+      where: {
+        id: interaction.guildId
+      },
+      select: {
+        userReportsPingRoles: true,
+        messageReportsPingRoles: true
+      }
+    }))!;
+
+    const role = interaction.options.getRole('role', true);
+    const type = interaction.options.getString('report-type', true) as keyof typeof config;
+
+    if (!config[type].includes(role.id)) {
+      return {
+        error: `The role ${role.toString()} is not in the ping roles list for ${
+          type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+        }.`,
+        temporary: true
+      };
+    }
+
+    await prisma.guild.update({
+      where: { id: interaction.guildId },
+      data: { [type]: { set: config[type].filter(r => r !== role.id) } }
+    });
+
+    return {
+      content: `The role ${role.toString()} has been removed from the ping roles list for ${
+        type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+      }.`
+    };
+  }
+
+  private static async setAutoDisregard(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
     const rawDuration = interaction.options.getString('duration', true);
     const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
@@ -585,10 +749,13 @@ enum ConfigSubcommandGroup {
 
 enum ConfigSubcommand {
   Toggle = 'toggle',
+  ToggleNotifications = 'toggle-notifications',
   TimeToLive = 'time-to-live',
   SetAlertChannel = 'set-alert-channel',
   AddImmuneRole = 'add-immune-role',
+  AddPingRole = 'add-ping-role',
   RemoveImmuneRole = 'remove-immune-role',
+  RemovePingRole = 'remove-ping-role',
   SetAutoDisregard = 'set-auto-disregard',
   RequireMember = 'require-member'
 }

@@ -10,11 +10,11 @@ import {
   time,
   Message
 } from 'discord.js';
-import { Infraction, InfractionType, Prisma, Guild as Config } from '@prisma/client';
+import { Infraction, InfractionType, Prisma } from '@prisma/client';
 
 import { client, prisma } from '@/index';
 import { capitalize, hierarchyCheck, userMentionWithId } from '@utils/index';
-import { Result } from '@utils/Types';
+import { GuildConfig, Result } from '@utils/Types';
 
 export default class InfractionManager {
   static async storeInfraction(data: Prisma.InfractionCreateArgs['data']): Promise<Infraction> {
@@ -75,7 +75,7 @@ export default class InfractionManager {
     return { success: true };
   }
 
-  static async logInfraction(data: { config: Config; infraction: Infraction }): Promise<APIMessage | null> {
+  static async logInfraction(data: { config: GuildConfig; infraction: Infraction }): Promise<APIMessage | null> {
     const { config, infraction } = data;
 
     if (!config.infractionLoggingEnabled || !config.infractionLoggingWebhook) return null;
@@ -102,11 +102,10 @@ export default class InfractionManager {
 
   static async sendNotificationDM(data: {
     guild: Guild;
-    config: Config;
     target: GuildMember;
     infraction: Infraction;
   }): Promise<Message | null> {
-    const { guild, config, target, infraction } = data;
+    const { guild, target, infraction } = data;
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })

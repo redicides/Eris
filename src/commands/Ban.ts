@@ -4,12 +4,11 @@ import {
   ChatInputCommandInteraction,
   PermissionFlagsBits
 } from 'discord.js';
-import { Guild as Config } from '@prisma/client';
 
 import ms from 'ms';
 
 import { PERMANENT_DURATION_KEYS } from '@utils/Constants';
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { parseDuration } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -65,7 +64,10 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>, config: Config): Promise<InteractionReplyData> {
+  async execute(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData> {
     const member = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
     const rawReason = interaction.options.getString('reason', false);
@@ -131,7 +133,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
     let bResult = true;
 
     if (member) {
-      await InfractionManager.sendNotificationDM({ guild: interaction.guild, config, target: member, infraction });
+      await InfractionManager.sendNotificationDM({ guild: interaction.guild, target: member, infraction });
     }
 
     await InfractionManager.resolvePunishment({

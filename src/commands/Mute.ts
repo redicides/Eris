@@ -4,11 +4,9 @@ import {
   ChatInputCommandInteraction,
   PermissionFlagsBits
 } from 'discord.js';
-import { Guild as Config } from '@prisma/client';
-
 import ms from 'ms';
 
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { parseDuration } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -51,7 +49,10 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>, config: Config): Promise<InteractionReplyData> {
+  async execute(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', true);
     const rawReason = interaction.options.getString('reason', false);
@@ -143,7 +144,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       type: 'Mute'
     });
 
-    InfractionManager.sendNotificationDM({ guild: interaction.guild, config, target, infraction });
+    InfractionManager.sendNotificationDM({ guild: interaction.guild, target, infraction });
     InfractionManager.logInfraction({ config, infraction });
 
     return {

@@ -6,12 +6,11 @@ import {
   ActionRowBuilder,
   ModalBuilder
 } from 'discord.js';
-import { Guild as Config, ReportStatus } from '@prisma/client';
+import { ReportStatus } from '@prisma/client';
 
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import CacheManager from '@managers/database/CacheManager';
 
 export default class ReportMessageCtx extends Command<MessageContextMenuCommandInteraction<'cached'>> {
   constructor() {
@@ -26,7 +25,7 @@ export default class ReportMessageCtx extends Command<MessageContextMenuCommandI
 
   async execute(
     interaction: MessageContextMenuCommandInteraction<'cached'>,
-    config: Config
+    config: GuildConfig
   ): Promise<InteractionReplyData | null> {
     if (!config.messageReportsEnabled) {
       return {

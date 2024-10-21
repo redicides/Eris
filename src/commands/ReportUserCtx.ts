@@ -6,9 +6,9 @@ import {
   TextInputStyle,
   UserContextMenuCommandInteraction
 } from 'discord.js';
-import { Guild as Config, ReportStatus } from '@prisma/client';
+import { ReportStatus } from '@prisma/client';
 
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
@@ -25,7 +25,7 @@ export default class ReportUserCtx extends Command<UserContextMenuCommandInterac
 
   async execute(
     interaction: UserContextMenuCommandInteraction<'cached'>,
-    config: Config
+    config: GuildConfig
   ): Promise<InteractionReplyData | null> {
     if (!config.userReportsEnabled) {
       return {

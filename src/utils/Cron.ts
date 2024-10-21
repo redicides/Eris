@@ -58,7 +58,7 @@ export class CronUtils {
       })
       .start();
 
-    Logger.log(monitorSlug, `${silent ? '(Silent) ' : ''}Cron job started: ${cronTime}`, {
+    Logger.log(monitorSlug, `${silent ? 'Silent ' : ''}Cron job started: ${cronTime}`, {
       color: AnsiColor.Orange
     });
   }

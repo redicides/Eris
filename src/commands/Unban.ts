@@ -4,9 +4,8 @@ import {
   ChatInputCommandInteraction,
   PermissionFlagsBits
 } from 'discord.js';
-import { Guild as Config } from '@prisma/client';
 
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
@@ -41,7 +40,10 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>, config: Config): Promise<InteractionReplyData> {
+  async execute(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData> {
     const target = interaction.options.getUser('target');
     const rawReason = interaction.options.getString('reason', false);
 

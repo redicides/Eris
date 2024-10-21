@@ -7,6 +7,7 @@ import {
   EmbedBuilder,
   Message,
   ModalSubmitInteraction,
+  roleMention,
   TextChannel,
   User,
   WebhookClient
@@ -116,8 +117,8 @@ export default class ReportMessageComponent extends Component {
   }): Promise<InteractionReplyData> {
     const { interaction, config, target, message, reason } = data;
 
-    const content = cleanContent(message.content, message.channel);
-    const croppedContent = cropLines(content, 5);
+    const msgContent = cleanContent(message.content, message.channel);
+    const croppedContent = cropLines(msgContent, 5);
     const stickerId = message.stickers.first()?.id ?? null;
 
     const embed = new EmbedBuilder()
@@ -176,20 +177,46 @@ export default class ReportMessageComponent extends Component {
 
     embeds.push(embed);
 
-    const resolveButton = new ButtonBuilder()
-      .setCustomId(`message-report-resolve`)
-      .setLabel('Resolve')
+    const acceptButton = new ButtonBuilder()
+      .setCustomId(`message-report-accept`)
+      .setLabel('Accept')
       .setStyle(ButtonStyle.Success);
+
+    const denyButton = new ButtonBuilder()
+      .setCustomId('message-report-deny')
+      .setLabel('Deny')
+      .setStyle(ButtonStyle.Danger);
+
+    const disregardButton = new ButtonBuilder()
+      .setCustomId('message-report-disregard')
+      .setLabel('Disregard')
+      .setStyle(ButtonStyle.Secondary);
 
     const userInfoButton = new ButtonBuilder()
       .setCustomId(`user-info-${target.id}`)
       .setLabel('User Info')
       .setStyle(ButtonStyle.Secondary);
 
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(resolveButton, userInfoButton);
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
+      acceptButton,
+      denyButton,
+      disregardButton,
+      userInfoButton
+    );
+    const content =
+      config.messageReportsPingRoles.length > 0
+        ? config.messageReportsPingRoles.map(r => roleMention(r)).join(', ')
+        : undefined;
 
     const webhook = new WebhookClient({ url: config.messageReportsWebhook! });
-    const log = await webhook.send({ embeds, components: [actionRow] }).catch(() => null);
+    const log = await webhook
+      .send({
+        content,
+        embeds,
+        components: [actionRow],
+        allowedMentions: { parse: ['roles'] }
+      })
+      .catch(() => null);
 
     if (!log) {
       return {
