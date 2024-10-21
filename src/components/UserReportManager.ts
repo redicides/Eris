@@ -37,12 +37,10 @@ export default class UserReportManagerComponent extends Component {
       .setColor(action === 'accept' ? Colors.Green : Colors.Red)
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
       .setTitle(`Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
-      .setDescription(
-        `Hi, ${user!.toString()}. Your user report against ${userMentionWithId(report.targetId)} has been ${
-          action === 'accept' ? 'accepted' : 'denied'
-        }.`
-      )
-      .setFields([{ name: 'Reason', value: reason }])
+      .setFields([
+        { name: 'Reported User', value: userMentionWithId(report.targetId) },
+        { name: 'Reason', value: reason }
+      ])
       .setFooter({ text: `Report ID: #${report.id}` })
       .setTimestamp();
 

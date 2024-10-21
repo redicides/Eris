@@ -37,14 +37,9 @@ export default class MessageReportManagerComponent extends Component {
       .setColor(action === 'accept' ? Colors.Green : Colors.Red)
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
       .setTitle(`Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
-      .setDescription(
-        `Hi, ${user!.toString()}. Your report against ${userMentionWithId(report.authorId)}'s message has been ${
-          action === 'accept' ? 'accepted' : 'denied'
-        }.`
-      )
       .setFields([
-        { name: 'Reason', value: reason },
-        { name: 'Message', value: `\`${report.messageId}\` - (${report.messageUrl})` }
+        { name: 'Reported Message', value: `\`${report.messageId}\` - (${report.messageUrl})` },
+        { name: 'Reason', value: reason }
       ])
       .setFooter({ text: `Report ID: #${report.id}` })
       .setTimestamp();
