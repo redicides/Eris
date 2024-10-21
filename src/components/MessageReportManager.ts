@@ -38,7 +38,7 @@ export default class MessageReportManagerComponent extends Component {
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
       .setTitle(`Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
       .setFields([
-        { name: 'Reported Message', value: `\`${report.messageId}\` - (${report.messageUrl})` },
+        { name: 'Reported Message', value: `${report.messageUrl} (\`${report.messageId}\`)`},
         { name: `Reviewer Reason`, value: reason }
       ])
       .setFooter({ text: `Report ID: #${report.id}` })
