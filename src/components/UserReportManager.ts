@@ -39,7 +39,7 @@ export default class UserReportManagerComponent extends Component {
       .setTitle(`Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
       .setFields([
         { name: 'Reported User', value: userMentionWithId(report.targetId) },
-        { name: 'Reason', value: reason }
+        { name: 'Reviewer Reason', value: reason }
       ])
       .setFooter({ text: `Report ID: #${report.id}` })
       .setTimestamp();

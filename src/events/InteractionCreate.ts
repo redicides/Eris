@@ -33,10 +33,8 @@ export default class InteractionCreate extends EventListener {
       return handleReply(interaction, { content: 'Interactions are only supported in guilds.', ephemeral: true });
     }
 
-    if (!interaction.isCommand()) {
-      if (interaction.customId.startsWith('?')) {
-        return;
-      }
+    if (!interaction.isCommand() && interaction.customId.startsWith('?')) {
+      return;
     }
 
     let commandOrComponent = interaction.isCommand()
@@ -51,10 +49,10 @@ export default class InteractionCreate extends EventListener {
       await InteractionCreate._handleCommandChecks(interaction as CommandInteraction<'cached'>, commandOrComponent);
     }
 
-    const config = await CacheManager.guilds.get(interaction.guildId);
+    const guild = await CacheManager.guilds.get(interaction.guildId);
 
     try {
-      await InteractionCreate.handleInteraction(interaction, config);
+      await InteractionCreate.handleInteraction(interaction, guild);
     } catch (error) {
       const sentryId = Sentry.captureException(error, {
         user: {
@@ -212,6 +210,6 @@ export function handleReply(
   const { ephemeral, ...parsedOptions } = options;
 
   return !interaction.deferred && !interaction.replied
-    ? interaction.reply({ ephemeral, ...parsedOptions }).catch(() => {})
+    ? interaction.reply(options).catch(() => {})
     : interaction.editReply({ ...parsedOptions }).catch(() => {});
 }

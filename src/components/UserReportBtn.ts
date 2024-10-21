@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonInteraction, ModalBuilder, TextInputBuilder, Te
 
 import { prisma } from '@/index';
 import { InteractionReplyData } from '@utils/Types';
+import { capitalize } from '@utils/index';
 
 import Component from '@managers/components/Component';
 
@@ -60,8 +61,8 @@ export default class UserReportComponent extends Component {
         const actionRow = new ActionRowBuilder<TextInputBuilder>().setComponents(reasonText);
 
         const modal = new ModalBuilder()
-          .setCustomId(`user-report-${action === 'accept' ? 'accept' : 'deny'}-${report.id}`)
-          .setTitle(`Action Reason`)
+          .setCustomId(`user-report-${action}-${report.id}`)
+          .setTitle(`${capitalize(action)} Report`)
           .setComponents(actionRow);
 
         await interaction.showModal(modal);

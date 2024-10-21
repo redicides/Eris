@@ -39,7 +39,7 @@ export default class MessageReportManagerComponent extends Component {
       .setTitle(`Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
       .setFields([
         { name: 'Reported Message', value: `\`${report.messageId}\` - (${report.messageUrl})` },
-        { name: 'Reason', value: reason }
+        { name: `Reviewer Reason`, value: reason }
       ])
       .setFooter({ text: `Report ID: #${report.id}` })
       .setTimestamp();

@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonInteraction, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 
 import { InteractionReplyData } from '@utils/Types';
+import { capitalize } from '@utils/index';
 
 import Component from '@managers/components/Component';
 
@@ -59,8 +60,8 @@ export default class MessageReportComponent extends Component {
         const actionRow = new ActionRowBuilder<TextInputBuilder>().setComponents(reasonText);
 
         const modal = new ModalBuilder()
-          .setCustomId(`message-report-${action === 'accept' ? 'accept' : 'deny'}-${report.id}`)
-          .setTitle(`Action Reason`)
+          .setCustomId(`message-report-${action}-${report.id}`)
+          .setTitle(`${capitalize(action)} Report`)
           .setComponents(actionRow);
 
         await interaction.showModal(modal);
