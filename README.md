@@ -47,34 +47,35 @@ You'll need a runtime to execute the code in this repository. Install either Nod
 
 ### Step 2. Dependencies  
 This bot relies on several dependencies (libraries) to run, so you'll need to install them with the package manager of your choice.  
-- Node.js - npm install  
-- Bun - bun install  
+- Node.js - `npm install`
+- Bun - `bun install`
 
 This may take a while, so grab a drink while you're at it.
 
 ### Step 3. Database Setup  
-Like any other server-side Node.js app, this bot relies on a database to store data, specifically PostgreSQL.  
-Thankfully, ORMs like Prisma exist, making life easier for both of us.
+Like any other server-side Node.js app, this bot relies on a database to store data, specifically PostgreSQL. Thankfully, ORMs like Prisma exist, making life easier for both of us.
 
 To ensure your database matches the Prisma schema, run one of these commands depending on your runtime.  
-- Node.js - npx prisma db push  
-- Bun - bunx prisma db push  
+- Node.js - `npx prisma db push`
+- Bun - `bunx prisma db push`
 
 If you don’t encounter any errors, you're good to go; otherwise, you'll need to debug.
 
 ### Step 4. Compiling  
-This bot is written in TypeScript, because who doesn’t love types? Anyway, you'll need to compile the code into vanilla JavaScript to run it.  
+This bot is written in TypeScript, because who doesn’t love types? Anyway, you'll need to compile the code into vanilla JavaScript to run it.
+
 Again, use one of these commands depending on your runtime.  
-- Node.js - npm run compile  
-- Bun - bun compile / bun run compile  
+- Node.js - `npm run compile`
+- Bun - `bun compile` / `bun run compile`
 
 If the compilation fails, you’ll have to figure out why. ChatGPT may be able to help.
 
 ### Step 5. Running  
-Once you've completed all of the steps above, you can (finally) run the bot (provided you've filled out the correct values in .env and charmie.cfg.yml).  
+Once you've completed all of the steps above, you can (finally) run the bot (provided you've filled out the correct values in .env and charmie.cfg.yml).
+
 You get the gist; use one of these commands depending on your runtime.  
-- Node.js - npm run start  
-- Bun - bun start / bun run start  
+- Node.js - `npm run start`
+- Bun - `bun start` / `bun run start`
 
 If you've managed to get the bot running, pat yourself on the back; if not, feel free to cry.
 
