@@ -21,7 +21,10 @@ export default abstract class EventListener {
    * @param options.once Whether the event should only be listened for once.
    * @protected
    */
-  protected constructor(public readonly event: Events | string, public readonly options?: { once: boolean }) {}
+  protected constructor(
+    public readonly event: Events | string,
+    public readonly options?: { once: boolean }
+  ) {}
 
   /**
    * Handles the event.
