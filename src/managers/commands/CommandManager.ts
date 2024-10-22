@@ -12,9 +12,16 @@ import Command from './Command';
 import Logger, { AnsiColor } from '@utils/Logger';
 
 export default class CommandManager {
+  /**
+   * The cached application commands.
+   */
   public static readonly application_commands = new Collection<string, Command<CommandInteraction>>();
 
-  // Caches all commands from the commands directory.
+  /**
+   * Caches all commands from the commands directory.
+   *
+   * @returns void
+   */
   static async cacheCommands() {
     const dirpath = path.resolve('src/commands');
 

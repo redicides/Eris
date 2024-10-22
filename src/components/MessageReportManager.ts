@@ -1,7 +1,6 @@
 import { Colors, EmbedBuilder, ModalSubmitInteraction } from 'discord.js';
 
 import { InteractionReplyData } from '@utils/Types';
-import { userMentionWithId } from '@utils/index';
 
 import Component from '@managers/components/Component';
 
@@ -38,7 +37,7 @@ export default class MessageReportManagerComponent extends Component {
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
       .setTitle(`Message Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
       .setFields([
-        { name: 'Reported Message', value: `${report.messageUrl} (\`${report.messageId}\`)`},
+        { name: 'Reported Message', value: `${report.messageUrl} (\`${report.messageId}\`)` },
         { name: `Reviewer Reason`, value: reason }
       ])
       .setFooter({ text: `Report ID: #${report.id}` })

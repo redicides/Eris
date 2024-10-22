@@ -9,7 +9,11 @@ import Logger, { AnsiColor } from '@utils/Logger';
 import EventListener from './EventListener';
 
 export default class EventListenerManager {
-  // Mounts all event listeners from the events directory.
+  /**
+   * Mounts all event listeners from the events directory.
+   *
+   * @returns void
+   */
   static async mount(): Promise<void> {
     const dirpath = path.resolve('src/events');
 

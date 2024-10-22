@@ -97,7 +97,7 @@ export default class InteractionCreate extends EventListener {
     if (interaction.isCommand()) {
       response = await CommandManager.handleCommand(interaction, config);
     } else {
-      response = await ComponentManager.handleComponent(interaction);
+      response = await ComponentManager.handleComponent(interaction, config);
     }
 
     // The interaction's response was handled manually.

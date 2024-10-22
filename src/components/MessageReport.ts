@@ -1,18 +1,17 @@
 import { ActionRowBuilder, ButtonInteraction, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 
-import { prisma } from '@/index';
 import { InteractionReplyData } from '@utils/Types';
 import { capitalize } from '@utils/index';
 
 import Component from '@managers/components/Component';
 
-export default class UserReportComponent extends Component {
+export default class MessageReportComponent extends Component {
   constructor() {
-    super({ matches: /^user-report-(accept|deny|disregard)$/m });
+    super({ matches: /^message-report-(accept|deny|disregard)$/m });
   }
 
   async execute(interaction: ButtonInteraction<'cached'>): Promise<InteractionReplyData | null> {
-    const report = await prisma.userReport.findUnique({
+    const report = await this.prisma.messageReport.findUnique({
       where: {
         id: interaction.message.id,
         guildId: interaction.guildId
@@ -22,11 +21,10 @@ export default class UserReportComponent extends Component {
     if (!report) {
       setTimeout(async () => {
         await interaction.message.delete().catch(() => null);
-        await interaction.deleteReply().catch(() => null);
-      }, 5000);
+      }, 7000);
 
       return {
-        error: 'Failed to fetch the related report. Log will delete in **5 seconds**.',
+        error: 'Failed to fetch the related report. Log will delete in **7 seconds**.',
         temporary: true
       };
     }
@@ -35,7 +33,7 @@ export default class UserReportComponent extends Component {
 
     switch (action) {
       case 'disregard': {
-        await prisma.userReport.update({
+        await this.prisma.messageReport.update({
           where: { id: interaction.message.id },
           data: { status: 'Disregarded' }
         });
@@ -48,8 +46,8 @@ export default class UserReportComponent extends Component {
         };
       }
 
-      case 'deny':
-      case 'accept': {
+      case 'accept':
+      case 'deny': {
         const reasonText = new TextInputBuilder()
           .setCustomId(`reason`)
           .setLabel('Reason')
@@ -61,7 +59,7 @@ export default class UserReportComponent extends Component {
         const actionRow = new ActionRowBuilder<TextInputBuilder>().setComponents(reasonText);
 
         const modal = new ModalBuilder()
-          .setCustomId(`user-report-${action}-${report.id}`)
+          .setCustomId(`message-report-${action}-${report.id}`)
           .setTitle(`${capitalize(action)} Report`)
           .setComponents(actionRow);
 

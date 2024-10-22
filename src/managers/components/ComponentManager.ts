@@ -4,15 +4,22 @@ import path from 'path';
 import fs from 'fs';
 
 import { pluralize } from '@utils/index';
+import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Logger, { AnsiColor } from '@utils/Logger';
 import Component, { ComponentInteraction, CustomID } from './Component';
-import { InteractionReplyData } from '@utils/Types';
 
 export default class ComponentManager {
+  /**
+   * The cached components.
+   */
   public static readonly components = new Collection<CustomID, Component>();
 
-  // Caches all components from the components directory.
+  /**
+   * Caches all components from the components directory.
+   *
+   * @returns void
+   */
   static async cache() {
     const dirpath = path.resolve('src/components');
 
@@ -99,9 +106,12 @@ export default class ComponentManager {
     });
   }
 
-  static handleComponent(interaction: ComponentInteraction): Awaitable<InteractionReplyData | null> {
+  static handleComponent(
+    interaction: ComponentInteraction,
+    config: GuildConfig
+  ): Awaitable<InteractionReplyData | null> {
     // Retrieve the component's instance from cache by its custom ID
     const component = ComponentManager.getComponent(interaction.customId)!;
-    return component.execute(interaction);
+    return component.execute(interaction, config);
   }
 }

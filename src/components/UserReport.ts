@@ -5,13 +5,13 @@ import { capitalize } from '@utils/index';
 
 import Component from '@managers/components/Component';
 
-export default class MessageReportComponent extends Component {
+export default class UserReportComponent extends Component {
   constructor() {
-    super({ matches: /^message-report-(accept|deny|disregard)$/m });
+    super({ matches: /^user-report-(accept|deny|disregard)$/m });
   }
 
   async execute(interaction: ButtonInteraction<'cached'>): Promise<InteractionReplyData | null> {
-    const report = await this.prisma.messageReport.findUnique({
+    const report = await this.prisma.userReport.findUnique({
       where: {
         id: interaction.message.id,
         guildId: interaction.guildId
@@ -21,7 +21,6 @@ export default class MessageReportComponent extends Component {
     if (!report) {
       setTimeout(async () => {
         await interaction.message.delete().catch(() => null);
-        await interaction.deleteReply().catch(() => null);
       }, 7000);
 
       return {
@@ -34,7 +33,7 @@ export default class MessageReportComponent extends Component {
 
     switch (action) {
       case 'disregard': {
-        await this.prisma.messageReport.update({
+        await this.prisma.userReport.update({
           where: { id: interaction.message.id },
           data: { status: 'Disregarded' }
         });
@@ -47,8 +46,8 @@ export default class MessageReportComponent extends Component {
         };
       }
 
-      case 'accept':
-      case 'deny': {
+      case 'deny':
+      case 'accept': {
         const reasonText = new TextInputBuilder()
           .setCustomId(`reason`)
           .setLabel('Reason')
@@ -60,7 +59,7 @@ export default class MessageReportComponent extends Component {
         const actionRow = new ActionRowBuilder<TextInputBuilder>().setComponents(reasonText);
 
         const modal = new ModalBuilder()
-          .setCustomId(`message-report-${action}-${report.id}`)
+          .setCustomId(`user-report-${action}-${report.id}`)
           .setTitle(`${capitalize(action)} Report`)
           .setComponents(actionRow);
 

@@ -9,7 +9,6 @@ import {
 import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
-// The base class for all commands.
 export default abstract class Command<T extends CommandInteraction> {
   /**
    * The client that owns this command.

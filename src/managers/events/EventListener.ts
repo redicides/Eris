@@ -2,16 +2,15 @@ import { Events } from 'discord.js';
 
 import { client, prisma } from '@/index';
 
-// The base class for all event listeners.
 export default abstract class EventListener {
   /**
-   * The client that owns this command.
+   * The client this listener is attached to.
    */
 
   public client = client;
 
   /**
-   * Attached prisma client for ease of use
+   * Attached prisma client for ease of use.
    */
 
   public prisma = prisma;
@@ -22,10 +21,7 @@ export default abstract class EventListener {
    * @param options.once Whether the event should only be listened for once.
    * @protected
    */
-  protected constructor(
-    public readonly event: Events | string,
-    public readonly options?: { once: boolean }
-  ) {}
+  protected constructor(public readonly event: Events | string, public readonly options?: { once: boolean }) {}
 
   /**
    * Handles the event.

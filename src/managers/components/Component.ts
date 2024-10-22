@@ -1,9 +1,8 @@
 import { Awaitable, MessageComponentInteraction, ModalSubmitInteraction } from 'discord.js';
 
-import { InteractionReplyData } from '@utils/Types';
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { client, prisma } from '@/index';
 
-// The base class for all component interactions.
 export default abstract class Component {
   // The client that owns this component.
 
@@ -25,7 +24,7 @@ export default abstract class Component {
    * Handles the component interaction
    * @param interaction The interaction to handle.
    */
-  abstract execute(interaction: ComponentInteraction): Awaitable<InteractionReplyData | null>;
+  abstract execute(interaction: ComponentInteraction, config: GuildConfig): Awaitable<InteractionReplyData | null>;
 }
 
 export type ComponentInteraction = MessageComponentInteraction | ModalSubmitInteraction;

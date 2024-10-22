@@ -5,12 +5,13 @@ import * as SentryClient from '@sentry/node';
 import { sleep } from '@utils/index';
 import { ExtendedClient } from '@utils/Prisma';
 
-import EventListenerManager from '@managers/events/EventListenerManager';
 import Logger, { AnsiColor } from '@utils/Logger';
+import CharmieClient from '@utils/Client';
+
+import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
-import CharmieClient from '@utils/Client';
-import ComponentManager from './managers/components/ComponentManager';
+import ComponentManager from '@managers/components/ComponentManager';
 
 /**
  * The main client instance.

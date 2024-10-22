@@ -10,7 +10,7 @@ export default class GuildMemberUpdate extends EventListener {
 
   async execute(oldMember: GuildMember, newMember: GuildMember) {
     if (oldMember.isCommunicationDisabled() && !newMember.isCommunicationDisabled()) {
-      // Member was most likely unmuted manually, so we delete all  mute task for this user (if any)
+      // Member was most likely unmuted manually, so we delete all mute task for this user (if any)
 
       await TaskManager.deleteTask({
         where: { targetId_guildId_type: { guildId: newMember.guild.id, targetId: newMember.id, type: 'Mute' } }
