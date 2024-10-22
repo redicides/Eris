@@ -39,8 +39,8 @@ database:
 
 # Self-Hosting  
 If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's "easy" to do.  
-All of the following steps must be performed in the root directory of this project (outside of src, where files like .env are located).  
-Once you've completed a step, move on to the next one.
+
+All of the following steps must be performed in the root directory of this project (outside of src, where files like .env are located), and once you've completed one, move on to the next.
 
 ### Step 1. Runtime  
 You'll need a runtime to execute the code in this repository. Install either Node.js or Bun.
