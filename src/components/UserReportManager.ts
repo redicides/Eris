@@ -36,7 +36,7 @@ export default class UserReportManagerComponent extends Component {
     const notification = new EmbedBuilder()
       .setColor(action === 'accept' ? Colors.Green : Colors.Red)
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
-      .setTitle(`Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
+      .setTitle(`User Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
       .setFields([
         { name: 'Reported User', value: userMentionWithId(report.targetId) },
         { name: 'Reviewer Reason', value: reason }
