@@ -49,6 +49,7 @@ You'll need a runtime to execute the code in this repository. Install either Nod
 This bot relies on several dependencies (libraries) to run, so you'll need to install them with the package manager of your choice.  
 - Node.js - npm install  
 - Bun - bun install  
+
 This may take a while, so grab a drink while you're at it.
 
 ### Step 3. Database Setup  
@@ -58,6 +59,7 @@ Thankfully, ORMs like Prisma exist, making life easier for both of us.
 To ensure your database matches the Prisma schema, run one of these commands depending on your runtime.  
 - Node.js - npx prisma db push  
 - Bun - bunx prisma db push  
+
 If you don’t encounter any errors, you're good to go; otherwise, you'll need to debug.
 
 ### Step 4. Compiling  
@@ -65,6 +67,7 @@ This bot is written in TypeScript, because who doesn’t love types? Anyway, you
 Again, use one of these commands depending on your runtime.  
 - Node.js - npm run compile  
 - Bun - bun compile / bun run compile  
+
 If the compilation fails, you’ll have to figure out why. ChatGPT may be able to help.
 
 ### Step 5. Running  
