@@ -27,7 +27,7 @@ export default class MessageReportManagerComponent extends Component {
       }, 7000);
 
       return {
-        error: 'Failed to fetch the related report. Log will delete in **7 seconds**.',
+        error: 'Failed to fetch the related report. I will attempt to delete the alert in **7 seconds**.',
         temporary: true
       };
     }
