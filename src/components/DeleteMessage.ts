@@ -17,7 +17,7 @@ export default class DeleteMessageComponent extends Component {
 
     if (!channel) {
       return {
-        error: `Failed to fetch the channel for message with ID ${messageId}.`,
+        error: `Failed to fetch the channel for message with ID \`${messageId}\`.`,
         temporary: true
       };
     }
@@ -33,7 +33,7 @@ export default class DeleteMessageComponent extends Component {
 
     if (!message) {
       return {
-        error: `Failed to fetch the message with ID ${messageId}.`,
+        error: `Failed to fetch the message with ID \`${messageId}\`.`,
         temporary: true
       };
     }
