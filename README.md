@@ -2,8 +2,20 @@
 # Charmie  
 A general-purpose Discord bot focused on providing strong moderation solutions while maintaining simplicity and reliability.
 
-# Configuration & Environment Variables  
-If you plan to self-host this bot (big mistake), you'll need to fill in some values. I promise this isn't rocket science.
+# Self-Hosting  
+If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's "easy" to do.  
+
+## Requirements
+Before you get started, ensure you have the following:
+
+- JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
+- PostgreSQL Server (to store data on)
+- Sentry Project (to log errors)
+
+## Configuration & Environment Variables  
+A few variables are required, and this section explians what you need to fill out. I promise this isn't rocket science.
+
+Note: The headers below represent the names of the files you should fill these values in.
 
 ### .env
 
@@ -36,19 +48,6 @@ database:
   task_runner_cron: '* * * * *' # Cron expression for handling expired punishments  
   report_disregard_cron: '* * * * *' # Cron expression for disregarding expired reports
 ```
-
-# Self-Hosting  
-If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's "easy" to do.  
-
-All of the following steps must be performed in the root directory of this project, and they apply to a Linux, Windows, or MacOS environment. Once you've completed one, move on to the next.
-
-## Requirements
-Before you get started, ensure you have the following:
-
-- JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
-- PostgreSQL Server (to store data on)
-- Sentry Project (to log errors)
-
 
 ### Step 1. Dependencies  
 This bot relies on several dependencies (libraries) to run, so you'll need to install them with the package manager of your choice.  
