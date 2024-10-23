@@ -263,6 +263,25 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
                     ]
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.RequireReviewReason,
+                description: 'Require a reason for accepting or denying a report.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'action-type',
+                    description: 'The action to require a reason for.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'User Report Accept', value: 'userReportsRequireAcceptReason' },
+                      { name: 'User Report Deny', value: 'userReportsRequireDenyReason' },
+                      { name: 'Message Report Accept', value: 'messageReportsRequireAcceptReason' },
+                      { name: 'Message Report Deny', value: 'messageReportsRequireDenyReason' }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -308,6 +327,8 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             return Config.removePingRole(interaction);
           case ConfigSubcommand.SetAutoDisregard:
             return Config.setAutoDisregard(interaction, config);
+          case ConfigSubcommand.RequireReviewReason:
+            return Config.requireReviewReason(interaction, config);
         }
     }
 
@@ -740,6 +761,30 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
       })}**.`
     };
   }
+
+  private static async requireReviewReason(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData> {
+    const type = interaction.options.getString('action-type', true) as keyof typeof config;
+
+    let toggle = true;
+
+    if (config[type] === true) {
+      toggle = false;
+    }
+
+    await prisma.guild.update({
+      where: { id: interaction.guildId },
+      data: { [type]: toggle }
+    });
+
+    return {
+      content: `A reason is ${toggle ? 'now' : 'no longer'} required for ${
+        type.includes('Accept') ? 'accepting' : 'denying'
+      } ${type.includes('user') ? 'user reports' : 'message reports'}.`
+    };
+  }
 }
 
 enum ConfigSubcommandGroup {
@@ -757,5 +802,6 @@ enum ConfigSubcommand {
   RemoveImmuneRole = 'remove-immune-role',
   RemovePingRole = 'remove-ping-role',
   SetAutoDisregard = 'set-auto-disregard',
-  RequireMember = 'require-member'
+  RequireMember = 'require-member',
+  RequireReviewReason = 'require-review-reason'
 }

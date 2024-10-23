@@ -1,21 +1,26 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   channelMention,
   cleanContent,
   Colors,
   EmbedBuilder,
   Message,
+  ModalBuilder,
   ModalSubmitInteraction,
   roleMention,
+  TextInputBuilder,
+  TextInputStyle,
   User,
   WebhookClient
 } from 'discord.js';
 
-import { prisma } from '@/index';
+import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from './Types';
-import { cropLines, formatMessageContentForShortLog, userMentionWithId } from './index';
+import { capitalize, cropLines, formatMessageContentForShortLog, userMentionWithId } from './index';
+import { MessageReport, UserReport } from '@prisma/client';
 
 export class ReportUtils {
   /**
@@ -166,6 +171,8 @@ export class ReportUtils {
     const reference = message.reference && (await message.fetchReference().catch(() => null));
 
     const embeds: EmbedBuilder[] = [];
+    const primaryRow = new ActionRowBuilder<ButtonBuilder>();
+    const secondaryRow = new ActionRowBuilder<ButtonBuilder>();
 
     if (reference) {
       const referenceContent = cleanContent(reference.content, reference.channel);
@@ -195,6 +202,11 @@ export class ReportUtils {
 
     embeds.push(embed);
 
+    const deleteMessageButton = new ButtonBuilder()
+      .setCustomId(`delete-message-${message.channel.id}-${message.id}`)
+      .setLabel('Delete Message')
+      .setStyle(ButtonStyle.Primary);
+
     const acceptButton = new ButtonBuilder()
       .setCustomId(`message-report-accept`)
       .setLabel('Accept')
@@ -215,12 +227,23 @@ export class ReportUtils {
       .setLabel('User Info')
       .setStyle(ButtonStyle.Secondary);
 
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
-      acceptButton,
-      denyButton,
-      disregardButton,
-      userInfoButton
-    );
+    const components: ActionRowBuilder<ButtonBuilder>[] = [];
+
+    if (reference) {
+      const deleteReferenceButton = new ButtonBuilder()
+        .setCustomId(`delete-message-${reference.channel.id}-${reference.id}`)
+        .setLabel('Delete Reference')
+        .setStyle(ButtonStyle.Primary);
+
+      primaryRow.setComponents(acceptButton, denyButton, disregardButton, userInfoButton);
+      secondaryRow.setComponents(deleteMessageButton, deleteReferenceButton);
+
+      components.push(primaryRow, secondaryRow);
+    } else {
+      primaryRow.setComponents(deleteMessageButton, acceptButton, denyButton, disregardButton, userInfoButton);
+      components.push(primaryRow);
+    }
+
     const content =
       config.messageReportsPingRoles.length > 0
         ? config.messageReportsPingRoles.map(r => roleMention(r)).join(', ')
@@ -231,7 +254,7 @@ export class ReportUtils {
       .send({
         content,
         embeds,
-        components: [actionRow],
+        components,
         allowedMentions: { parse: ['roles'] }
       })
       .catch(() => null);
@@ -260,5 +283,201 @@ export class ReportUtils {
     return {
       content: `Successfully submitted a report for ${target}'s message - ID \`#${log.id}\``
     };
+  }
+
+  /**
+   * Handle a user report action.
+   *
+   * @param data The data for the action
+   * @returns The interaction reply data
+   */
+
+  public static async handleMessageReportAction(data: {
+    interaction: ModalSubmitInteraction<'cached'> | ButtonInteraction<'cached'>;
+    config: GuildConfig;
+    action: 'accept' | 'deny';
+    report: MessageReport;
+    reason: string | null;
+  }): Promise<InteractionReplyData> {
+    const { interaction, config, action, report, reason } = data;
+
+    const user = await client.users.fetch(report.reportedBy).catch(() => null);
+
+    const embed = new EmbedBuilder()
+      .setColor(action === 'accept' ? Colors.Green : Colors.Red)
+      .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
+      .setTitle(`Message Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
+      .setFields([{ name: 'Reported Message', value: `${report.messageUrl} (\`${report.messageId}\`)` }])
+      .setFooter({ text: `Report ID: #${report.id}` })
+      .setTimestamp();
+
+    if (reason) {
+      embed.addFields({ name: 'Reviewer Reason', value: reason });
+    }
+
+    switch (action) {
+      case 'accept': {
+        await prisma.messageReport.update({
+          where: { id: report.id },
+          data: {
+            resolvedAt: Date.now(),
+            resolvedBy: interaction.user.id,
+            status: 'Accepted'
+          }
+        });
+
+        if (user && config.messageReportsNotifyStatus) {
+          await user.send({ embeds: [embed] }).catch(() => null);
+        }
+
+        let failed = false;
+        await interaction.message?.delete().catch(() => (failed = true));
+
+        return {
+          content: `Successfully accepted the report ${
+            failed ? 'but could not delete the alert' : 'and deleted the alert'
+          } - ID \`#${report.id}\``,
+          temporary: true
+        };
+      }
+
+      case 'deny': {
+        await prisma.messageReport.update({
+          where: { id: report.id },
+          data: {
+            resolvedAt: Date.now(),
+            resolvedBy: interaction.user.id,
+            status: 'Denied'
+          }
+        });
+
+        if (user && config.messageReportsNotifyStatus) {
+          await user.send({ embeds: [embed] }).catch(() => null);
+        }
+
+        let failed = false;
+        await interaction.message?.delete().catch(() => (failed = true));
+
+        return {
+          content: `Successfully denied the report ${
+            failed ? 'but could not delete the alert' : 'and deleted the alert'
+          } - ID \`#${report.id}\``,
+          temporary: true
+        };
+      }
+    }
+  }
+
+  /**
+   * Handle a user report action.
+   *
+   * @param data The data for the action
+   * @returns The interaction reply data
+   */
+
+  public static async handleUserReportAction(data: {
+    interaction: ModalSubmitInteraction<'cached'> | ButtonInteraction<'cached'>;
+    config: GuildConfig;
+    action: 'accept' | 'deny';
+    report: UserReport;
+    reason: string | null;
+  }): Promise<InteractionReplyData> {
+    const { interaction, config, action, report, reason } = data;
+
+    const user = await client.users.fetch(report.reportedBy).catch(() => null);
+
+    const embed = new EmbedBuilder()
+      .setColor(action === 'accept' ? Colors.Green : Colors.Red)
+      .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
+      .setTitle(`User Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
+      .setFields([{ name: 'Reported User', value: userMentionWithId(report.targetId) }])
+      .setFooter({ text: `Report ID: #${report.id}` })
+      .setTimestamp();
+
+    if (reason) {
+      embed.addFields({ name: 'Reviewer Reason', value: reason });
+    }
+
+    switch (action) {
+      case 'accept': {
+        await prisma.userReport.update({
+          where: { id: report.id },
+          data: {
+            resolvedAt: Date.now(),
+            resolvedBy: interaction.user.id,
+            status: 'Accepted'
+          }
+        });
+
+        if (user && config.userReportsNotifyStatus) {
+          await user.send({ embeds: [embed] }).catch(() => null);
+        }
+
+        let failed = false;
+        await interaction.message?.delete().catch(() => (failed = true));
+
+        return {
+          content: `Successfully accepted the report ${
+            failed ? 'but could not delete the alert' : 'and deleted the alert'
+          } - ID \`#${report.id}\``,
+          temporary: true
+        };
+      }
+
+      case 'deny': {
+        await prisma.userReport.update({
+          where: { id: report.id },
+          data: {
+            resolvedAt: Date.now(),
+            resolvedBy: interaction.user.id,
+            status: 'Denied'
+          }
+        });
+
+        if (user && config.userReportsNotifyStatus) {
+          await user.send({ embeds: [embed] }).catch(() => null);
+        }
+
+        let failed = false;
+        await interaction.message?.delete().catch(() => (failed = true));
+
+        return {
+          content: `Successfully denied the report ${
+            failed ? 'but could not delete the alert' : 'and deleted the alert'
+          } - ID \`#${report.id}\``,
+          temporary: true
+        };
+      }
+    }
+  }
+
+  /**
+   * Build the modal required for accepting or denying a report.
+   *
+   * @param data The data for the modal
+   * @returns The modal builder
+   */
+
+  public static buildModal(data: {
+    action: 'accept' | 'deny';
+    reportType: 'user' | 'message';
+    reportId: string;
+  }): ModalBuilder {
+    const { action, reportType, reportId } = data;
+
+    const reasonText = new TextInputBuilder()
+      .setCustomId(`reason`)
+      .setLabel('Reason')
+      .setPlaceholder(`Enter the reason for ${action === 'accept' ? 'accepting' : 'denying'} this report`)
+      .setRequired(true)
+      .setMaxLength(1024)
+      .setStyle(TextInputStyle.Paragraph);
+
+    const actionRow = new ActionRowBuilder<TextInputBuilder>().setComponents(reasonText);
+
+    return new ModalBuilder()
+      .setCustomId(`${reportType}-report-${action}-${reportId}`)
+      .setTitle(`${capitalize(action)} Report`)
+      .setComponents(actionRow);
   }
 }

@@ -75,9 +75,9 @@ export default class ReportMessageCtx extends Command<MessageContextMenuCommandI
       }
     }
 
-    if (message.author.bot) {
+    if (message.author.bot || message.webhookId) {
       return {
-        error: 'You cannot report messages sent by bots.',
+        error: 'You cannot report messages sent by bots or webhooks.',
         temporary: true
       };
     }

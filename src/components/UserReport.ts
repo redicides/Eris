@@ -1,6 +1,7 @@
-import { ActionRowBuilder, ButtonInteraction, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { ButtonInteraction } from 'discord.js';
 
-import { InteractionReplyData } from '@utils/Types';
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { ReportUtils } from '@utils/Reports';
 import { capitalize } from '@utils/index';
 
 import Component from '@managers/components/Component';
@@ -10,7 +11,7 @@ export default class UserReportComponent extends Component {
     super({ matches: /^user-report-(accept|deny|disregard)$/m });
   }
 
-  async execute(interaction: ButtonInteraction<'cached'>): Promise<InteractionReplyData | null> {
+  async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
     const report = await this.prisma.userReport.findUnique({
       where: {
         id: interaction.message.id,
@@ -28,50 +29,35 @@ export default class UserReportComponent extends Component {
         temporary: true
       };
     }
-
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
+    const key = `userReportsRequire${capitalize(action)}Reason` as keyof typeof config;
 
-    switch (action) {
-      case 'disregard': {
-        await this.prisma.userReport.update({
-          where: { id: interaction.message.id },
-          data: { status: 'Disregarded' }
-        });
+    if (action === 'disregard') {
+      await this.prisma.userReport.update({
+        where: { id: report.id },
+        data: { status: 'Disregarded' }
+      });
 
-        await interaction.message.delete().catch(() => null);
+      await interaction.message.delete().catch(() => null);
 
-        return {
-          content: 'Successfully disregarded the report.',
-          temporary: true
-        };
-      }
-
-      case 'deny':
-      case 'accept': {
-        const reasonText = new TextInputBuilder()
-          .setCustomId(`reason`)
-          .setLabel('Reason')
-          .setPlaceholder(`Enter the reason for ${action === 'accept' ? 'accepting' : 'denying'} this report`)
-          .setRequired(true)
-          .setMaxLength(1024)
-          .setStyle(TextInputStyle.Paragraph);
-
-        const actionRow = new ActionRowBuilder<TextInputBuilder>().setComponents(reasonText);
-
-        const modal = new ModalBuilder()
-          .setCustomId(`user-report-${action}-${report.id}`)
-          .setTitle(`${capitalize(action)} Report`)
-          .setComponents(actionRow);
-
+      return {
+        content: 'Successfully disregarded the report.',
+        temporary: true
+      };
+    } else {
+      if (config[key]) {
+        const modal = ReportUtils.buildModal({ action, reportType: 'user', reportId: report.id });
         await interaction.showModal(modal);
         return null;
       }
 
-      default:
-        return {
-          error: 'Unknown action.',
-          temporary: true
-        };
+      return ReportUtils.handleUserReportAction({
+        interaction,
+        config,
+        report,
+        action,
+        reason: null
+      });
     }
   }
 }

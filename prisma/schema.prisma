@@ -24,6 +24,7 @@ enum TaskType {
 enum InfractionFlag {
   Automatic
   Native
+  Quick
 }
 
 enum ReportStatus {
@@ -49,23 +50,27 @@ model Guild {
   infractionLoggingEnabled Boolean @default(true)
   infractionLoggingWebhook String?
 
-  messageReportsEnabled        Boolean  @default(false)
-  messageReportsWebhook        String?
-  messageReportsImmuneRoles    String[]
-  messageReportsPingRoles      String[]
-  messageReportsBlacklist      String[]
-  messageReportsRequireMember  Boolean  @default(true)
-  messageReportsDisregardAfter BigInt   @default(2592000000)
-  messageReportsNotifyStatus   Boolean  @default(true)
+  messageReportsEnabled             Boolean  @default(false)
+  messageReportsWebhook             String?
+  messageReportsImmuneRoles         String[]
+  messageReportsPingRoles           String[]
+  messageReportsBlacklist           String[]
+  messageReportsRequireMember       Boolean  @default(true)
+  messageReportsDisregardAfter      BigInt   @default(2592000000)
+  messageReportsNotifyStatus        Boolean  @default(true)
+  messageReportsRequireAcceptReason Boolean  @default(false)
+  messageReportsRequireDenyReason   Boolean  @default(false)
 
-  userReportsEnabled        Boolean  @default(false)
-  userReportsWebhook        String?
-  userReportsImmuneRoles    String[]
-  userReportsPingRoles      String[]
-  userReportsBlacklist      String[]
-  userReportsRequireMember  Boolean  @default(true)
-  userReportsDisregardAfter BigInt   @default(2592000000)
-  userReportsNotifyStatus   Boolean  @default(true)
+  userReportsEnabled             Boolean  @default(false)
+  userReportsWebhook             String?
+  userReportsImmuneRoles         String[]
+  userReportsPingRoles           String[]
+  userReportsBlacklist           String[]
+  userReportsRequireMember       Boolean  @default(true)
+  userReportsDisregardAfter      BigInt   @default(2592000000)
+  userReportsNotifyStatus        Boolean  @default(true)
+  userReportsRequireAcceptReason Boolean  @default(false)
+  userReportsRequireDenyReason   Boolean  @default(false)
 
   banRequestsEnabled     Boolean  @default(false)
   banRequestsWebhook     String?
@@ -90,6 +95,7 @@ model Infraction {
   guildId    String
   targetId   String
   executorId String
+  requestId  String?
   type       InfractionType   @default(Warn)
   reason     String
   createdAt  BigInt

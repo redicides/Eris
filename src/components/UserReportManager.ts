@@ -1,7 +1,7 @@
-import { Colors, EmbedBuilder, ModalSubmitInteraction } from 'discord.js';
+import { ModalSubmitInteraction } from 'discord.js';
 
-import { InteractionReplyData } from '@utils/Types';
-import { userMentionWithId } from '@utils/index';
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { ReportUtils } from '@utils/Reports';
 
 import Component from '@managers/components/Component';
 
@@ -10,13 +10,15 @@ export default class UserReportManagerComponent extends Component {
     super({ matches: /^user-report-(accept|deny)-\d{17,19}$/m });
   }
 
-  async execute(interaction: ModalSubmitInteraction<'cached'>): Promise<InteractionReplyData | null> {
+  async execute(
+    interaction: ModalSubmitInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData | null> {
     const reportId = interaction.customId.split('-')[3];
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
 
     const report = await this.prisma.userReport.findUnique({
-      where: { id: reportId, guildId: interaction.guildId },
-      include: { guild: true }
+      where: { id: reportId, guildId: interaction.guildId }
     });
 
     if (!report) {
@@ -31,69 +33,7 @@ export default class UserReportManagerComponent extends Component {
     }
 
     const reason = interaction.fields.getTextInputValue('reason');
-    const user = await this.client.users.fetch(report.reportedBy).catch(() => null);
 
-    const notification = new EmbedBuilder()
-      .setColor(action === 'accept' ? Colors.Green : Colors.Red)
-      .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
-      .setTitle(`User Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
-      .setFields([
-        { name: 'Reported User', value: userMentionWithId(report.targetId) },
-        { name: 'Reviewer Reason', value: reason }
-      ])
-      .setFooter({ text: `Report ID: #${report.id}` })
-      .setTimestamp();
-
-    switch (action) {
-      case 'accept': {
-        await this.prisma.userReport.update({
-          where: { id: report.id },
-          data: {
-            resolvedAt: Date.now(),
-            resolvedBy: interaction.user.id,
-            status: 'Accepted'
-          }
-        });
-
-        if (user && report.guild.userReportsNotifyStatus) {
-          await user.send({ embeds: [notification] }).catch(() => null);
-        }
-
-        await interaction.message?.delete().catch(() => null);
-
-        return {
-          content: `Successfully accepted the report - ID \`#${report.id}\``,
-          temporary: true
-        };
-      }
-
-      case 'deny': {
-        await this.prisma.userReport.update({
-          where: { id: report.id },
-          data: {
-            resolvedAt: Date.now(),
-            resolvedBy: interaction.user.id,
-            status: 'Denied'
-          }
-        });
-
-        if (user && report.guild.userReportsNotifyStatus) {
-          await user.send({ embeds: [notification] }).catch(() => null);
-        }
-
-        await interaction.message?.delete().catch(() => null);
-
-        return {
-          content: `Successfully denied the report - ID \`#${report.id}\``,
-          temporary: true
-        };
-      }
-
-      default:
-        return {
-          error: 'Unknown action.',
-          temporary: true
-        };
-    }
+    return ReportUtils.handleUserReportAction({ interaction, config, report, action, reason });
   }
 }
