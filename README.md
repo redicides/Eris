@@ -49,6 +49,9 @@ database:
   report_disregard_cron: '* * * * *' # Cron expression for disregarding expired reports
 ```
 
+## Step-By-Step Guide
+All of the following steps must be performed in the **root directory** of this project, and they apply to a Linux, MacOS, and Windows environment.
+
 ### Step 1. Dependencies  
 This bot relies on several dependencies (libraries) to run, so you'll need to install them with the package manager of your choice.  
 - Node.js - `npm install`
