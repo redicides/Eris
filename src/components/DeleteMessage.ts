@@ -33,7 +33,7 @@ export default class DeleteMessageComponent extends Component {
 
     if (!message) {
       return {
-        error: `Failed to fetch the message with ID \`${messageId}\`.`,
+        error: `That message has already been deleted or cannot be fetched (\`${messageId}\`).`,
         temporary: true
       };
     }
