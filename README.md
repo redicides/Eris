@@ -5,7 +5,7 @@ A general-purpose Discord bot focused on providing strong moderation solutions w
 # Self-Hosting  
 If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's "easy" to do.  
 
-## Requirements
+## Prerequisites
 Before you get started, ensure you have the following:
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
