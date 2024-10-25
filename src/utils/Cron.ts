@@ -28,6 +28,7 @@ export class CronUtils {
    *
    * @param monitorSlug - The slug of the monitor
    * @param cronTime - The cron time string (timezone: {@link DEFAULT_TIMEZONE})
+   * @param silent - Whether to suppress logs
    * @param onTick - The function to run on each tick
    */
   public static startJob(

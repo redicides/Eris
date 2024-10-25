@@ -23,6 +23,7 @@ export default abstract class Component {
   /**
    * Handles the component interaction
    * @param interaction The interaction to handle.
+   * @param config The guild configuration for the guild where the interaction was created.
    */
   abstract execute(interaction: ComponentInteraction, config: GuildConfig): Awaitable<InteractionReplyData | null>;
 }

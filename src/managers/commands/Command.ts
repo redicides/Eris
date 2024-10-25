@@ -84,6 +84,7 @@ export default abstract class Command<T extends CommandInteraction> {
   /**
    * Handles the command interaction. Mentions are disabled by default.
    * @param interaction The interaction to handle.
+   * @param config The guild configuration for the guild where the interaction was created.
    */
   abstract execute(interaction: T, config: GuildConfig): Awaitable<InteractionReplyData | null>;
 }

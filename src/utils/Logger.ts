@@ -36,7 +36,7 @@ export default class Logger {
     });
   }
 
-  static warn(message: string, ...values: readonly unknown[]): void {
+  static warn(message: string): void {
     Logger.log('WARN', message, {
       color: AnsiColor.Yellow
     });

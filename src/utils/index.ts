@@ -63,7 +63,7 @@ export async function uploadData(data: any, ext: string = 'js'): Promise<string>
 /**
  * Converts a { Snowflake } to a formatted string with the format <@${Snowflake}}> (\`${Snowflake}\`).
  *
- * @param user - The user to convert
+ * @param id - The user id to format
  * @returns string - The formatted string
  */
 

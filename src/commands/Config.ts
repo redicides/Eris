@@ -298,14 +298,16 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     const config = await CacheManager.guilds.get(interaction.guildId);
 
     switch (group) {
-      case ConfigSubcommandGroup.Commands: {
-        switch (subcommand) {
-          case ConfigSubcommand.Toggle:
-            return Config.toggleCommand(interaction, config);
-          case ConfigSubcommand.TimeToLive:
-            return Config.setTimeToLive(interaction, config);
+      case ConfigSubcommandGroup.Commands:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.Toggle:
+              return Config.toggleCommand(interaction, config);
+            case ConfigSubcommand.TimeToLive:
+              return Config.setTimeToLive(interaction, config);
+          }
         }
-      }
+        break;
 
       case ConfigSubcommandGroup.Reports:
         switch (subcommand) {
