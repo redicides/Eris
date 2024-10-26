@@ -65,10 +65,12 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
     }
 
     const vResult = InfractionManager.validateAction({
+      config,
       guild: interaction.guild,
       target,
       executor: interaction.member!,
-      action: 'Mute'
+      action: 'Mute',
+      reason: rawReason
     });
 
     if (!vResult.success) {
@@ -80,9 +82,10 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
 
     const duration = parseDuration(rawDuration);
 
-    if (!duration) {
+    if (Number.isNaN(duration) && config.defaultMuteDuration === 0n) {
       return {
-        error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+        error:
+          'A valid duration is required. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
         temporary: true
       };
     }
@@ -102,8 +105,14 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
     }
 
     const createdAt = Date.now();
-    const expiresAt = createdAt + duration;
+    let expiresAt: number | null = null;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+
+    if (duration) {
+      expiresAt = createdAt + duration;
+    } else {
+      expiresAt = createdAt + Number(config.defaultMuteDuration);
+    }
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -144,7 +153,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       type: 'Mute'
     });
 
-    InfractionManager.sendNotificationDM({ guild: interaction.guild, target, infraction });
+    InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
     InfractionManager.logInfraction({ config, infraction });
 
     return {

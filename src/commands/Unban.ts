@@ -55,10 +55,12 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
     }
 
     const vResult = InfractionManager.validateAction({
+      config,
       guild: interaction.guild,
       target,
       executor: interaction.member!,
-      action: 'Unban'
+      action: 'Unban',
+      reason: rawReason
     });
 
     if (!vResult.success) {

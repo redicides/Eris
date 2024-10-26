@@ -1,15 +1,8 @@
-import {
-  AutocompleteInteraction,
-  Colors,
-  CommandInteraction,
-  Events,
-  Interaction,
-  InteractionReplyOptions
-} from 'discord.js';
-import { Guild } from '@prisma/client';
+import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interaction } from 'discord.js';
 
 import { Sentry } from '@/index';
-import { InteractionReplyData } from '@utils/Types';
+import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
+import { InteractionUtils } from '@/utils/Interactions';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
@@ -19,6 +12,8 @@ import CacheManager from '@managers/database/CacheManager';
 import ComponentManager from '@managers/components/ComponentManager';
 import Command from '@managers/commands/Command';
 
+const { emojis, developers } = ConfigManager.global_config;
+
 export default class InteractionCreate extends EventListener {
   constructor() {
     super(Events.InteractionCreate);
@@ -26,30 +21,38 @@ export default class InteractionCreate extends EventListener {
 
   async execute(interaction: Interaction) {
     if (interaction.isAutocomplete()) {
-      return;
+      return InteractionUtils.handleAutocomplete(interaction);
     }
 
     if (!interaction.inCachedGuild()) {
-      return handleReply(interaction, { content: 'Interactions are only supported in guilds.', ephemeral: true });
+      return InteractionUtils.handleErrorReply({ interaction, error: 'Interactions are not supported in DMs.' });
     }
 
     if (!interaction.isCommand() && interaction.customId.startsWith('?')) {
       return;
     }
 
-    let commandOrComponent = interaction.isCommand()
+    const guild = await CacheManager.guilds.get(interaction.guildId);
+
+    let data = interaction.isCommand()
       ? CommandManager.getCommand(interaction.commandId, interaction.commandName)
       : ComponentManager.getComponent(interaction.customId);
 
-    if (!commandOrComponent) {
+    if (!data) {
       return InteractionCreate._handleUnknownInteraction(interaction);
     }
 
-    if (commandOrComponent instanceof Command) {
-      await InteractionCreate._handleCommandChecks(interaction as CommandInteraction<'cached'>, commandOrComponent);
-    }
+    if (data instanceof Command) {
+      const result = await InteractionCreate._handleCommandChecks(
+        interaction as CommandInteraction<'cached'>,
+        data,
+        guild
+      );
 
-    const guild = await CacheManager.guilds.get(interaction.guildId);
+      if (!result.success) {
+        return InteractionUtils.handleErrorReply({ interaction, error: result.message });
+      }
+    }
 
     try {
       await InteractionCreate.handleInteraction(interaction, guild);
@@ -74,23 +77,18 @@ export default class InteractionCreate extends EventListener {
         error
       );
 
-      return handleReply(interaction, {
-        embeds: [
-          {
-            description: `An error occured while executing this ${
-              interaction.isCommand() ? 'command' : 'component'
-            }, please include this ID when reporting the bug: \`${sentryId}\`.`,
-            color: Colors.NotQuiteBlack
-          }
-        ],
-        ephemeral: true
+      return InteractionUtils.handleErrorReply({
+        interaction,
+        error: `An error occured while executing this ${
+          interaction.isCommand() ? 'command' : 'component'
+        }, please include this ID when reporting the bug: \`${sentryId}\`.`
       });
     }
   }
 
   private static async handleInteraction(
     interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>,
-    config: Guild
+    config: GuildConfig
   ) {
     let response: InteractionReplyData | null;
 
@@ -113,7 +111,7 @@ export default class InteractionCreate extends EventListener {
 
     const options = response;
 
-    const ttl = getTTL(response, config);
+    const ttl = InteractionUtils.getInteractionTTL(interaction, config, options);
 
     const isTemporary = options.temporary;
     delete options.temporary;
@@ -125,7 +123,7 @@ export default class InteractionCreate extends EventListener {
       ? {
           ...defaultOptions,
           ...options,
-          embeds: [{ description: error, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
+          embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
         }
       : { ...defaultOptions, ...options };
 
@@ -154,62 +152,45 @@ export default class InteractionCreate extends EventListener {
       )
     );
 
-    return handleReply(interaction, {
-      embeds: [
-        {
-          description: `Failed to fetch data for ${
-            interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
-          }, please include this ID when reporting the bug: \`${sentryId}\`.`,
-          color: Colors.NotQuiteBlack
-        }
-      ],
-      ephemeral: true
+    return InteractionUtils.handleErrorReply({
+      interaction,
+      error: `Failed to fetch data for ${
+        interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
+      }, please include this ID when reporting the bug: \`${sentryId}\`.`
     });
   }
 
   private static async _handleCommandChecks(
     interaction: CommandInteraction<'cached'>,
-    command: Command<CommandInteraction<'cached'>>
-  ) {
-    if (command.isGuarded) {
-      if (!ConfigManager.global_config.developers.includes(interaction.user.id)) {
-        return handleReply(interaction, {
-          embeds: [{ description: `This command is reserved to developers..`, color: Colors.NotQuiteBlack }],
-          ephemeral: true
-        });
-      }
+    command: Command<CommandInteraction<'cached'>>,
+    config: GuildConfig
+  ): Promise<Result> {
+    if (command.isGuarded && !developers.includes(interaction.user.id)) {
+      return {
+        success: false,
+        message: 'This command is not accessible to regular users.'
+      };
+    }
+
+    if (config.commandDisabledList.includes(command.data.name)) {
+      return {
+        success: false,
+        message: 'This command is disabled in this guild.'
+      };
     }
 
     if (command.requiredPermissions) {
       if (!interaction.appPermissions.has(command.requiredPermissions)) {
-        return handleReply(interaction, {
-          embeds: [
-            {
-              description: `I require the following permissions to execute this command: \`${command.requiredPermissions
-                .toArray()
-                .join(', ')
-                .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`,
-              color: Colors.NotQuiteBlack
-            }
-          ],
-          ephemeral: true
-        });
+        return {
+          success: false,
+          message: `I require the following permissions to execute this command: \`${command.requiredPermissions
+            .toArray()
+            .join(', ')
+            .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`
+        };
       }
     }
+
+    return { success: true };
   }
-}
-
-function getTTL(options: InteractionReplyData, config: Guild) {
-  return 'error' in options ? config.commandErrorTTL : config.commandTemporaryReplyTTL;
-}
-
-export function handleReply(
-  interaction: Exclude<Interaction, AutocompleteInteraction> | CommandInteraction,
-  options: InteractionReplyOptions
-) {
-  const { ephemeral, ...parsedOptions } = options;
-
-  return !interaction.deferred && !interaction.replied
-    ? interaction.reply(options).catch(() => {})
-    : interaction.editReply({ ...parsedOptions }).catch(() => {});
 }

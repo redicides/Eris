@@ -56,10 +56,12 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
     }
 
     const vResult = InfractionManager.validateAction({
+      config,
       guild: interaction.guild,
       target,
       executor: interaction.member!,
-      action: 'Unmute'
+      action: 'Unmute',
+      reason: rawReason
     });
 
     if (!vResult.success) {
@@ -107,7 +109,7 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
       where: { targetId_guildId_type: { targetId: target.id, guildId: interaction.guild.id, type: 'Mute' } }
     }).catch(() => null);
 
-    InfractionManager.sendNotificationDM({ guild: interaction.guild, target, infraction });
+    InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
     InfractionManager.logInfraction({ config, infraction });
 
     return {

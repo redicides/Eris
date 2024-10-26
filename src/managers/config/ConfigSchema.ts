@@ -10,6 +10,12 @@ import { z } from 'zod';
 const zSnowflake = z.string().regex(/^\d{17,19}$/gm);
 
 /**
+ * Discord emoji regex.
+ */
+
+const discordEmojiRegex = z.string().regex(/<(a)?:([a-zA-Z0-9_]+):(\d{17,19})>/);
+
+/**
  * Cron schema
  */
 
@@ -36,6 +42,10 @@ export const globalConfigSchema = z.object({
   commands: z.object({
     error_ttl: z.number().default(7500),
     reply_ttl: z.number().default(10000)
+  }),
+
+  emojis: z.object({
+    error: discordEmojiRegex.min(1)
   })
 });
 

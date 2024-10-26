@@ -54,10 +54,12 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
     }
 
     const vResult = InfractionManager.validateAction({
+      config,
       guild: interaction.guild,
       target,
       executor: interaction.member!,
-      action: 'Kick'
+      action: 'Kick',
+      reason: rawReason
     });
 
     if (!vResult.success) {
@@ -67,11 +69,10 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
       };
     }
 
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
-
     await interaction.deferReply({ ephemeral: true });
 
     let kResult = true;
+    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     const infraction = await InfractionManager.storeInfraction({
       guildId: interaction.guildId,
@@ -82,7 +83,7 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
       createdAt: Date.now()
     });
 
-    await InfractionManager.sendNotificationDM({ guild: interaction.guild, target, infraction });
+    await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,

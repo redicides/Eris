@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  APIMessage,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
@@ -7,10 +8,12 @@ import {
   cleanContent,
   Colors,
   EmbedBuilder,
+  EmbedData,
   Message,
   ModalBuilder,
   ModalSubmitInteraction,
   roleMention,
+  Snowflake,
   TextInputBuilder,
   TextInputStyle,
   User,
@@ -21,6 +24,7 @@ import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, cropLines, formatMessageContentForShortLog, userMentionWithId } from './index';
 import { MessageReport, UserReport } from '@prisma/client';
+import { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
 
 export class ReportUtils {
   /**
@@ -205,7 +209,7 @@ export class ReportUtils {
     const deleteMessageButton = new ButtonBuilder()
       .setCustomId(`delete-message-${message.channel.id}-${message.id}`)
       .setLabel('Delete Message')
-      .setStyle(ButtonStyle.Primary);
+      .setStyle(ButtonStyle.Secondary);
 
     const acceptButton = new ButtonBuilder()
       .setCustomId(`message-report-accept`)
@@ -233,14 +237,14 @@ export class ReportUtils {
       const deleteReferenceButton = new ButtonBuilder()
         .setCustomId(`delete-message-${reference.channel.id}-${reference.id}`)
         .setLabel('Delete Reference')
-        .setStyle(ButtonStyle.Primary);
+        .setStyle(ButtonStyle.Secondary);
 
       primaryRow.setComponents(acceptButton, denyButton, disregardButton, userInfoButton);
       secondaryRow.setComponents(deleteMessageButton, deleteReferenceButton);
 
       components.push(primaryRow, secondaryRow);
     } else {
-      primaryRow.setComponents(deleteMessageButton, acceptButton, denyButton, disregardButton, userInfoButton);
+      primaryRow.setComponents(acceptButton, denyButton, disregardButton, deleteMessageButton, userInfoButton);
       components.push(primaryRow);
     }
 
@@ -315,6 +319,13 @@ export class ReportUtils {
       embed.addFields({ name: 'Reviewer Reason', value: reason });
     }
 
+    const components = interaction.message?.components!.length;
+
+    const log = new EmbedBuilder(interaction.message!.embeds[components === 1 ? 0 : 1] as EmbedData)
+      .setAuthor({ name: 'Message Report' })
+      .setFooter({ text: `Report ID: #${report.id}` })
+      .setTimestamp();
+
     switch (action) {
       case 'accept': {
         await prisma.messageReport.update({
@@ -332,6 +343,14 @@ export class ReportUtils {
 
         let failed = false;
         await interaction.message?.delete().catch(() => (failed = true));
+
+        await ReportUtils.sendLog({
+          config,
+          embed: log,
+          userId: interaction.user.id,
+          action: 'Accepted',
+          reason: reason ?? DEFAULT_INFRACTION_REASON
+        });
 
         return {
           content: `Successfully accepted the report ${
@@ -357,6 +376,14 @@ export class ReportUtils {
 
         let failed = false;
         await interaction.message?.delete().catch(() => (failed = true));
+
+        await ReportUtils.sendLog({
+          config,
+          embed: log,
+          userId: interaction.user.id,
+          action: 'Denied',
+          reason: reason ?? DEFAULT_INFRACTION_REASON
+        });
 
         return {
           content: `Successfully denied the report ${
@@ -398,6 +425,13 @@ export class ReportUtils {
       embed.addFields({ name: 'Reviewer Reason', value: reason });
     }
 
+    const components = interaction.message?.components!.length;
+
+    const log = new EmbedBuilder(interaction.message!.embeds[components === 1 ? 0 : 1] as EmbedData)
+      .setAuthor({ name: 'User Report' })
+      .setFooter({ text: `Report ID: #${report.id}` })
+      .setTimestamp();
+
     switch (action) {
       case 'accept': {
         await prisma.userReport.update({
@@ -415,6 +449,14 @@ export class ReportUtils {
 
         let failed = false;
         await interaction.message?.delete().catch(() => (failed = true));
+
+        await ReportUtils.sendLog({
+          config,
+          embed: log,
+          userId: interaction.user.id,
+          action: 'Accepted',
+          reason: reason ?? DEFAULT_INFRACTION_REASON
+        });
 
         return {
           content: `Successfully accepted the report ${
@@ -440,6 +482,14 @@ export class ReportUtils {
 
         let failed = false;
         await interaction.message?.delete().catch(() => (failed = true));
+
+        await ReportUtils.sendLog({
+          config,
+          embed: log,
+          userId: interaction.user.id,
+          action: 'Denied',
+          reason: reason ?? DEFAULT_INFRACTION_REASON
+        });
 
         return {
           content: `Successfully denied the report ${
@@ -479,5 +529,35 @@ export class ReportUtils {
       .setCustomId(`${reportType}-report-${action}-${reportId}`)
       .setTitle(`${capitalize(action)} Report`)
       .setComponents(actionRow);
+  }
+
+  /**
+   * Send a log to the report logging webhook.
+   *
+   * @param data The data for the log
+   * @returns
+   */
+
+  public static async sendLog(data: {
+    config: GuildConfig;
+    embed: EmbedBuilder;
+    userId: Snowflake;
+    action: string;
+    reason: string;
+  }): Promise<APIMessage | null> {
+    const { config, embed, action, userId, reason } = data;
+
+    if (!config.reportLoggingEnabled || !config.reportLoggingWebhook) return null;
+
+    const webhook = new WebhookClient({ url: config.reportLoggingWebhook });
+    const parsedReason = reason.replaceAll('`', '');
+
+    return webhook
+      .send({
+        content: `${action} by ${userMentionWithId(userId)} - ${parsedReason}`,
+        embeds: [embed],
+        allowedMentions: { parse: [] }
+      })
+      .catch(() => null);
   }
 }

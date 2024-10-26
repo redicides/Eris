@@ -43,12 +43,18 @@ enum RequestStatus {
 model Guild {
   id String @id
 
+  // Command settings
+
   commandDisabledList      String[]
   commandErrorTTL          Int      @default(7500)
   commandTemporaryReplyTTL Int      @default(5000)
 
-  infractionLoggingEnabled Boolean @default(true)
-  infractionLoggingWebhook String?
+  // Component settings
+
+  componentErrorTTL          Int @default(5000)
+  componentTemporaryReplyTTL Int @default(5000)
+
+  // Report settings
 
   messageReportsEnabled             Boolean  @default(false)
   messageReportsWebhook             String?
@@ -72,6 +78,11 @@ model Guild {
   userReportsRequireAcceptReason Boolean  @default(false)
   userReportsRequireDenyReason   Boolean  @default(false)
 
+  reportLoggingEnabled Boolean @default(true)
+  reportLoggingWebhook String?
+
+  // Request settings
+
   banRequestsEnabled     Boolean  @default(false)
   banRequestsWebhook     String?
   banRequestsImmuneRoles String[]
@@ -81,6 +92,30 @@ model Guild {
   muteRequestsWebhook     String?
   muteRequestsImmuneRoles String[]
   muteRequestsImmuneUsers String[]
+
+  // Infraction settings
+
+  requireWarnReason   Boolean @default(true)
+  requireMuteReason   Boolean @default(true)
+  requireKickReason   Boolean @default(true)
+  requireBanReason    Boolean @default(true)
+  requireUnmuteReason Boolean @default(false)
+  requireUnbanReason  Boolean @default(false)
+
+  notifyWarnAction   Boolean @default(true)
+  notifyMuteAction   Boolean @default(true)
+  notifyKickAction   Boolean @default(true)
+  notifyBanAction    Boolean @default(true)
+  notifyUnmuteAction Boolean @default(true)
+
+  defaultWarnDuration BigInt @default(0)
+  defaultMuteDuration BigInt @default(0)
+  defaultBanDuration  BigInt @default(0)
+
+  infractionLoggingEnabled Boolean @default(true)
+  infractionLoggingWebhook String?
+
+  // Relations
 
   infractions    Infraction[]
   messageReports MessageReport[]

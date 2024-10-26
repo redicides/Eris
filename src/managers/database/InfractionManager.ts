@@ -24,13 +24,12 @@ export default class InfractionManager {
   static async getInfraction(options: Prisma.InfractionFindUniqueArgs): Promise<Infraction | null> {
     return prisma.infraction.findUnique({
       where: options.where,
-      include: options.include,
-      select: options.select
+      include: options.include
     });
   }
 
   static async deleteInfraction(options: Prisma.InfractionDeleteArgs): Promise<Infraction | null> {
-    return prisma.infraction.delete({ where: options.where, include: options.include, select: options.select });
+    return prisma.infraction.delete({ where: options.where, include: options.include });
   }
 
   static async getActiveMute(options: { guildId: Snowflake; targetId: Snowflake }): Promise<Infraction | null> {
@@ -44,12 +43,14 @@ export default class InfractionManager {
   }
 
   public static validateAction(data: {
+    config: GuildConfig;
     guild: Guild;
     target: GuildMember | User;
     executor: GuildMember;
     action: InfractionType;
+    reason: string | null;
   }): Result {
-    const { target, executor, action, guild } = data;
+    const { target, executor, action, guild, reason, config } = data;
     const lAction = action.toLowerCase();
 
     if (executor.id === target.id) return { success: false, message: `You cannot ${lAction} yourself.` };
@@ -69,6 +70,15 @@ export default class InfractionManager {
 
       if (target.permissions.has('Administrator') && action === 'Mute')
         return { success: false, message: `You cannot mute an administrator.` };
+    }
+
+    const reasonKey = `require${action}Reason` as keyof typeof config;
+
+    if (config[reasonKey] && !reason) {
+      return {
+        success: false,
+        message: `You must provide a reason to ${lAction} this ${target instanceof User ? 'user' : 'member'}.`
+      };
     }
 
     return { success: true };
@@ -100,11 +110,15 @@ export default class InfractionManager {
   }
 
   static async sendNotificationDM(data: {
+    config: GuildConfig;
     guild: Guild;
     target: GuildMember;
     infraction: Infraction;
   }): Promise<Message | null> {
-    const { guild, target, infraction } = data;
+    const { guild, target, infraction, config } = data;
+
+    const key = `notify${infraction.type}Action` as keyof typeof config;
+    if (!config[key]) return null;
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })

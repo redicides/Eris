@@ -78,7 +78,7 @@ export class CronUtils {
       });
 
       const dbGuilds = await prisma.guild.findMany({
-        select: { id: true, tasks: { where: { expiresAt: { lte: Date.now() } } } }
+        select: { id: true, notifyUnmuteAction: true, tasks: { where: { expiresAt: { lte: Date.now() } } } }
       });
 
       for (const dbGuild of dbGuilds) {
@@ -141,7 +141,7 @@ export class CronUtils {
                 .setFields([{ name: 'Reason', value: 'Mute expired based on duration.' }])
                 .setTimestamp();
 
-              await member.send({ embeds: [embed] }).catch(() => {});
+              if (dbGuild.notifyUnmuteAction) await member.send({ embeds: [embed] }).catch(() => {});
             }
           }
 

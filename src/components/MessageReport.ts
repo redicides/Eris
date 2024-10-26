@@ -1,10 +1,11 @@
-import { ButtonInteraction } from 'discord.js';
+import { ButtonInteraction, EmbedBuilder, EmbedData } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
 import { capitalize } from '@utils/index';
 
 import Component from '@managers/components/Component';
+import { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
 
 export default class MessageReportComponent extends Component {
   constructor() {
@@ -39,7 +40,22 @@ export default class MessageReportComponent extends Component {
         data: { status: 'Disregarded' }
       });
 
+      const components = interaction.message?.components!.length;
+
+      const log = new EmbedBuilder(interaction.message!.embeds[components === 1 ? 0 : 1] as EmbedData)
+        .setAuthor({ name: 'Message Report' })
+        .setFooter({ text: `Report ID: #${report.id}` })
+        .setTimestamp();
+
       await interaction.message.delete().catch(() => null);
+
+      await ReportUtils.sendLog({
+        config,
+        embed: log,
+        userId: interaction.user.id,
+        action: 'Disregarded',
+        reason: DEFAULT_INFRACTION_REASON
+      });
 
       return {
         content: 'Successfully disregarded the report.',

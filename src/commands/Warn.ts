@@ -64,10 +64,12 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
     }
 
     const vResult = InfractionManager.validateAction({
+      config,
       guild: interaction.guild,
       target,
       executor: interaction.member!,
-      action: 'Warn'
+      action: 'Warn',
+      reason: rawReason
     });
 
     if (!vResult.success) {
@@ -103,8 +105,17 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
     }
 
     const createdAt = Date.now();
-    const expiresAt = duration ? createdAt + duration : null;
+    let expiresAt: number | null = null;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+
+    if (duration) {
+      expiresAt = createdAt + duration;
+    } else if (
+      !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '') &&
+      config.defaultWarnDuration !== 0n
+    ) {
+      expiresAt = createdAt + Number(config.defaultWarnDuration);
+    }
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -118,7 +129,7 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
       expiresAt
     });
 
-    InfractionManager.sendNotificationDM({ guild: interaction.guild, target, infraction });
+    InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
     InfractionManager.logInfraction({ config, infraction });
 
     return {

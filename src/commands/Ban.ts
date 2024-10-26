@@ -83,10 +83,12 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
     }
 
     const vResult = InfractionManager.validateAction({
+      config,
       guild: interaction.guild,
       target: member ?? target,
       executor: interaction.member!,
-      action: 'Ban'
+      action: 'Ban',
+      reason: rawReason
     });
 
     if (!vResult.success) {
@@ -96,7 +98,6 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
       };
     }
 
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
     const duration = rawDuration ? parseDuration(rawDuration) : null;
 
     if (Number.isNaN(duration) && !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '')) {
@@ -106,17 +107,37 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
       };
     }
 
-    if (duration && duration < 1000) {
-      return {
-        error: 'The duration must be at least 1 second.',
-        temporary: true
-      };
+    if (duration) {
+      if (duration < 1000) {
+        return {
+          error: 'The duration must be at least 1 second.',
+          temporary: true
+        };
+      }
+
+      if (duration > ms('365d')) {
+        return {
+          error: 'The duration must not exceed 1 year.',
+          temporary: true
+        };
+      }
     }
 
     const deleteMessageSeconds = Math.floor(ms(rawDeleteMessages ?? '0s') / 1000);
 
+    let expiresAt: number | null = null;
+
     const createdAt = Date.now();
-    const expiresAt = duration ? createdAt + duration : null;
+    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+
+    if (duration) {
+      expiresAt = createdAt + duration;
+    } else if (
+      !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '') &&
+      config.defaultBanDuration !== 0n
+    ) {
+      expiresAt = createdAt + Number(config.defaultBanDuration);
+    }
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -133,7 +154,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
     let bResult = true;
 
     if (member) {
-      await InfractionManager.sendNotificationDM({ guild: interaction.guild, target: member, infraction });
+      await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target: member, infraction });
     }
 
     await InfractionManager.resolvePunishment({
