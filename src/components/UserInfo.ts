@@ -1,4 +1,4 @@
-import { ButtonInteraction, Colors, EmbedBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Colors, EmbedBuilder } from 'discord.js';
 
 import { InteractionReplyData } from '@utils/Types';
 
@@ -30,8 +30,18 @@ export default class UserInfoComponent extends Component {
       .setFields(UserInfo.formatFields(target, member))
       .setFooter({ text: `User ID: ${target.id}` });
 
+    const components: ActionRowBuilder<ButtonBuilder>[] = [];
+
+    const infractionsButton = new ButtonBuilder()
+      .setLabel('Search Infractions')
+      .setCustomId(`infraction-search-${target.id}`)
+      .setStyle(ButtonStyle.Secondary);
+
+    components.push(new ActionRowBuilder<ButtonBuilder>().setComponents(infractionsButton));
+
     return {
       embeds: [embed],
+      components,
       ephemeral: true
     };
   }

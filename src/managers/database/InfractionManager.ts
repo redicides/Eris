@@ -224,6 +224,8 @@ export default class InfractionManager {
   }
 }
 
+export const INFRACTIONS_PER_PAGE = 5;
+
 export const PAST_TENSE_INFRACTIONS = {
   ban: 'banned',
   kick: 'kicked',
