@@ -651,13 +651,6 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
       const webhooks = await interaction.guild.fetchWebhooks();
       const webhook = webhooks.find(webhook => webhook.url === config[type]);
 
-      if (!webhooks.size) {
-        return {
-          error: 'Failed to fetch the webhooks for this guild.',
-          temporary: true
-        };
-      }
-
       if (
         !channel.permissionsFor(interaction.guild.members.me!).has(PermissionFlagsBits.ManageWebhooks) ||
         !interaction.appPermissions.has(PermissionFlagsBits.ManageWebhooks)
@@ -1076,13 +1069,6 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
       const webhooks = await interaction.guild.fetchWebhooks();
       const webhook = webhooks.find(webhook => webhook.url === config[type]);
-
-      if (!webhooks.size) {
-        return {
-          error: 'Failed to fetch the webhooks for this guild.',
-          temporary: true
-        };
-      }
 
       if (
         !channel.permissionsFor(interaction.guild.members.me!).has(PermissionFlagsBits.ManageWebhooks) ||
