@@ -35,7 +35,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
             name: 'duration',
             description: 'The duration of the mute.',
             type: ApplicationCommandOptionType.String,
-            required: true
+            required: false
           },
           {
             name: 'reason',
@@ -54,7 +54,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
     config: GuildConfig
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
-    const rawDuration = interaction.options.getString('duration', true);
+    const rawDuration = interaction.options.getString('duration', false);
     const rawReason = interaction.options.getString('reason', false);
 
     if (!target) {
