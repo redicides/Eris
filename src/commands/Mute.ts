@@ -80,7 +80,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       };
     }
 
-    const duration = parseDuration(rawDuration);
+    let duration = parseDuration(rawDuration);
 
     if (Number.isNaN(duration) && config.defaultMuteDuration === 0n) {
       return {
@@ -112,6 +112,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       expiresAt = createdAt + duration;
     } else {
       expiresAt = createdAt + Number(config.defaultMuteDuration);
+      duration = Number(config.defaultMuteDuration);
     }
 
     await interaction.deferReply({ ephemeral: true });
