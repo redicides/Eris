@@ -128,7 +128,7 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
         where: {
           guildId,
           targetId: target.id,
-          flags: filter ? { has: filter } : undefined
+          flag: filter ?? undefined
         },
         skip: skipMultiplier * INFRACTIONS_PER_PAGE,
         take: INFRACTIONS_PER_PAGE,
@@ -141,7 +141,7 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
         where: {
           guildId,
           targetId: target.id,
-          flags: filter ? { has: filter } : undefined
+          flag: filter ?? undefined
         }
       })
     ]);
@@ -203,7 +203,7 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
     }
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.type} #${infraction.id}` })
+      .setAuthor({ name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} #${infraction.id}` })
       .setColor(InfractionManager.mapActionToColor({ infraction }))
       .setFields([
         { name: 'Executor', value: userMentionWithId(infraction.executorId) },

@@ -356,6 +356,11 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
                     ]
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.ToggleNativeIntegration,
+                description: 'Toggle tracking of infractions from native moderation.',
+                type: ApplicationCommandOptionType.Subcommand
               }
             ]
           },
@@ -462,6 +467,8 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             return Config.infractions.setDefaultDuration(interaction, config);
           case ConfigSubcommand.ToggleNotifications:
             return Config.infractions.toggleNotifications(interaction, config);
+          case ConfigSubcommand.ToggleNativeIntegration:
+            return Config.infractions.toggleNativeIntegration(interaction, config);
         }
       }
 
@@ -1047,6 +1054,25 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
           toggle ? 'now' : 'no longer'
         } receive DM notifications for the specified infraction type.`
       };
+    },
+
+    async toggleNativeIntegration(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+      let toggle = true;
+
+      if (config.nativeModerationIntegration === true) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { nativeModerationIntegration: toggle }
+      });
+
+      return {
+        content: `Native moderation infractions will ${
+          toggle ? 'now' : 'no longer'
+        } be tracked by the infraction system.`
+      };
     }
   };
 
@@ -1160,6 +1186,7 @@ enum ConfigSubcommandGroup {
 enum ConfigSubcommand {
   Toggle = 'toggle',
   ToggleNotifications = 'toggle-notifications',
+  ToggleNativeIntegration = 'toggle-native-integration',
   TimeToLive = 'time-to-live',
   SetAlertChannel = 'set-alert-channel',
   AddImmuneRole = 'add-immune-role',

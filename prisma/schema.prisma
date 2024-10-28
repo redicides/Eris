@@ -112,6 +112,8 @@ model Guild {
   defaultMuteDuration BigInt @default(0)
   defaultBanDuration  BigInt @default(0)
 
+  nativeModerationIntegration Boolean @default(true)
+
   infractionLoggingEnabled Boolean @default(true)
   infractionLoggingWebhook String?
 
@@ -126,16 +128,16 @@ model Guild {
 }
 
 model Infraction {
-  id         Int              @id @default(autoincrement())
+  id         Int             @id @default(autoincrement())
   guildId    String
   targetId   String
   executorId String
   requestId  String?
-  type       InfractionType   @default(Warn)
+  type       InfractionType  @default(Warn)
   reason     String
   createdAt  BigInt
   expiresAt  BigInt?
-  flags      InfractionFlag[]
+  flag       InfractionFlag?
 
   task  Task?
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)

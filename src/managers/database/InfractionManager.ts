@@ -91,7 +91,9 @@ export default class InfractionManager {
     const webhook = new WebhookClient({ url: config.infractionLoggingWebhook });
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.type} #${infraction.id}` })
+      .setAuthor({
+        name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} #${infraction.id}`
+      })
       .setColor(INFRACTION_COLORS[infraction.type])
       .setFields([
         { name: 'Executor', value: userMentionWithId(infraction.executorId) },
