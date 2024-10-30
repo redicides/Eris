@@ -24,8 +24,6 @@ import { ComponentInteraction } from '@managers/components/Component';
 
 import ConfigManager from '@managers/config/ConfigManager';
 
-const { error: error_emoji } = ConfigManager.global_config.emojis!;
-
 /**
  * Pluralizes a word based on the given count
  *
@@ -247,7 +245,7 @@ export function handleInteractionErrorReply(data: {
   const { interaction, error } = data;
 
   return handleInteractionReply(interaction, {
-    embeds: [{ description: `${error_emoji} ${error}`, color: Colors.NotQuiteBlack }],
+    embeds: [{ description: `${ConfigManager.global_config.emojis.error} ${error}`, color: Colors.NotQuiteBlack }],
     ephemeral: true
   });
 }
