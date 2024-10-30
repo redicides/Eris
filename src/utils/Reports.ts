@@ -24,7 +24,7 @@ import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, cropLines, formatMessageContentForShortLog, userMentionWithId } from './index';
 import { MessageReport, UserReport } from '@prisma/client';
-import { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
+import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
 export class ReportUtils {
   /**

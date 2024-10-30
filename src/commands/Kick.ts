@@ -57,7 +57,7 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
       config,
       guild: interaction.guild,
       target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Kick',
       reason: rawReason
     });
@@ -87,7 +87,7 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member!,
+      executor: interaction.member,
       target,
       action: 'Kick',
       reason,

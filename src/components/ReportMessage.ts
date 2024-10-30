@@ -1,7 +1,7 @@
 import { ModalSubmitInteraction, TextChannel } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { ReportUtils } from '@/utils/Reports';
+import { ReportUtils } from '@utils/Reports';
 
 import Component from '@managers/components/Component';
 

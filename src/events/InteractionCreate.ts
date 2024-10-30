@@ -2,7 +2,7 @@ import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interactio
 
 import { Sentry } from '@/index';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
-import { InteractionUtils } from '@/utils/Interactions';
+import { InteractionUtils } from '@utils/Interactions';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';

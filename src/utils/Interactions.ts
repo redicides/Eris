@@ -5,7 +5,8 @@ import { capitalize } from '.';
 import { ComponentInteraction } from '@managers/components/Component';
 
 import ConfigManager from '@managers/config/ConfigManager';
-import CommandManager from '@/managers/commands/CommandManager';
+import CommandManager from '@managers/commands/CommandManager';
+import { prisma } from '..';
 
 const { error: error_emoji } = ConfigManager.global_config.emojis;
 
@@ -91,6 +92,20 @@ export class InteractionUtils {
         return interaction.respond(
           commands.map(command => ({ name: capitalize(command.data.name), value: command.data.name }))
         );
+      }
+
+      case 'node': {
+        const nodes = await prisma.permission.findMany({
+          where: { guildId: interaction.guildId }
+        });
+
+        const filtered_nodes = nodes
+          .filter(node => {
+            return node.name.includes(lowercaseOption);
+          })
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name })));
       }
 
       default:

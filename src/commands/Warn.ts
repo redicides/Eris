@@ -67,7 +67,7 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
       config,
       guild: interaction.guild,
       target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Warn',
       reason: rawReason
     });

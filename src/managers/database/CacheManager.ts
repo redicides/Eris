@@ -1,14 +1,14 @@
-import { Guild } from '@prisma/client';
 import { Collection } from 'discord.js';
 
 import { prisma } from '@/index';
+import { GuildConfig } from '@utils/Types';
 
 export default class CacheManager {
   /**
    * Collection cache for guilds to avoid database queries.
    */
 
-  private static guild_cache = new Collection<string, Guild>();
+  private static guild_cache = new Collection<string, GuildConfig>();
 
   /**
    * Guild cache methods.
@@ -22,7 +22,7 @@ export default class CacheManager {
      * @returns Guild - The guild model
      */
 
-    async get(guildId: string): Promise<Guild> {
+    async get(guildId: string): Promise<GuildConfig> {
       if (CacheManager.guild_cache.has(guildId)) return CacheManager.guild_cache.get(guildId)!;
       return this.confirm(guildId);
     },
@@ -34,10 +34,19 @@ export default class CacheManager {
      * @returns Guild - The guild model
      */
 
-    async confirm(guildId: string): Promise<Guild> {
+    async confirm(guildId: string): Promise<GuildConfig> {
       const guild = await prisma.guild.findUnique({
         where: {
           id: guildId
+        },
+        include: {
+          permissions: true,
+          infractions: true,
+          muteRequests: true,
+          banRequests: true,
+          userReports: true,
+          messageReports: true,
+          tasks: true
         }
       });
 
@@ -56,9 +65,18 @@ export default class CacheManager {
      * @returns Guild - The created guild
      */
 
-    async _create(guildId: string): Promise<Guild> {
+    async _create(guildId: string): Promise<GuildConfig> {
       const guild = await prisma.guild.create({
-        data: { id: guildId }
+        data: { id: guildId },
+        include: {
+          permissions: true,
+          infractions: true,
+          muteRequests: true,
+          banRequests: true,
+          userReports: true,
+          messageReports: true,
+          tasks: true
+        }
       });
 
       CacheManager.guild_cache.set(guildId, guild);

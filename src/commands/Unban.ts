@@ -58,7 +58,7 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
       config,
       guild: interaction.guild,
       target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Unban',
       reason: rawReason
     });
@@ -95,7 +95,7 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member!,
+      executor: interaction.member,
       target,
       reason,
       action: 'Unban',

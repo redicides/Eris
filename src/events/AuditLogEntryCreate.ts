@@ -6,7 +6,7 @@ import { elipsify } from '@utils/index';
 import CacheManager from '@managers/database/CacheManager';
 import EventListener from '@managers/events/EventListener';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
-import TaskManager from '@/managers/database/TaskManager';
+import TaskManager from '@managers/database/TaskManager';
 
 export default class AuditLogEntryCreate extends EventListener {
   constructor() {

@@ -1,19 +1,27 @@
 import { ButtonComponent, ButtonInteraction, InteractionUpdateOptions } from 'discord.js';
 import { InfractionFlag } from '@prisma/client';
 
-import { InteractionReplyData } from '@utils/Types';
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { ConfigUtils } from '@utils/Config';
 import { client } from '..';
 
 import Component from '@managers/components/Component';
-import Infraction from '@/commands/Infraction';
+import InfractionManager from '@managers/database/InfractionManager';
 
 export default class InfractionSearchPaginationComponent extends Component {
   constructor() {
     super({ matches: /^infraction-search-(next|back|last|first)$/m });
   }
 
-  async execute(interaction: ButtonInteraction<'cached'>): Promise<InteractionReplyData | null> {
+  async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
     const direction = interaction.customId.split('-')[2] as 'next' | 'back' | 'last' | 'first';
+
+    if (!ConfigUtils.hasPermission(interaction.member, config, 'SearchInfractions')) {
+      return {
+        error: 'You cannot use this button.',
+        temporary: true
+      };
+    }
 
     switch (direction) {
       case 'next':
@@ -75,7 +83,7 @@ export default class InfractionSearchPaginationComponent extends Component {
       filter = null;
     }
 
-    const updatedResult = (await Infraction.search({
+    const updatedResult = (await InfractionManager.searchInfractions({
       guildId: interaction.guildId,
       target,
       page,

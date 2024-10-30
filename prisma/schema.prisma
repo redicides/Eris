@@ -40,6 +40,12 @@ enum RequestStatus {
   Denied
 }
 
+enum PermissionEnum {
+  SearchInfractions
+  ManageMessageReports
+  ManageUserReports
+}
+
 model Guild {
   id String @id
 
@@ -120,6 +126,7 @@ model Guild {
   // Relations
 
   infractions    Infraction[]
+  permissions    Permission[]
   messageReports MessageReport[]
   userReports    UserReport[]
   banRequests    BanRequest[]
@@ -235,4 +242,15 @@ model MuteRequest {
   reason    String
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model Permission {
+  name        String
+  guildId     String
+  roleIds     String[]
+  permissions PermissionEnum[]
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([name, guildId])
 }

@@ -16,6 +16,7 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CacheManager from '@managers/database/CacheManager';
 import CommandManager from '@managers/commands/CommandManager';
+import { PermissionEnum } from '@prisma/client';
 
 export default class Config extends Command<ChatInputCommandInteraction<'cached'>> {
   constructor() {
@@ -407,6 +408,58 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
                       { name: 'Infractions', value: 'infractionLoggingEnabled' },
                       { name: 'Reports', value: 'reportLoggingEnabled' }
                     ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            name: ConfigSubcommandGroup.Permissions,
+            description: 'Manage the guild permission nodes.',
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+              {
+                name: ConfigSubcommand.CreateNode,
+                description: 'Create a new permission node.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'name',
+                    description: 'The name of the permission node.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    max_length: 50
+                  },
+                  {
+                    name: 'role',
+                    description: 'The first role to add to the permission node.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'permission',
+                    description: 'The first permission to add to the permission node.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
+                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
+                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.DeleteNode,
+                description: 'Delete a permission node.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'node',
+                    description: 'The name of the permission node to delete.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
                   }
                 ]
               }
@@ -1166,7 +1219,8 @@ enum ConfigSubcommandGroup {
   Commands = 'commands',
   Reports = 'reports',
   Infractions = 'infractions',
-  Logging = 'logging'
+  Logging = 'logging',
+  Permissions = 'permissions'
 }
 
 enum ConfigSubcommand {
@@ -1184,5 +1238,9 @@ enum ConfigSubcommand {
   RequireReviewReason = 'require-review-reason',
   RequireReason = 'require-reason',
   SetDefaultDuration = 'set-default-duration',
-  SetLogChannel = 'set-channel'
+  SetLogChannel = 'set-channel',
+  CreateNode = 'create-node',
+  DeleteNode = 'delete-node',
+  AddRoleToNode = 'add-role-to-node',
+  RemoveRoleFromNode = 'remove-role-from-node'
 }

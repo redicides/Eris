@@ -59,7 +59,7 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
       config,
       guild: interaction.guild,
       target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Unmute',
       reason: rawReason
     });
@@ -80,7 +80,7 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
       target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Mute',
       reason,
       duration: null

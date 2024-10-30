@@ -68,7 +68,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       config,
       guild: interaction.guild,
       target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Mute',
       reason: rawReason
     });
@@ -121,7 +121,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member!,
+      executor: interaction.member,
       target,
       action: 'Mute',
       reason,

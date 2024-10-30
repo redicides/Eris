@@ -86,7 +86,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
       config,
       guild: interaction.guild,
       target: member ?? target,
-      executor: interaction.member!,
+      executor: interaction.member,
       action: 'Ban',
       reason: rawReason
     });
@@ -159,7 +159,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member!,
+      executor: interaction.member,
       target,
       action: 'Ban',
       reason,
