@@ -32,7 +32,7 @@ export const ExtendedClient = new PrismaClient().$extends({
         return result;
       },
       async delete({ query, args }) {
-        if (args.where.guildId) CacheManager.guilds.free(args.where.guildId);
+        if (args.where.guildId) CacheManager.guilds.free(args.where.guildId as string);
 
         return query(args);
       }
