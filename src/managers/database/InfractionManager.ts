@@ -82,7 +82,7 @@ export default class InfractionManager {
     if (config[reasonKey] && !reason) {
       return {
         success: false,
-        message: `You must provide a reason to ${lAction} this ${target instanceof User ? 'user' : 'member'}.`
+        message: `You must provide a reason to ${lAction} the provided ${target instanceof User ? 'user' : 'member'}.`
       };
     }
 
