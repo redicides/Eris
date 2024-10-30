@@ -228,8 +228,8 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
       const executor = await client.users.fetch(infraction.executorId).catch(() => null);
 
       fields.push({
-        name: `${infraction.type} #${infraction.id} - Issued by ${
-          executor ? `@${executor.username}` : 'an unknown user'
+        name: `${infraction.type} #${infraction.id}, by ${
+          executor ? `@${executor.username} (${executor.id})` : 'an unknown user'
         }`,
         value: `${elipsify(infraction.reason, 256)} - ${time(Math.floor(Number(infraction.createdAt) / 1000))}`,
         inline: false
