@@ -1,8 +1,8 @@
 import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interaction } from 'discord.js';
 
-import { Sentry } from '@/index';
+import { capitalize, getInteractionTTL, handleInteractionErrorReply } from '@utils/index';
+import { prisma, Sentry } from '@/index';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
-import { InteractionUtils } from '@utils/Interactions';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
@@ -21,11 +21,11 @@ export default class InteractionCreate extends EventListener {
 
   async execute(interaction: Interaction) {
     if (interaction.isAutocomplete()) {
-      return InteractionUtils.handleAutocomplete(interaction);
+      return InteractionCreate.handleAutocomplete(interaction as AutocompleteInteraction);
     }
 
     if (!interaction.inCachedGuild()) {
-      return InteractionUtils.handleErrorReply({ interaction, error: 'Interactions are not supported in DMs.' });
+      return handleInteractionErrorReply({ interaction, error: 'Interactions are not supported in DMs.' });
     }
 
     if (!interaction.isCommand() && interaction.customId.startsWith('?')) {
@@ -50,7 +50,7 @@ export default class InteractionCreate extends EventListener {
       );
 
       if (!result.success) {
-        return InteractionUtils.handleErrorReply({ interaction, error: result.message });
+        return handleInteractionErrorReply({ interaction, error: result.message });
       }
     }
 
@@ -77,7 +77,7 @@ export default class InteractionCreate extends EventListener {
         error
       );
 
-      return InteractionUtils.handleErrorReply({
+      return handleInteractionErrorReply({
         interaction,
         error: `An error occured while executing this ${
           interaction.isCommand() ? 'command' : 'component'
@@ -111,7 +111,7 @@ export default class InteractionCreate extends EventListener {
 
     const options = response;
 
-    const ttl = InteractionUtils.getInteractionTTL(interaction, config, options);
+    const ttl = getInteractionTTL(interaction, config, options);
 
     const isTemporary = options.temporary;
     delete options.temporary;
@@ -152,7 +152,7 @@ export default class InteractionCreate extends EventListener {
       )
     );
 
-    return InteractionUtils.handleErrorReply({
+    return handleInteractionErrorReply({
       interaction,
       error: `Failed to fetch data for ${
         interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
@@ -192,5 +192,49 @@ export default class InteractionCreate extends EventListener {
     }
 
     return { success: true };
+  }
+
+  /**
+   * Handle an autocomplete interaction
+   */
+
+  public static async handleAutocomplete(interaction: AutocompleteInteraction): Promise<unknown> {
+    if (!interaction.inCachedGuild() || !interaction.inGuild()) return [];
+
+    const option = interaction.options.getFocused(true);
+    const lowercaseOption = option.value.toLowerCase();
+
+    switch (option.name) {
+      case 'command-name': {
+        const application_commands = CommandManager.application_commands.filter(
+          command => command.category !== 'Developer'
+        );
+
+        const commands = application_commands
+          .filter(command => command.data.name.includes(lowercaseOption))
+          .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+        return interaction.respond(
+          commands.map(command => ({ name: capitalize(command.data.name), value: command.data.name }))
+        );
+      }
+
+      case 'node': {
+        const nodes = await prisma.permission.findMany({
+          where: { guildId: interaction.guildId }
+        });
+
+        const filtered_nodes = nodes
+          .filter(node => {
+            return node.name.includes(lowercaseOption);
+          })
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name })));
+      }
+
+      default:
+        return [];
+    }
   }
 }

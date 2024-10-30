@@ -1,12 +1,14 @@
 import 'dotenv/config';
 
+import { Client } from 'discord.js';
+
 import * as SentryClient from '@sentry/node';
 
 import { sleep } from '@utils/index';
 import { ExtendedClient } from '@utils/Prisma';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import CharmieClient from '@utils/Client';
+import { CLIENT_CACHE_OPTIONS, CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_SWEEPER_OPTIONS } from '@utils/Constants';
 
 import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
@@ -17,7 +19,50 @@ import ComponentManager from '@managers/components/ComponentManager';
  * The main client instance.
  */
 
-export const client = new CharmieClient();
+export const client = new Client({
+  /**
+   * Gateway intents (bits).
+   *
+   * The following privileged intents are required for the bot to work:
+   *
+   * 1. Server Members Intent - For handling guild member events
+   * 2. Message Content Intent - For handling auto-moderation
+   *
+   * If these intents have not been granted the client will not log in
+   * @see https://discord.com/developers/docs/topics/gateway#gateway-intents
+   */
+
+  intents: CLIENT_INTENTS,
+
+  /**
+   * Partial types.
+   */
+
+  partials: CLIENT_PARTIALS,
+
+  /**
+   * Cache settings for the client.
+   *
+   * A message cache of 100 or above is recommended.
+   */
+
+  makeCache: CLIENT_CACHE_OPTIONS,
+
+  /**
+   * Sweepers for the cache.
+   *
+   * guildMembers - Sweeps the guild member cache but excludes the client
+   *
+   * Warning: These cache settings do lead in higher memory usage
+   *          If you do not have appropriate available memory please lower these numbers
+   */
+
+  sweepers: CLIENT_SWEEPER_OPTIONS,
+
+  allowedMentions: {
+    parse: []
+  }
+});
 
 /**
  * The Sentry client.

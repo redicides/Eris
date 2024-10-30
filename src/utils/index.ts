@@ -1,10 +1,30 @@
-import { codeBlock, escapeCodeBlock, GuildMember, hyperlink, Snowflake, StickerFormatType } from 'discord.js';
+import {
+  AutocompleteInteraction,
+  codeBlock,
+  Colors,
+  CommandInteraction,
+  escapeCodeBlock,
+  GuildMember,
+  hyperlink,
+  Interaction,
+  InteractionReplyOptions,
+  Snowflake,
+  StickerFormatType
+} from 'discord.js';
+import { PermissionEnum } from '@prisma/client';
 
 import YAML from 'yaml';
 import fs from 'fs';
 import ms from 'ms';
+
 import { client } from '..';
 import { EMPTY_MESSAGE_CONTENT } from './Constants';
+import { GuildConfig, InteractionReplyData } from './Types';
+import { ComponentInteraction } from '@managers/components/Component';
+
+import ConfigManager from '@managers/config/ConfigManager';
+
+const { error: error_emoji } = ConfigManager.global_config.emojis;
 
 /**
  * Pluralizes a word based on the given count
@@ -179,4 +199,76 @@ export async function formatMessageContentForShortLog(
   }
 
   return rawContent + codeBlock(content);
+}
+
+/**
+ * Checks if a member has a specific permission.
+ * @param member The member to check
+ * @param config The guild config ( with permissions )
+ * @param permission The permission to check for
+ */
+export function hasPermission(member: GuildMember, config: GuildConfig, permission: PermissionEnum): boolean {
+  return member.roles.cache.some(role => {
+    return config.permissions.some(permissions => {
+      return permissions.roleIds.includes(role.id) && permissions.permissions.includes(permission);
+    });
+  });
+}
+
+/**
+ * Handle replying for interaction
+ *
+ * @param interaction The interaction to reply to
+ * @param options The options to reply with
+ */
+
+export function handleInteractionReply(
+  interaction: ComponentInteraction | CommandInteraction,
+  options: InteractionReplyOptions
+): unknown {
+  const { ephemeral, ...parsedOptions } = options;
+
+  return !interaction.deferred && !interaction.replied
+    ? interaction.reply(options).catch(() => {})
+    : interaction.editReply({ ...parsedOptions }).catch(() => {});
+}
+
+/**
+ * Reply with an error message to an interaction
+ *
+ * @param data The data for the error
+ * @returns unknown
+ */
+
+export function handleInteractionErrorReply(data: {
+  interaction: ComponentInteraction | CommandInteraction;
+  error: string;
+}): unknown {
+  const { interaction, error } = data;
+
+  return handleInteractionReply(interaction, {
+    embeds: [{ description: `${error_emoji} ${error}`, color: Colors.NotQuiteBlack }],
+    ephemeral: true
+  });
+}
+
+/**
+ * Get the TTL for the interaction reply.
+ *
+ * @param interaction The interaction to get the TTL for
+ * @param config The guild configuration
+ * @param options The reply options
+ * @returns The TTL for the interaction reply
+ */
+
+export function getInteractionTTL(
+  interaction: Exclude<Interaction, AutocompleteInteraction> | CommandInteraction,
+  config: GuildConfig,
+  options: InteractionReplyData
+): number {
+  if (interaction.isCommand()) {
+    return options.temporary ? config.commandTemporaryReplyTTL : config.commandErrorTTL;
+  } else {
+    return options.temporary ? config.componentTemporaryReplyTTL : config.componentErrorTTL;
+  }
 }

@@ -1,7 +1,7 @@
 import { ButtonInteraction } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { ConfigUtils } from '@utils/Config';
+import { hasPermission } from '@utils/index';
 
 import Component from '@managers/components/Component';
 import InfractionManager from '@managers/database/InfractionManager';
@@ -22,7 +22,7 @@ export default class InfractionSearchComponent extends Component {
       };
     }
 
-    if (!ConfigUtils.hasPermission(interaction.member, config, 'SearchInfractions')) {
+    if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
       return {
         error: 'You do not have permission to search infractions.',
         temporary: true

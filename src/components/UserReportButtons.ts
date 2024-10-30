@@ -1,9 +1,9 @@
 import { ButtonInteraction, EmbedBuilder, EmbedData } from 'discord.js';
 
+import { hasPermission } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
 import { capitalize, userMentionWithId } from '@utils/index';
-import { ConfigUtils } from '@utils/Config';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
 import Component from '@managers/components/Component';
@@ -45,7 +45,7 @@ export default class UserReportButtonsComponent extends Component {
       };
     }
 
-    if (!ConfigUtils.hasPermission(interaction.member, config, 'ManageUserReports')) {
+    if (!hasPermission(interaction.member, config, 'ManageUserReports')) {
       return {
         error: 'You do not have permission to manage user reports.',
         temporary: true

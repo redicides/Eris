@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandI
 import { InfractionFlag, Infraction as Inf } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { ConfigUtils } from '@utils/Config';
+import { hasPermission } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager from '@managers/database/InfractionManager';
@@ -76,7 +76,7 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
           };
         }
 
-        if (!ConfigUtils.hasPermission(interaction.member, config, 'SearchInfractions')) {
+        if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
           return {
             error: 'You do not have permission to search infractions.',
             temporary: true
