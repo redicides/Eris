@@ -24,7 +24,7 @@ import { ComponentInteraction } from '@managers/components/Component';
 
 import ConfigManager from '@managers/config/ConfigManager';
 
-const { error: error_emoji } = ConfigManager.global_config.emojis;
+const { error: error_emoji } = ConfigManager.global_config.emojis!;
 
 /**
  * Pluralizes a word based on the given count
