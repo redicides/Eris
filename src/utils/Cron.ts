@@ -170,23 +170,23 @@ export class CronUtils {
     return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, report_disregard_cron, true, async () => {
       // Delete expired user reports
 
-      await prisma.$executeRaw`DELETE FROM "UserReport"
-      WHERE id IN (
-        SELECT R.id
-        FROM "UserReport" R
-        INNER JOIN "Guild" G ON R."guildId" = G.id
-        WHERE R."reportedAt" + G."userReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
-      )`;
+      // await prisma.$executeRaw`DELETE FROM "UserReport"
+      // WHERE id IN (
+      //   SELECT R.id
+      //   FROM "UserReport" R
+      //   INNER JOIN "Guild" G ON R."guildId" = G.id
+      //   WHERE R."reportedAt" + G."userReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
+      // )`;
 
-      // Delete expired message reports
+      // // Delete expired message reports
 
-      await prisma.$executeRaw`DELETE FROM "MessageReport"
-      WHERE id IN (
-        SELECT R.id
-        FROM "MessageReport" R
-        INNER JOIN "Guild" G ON R."guildId" = G.id
-        WHERE R."reportedAt" + G."messageReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
-      )`;
+      // await prisma.$executeRaw`DELETE FROM "MessageReport"
+      // WHERE id IN (
+      //   SELECT R.id
+      //   FROM "MessageReport" R
+      //   INNER JOIN "Guild" G ON R."guildId" = G.id
+      //   WHERE R."reportedAt" + G."messageReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
+      // )`;
     });
   }
 }

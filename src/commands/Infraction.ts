@@ -48,7 +48,7 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
               {
                 name: 'id',
                 description: 'The infraction ID.',
-                type: ApplicationCommandOptionType.Integer,
+                type: ApplicationCommandOptionType.String,
                 required: true
               }
             ]
@@ -91,7 +91,7 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
         });
       }
       case InfracionSubcommand.Info: {
-        const infractionId = interaction.options.getInteger('id', true);
+        const infractionId = interaction.options.getString('id', true);
 
         return InfractionManager.getInfractionInfo({ id: infractionId, guildId: interaction.guildId });
       }

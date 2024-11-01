@@ -7,7 +7,7 @@ export default class TaskManager {
   public static async storeTask(data: {
     guildId: Snowflake;
     targetId: Snowflake;
-    infractionId: number;
+    infractionId: string;
     expiresAt: bigint | number;
     type: TaskType;
   }): Promise<Task> {

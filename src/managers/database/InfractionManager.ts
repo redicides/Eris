@@ -312,7 +312,7 @@ export default class InfractionManager {
    * @returns Infraction details.
    */
 
-  public static async getInfractionInfo(data: { id: number; guildId: Snowflake }): Promise<InteractionReplyData> {
+  public static async getInfractionInfo(data: { id: string; guildId: Snowflake }): Promise<InteractionReplyData> {
     const { id, guildId } = data;
 
     const infraction = await prisma.infraction.findUnique({

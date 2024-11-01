@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -47,7 +47,7 @@ enum PermissionEnum {
 }
 
 model Guild {
-  id String @id
+  id String @id @map("_id")
 
   // Command settings
 
@@ -135,7 +135,7 @@ model Guild {
 }
 
 model Infraction {
-  id         Int             @id @default(autoincrement())
+  id         String          @id @default(cuid()) @map("_id")
   guildId    String
   targetId   String
   executorId String
@@ -151,10 +151,10 @@ model Infraction {
 }
 
 model Task {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(cuid()) @map("_id")
   guildId      String
   targetId     String
-  infractionId Int      @unique
+  infractionId String   @unique
   type         TaskType
   expiresAt    BigInt
 
@@ -166,7 +166,7 @@ model Task {
 
 model MessageReport {
   // ID of the log
-  id         String  @id
+  id         String  @id @default(cuid()) @map("_id")
   guildId    String
   messageId  String
   messageUrl String
@@ -188,7 +188,7 @@ model MessageReport {
 
 model UserReport {
   // ID of the log
-  id       String @id
+  id       String @id @default(cuid()) @map("_id")
   guildId  String
   targetId String
 
@@ -206,7 +206,7 @@ model UserReport {
 
 model BanRequest {
   // ID of the log
-  id       String @id
+  id       String @id @default(cuid()) @map("_id")
   guildId  String
   targetId String
 
@@ -226,7 +226,7 @@ model BanRequest {
 
 model MuteRequest {
   // ID of the log
-  id       String @id
+  id       String @id @default(cuid()) @map("_id")
   guildId  String
   targetId String
 
@@ -245,6 +245,7 @@ model MuteRequest {
 }
 
 model Permission {
+  id          String           @id @default(cuid()) @map("_id")
   name        String
   guildId     String
   roleIds     String[]
