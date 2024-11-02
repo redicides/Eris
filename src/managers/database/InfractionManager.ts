@@ -96,7 +96,7 @@ export default class InfractionManager {
 
     const embed = new EmbedBuilder()
       .setAuthor({
-        name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} #${infraction.id}`
+        name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} - ID #${infraction.id}`
       })
       .setColor(INFRACTION_COLORS[infraction.type])
       .setFields([
@@ -314,12 +314,7 @@ export default class InfractionManager {
   public static async getInfractionInfo(data: { id: string; guildId: Snowflake }): Promise<InteractionReplyData> {
     const { id, guildId } = data;
 
-    const infraction = await prisma.infraction.findUnique({
-      where: {
-        id,
-        guildId
-      }
-    });
+    const infraction = await InfractionManager.getInfraction({ id, guildId });
 
     if (!infraction) {
       return {
@@ -329,7 +324,7 @@ export default class InfractionManager {
     }
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} #${infraction.id}` })
+      .setAuthor({ name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} - ID #${infraction.id}` })
       .setColor(InfractionManager.mapActionToColor({ infraction }))
       .setFields([
         { name: 'Executor', value: userMentionWithId(infraction.executorId) },
