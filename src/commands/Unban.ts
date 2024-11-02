@@ -107,7 +107,7 @@ export default class Unban extends Command {
     });
 
     if (!uResult) {
-      await InfractionManager.deleteInfraction({ where: { id: infraction.id } });
+      await InfractionManager.deleteInfraction({ id: infraction.id });
       return {
         error: 'Failed to unban the target.',
         temporary: true
@@ -115,7 +115,7 @@ export default class Unban extends Command {
     }
 
     await TaskManager.deleteTask({
-      where: { targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' } }
+      targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
     }).catch(() => null);
 
     InfractionManager.logInfraction({ config, infraction });

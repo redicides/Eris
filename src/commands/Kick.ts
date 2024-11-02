@@ -99,7 +99,7 @@ export default class Kick extends Command {
     });
 
     if (!kResult) {
-      await InfractionManager.deleteInfraction({ where: { id: infraction.id } });
+      await InfractionManager.deleteInfraction({ id: infraction.id });
       return {
         error: `Failed to kick ${target}. The related infraction has been deleted.`,
         temporary: true

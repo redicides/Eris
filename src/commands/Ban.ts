@@ -172,7 +172,7 @@ export default class Ban extends Command {
     });
 
     if (!bResult) {
-      await InfractionManager.deleteInfraction({ where: { id: infraction.id } });
+      await InfractionManager.deleteInfraction({ id: infraction.id });
       return {
         error: `Failed to ban ${target}. The related infraction has been deleted.`,
         temporary: true
@@ -189,7 +189,7 @@ export default class Ban extends Command {
       });
     } else {
       await TaskManager.deleteTask({
-        where: { targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' } }
+        targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
       }).catch(() => null);
     }
 

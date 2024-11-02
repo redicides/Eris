@@ -34,7 +34,7 @@ export default class AuditLogEntryCreate extends EventListener {
         // If the user was banned, we delete any mute related tasks (if any).
 
         await TaskManager.deleteTask({
-          where: { targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' } }
+          targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
         }).catch(() => null);
 
         break;
@@ -44,7 +44,7 @@ export default class AuditLogEntryCreate extends EventListener {
         // If the user was unbanned, we delete any ban related tasks (if any).
 
         await TaskManager.deleteTask({
-          where: { targetId_guildId_type: { guildId: guild.id, targetId: target.id, type: 'Ban' } }
+          targetId_guildId_type: { guildId: guild.id, targetId: target.id, type: 'Ban' }
         }).catch(() => null);
 
         break;
@@ -87,7 +87,7 @@ export default class AuditLogEntryCreate extends EventListener {
               action = InfractionType.Unmute;
 
               await TaskManager.deleteTask({
-                where: { targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' } }
+                targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
               }).catch(() => null);
             }
           }

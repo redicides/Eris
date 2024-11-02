@@ -155,7 +155,7 @@ export class CronUtils {
             }
           }
 
-          await TaskManager.deleteTask({ where: { id: task.id } });
+          await TaskManager.deleteTask({ id: task.id });
 
           const infraction = await InfractionManager.storeInfraction({
             id: InfractionManager.generateInfractionId(),
