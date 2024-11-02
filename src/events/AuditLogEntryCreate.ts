@@ -3,7 +3,7 @@ import { InfractionFlag, InfractionType } from '@prisma/client';
 
 import { elipsify } from '@utils/index';
 
-import DatabaseManager from '@/managers/database/DatabaseManager';
+import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';

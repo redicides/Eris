@@ -8,7 +8,7 @@ import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
 import ConfigManager from '@managers/config/ConfigManager';
 import Logger from '@utils/Logger';
-import DatabaseManager from '@/managers/database/DatabaseManager';
+import DatabaseManager from '@managers/database/DatabaseManager';
 import ComponentManager from '@managers/components/ComponentManager';
 import Command from '@managers/commands/Command';
 import Component from '@managers/components/Component';

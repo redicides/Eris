@@ -19,7 +19,7 @@ import Logger, { AnsiColor } from '@utils/Logger';
 import ConfigManager from '@managers/config/ConfigManager';
 import InfractionManager, { INFRACTION_COLORS } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
-import DatabaseManager from '@/managers/database/DatabaseManager';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 const { task_runner_cron, report_disregard_cron } = ConfigManager.global_config.database;
 
@@ -82,7 +82,7 @@ export class CronUtils {
     return CronUtils.startJob('TASK_RUNNER', task_runner_cron, true, async () => {
       await prisma.infraction.deleteMany({
         where: {
-          expiresAt: { isSet: true, lte: Date.now() }
+          AND: [{ expiresAt: { not: null } }, { expiresAt: { lte: Date.now() } }]
         }
       });
 

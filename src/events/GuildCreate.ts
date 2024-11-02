@@ -2,7 +2,7 @@ import { Events, Guild } from 'discord.js';
 
 import EventListener from '@managers/events/EventListener';
 import Logger from '@utils/Logger';
-import DatabaseManager from '@/managers/database/DatabaseManager';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class GuildCreate extends EventListener {
   constructor() {
