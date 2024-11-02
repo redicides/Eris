@@ -14,7 +14,6 @@ import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ComponentManager from '@managers/components/ComponentManager';
-import { createPrismaRedisCache } from 'prisma-redis-middleware';
 
 /**
  * The main client instance.
@@ -119,18 +118,6 @@ async function main() {
   });
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
-
-  prisma.$use(
-    createPrismaRedisCache({
-      storage: {
-        type: 'memory',
-        options: {
-          invalidation: true
-        }
-      },
-      cacheTime: 60000
-    })
-  );
 
   /**
    * Connect to the database.
