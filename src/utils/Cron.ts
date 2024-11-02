@@ -217,7 +217,9 @@ export class CronUtils {
         const primaryEmbed = log.embeds[log.components!.length === 1 ? 0 : 1];
         const secondaryEmbed = log.embeds[0] ?? null;
 
-        const embed = new EmbedBuilder(primaryEmbed).setColor(Colors.NotQuiteBlack);
+        const embed = new EmbedBuilder(primaryEmbed)
+          .setColor(Colors.NotQuiteBlack)
+          .setAuthor({ name: 'Message Report' });
 
         const disregardedButton = new ButtonBuilder()
           .setCustomId('?')
@@ -279,7 +281,7 @@ export class CronUtils {
           continue;
         }
 
-        const embed = new EmbedBuilder(log.embeds[0]).setColor(Colors.NotQuiteBlack);
+        const embed = new EmbedBuilder(log.embeds[0]).setColor(Colors.NotQuiteBlack).setAuthor({ name: 'User Report' });
 
         const disregardedButton = new ButtonBuilder()
           .setCustomId('?')
