@@ -60,7 +60,7 @@ This bot relies on several dependencies (libraries) to run, so you'll need to in
 This may take a while, so grab a drink while you're at it.
 
 ### Step 2. Database Setup  
-Like any other server-side Node.js app, this bot relies on a database to store data, specifically PostgreSQL. Thankfully, ORMs like Prisma exist, making life easier for both of us.
+Like any other server-side Node.js app, this bot relies on a database to store data, specifically MongoDB. Thankfully, ORMs like Prisma exist, making life easier for both of us.
 
 To ensure your database matches the Prisma schema, run one of these commands depending on your runtime.  
 - Node.js - `npx prisma db push`
