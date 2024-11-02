@@ -82,8 +82,7 @@ export class CronUtils {
     return CronUtils.startJob('TASK_RUNNER', task_runner_cron, true, async () => {
       await prisma.infraction.deleteMany({
         where: {
-          type: 'Warn',
-          expiresAt: { lte: Date.now() }
+          expiresAt: { isSet: true, lte: Date.now() }
         }
       });
 
