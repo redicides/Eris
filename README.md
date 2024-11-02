@@ -9,7 +9,7 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 Before you get started, ensure you have the following:
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
-- PostgreSQL Server (to store data on)
+- MongoDB Server (to store data on)
 - Sentry Project (to log errors)
 
 ## Configuration & Environment Variables  
@@ -30,7 +30,7 @@ BOT_ID={id}
 SENTRY_DSN={sentry dsn url}
 
 # The database URL for connecting to the database and storing data  
-DATABASE_URL={postgresql database url}
+DATABASE_URL={mongodb database url}
 ```
 
 ### charmie.cfg.yml  
