@@ -166,7 +166,7 @@ model Task {
 
 model MessageReport {
   // ID of the log
-  id         String  @id @default(cuid()) @map("_id")
+  id         String  @id @map("_id")
   guildId    String
   messageId  String
   messageUrl String
@@ -188,7 +188,7 @@ model MessageReport {
 
 model UserReport {
   // ID of the log
-  id       String @id @default(cuid()) @map("_id")
+  id       String @id @map("_id")
   guildId  String
   targetId String
 
@@ -206,7 +206,7 @@ model UserReport {
 
 model BanRequest {
   // ID of the log
-  id       String @id @default(cuid()) @map("_id")
+  id       String @id @map("_id")
   guildId  String
   targetId String
 
@@ -226,7 +226,7 @@ model BanRequest {
 
 model MuteRequest {
   // ID of the log
-  id       String @id @default(cuid()) @map("_id")
+  id       String @id @map("_id")
   guildId  String
   targetId String
 
