@@ -1,11 +1,11 @@
 import 'dotenv/config';
 
 import { Client } from 'discord.js';
+import { PrismaClient } from '@prisma/client';
 
 import * as SentryClient from '@sentry/node';
 
 import { sleep } from '@utils/index';
-import { ExtendedClient } from '@utils/Prisma';
 
 import Logger, { AnsiColor } from '@utils/Logger';
 import { CLIENT_CACHE_OPTIONS, CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_SWEEPER_OPTIONS } from '@utils/Constants';
@@ -14,6 +14,7 @@ import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ComponentManager from '@managers/components/ComponentManager';
+import { createPrismaRedisCache } from 'prisma-redis-middleware';
 
 /**
  * The main client instance.
@@ -74,7 +75,7 @@ export const Sentry = SentryClient;
  * The prisma client
  */
 
-export const prisma = ExtendedClient;
+export const prisma = new PrismaClient();
 
 async function main() {
   if (!process.env.BOT_TOKEN) {
@@ -118,6 +119,18 @@ async function main() {
   });
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
+
+  prisma.$use(
+    createPrismaRedisCache({
+      storage: {
+        type: 'memory',
+        options: {
+          invalidation: true
+        }
+      },
+      cacheTime: 60000
+    })
+  );
 
   /**
    * Connect to the database.

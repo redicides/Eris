@@ -8,7 +8,7 @@ import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
 import ConfigManager from '@managers/config/ConfigManager';
 import Logger from '@utils/Logger';
-import CacheManager from '@managers/database/CacheManager';
+import DatabaseManager from '@/managers/database/DatabaseManager';
 import ComponentManager from '@managers/components/ComponentManager';
 import Command from '@managers/commands/Command';
 import Component from '@managers/components/Component';
@@ -33,7 +33,7 @@ export default class InteractionCreate extends EventListener {
       return;
     }
 
-    const guild = await CacheManager.guilds.get(interaction.guildId);
+    const guild = await DatabaseManager.guilds.get(interaction.guildId);
 
     let data = interaction.isCommand()
       ? CommandManager.getCommand(interaction.commandId, interaction.commandName)
@@ -223,7 +223,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'node': {
-        const nodes = (await CacheManager.guilds.get(interaction.guildId)).permissions;
+        const nodes = (await DatabaseManager.guilds.get(interaction.guildId)).permissions;
 
         const filtered_nodes = nodes
           .filter(node => {
@@ -235,7 +235,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'scope': {
-        const scopes = (await CacheManager.guilds.get(interaction.guildId)).ephemeralScopes;
+        const scopes = (await DatabaseManager.guilds.get(interaction.guildId)).ephemeralScopes;
 
         const filtered_scopes = scopes
           .filter(scope => {

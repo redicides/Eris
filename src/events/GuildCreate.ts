@@ -2,7 +2,7 @@ import { Events, Guild } from 'discord.js';
 
 import EventListener from '@managers/events/EventListener';
 import Logger from '@utils/Logger';
-import CacheManager from '@managers/database/CacheManager';
+import DatabaseManager from '@/managers/database/DatabaseManager';
 
 export default class GuildCreate extends EventListener {
   constructor() {
@@ -10,7 +10,7 @@ export default class GuildCreate extends EventListener {
   }
 
   async execute(guild: Guild) {
-    await CacheManager.guilds.confirm(guild.id);
+    await DatabaseManager.guilds.confirm(guild.id);
     Logger.debug(`Confirmed database guild entry for guild ${guild.name} with ID ${guild.id}.`);
   }
 }

@@ -26,15 +26,14 @@ export default class InfractionManager {
     return prisma.infraction.create({ data });
   }
 
-  static async getInfraction(options: Prisma.InfractionFindUniqueArgs): Promise<Infraction | null> {
+  static async getInfraction(where: Prisma.InfractionFindUniqueArgs['where']): Promise<Infraction | null> {
     return prisma.infraction.findUnique({
-      where: options.where,
-      include: options.include
+      where
     });
   }
 
-  static async deleteInfraction(options: Prisma.InfractionDeleteArgs): Promise<Infraction | null> {
-    return prisma.infraction.delete({ where: options.where, include: options.include });
+  static async deleteInfraction(where: Prisma.InfractionDeleteArgs['where']): Promise<Infraction | null> {
+    return prisma.infraction.delete({ where });
   }
 
   static async getActiveMute(options: { guildId: Snowflake; targetId: Snowflake }): Promise<Infraction | null> {

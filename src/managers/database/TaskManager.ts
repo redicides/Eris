@@ -22,14 +22,13 @@ export default class TaskManager {
     });
   }
 
-  public static async getTask(options: Prisma.TaskFindUniqueArgs): Promise<Task | null> {
+  public static async getTask(where: Prisma.TaskFindUniqueArgs['where']): Promise<Task | null> {
     return prisma.task.findUnique({
-      where: options.where,
-      include: options.include
+      where
     });
   }
 
-  public static async deleteTask(options: Prisma.TaskDeleteArgs): Promise<Task | null> {
-    return prisma.task.delete({ where: options.where, include: options.include });
+  public static async deleteTask(where: Prisma.TaskDeleteArgs['where']): Promise<Task | null> {
+    return prisma.task.delete({ where });
   }
 }

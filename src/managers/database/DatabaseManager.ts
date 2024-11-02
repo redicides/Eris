@@ -1,15 +1,7 @@
-import { Collection } from 'discord.js';
-
 import { prisma } from '@/index';
 import { GuildConfig } from '@utils/Types';
 
-export default class CacheManager {
-  /**
-   * Collection cache for guilds to avoid database queries.
-   */
-
-  private static guild_cache = new Collection<string, GuildConfig>();
-
+export default class DatabaseManager {
   /**
    * Guild cache methods.
    */
@@ -23,7 +15,6 @@ export default class CacheManager {
      */
 
     async get(guildId: string): Promise<GuildConfig> {
-      if (CacheManager.guild_cache.has(guildId)) return CacheManager.guild_cache.get(guildId)!;
       return this.confirm(guildId);
     },
 
@@ -41,10 +32,7 @@ export default class CacheManager {
         }
       });
 
-      if (guild) {
-        CacheManager.guild_cache.set(guildId, guild);
-        return guild;
-      }
+      if (guild) return guild;
 
       return this._create(guildId);
     },
@@ -61,27 +49,7 @@ export default class CacheManager {
         data: { id: guildId }
       });
 
-      CacheManager.guild_cache.set(guildId, guild);
       return guild;
-    },
-
-    /**
-     * Removes a guild from the cache (most likely due to an update or deletion).
-     *
-     * @param guildId - The ID of the guild to remove
-     * @returns boolean - If the guild was present in the cache and is now wiped
-     */
-
-    free(guildId: string): boolean {
-      return CacheManager.guild_cache.delete(guildId);
-    },
-
-    /**
-     * Removes all guilds from the cache.
-     */
-
-    freeAll(): void {
-      return CacheManager.guild_cache.clear();
     }
   };
 }

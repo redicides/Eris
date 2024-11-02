@@ -3,7 +3,7 @@ import { InfractionFlag, InfractionType } from '@prisma/client';
 
 import { elipsify } from '@utils/index';
 
-import CacheManager from '@managers/database/CacheManager';
+import DatabaseManager from '@/managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
@@ -15,7 +15,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
   async execute(log: GuildAuditLogsEntry, guild: Guild) {
     const { executor, target, reason: rawReason, changes } = log;
-    const config = await CacheManager.guilds.get(guild.id);
+    const config = await DatabaseManager.guilds.get(guild.id);
 
     if (!executor || executor.id === this.client.user!.id) return;
     if (!(target instanceof User) && !(target instanceof GuildMember)) return;

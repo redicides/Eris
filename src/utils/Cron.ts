@@ -19,7 +19,7 @@ import Logger, { AnsiColor } from '@utils/Logger';
 import ConfigManager from '@managers/config/ConfigManager';
 import InfractionManager, { INFRACTION_COLORS } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
-import CacheManager from '@managers/database/CacheManager';
+import DatabaseManager from '@/managers/database/DatabaseManager';
 
 const { task_runner_cron, report_disregard_cron } = ConfigManager.global_config.database;
 
@@ -105,7 +105,7 @@ export class CronUtils {
           continue;
         }
 
-        const config = await CacheManager.guilds.get(discordGuild.id);
+        const config = await DatabaseManager.guilds.get(discordGuild.id);
         const permissions = discordGuild.members.me!.permissions;
         const banPermissions = permissions.has(PermissionFlagsBits.BanMembers);
 
@@ -194,7 +194,7 @@ export class CronUtils {
       });
 
       for (const report of messageReports) {
-        const config = await CacheManager.guilds.get(report.guildId);
+        const config = await DatabaseManager.guilds.get(report.guildId);
 
         if (report.reportedAt + config.messageReportsDisregardAfter > Date.now()) {
           continue;
@@ -259,7 +259,7 @@ export class CronUtils {
       }
 
       for (const report of userReports) {
-        const config = await CacheManager.guilds.get(report.guildId);
+        const config = await DatabaseManager.guilds.get(report.guildId);
 
         if (report.reportedAt + config.userReportsDisregardAfter > Date.now()) {
           continue;
