@@ -15,7 +15,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
-export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Ban extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
@@ -66,7 +66,8 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig
+    config: GuildConfig,
+    ephemeral: boolean
   ): Promise<InteractionReplyData> {
     const member = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
@@ -139,7 +140,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
       expiresAt = createdAt + Number(config.defaultBanDuration);
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral });
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),

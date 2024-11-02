@@ -7,7 +7,7 @@ import { hasPermission } from '@utils/index';
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager from '@managers/database/InfractionManager';
 
-export default class Infraction extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Infraction extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
@@ -60,9 +60,12 @@ export default class Infraction extends Command<ChatInputCommandInteraction<'cac
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig
+    config: GuildConfig,
+    ephemeral: boolean
   ): Promise<InteractionReplyData> {
     const subcommand = interaction.options.getSubcommand() as InfracionSubcommand;
+
+    await interaction.deferReply({ ephemeral });
 
     switch (subcommand) {
       case InfracionSubcommand.Search: {

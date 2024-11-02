@@ -17,25 +17,6 @@ export const ExtendedClient = new PrismaClient().$extends({
         if (args.where.id) CacheManager.guilds.free(args.where.id);
         return query(args);
       }
-    },
-
-   permission: {
-      async create({ query, args }) { 
-        if (args.data.guildId) CacheManager.guilds.free(args.data.guildId);
-
-        return query(args);
-      },
-      async update({ query, args }) {
-        const result = await query(args);
-        if (result && result.guildId) CacheManager.guilds.free(result.guildId);
-
-        return result;
-      },
-      async delete({ query, args }) {
-        if (args.where.guildId) CacheManager.guilds.free(args.where.guildId as string);
-
-        return query(args);
-      }
     }
   }
 });

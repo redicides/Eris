@@ -105,13 +105,4 @@ export default class ComponentManager {
       return customId.includes(component.customId.includes);
     });
   }
-
-  static handleComponent(
-    interaction: ComponentInteraction,
-    config: GuildConfig
-  ): Awaitable<InteractionReplyData | null> {
-    // Retrieve the component's instance from cache by its custom ID
-    const component = ComponentManager.getComponent(interaction.customId)!;
-    return component.execute(interaction, config);
-  }
 }

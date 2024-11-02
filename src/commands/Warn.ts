@@ -14,7 +14,7 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
-export default class Warn extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Warn extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
@@ -50,7 +50,8 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig
+    config: GuildConfig,
+    ephemeral: boolean
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
@@ -117,7 +118,7 @@ export default class Warn extends Command<ChatInputCommandInteraction<'cached'>>
       expiresAt = createdAt + Number(config.defaultWarnDuration);
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral });
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),

@@ -15,7 +15,7 @@ export default class CommandManager {
   /**
    * The cached application commands.
    */
-  public static readonly application_commands = new Collection<string, Command<CommandInteraction>>();
+  public static readonly application_commands = new Collection<string, Command>();
 
   /**
    * Caches all commands from the commands directory.
@@ -90,7 +90,7 @@ export default class CommandManager {
     });
   }
 
-  static getCommand(commandId: Snowflake, commandName: string): Command<CommandInteraction> | null {
+  static getCommand(commandId: Snowflake, commandName: string): Command | null {
     const isGlobalCommand = client.application?.commands.cache.has(commandId);
 
     if (isGlobalCommand) {
@@ -98,10 +98,5 @@ export default class CommandManager {
     }
 
     return null;
-  }
-
-  static handleCommand(interaction: CommandInteraction, config: GuildConfig): Awaitable<InteractionReplyData | null> {
-    const command = CommandManager.getCommand(interaction.commandId, interaction.commandName)!;
-    return command.execute(interaction, config);
   }
 }

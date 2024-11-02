@@ -1,10 +1,10 @@
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
 
-import { InteractionReplyData } from '@utils/Types';
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class Ping extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Ping extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
@@ -16,9 +16,13 @@ export default class Ping extends Command<ChatInputCommandInteraction<'cached'>>
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+  async execute(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig,
+    ephemeral: boolean
+  ): Promise<InteractionReplyData> {
     const start = performance.now();
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral });
     const end = performance.now();
 
     return {

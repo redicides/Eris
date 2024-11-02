@@ -38,15 +38,6 @@ export default class CacheManager {
       const guild = await prisma.guild.findUnique({
         where: {
           id: guildId
-        },
-        include: {
-          permissions: true,
-          infractions: true,
-          muteRequests: true,
-          banRequests: true,
-          userReports: true,
-          messageReports: true,
-          tasks: true
         }
       });
 
@@ -67,16 +58,7 @@ export default class CacheManager {
 
     async _create(guildId: string): Promise<GuildConfig> {
       const guild = await prisma.guild.create({
-        data: { id: guildId },
-        include: {
-          permissions: true,
-          infractions: true,
-          muteRequests: true,
-          banRequests: true,
-          userReports: true,
-          messageReports: true,
-          tasks: true
-        }
+        data: { id: guildId }
       });
 
       CacheManager.guild_cache.set(guildId, guild);

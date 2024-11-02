@@ -54,6 +54,7 @@ model Guild {
   commandDisabledList      String[]
   commandErrorTTL          Int      @default(7500)
   commandTemporaryReplyTTL Int      @default(5000)
+  commandEphemeralReply    Boolean  @default(true)
 
   // Component settings
 
@@ -123,10 +124,17 @@ model Guild {
   infractionLoggingEnabled Boolean @default(true)
   infractionLoggingWebhook String?
 
+  // Permissions
+
+  permissions Permission[]
+
+  // Ephemeral scopes
+
+  ephemeralScopes EphemeralScope[]
+
   // Relations
 
   infractions    Infraction[]
-  permissions    Permission[]
   messageReports MessageReport[]
   userReports    UserReport[]
   banRequests    BanRequest[]
@@ -244,14 +252,14 @@ model MuteRequest {
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
 
-model Permission {
-  id          String           @id @map("_id")
-  name        String
-  guildId     String
-  roleIds     String[]
-  permissions PermissionEnum[]
+type Permission {
+  name  String
+  roles String[]
+  allow PermissionEnum[]
+}
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
-
-  @@unique([name, guildId])
+type EphemeralScope {
+  commandName      String
+  includedChannels String[]
+  excludedChannels String[]
 }

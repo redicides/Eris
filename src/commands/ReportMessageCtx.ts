@@ -12,7 +12,7 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class ReportMessageCtx extends Command<MessageContextMenuCommandInteraction<'cached'>> {
+export default class ReportMessageCtx extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,

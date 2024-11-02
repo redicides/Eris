@@ -4,7 +4,7 @@ import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class ViewAvatar extends Command<UserContextMenuCommandInteraction> {
+export default class ViewAvatar extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,

@@ -10,7 +10,7 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
-export default class Kick extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Kick extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
@@ -41,7 +41,8 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig
+    config: GuildConfig,
+    ephemeral: boolean
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawReason = interaction.options.getString('reason', false);
@@ -69,7 +70,7 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
       };
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral });
 
     let kResult = true;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;

@@ -1,7 +1,7 @@
 import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interaction } from 'discord.js';
 
-import { capitalize, getInteractionTTL, handleInteractionErrorReply } from '@utils/index';
-import { prisma, Sentry } from '@/index';
+import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
+import { Sentry } from '@/index';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
 
 import CommandManager from '@managers/commands/CommandManager';
@@ -11,6 +11,7 @@ import Logger from '@utils/Logger';
 import CacheManager from '@managers/database/CacheManager';
 import ComponentManager from '@managers/components/ComponentManager';
 import Command from '@managers/commands/Command';
+import Component from '@managers/components/Component';
 
 const { emojis, developers } = ConfigManager.global_config;
 
@@ -55,7 +56,7 @@ export default class InteractionCreate extends EventListener {
     }
 
     try {
-      await InteractionCreate.handleInteraction(interaction, guild);
+      await InteractionCreate.handleInteraction(interaction, data, guild);
     } catch (error) {
       const sentryId = Sentry.captureException(error, {
         user: {
@@ -88,14 +89,16 @@ export default class InteractionCreate extends EventListener {
 
   private static async handleInteraction(
     interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>,
+    data: Command | Component,
     config: GuildConfig
   ) {
     let response: InteractionReplyData | null;
+    const ephemeral = interaction.isCommand() ? isEphemeral({ interaction, config }) : true;
 
     if (interaction.isCommand()) {
-      response = await CommandManager.handleCommand(interaction, config);
+      response = await (data as Command).execute(interaction as CommandInteraction<'cached'>, config, ephemeral);
     } else {
-      response = await ComponentManager.handleComponent(interaction, config);
+      response = await (data as Component).execute(interaction, config);
     }
 
     // The interaction's response was handled manually.
@@ -103,11 +106,6 @@ export default class InteractionCreate extends EventListener {
     if (response === null) {
       return;
     }
-
-    const defaultOptions = {
-      ephemeral: true,
-      allowedMentions: { parse: [] }
-    };
 
     const options = response;
 
@@ -118,6 +116,11 @@ export default class InteractionCreate extends EventListener {
 
     const error = options.error;
     delete options.error;
+
+    const defaultOptions = {
+      ephemeral,
+      allowedMentions: { parse: [] }
+    };
 
     const replyOptions = error
       ? {
@@ -162,7 +165,7 @@ export default class InteractionCreate extends EventListener {
 
   private static async _handleCommandChecks(
     interaction: CommandInteraction<'cached'>,
-    command: Command<CommandInteraction<'cached'>>,
+    command: Command,
     config: GuildConfig
   ): Promise<Result> {
     if (command.isGuarded && !developers.includes(interaction.user.id)) {
@@ -220,17 +223,29 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'node': {
-        const nodes = await prisma.permission.findMany({
-          where: { guildId: interaction.guildId }
-        });
+        const nodes = (await CacheManager.guilds.get(interaction.guildId)).permissions;
 
         const filtered_nodes = nodes
           .filter(node => {
-            return node.name.includes(lowercaseOption);
+            return node.name.toLowerCase().includes(lowercaseOption);
           })
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name })));
+        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name.toLowerCase() })));
+      }
+
+      case 'scope': {
+        const scopes = (await CacheManager.guilds.get(interaction.guildId)).ephemeralScopes;
+
+        const filtered_scopes = scopes
+          .filter(scope => {
+            return scope.commandName.toLowerCase().includes(lowercaseOption);
+          })
+          .sort((a, b) => a.commandName.localeCompare(b.commandName));
+
+        return interaction.respond(
+          filtered_scopes.map(scope => ({ name: capitalize(scope.commandName), value: scope.commandName }))
+        );
       }
 
       default:

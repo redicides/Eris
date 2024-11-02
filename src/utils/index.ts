@@ -5,6 +5,7 @@ import {
   CommandInteraction,
   escapeCodeBlock,
   GuildMember,
+  GuildTextBasedChannel,
   hyperlink,
   Interaction,
   InteractionReplyOptions,
@@ -209,7 +210,7 @@ export async function formatMessageContentForShortLog(
 export function hasPermission(member: GuildMember, config: GuildConfig, permission: PermissionEnum): boolean {
   return member.roles.cache.some(role => {
     return config.permissions.some(permissions => {
-      return permissions.roleIds.includes(role.id) && permissions.permissions.includes(permission);
+      return permissions.roles.includes(role.id) && permissions.allow.includes(permission);
     });
   });
 }
@@ -280,4 +281,21 @@ export function getInteractionTTL(
 export function generateSnowflakeId(): string {
   const currentDate = new Date();
   return String(SnowflakeUtil.generate({ timestamp: currentDate.getTime() }));
+}
+
+export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }) {
+  const { interaction, config } = data;
+  const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
+
+  if (!scope) return config.commandEphemeralReply;
+  if (!interaction.channel) return true;
+
+  const channelId = interaction.channel.id ?? interaction.channel.parent?.id ?? interaction.channel.parent?.parentId;
+  const isIncluded = scope.includedChannels.includes(channelId);
+  const isExcluded = scope.excludedChannels.includes(channelId);
+
+  // If channel is in excludedChannels but not in includedChannels
+  // OR if channel is in includedChannels but not in excludedChannels
+  // -> reply should be ephemeral
+  return (isExcluded && !isIncluded) || (isIncluded && !isExcluded);
 }

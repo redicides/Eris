@@ -9,7 +9,7 @@ import {
 import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
-export default abstract class Command<T extends CommandInteraction> {
+export default abstract class Command {
   /**
    * The client that owns this command.
    */
@@ -86,7 +86,11 @@ export default abstract class Command<T extends CommandInteraction> {
    * @param interaction The interaction to handle.
    * @param config The guild configuration for the guild where the interaction was created.
    */
-  abstract execute(interaction: T, config: GuildConfig): Awaitable<InteractionReplyData | null>;
+  abstract execute(
+    interaction: CommandInteraction,
+    config: GuildConfig,
+    ephemeral: boolean
+  ): Awaitable<InteractionReplyData | null>;
 }
 
 interface CommandOptions {

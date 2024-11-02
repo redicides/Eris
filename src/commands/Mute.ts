@@ -13,7 +13,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
-export default class Mute extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Mute extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
@@ -51,7 +51,8 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig
+    config: GuildConfig,
+    ephemeral: boolean
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
@@ -115,7 +116,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
       duration = Number(config.defaultMuteDuration);
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral });
 
     let mResult = true;
 

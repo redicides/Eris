@@ -4,8 +4,12 @@ import {
   ApplicationCommandOptionType,
   PermissionFlagsBits,
   ChannelType,
-  TextChannel
+  TextChannel,
+  GuildTextBasedChannel,
+  CategoryChannel,
+  GuildChannel
 } from 'discord.js';
+import { PermissionEnum } from '@prisma/client';
 
 import ms from 'ms';
 
@@ -14,11 +18,9 @@ import { parseDuration } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import CacheManager from '@managers/database/CacheManager';
 import CommandManager from '@managers/commands/CommandManager';
-import { PermissionEnum } from '@prisma/client';
 
-export default class Config extends Command<ChatInputCommandInteraction<'cached'>> {
+export default class Config extends Command {
   constructor() {
     super({
       category: CommandCategory.Management,
@@ -462,6 +464,229 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
                     autocomplete: true
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.AddRoleToNode,
+                description: 'Add a role to a permission node.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'node',
+                    description: 'The name of the permission node to add the role to.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'role',
+                    description: 'The role to add to the permission node.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemoveRoleFromNode,
+                description: 'Remove a role from a permission node.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'node',
+                    description: 'The name of the permission node to remove the role from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'role',
+                    description: 'The role to remove from the permission node.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.GrantPermission,
+                description: 'Grant a permission to a permission node.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'node',
+                    description: 'The name of the permission node to add the permission to.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'permission',
+                    description: 'The permission to add to the permission node.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
+                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
+                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RevokePermission,
+                description: 'Revoke a permission from a permission node.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'node',
+                    description: 'The name of the permission node to remove the permission from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'permission',
+                    description: 'The permission to remove from the permission node.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
+                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
+                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            name: ConfigSubcommandGroup.EphemeralScopes,
+            description: 'Manage the ephemeral scope settings.',
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+              {
+                name: ConfigSubcommand.CreateScope,
+                description: 'Create a new ephemeral scope.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'command-name',
+                    description: 'The name of the command this scope will apply for.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'include-channel',
+                    description: 'The channel or category this scope will apply for.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  },
+                  {
+                    name: 'exclude-channel',
+                    description: 'The channel or category this scope will exclude.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: false,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.DeleteScope,
+                description: 'Delete an ephemeral scope.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'scope',
+                    description: 'The name of the scope to delete.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.AddIncludedChannel,
+                description: 'Add a channel or category to an ephemeral scope.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'scope',
+                    description: 'The name of the scope to add the channel to.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'channel',
+                    description: 'The channel or category to add to the scope.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemoveIncludedChannel,
+                description: 'Remove a channel or category from an ephemeral scope.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'scope',
+                    description: 'The name of the scope to remove the channel from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'channel',
+                    description: 'The channel or category to remove from the scope.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.AddExcludedChannel,
+                description: 'Add a channel or category to exclude from an ephemeral scope.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'scope',
+                    description: 'The name of the scope to add the channel to.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'channel',
+                    description: 'The channel or category to add to the scope.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemoveExcludedChannel,
+                description: 'Remove a channel or category from an ephemeral scope.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'scope',
+                    description: 'The name of the scope to remove the channel from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  },
+                  {
+                    name: 'channel',
+                    description: 'The channel or category to remove from the scope.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  }
+                ]
               }
             ]
           }
@@ -470,13 +695,15 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+  async execute(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig,
+    ephemeral: boolean
+  ): Promise<InteractionReplyData> {
     const group = interaction.options.getSubcommandGroup() as ConfigSubcommandGroup;
     const subcommand = interaction.options.getSubcommand() as ConfigSubcommand;
 
-    // Pre fetch the guild configuration manually instead of getting it from the execute method
-    const config = await CacheManager.guilds.get(interaction.guildId);
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral });
 
     switch (group) {
       case ConfigSubcommandGroup.Commands: {
@@ -532,6 +759,40 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
             return Config.logging.setChannel(interaction, config);
           case ConfigSubcommand.Toggle:
             return Config.logging.toggleLogging(interaction, config);
+        }
+      }
+
+      case ConfigSubcommandGroup.Permissions: {
+        switch (subcommand) {
+          case ConfigSubcommand.CreateNode:
+            return Config.permissions.createNode(interaction, config);
+          case ConfigSubcommand.DeleteNode:
+            return Config.permissions.deleteNode(interaction, config);
+          case ConfigSubcommand.AddRoleToNode:
+            return Config.permissions.addRoleToNode(interaction, config);
+          case ConfigSubcommand.RemoveRoleFromNode:
+            return Config.permissions.removeRoleFromNode(interaction, config);
+          case ConfigSubcommand.GrantPermission:
+            return Config.permissions.addPermission(interaction, config);
+          case ConfigSubcommand.RevokePermission:
+            return Config.permissions.removePermission(interaction, config);
+        }
+      }
+
+      case ConfigSubcommandGroup.EphemeralScopes: {
+        switch (subcommand) {
+          case ConfigSubcommand.CreateScope:
+            return Config.ephemeral.createScope(interaction, config);
+          case ConfigSubcommand.DeleteScope:
+            return Config.ephemeral.deleteScope(interaction, config);
+          case ConfigSubcommand.AddIncludedChannel:
+            return Config.ephemeral.addIncludedChannel(interaction, config);
+          case ConfigSubcommand.RemoveIncludedChannel:
+            return Config.ephemeral.removeIncludedChannel(interaction, config);
+          case ConfigSubcommand.AddExcludedChannel:
+            return Config.ephemeral.addExcludedChannel(interaction, config);
+          case ConfigSubcommand.RemoveExcludedChannel:
+            return Config.ephemeral.removeExcludedChannel(interaction, config);
         }
       }
     }
@@ -1214,6 +1475,470 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
       };
     }
   };
+
+  private static permissions = {
+    async createNode(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const name = interaction.options.getString('name', true);
+      const role = interaction.options.getRole('role', true);
+      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+
+      if (config.permissions.some(permission => permission.name.toLowerCase() == name)) {
+        return {
+          error: `A permission node with that name already exists.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          permissions: { push: { name, roles: [role.id], allow: [permission] } }
+        }
+      });
+
+      return {
+        content: `Successfully created the permission node \`${name}\`.`
+      };
+    },
+
+    async deleteNode(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const name = interaction.options.getString('node', true);
+      const permission = config.permissions.find(permission => permission.name.toLowerCase() === name);
+
+      if (!permission) {
+        return {
+          error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          permissions: {
+            set: config.permissions.filter(permissions => permissions !== permission)
+          }
+        }
+      });
+
+      return {
+        content: `Successfully deleted the permission node \`${name}\`.`
+      };
+    },
+
+    async addRoleToNode(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const name = interaction.options.getString('node', true);
+      const role = interaction.options.getRole('role', true);
+
+      const permission = config.permissions.find(permission => permission.name.toLowerCase() === name);
+
+      if (!permission) {
+        return {
+          error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (permission.roles.includes(role.id)) {
+        return {
+          error: `The role ${role.toString()} is already in the permission node.`,
+          temporary: true
+        };
+      }
+
+      permission.roles.push(role.id);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          permissions: [...config.permissions, permission]
+        }
+      });
+
+      return {
+        content: `Successfully added the role ${role.toString()} to the permission node.`
+      };
+    },
+
+    async removeRoleFromNode(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const name = interaction.options.getString('node', true);
+      const role = interaction.options.getRole('role', true);
+
+      const permission = config.permissions.find(permission => permission.name.toLowerCase() === name);
+
+      if (!permission) {
+        return {
+          error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (!permission.roles.includes(role.id)) {
+        return {
+          error: `The role ${role.toString()} is not in the permission node.`,
+          temporary: true
+        };
+      }
+
+      permission.roles = permission.roles.filter(r => r !== role.id);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          permissions: [...config.permissions, permission]
+        }
+      });
+
+      return {
+        content: `Successfully removed the role ${role.toString()} from the permission node.`
+      };
+    },
+
+    async addPermission(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const name = interaction.options.getString('node', true);
+      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+
+      const permissionNode = config.permissions.find(permission => permission.name.toLowerCase() === name);
+
+      if (!permissionNode) {
+        return {
+          error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (permissionNode.allow.includes(permission)) {
+        return {
+          error: `The permission \`${permission}\` is already in the permission node.`,
+          temporary: true
+        };
+      }
+
+      permissionNode.allow.push(permission);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          permissions: [...config.permissions, permissionNode]
+        }
+      });
+
+      return {
+        content: `Successfully added the permission \`${permission}\` to the permission node.`
+      };
+    },
+
+    async removePermission(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const name = interaction.options.getString('node', true);
+      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+
+      const permissionNode = config.permissions.find(permission => permission.name.toLowerCase() === name);
+
+      if (!permissionNode) {
+        return {
+          error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (!permissionNode.allow.includes(permission)) {
+        return {
+          error: `The permission \`${permission}\` is not in the permission node.`,
+          temporary: true
+        };
+      }
+
+      permissionNode.allow = permissionNode.allow.filter(p => p !== permission);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          permissions: [...config.permissions, permissionNode]
+        }
+      });
+
+      return {
+        content: `Successfully removed the permission \`${permission}\` from the permission node.`
+      };
+    }
+  };
+
+  private static ephemeral = {
+    async createScope(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const commandName = interaction.options.getString('command-name', true);
+      const includeChannel = interaction.options.getChannel('include-channel', true) as
+        | GuildTextBasedChannel
+        | CategoryChannel;
+
+      const excludeChannel = interaction.options.getChannel('exclude-channel') as
+        | GuildTextBasedChannel
+        | CategoryChannel
+        | null;
+
+      if (config.ephemeralScopes.some(scope => scope.commandName === commandName)) {
+        return {
+          error: `An ephemeral scope for the command \`${commandName}\` already exists.`,
+          temporary: true
+        };
+      }
+
+      if (excludeChannel?.id === includeChannel.id) {
+        return {
+          error: 'The channel to exclude must be different from the channel to include.',
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          ephemeralScopes: {
+            push: {
+              commandName,
+              includedChannels: [includeChannel.id],
+              excludedChannels: excludeChannel ? [excludeChannel.id] : []
+            }
+          }
+        }
+      });
+
+      return {
+        content: `Successfully created the ephemeral scope for the command \`${commandName}\`.`
+      };
+    },
+
+    async deleteScope(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const scopeName = interaction.options.getString('scope', true);
+
+      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+
+      if (!scope) {
+        return {
+          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          ephemeralScopes: {
+            set: config.ephemeralScopes.filter(s => s !== scope)
+          }
+        }
+      });
+
+      return {
+        content: `Successfully deleted the ephemeral scope for the command \`${scopeName}\`.`
+      };
+    },
+
+    async addIncludedChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const scopeName = interaction.options.getString('scope', true);
+      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
+
+      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+
+      if (!scope) {
+        return {
+          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (scope.includedChannels.includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} ${channel.toString()} is already in the included channels list for the scope.`,
+          temporary: true
+        };
+      }
+
+      if (scope.excludedChannels.includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} ${channel.toString()} is in the excluded channels list for the scope. Remove it from the excluded channels list first.`,
+          temporary: true
+        };
+      }
+
+      scope.includedChannels.push(channel.id);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          ephemeralScopes: [...config.ephemeralScopes, scope]
+        }
+      });
+
+      return {
+        content: `Successfully added the ${
+          isCategory(channel) ? 'channel' : 'category'
+        } ${channel} to the included channels list for the scope.`
+      };
+    },
+
+    async removeIncludedChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const scopeName = interaction.options.getString('scope', true);
+      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
+
+      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+
+      if (!scope) {
+        return {
+          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (!scope.includedChannels.includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} ${channel.toString()} is not in the included channels list for the scope.`,
+          temporary: true
+        };
+      }
+
+      scope.includedChannels = scope.includedChannels.filter(c => c !== channel.id);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          ephemeralScopes: [...config.ephemeralScopes, scope]
+        }
+      });
+
+      return {
+        content: `Successfully removed the ${
+          isCategory(channel) ? 'category' : 'channel'
+        } ${channel} from the included channels list for the scope.`
+      };
+    },
+
+    async addExcludedChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const scopeName = interaction.options.getString('scope', true);
+      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
+
+      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+
+      if (!scope) {
+        return {
+          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (scope.excludedChannels.includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} ${channel.toString()} is already in the excluded channels list for the scope.`,
+          temporary: true
+        };
+      }
+
+      if (scope.includedChannels.includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} ${channel.toString()} is in the included channels list for the scope. Remove it from the included channels list first.`,
+          temporary: true
+        };
+      }
+
+      scope.excludedChannels.push(channel.id);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          ephemeralScopes: [...config.ephemeralScopes, scope]
+        }
+      });
+
+      return {
+        content: `Successfully added the ${
+          isCategory(channel) ? 'category' : 'channel'
+        } ${channel} to the excluded channels list for the scope.`
+      };
+    },
+
+    async removeExcludedChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const scopeName = interaction.options.getString('scope', true);
+      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
+
+      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+
+      if (!scope) {
+        return {
+          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (!scope.excludedChannels.includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} ${channel.toString()} is not in the excluded channels list for the scope.`,
+          temporary: true
+        };
+      }
+
+      scope.excludedChannels = scope.excludedChannels.filter(c => c !== channel.id);
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: {
+          ephemeralScopes: [...config.ephemeralScopes, scope]
+        }
+      });
+
+      return {
+        content: `Successfully removed the ${
+          isCategory(channel) ? 'category' : 'channel'
+        } ${channel} from the excluded channels list for the scope.`
+      };
+    }
+  };
 }
 
 enum ConfigSubcommandGroup {
@@ -1221,7 +1946,8 @@ enum ConfigSubcommandGroup {
   Reports = 'reports',
   Infractions = 'infractions',
   Logging = 'logging',
-  Permissions = 'permissions'
+  Permissions = 'permissions',
+  EphemeralScopes = 'ephemeral-scopes'
 }
 
 enum ConfigSubcommand {
@@ -1243,5 +1969,15 @@ enum ConfigSubcommand {
   CreateNode = 'create-node',
   DeleteNode = 'delete-node',
   AddRoleToNode = 'add-role-to-node',
-  RemoveRoleFromNode = 'remove-role-from-node'
+  RemoveRoleFromNode = 'remove-role-from-node',
+  GrantPermission = 'grant',
+  RevokePermission = 'revoke',
+  CreateScope = 'create',
+  DeleteScope = 'delete',
+  AddIncludedChannel = 'add-included-channel',
+  RemoveIncludedChannel = 'remove-included-channel',
+  AddExcludedChannel = 'add-excluded-channel',
+  RemoveExcludedChannel = 'remove-excluded-channel'
 }
+
+const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;

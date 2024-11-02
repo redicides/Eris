@@ -18,7 +18,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 
 let _;
 
-export default class Evaluate extends Command<ChatInputCommandInteraction> {
+export default class Evaluate extends Command {
   constructor() {
     super({
       guarded: true,

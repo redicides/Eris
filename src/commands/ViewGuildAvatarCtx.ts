@@ -4,7 +4,7 @@ import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
-export default class ViewServerAvatar extends Command<UserContextMenuCommandInteraction<'cached'>> {
+export default class ViewServerAvatar extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
