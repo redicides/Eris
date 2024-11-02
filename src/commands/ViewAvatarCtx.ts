@@ -7,7 +7,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 export default class ViewAvatar extends Command {
   constructor() {
     super({
-      category: CommandCategory.Utility,
+      category: CommandCategory.Context,
       allowInDms: false,
       data: {
         name: 'View Global Avatar',

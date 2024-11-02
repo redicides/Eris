@@ -3,6 +3,7 @@ import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interactio
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
 import { Sentry } from '@/index';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
+import { COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
@@ -208,6 +209,24 @@ export default class InteractionCreate extends EventListener {
     const lowercaseOption = option.value.toLowerCase();
 
     switch (option.name) {
+      case 'duration': {
+        if (!lowercaseOption) return interaction.respond(COMMON_DURATIONS);
+
+        const [numStr, unit = ''] = lowercaseOption.split(' ');
+        const num = parseInt(numStr, 10);
+
+        if (isNaN(num) || num < 1 || num > 1000) return interaction.respond([]);
+
+        const matchingUnits = DURATION_UNITS.filter(un => un.startsWith(unit.replace(/s$/, '')));
+
+        return interaction.respond(
+          matchingUnits.map(un => ({
+        name: `${num} ${un}${num > 1 ? 's' : ''}`,
+        value: `${num} ${un}${num > 1 ? 's' : ''}`
+          }))
+        );
+      }
+
       case 'command-name': {
         const application_commands = CommandManager.application_commands.filter(
           command => command.category !== 'Developer'

@@ -15,7 +15,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 export default class ReportMessageCtx extends Command {
   constructor() {
     super({
-      category: CommandCategory.Moderation,
+      category: CommandCategory.Context,
       data: {
         name: 'Report Message',
         type: ApplicationCommandType.Message

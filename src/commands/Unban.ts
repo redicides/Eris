@@ -16,6 +16,7 @@ export default class Unban extends Command {
     super({
       category: CommandCategory.Moderation,
       requiredPermissions: PermissionFlagsBits.BanMembers,
+      usage: '<target> [reason]',
       data: {
         name: 'unban',
         description: 'Unban a user from the server.',

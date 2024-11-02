@@ -108,5 +108,6 @@ export enum CommandCategory {
   Developer = 'Developer',
   Management = 'Management',
   Moderation = 'Moderation',
-  Utility = 'Utility'
+  Utility = 'Utility',
+  Context = 'Context'
 }

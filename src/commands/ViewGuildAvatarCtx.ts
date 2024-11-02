@@ -7,7 +7,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 export default class ViewServerAvatar extends Command {
   constructor() {
     super({
-      category: CommandCategory.Utility,
+      category: CommandCategory.Context,
       data: {
         name: 'View Server Avatar',
         type: ApplicationCommandType.User

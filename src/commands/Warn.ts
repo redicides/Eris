@@ -18,6 +18,7 @@ export default class Warn extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
+      usage: '<target> [duration] [reason]',
       data: {
         name: 'warn',
         description: 'Issue a warning to a member.',
@@ -34,7 +35,8 @@ export default class Warn extends Command {
             name: 'duration',
             description: 'How long the warning should be valid for.',
             type: ApplicationCommandOptionType.String,
-            required: false
+            required: false,
+            autocomplete: true
           },
           {
             name: 'reason',

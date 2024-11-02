@@ -20,6 +20,7 @@ export default class Ban extends Command {
     super({
       category: CommandCategory.Moderation,
       requiredPermissions: PermissionFlagsBits.BanMembers,
+      usage: '<target> [duration] [reason] [delete_previous_messages]',
       data: {
         name: 'ban',
         description: 'Ban a member or user from the server.',
@@ -36,7 +37,8 @@ export default class Ban extends Command {
             name: 'duration',
             description: 'The duration of the ban.',
             type: ApplicationCommandOptionType.String,
-            required: false
+            required: false,
+            autocomplete: true
           },
           {
             name: 'reason',

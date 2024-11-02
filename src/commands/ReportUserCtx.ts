@@ -15,7 +15,7 @@ import Command, { CommandCategory } from '@managers/commands/Command';
 export default class ReportUserCtx extends Command {
   constructor() {
     super({
-      category: CommandCategory.Moderation,
+      category: CommandCategory.Context,
       data: {
         name: 'Report User',
         type: ApplicationCommandType.User

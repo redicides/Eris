@@ -96,3 +96,15 @@ export const YES_BUTTON = new ButtonBuilder().setCustomId('?yes').setLabel('Yes'
 export const NO_BUTTON = new ButtonBuilder().setCustomId('?no').setLabel('No').setStyle(ButtonStyle.Danger);
 
 export const YES_NO_ROW = new ActionRowBuilder<ButtonBuilder>().setComponents(YES_BUTTON, NO_BUTTON);
+
+export const COMMON_DURATIONS = [
+  { name: '1 minute', value: '1 minute' },
+  { name: '15 minutes', value: '10 minutes' },
+  { name: '30 minutes', value: '30 minutes' },
+  { name: '1 hour', value: '1 hour' },
+  { name: '6 hours', value: '6 hours' },
+  { name: '1 day', value: '1 day' },
+  { name: '1 week', value: '7 days' }
+];
+
+export const DURATION_UNITS = ['second', 'minute', 'hour', 'day', 'week'];

@@ -18,7 +18,7 @@ export default class Mute extends Command {
     super({
       category: CommandCategory.Moderation,
       requiredPermissions: PermissionFlagsBits.ModerateMembers,
-      usage: '<target> <duration> [reason]',
+      usage: '<target> [duration] [reason]',
       data: {
         name: 'mute',
         description: 'Mute a member in the server.',
@@ -35,7 +35,8 @@ export default class Mute extends Command {
             name: 'duration',
             description: 'The duration of the mute.',
             type: ApplicationCommandOptionType.String,
-            required: false
+            required: false,
+            autocomplete: true
           },
           {
             name: 'reason',

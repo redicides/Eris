@@ -3,6 +3,7 @@ import {
   codeBlock,
   Colors,
   CommandInteraction,
+  EmbedField,
   escapeCodeBlock,
   GuildMember,
   hyperlink,
@@ -24,6 +25,8 @@ import { GuildConfig, InteractionReplyData } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
 
 import ConfigManager from '@managers/config/ConfigManager';
+import { CommandCategory } from '@/managers/commands/Command';
+import CommandManager from '@/managers/commands/CommandManager';
 
 /**
  * Pluralizes a word based on the given count
@@ -328,4 +331,35 @@ export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; c
   // OR if channel is in includedChannels but not in excludedChannels
   // -> reply should be ephemeral
   return (isExcluded && !isIncluded) || (isIncluded && !isExcluded);
+}
+
+/**
+ * Generate the help menu fields for the help command.
+ *
+ * @param userId The user id to check for developer permissions
+ * @returns The help menu fields
+ */
+
+export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
+  const categories = Object.values(CommandCategory);
+  const commandStore = CommandManager.application_commands;
+
+  return categories.flatMap(category => {
+    const commands = [...commandStore.values()]
+      .filter(c => c.category === category)
+      .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+    if (commands.length === 0) return [];
+
+    const field: EmbedField = {
+      name: category,
+      value: commands.map(c => `\`${c.data.name}\``).join(', '),
+      inline: false
+    };
+
+    if (category === CommandCategory.Developer && !ConfigManager.global_config.developers.includes(userId)) return [];
+    const fields = [field];
+
+    return fields;
+  });
 }

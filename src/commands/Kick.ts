@@ -15,6 +15,7 @@ export default class Kick extends Command {
     super({
       category: CommandCategory.Moderation,
       requiredPermissions: PermissionFlagsBits.KickMembers,
+      usage: '<target> [reason]',
       data: {
         name: 'kick',
         description: 'Kick a member from the server.',

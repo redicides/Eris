@@ -6,8 +6,7 @@ import {
   ChannelType,
   TextChannel,
   GuildTextBasedChannel,
-  CategoryChannel,
-  GuildChannel
+  CategoryChannel
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
 
@@ -68,7 +67,8 @@ export default class Config extends Command {
                     name: 'duration',
                     description: 'The duration for the time-to-live.',
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+                    autocomplete: true
                   }
                 ]
               }
@@ -255,7 +255,8 @@ export default class Config extends Command {
                     name: 'duration',
                     description: 'The duration to set for the auto disregard.',
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+                    autocomplete: true
                   },
                   {
                     name: 'report-type',
@@ -336,7 +337,8 @@ export default class Config extends Command {
                     name: 'duration',
                     description: 'The duration to set as the default.',
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+                    autocomplete: true
                   }
                 ]
               },
@@ -1273,7 +1275,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `A reason is ${toggle ? 'now' : 'no longer'} required for issuing ${type} infractions.`
+        content: `A reason is ${toggle ? 'now' : 'no longer'} required for issuing infractions of the specified type.`
       };
     },
 
