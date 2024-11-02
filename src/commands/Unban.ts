@@ -85,6 +85,7 @@ export default class Unban extends Command<ChatInputCommandInteraction<'cached'>
     let uResult = true;
 
     const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
       guildId: interaction.guildId,
       targetId: target.id,
       executorId: interaction.user.id,

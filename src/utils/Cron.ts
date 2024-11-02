@@ -1,8 +1,18 @@
 import { CronJob, CronJobParams } from 'cron';
-import { PermissionFlagsBits } from 'discord.js';
-import { EmbedBuilder } from '@discordjs/builders';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Colors,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  WebhookClient
+} from 'discord.js';
+
+import ms from 'ms';
 
 import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/Constants';
+import { ReportUtils } from '@utils/Reports';
 import { client, prisma, Sentry } from '@/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
@@ -148,6 +158,7 @@ export class CronUtils {
           await TaskManager.deleteTask({ where: { id: task.id } });
 
           const infraction = await InfractionManager.storeInfraction({
+            id: InfractionManager.generateInfractionId(),
             guildId: discordGuild.id,
             targetId: task.targetId,
             executorId: client.user!.id,
@@ -168,25 +179,137 @@ export class CronUtils {
 
   public static startReportDisregardRunner(): void {
     return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, report_disregard_cron, true, async () => {
-      // Delete expired user reports
+      const messageReports = await prisma.messageReport.findMany({
+        where: {
+          reportedAt: { lte: Date.now() },
+          status: 'Pending'
+        }
+      });
 
-      // await prisma.$executeRaw`DELETE FROM "UserReport"
-      // WHERE id IN (
-      //   SELECT R.id
-      //   FROM "UserReport" R
-      //   INNER JOIN "Guild" G ON R."guildId" = G.id
-      //   WHERE R."reportedAt" + G."userReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
-      // )`;
+      const userReports = await prisma.userReport.findMany({
+        where: {
+          reportedAt: { lte: Date.now() },
+          status: 'Pending'
+        }
+      });
 
-      // // Delete expired message reports
+      for (const report of messageReports) {
+        const config = await CacheManager.guilds.get(report.guildId);
 
-      // await prisma.$executeRaw`DELETE FROM "MessageReport"
-      // WHERE id IN (
-      //   SELECT R.id
-      //   FROM "MessageReport" R
-      //   INNER JOIN "Guild" G ON R."guildId" = G.id
-      //   WHERE R."reportedAt" + G."messageReportsDisregardAfter" <= (extract(epoch from now()) * 1000)
-      // )`;
+        if (report.reportedAt + config.messageReportsDisregardAfter > Date.now()) {
+          continue;
+        }
+
+        await prisma.messageReport.update({
+          where: { id: report.id },
+          data: { status: 'Disregarded', resolvedAt: Date.now(), resolvedBy: client.user!.id }
+        });
+
+        if (!config.messageReportsWebhook) {
+          continue;
+        }
+
+        const webhook = new WebhookClient({ url: config.messageReportsWebhook });
+        const log = await webhook.fetchMessage(report.id).catch(() => null);
+
+        if (!log) {
+          continue;
+        }
+
+        const primaryEmbed = log.embeds[log.components!.length === 1 ? 0 : 1];
+        const secondaryEmbed = log.embeds[0] ?? null;
+
+        const embed = new EmbedBuilder(primaryEmbed).setColor(Colors.NotQuiteBlack);
+
+        const disregardedButton = new ButtonBuilder()
+          .setCustomId('?')
+          .setDisabled(true)
+          .setLabel('Disregarded (Auto)')
+          .setStyle(ButtonStyle.Secondary);
+
+        const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(disregardedButton);
+
+        if (secondaryEmbed) {
+          await webhook
+            .editMessage(log.id, {
+              embeds: [secondaryEmbed, embed],
+              components: [actionRow]
+            })
+            .catch(() => null);
+        } else {
+          await webhook
+            .editMessage(log.id, {
+              embeds: [embed],
+              components: [actionRow]
+            })
+            .catch(() => null);
+        }
+
+        await ReportUtils.sendLog({
+          config,
+          embed: embed,
+          userId: client.user!.id,
+          action: 'Disregarded',
+          reason: `Report automatically disregarded after **${ms(Number(config.messageReportsDisregardAfter), {
+            long: true
+          })}**.`
+        });
+
+        continue;
+      }
+
+      for (const report of userReports) {
+        const config = await CacheManager.guilds.get(report.guildId);
+
+        if (report.reportedAt + config.userReportsDisregardAfter > Date.now()) {
+          continue;
+        }
+
+        await prisma.userReport.update({
+          where: { id: report.id },
+          data: { status: 'Disregarded', resolvedAt: Date.now(), resolvedBy: client.user!.id }
+        });
+
+        if (!config.userReportsWebhook) {
+          continue;
+        }
+
+        const webhook = new WebhookClient({ url: config.userReportsWebhook });
+        const log = await webhook.fetchMessage(report.id).catch(() => null);
+
+        if (!log) {
+          continue;
+        }
+
+        const embed = new EmbedBuilder(log.embeds[0]).setColor(Colors.NotQuiteBlack);
+
+        const disregardedButton = new ButtonBuilder()
+          .setCustomId('?')
+          .setDisabled(true)
+          .setLabel('Disregarded (Auto)')
+          .setStyle(ButtonStyle.Secondary);
+
+        const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(disregardedButton);
+
+        await webhook
+          .editMessage(log.id, {
+            embeds: [embed],
+            components: [actionRow]
+          })
+          .catch(() => null);
+
+        await ReportUtils.sendLog({
+          config,
+          embed: embed,
+          userId: client.user!.id,
+          action: 'Disregarded',
+          reason: `Report automatically disregarded after **${ms(Number(config.userReportsDisregardAfter), {
+            long: true
+          })}**.`
+        });
+
+        continue;
+      }
     });
   }
 }

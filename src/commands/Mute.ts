@@ -137,6 +137,7 @@ export default class Mute extends Command<ChatInputCommandInteraction<'cached'>>
     }
 
     const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
       guildId: interaction.guildId,
       targetId: target.id,
       executorId: interaction.user.id,

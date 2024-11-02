@@ -75,6 +75,7 @@ export default class Kick extends Command<ChatInputCommandInteraction<'cached'>>
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
       guildId: interaction.guildId,
       targetId: target.id,
       executorId: interaction.user.id,

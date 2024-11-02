@@ -96,6 +96,7 @@ export default class Unmute extends Command<ChatInputCommandInteraction<'cached'
     }
 
     const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
       guildId: interaction.guild.id,
       targetId: target.id,
       executorId: interaction.user.id,

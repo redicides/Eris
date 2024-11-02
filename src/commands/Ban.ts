@@ -142,6 +142,7 @@ export default class Ban extends Command<ChatInputCommandInteraction<'cached'>> 
     await interaction.deferReply({ ephemeral: true });
 
     const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
       guildId: interaction.guildId,
       targetId: target.id,
       executorId: interaction.user.id,

@@ -18,7 +18,7 @@ import {
 import { Infraction, InfractionFlag, InfractionType, Prisma } from '@prisma/client';
 
 import { client, prisma } from '@/index';
-import { capitalize, elipsify, hierarchyCheck, userMentionWithId } from '@utils/index';
+import { capitalize, elipsify, generateSnowflakeId, hierarchyCheck, userMentionWithId } from '@utils/index';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
 
 export default class InfractionManager {
@@ -346,6 +346,15 @@ export default class InfractionManager {
       });
 
     return { embeds: [embed], ephemeral: true };
+  }
+
+  /**
+   * Generate a unique infraction ID based on discord's snowflake.
+   * @returns The generated infraction ID.
+   */
+
+  public static generateInfractionId(): string {
+    return generateSnowflakeId();
   }
 
   private static async _getSearchFields(infractions: Infraction[]) {

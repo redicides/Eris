@@ -2,6 +2,7 @@ import { Snowflake } from 'discord.js';
 import { Prisma, Task, TaskType } from '@prisma/client';
 
 import { prisma } from '@/index';
+import { generateSnowflakeId } from '@utils/index';
 
 export default class TaskManager {
   public static async storeTask(data: {
@@ -14,7 +15,10 @@ export default class TaskManager {
     return prisma.task.upsert({
       where: { targetId_guildId_type: { guildId: data.guildId, targetId: data.targetId, type: data.type } },
       update: data,
-      create: data
+      create: {
+        id: generateSnowflakeId(),
+        ...data
+      }
     });
   }
 

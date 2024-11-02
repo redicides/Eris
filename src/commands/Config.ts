@@ -476,6 +476,7 @@ export default class Config extends Command<ChatInputCommandInteraction<'cached'
 
     // Pre fetch the guild configuration manually instead of getting it from the execute method
     const config = await CacheManager.guilds.get(interaction.guildId);
+    await interaction.deferReply({ ephemeral: true });
 
     switch (group) {
       case ConfigSubcommandGroup.Commands: {

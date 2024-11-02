@@ -9,6 +9,7 @@ import {
   Interaction,
   InteractionReplyOptions,
   Snowflake,
+  SnowflakeUtil,
   StickerFormatType
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
@@ -269,4 +270,14 @@ export function getInteractionTTL(
   } else {
     return options.temporary ? config.componentTemporaryReplyTTL : config.componentErrorTTL;
   }
+}
+
+/**
+ * Generate a discord Snowflake ID based on the current time.
+ * @returns Generated Snowflake
+ */
+
+export function generateSnowflakeId(): string {
+  const currentDate = new Date();
+  return String(SnowflakeUtil.generate({ timestamp: currentDate.getTime() }));
 }

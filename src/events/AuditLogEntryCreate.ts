@@ -60,6 +60,7 @@ export default class AuditLogEntryCreate extends EventListener {
               action = InfractionType.Mute;
 
               const infraction = await InfractionManager.storeInfraction({
+                id: InfractionManager.generateInfractionId(),
                 guildId: guild.id,
                 targetId: target.id,
                 executorId: executor.id,
@@ -98,6 +99,7 @@ export default class AuditLogEntryCreate extends EventListener {
     if (!action || !config.nativeModerationIntegration) return;
 
     const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
       guildId: guild.id,
       targetId: target.id,
       executorId: executor.id,
