@@ -42,7 +42,9 @@ export default class Help extends Command {
     const commandName = interaction.options.getString('command-name', false);
 
     if (commandName) {
-      const command = CommandManager.application_commands.get(commandName);
+      const command = 
+        CommandManager.application_commands.get(commandName) ??
+        CommandManager.application_commands.get(commandName.toLowerCase());
 
       if (
         !command ||
