@@ -1,55 +1,47 @@
 import { prisma } from '@/index';
 import { GuildConfig } from '@utils/Types';
+import { Snowflake } from 'discord.js';
 
 export default class DatabaseManager {
   /**
-   * Guild cache methods.
+   * Retrieves the guild data for the specified guild from the database.
+   * If the guild is not in the database, it creates a new entry and returns it.
+   *
+   * @param id The ID of the guild
+   * @returns The guild data
    */
 
-  static guilds = {
-    /**
-     * Retrieves the guild model for the specified guild from the database.
-     *
-     * @param guildId - The ID of the guild
-     * @returns Guild - The guild model
-     */
+  public static async getGuildEntry(id: Snowflake): Promise<GuildConfig> {
+    return DatabaseManager.confirmDatabaseGuildEntry(id);
+  }
 
-    async get(guildId: string): Promise<GuildConfig> {
-      return this.confirm(guildId);
-    },
+  /**
+   * Creates a new guild in the database.
+   *
+   * @param guildId The ID of the guild to create
+   * @returns The created guild
+   */
 
-    /**
-     * Confirms that the guild is in the database.
-     *
-     * @param guildId - The ID of the guild
-     * @returns Guild - The guild model
-     */
+  public static async createDatabaseGuildEntry(id: Snowflake): Promise<GuildConfig> {
+    return await prisma.guild.create({
+      data: { id }
+    });
+  }
 
-    async confirm(guildId: string): Promise<GuildConfig> {
-      const guild = await prisma.guild.findUnique({
-        where: {
-          id: guildId
-        }
-      });
+  /**
+   * Checks if the guild is in the database, and if not, creates a new entry.
+   *
+   * @param guildId The ID of the guild
+   * @returns Guild The guild model
+   */
 
-      if (guild) return guild;
+  public static async confirmDatabaseGuildEntry(id: Snowflake): Promise<GuildConfig> {
+    const guild = await prisma.guild.findUnique({
+      where: {
+        id
+      }
+    });
 
-      return this._create(guildId);
-    },
-
-    /**
-     * Creates a new guild and caches it.
-     *
-     * @param guildId - The ID of the guild to create
-     * @returns Guild - The created guild
-     */
-
-    async _create(guildId: string): Promise<GuildConfig> {
-      const guild = await prisma.guild.create({
-        data: { id: guildId }
-      });
-
-      return guild;
-    }
-  };
+    return guild ? guild : DatabaseManager.createDatabaseGuildEntry(id);
+  }
 }

@@ -1,13 +1,12 @@
-import { Awaitable, Collection } from 'discord.js';
+import { Collection } from 'discord.js';
 
 import path from 'path';
 import fs from 'fs';
 
 import { pluralize } from '@utils/index';
-import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import Component, { ComponentInteraction, CustomID } from './Component';
+import Component, { CustomID } from './Component';
 
 export default class ComponentManager {
   /**
@@ -17,7 +16,6 @@ export default class ComponentManager {
 
   /**
    * Caches all components from the components directory.
-   *
    * @returns void
    */
   static async cache() {
@@ -83,6 +81,13 @@ export default class ComponentManager {
         return 'unknown';
     }
   }
+
+  /**
+   * Retrieves a component by its custom ID.
+   *
+   * @param customId The custom ID to search for
+   * @returns The component, if found
+   */
 
   public static getComponent(customId: string): Component | undefined {
     return ComponentManager.components.find(component => {

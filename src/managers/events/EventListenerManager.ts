@@ -11,7 +11,6 @@ import EventListener from './EventListener';
 export default class EventListenerManager {
   /**
    * Mounts all event listeners from the events directory.
-   *
    * @returns void
    */
   static async mount(): Promise<void> {

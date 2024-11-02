@@ -83,8 +83,10 @@ export default abstract class Command {
 
   /**
    * Handles the command interaction. Mentions are disabled by default.
+   *
    * @param interaction The interaction to handle.
    * @param config The guild configuration for the guild where the interaction was created.
+   * @param ephemeral Whether the reply should be ephemeral.
    */
   abstract execute(
     interaction: CommandInteraction,

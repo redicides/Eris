@@ -15,7 +15,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
   async execute(log: GuildAuditLogsEntry, guild: Guild) {
     const { executor, target, reason: rawReason, changes } = log;
-    const config = await DatabaseManager.guilds.get(guild.id);
+    const config = await DatabaseManager.getGuildEntry(guild.id);
 
     if (!executor || executor.id === this.client.user!.id) return;
     if (!(target instanceof User) && !(target instanceof GuildMember)) return;

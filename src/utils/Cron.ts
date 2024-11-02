@@ -24,8 +24,7 @@ import DatabaseManager from '@managers/database/DatabaseManager';
 const { task_runner_cron, report_disregard_cron } = ConfigManager.global_config.database;
 
 /**
- * The class responsible for handling/managing cron utilities.
-
+ * The class responsible for handling cron jobs.
  */
 
 export class CronUtils {
@@ -75,7 +74,7 @@ export class CronUtils {
   }
 
   /**
-   * Starts the task runner responsible for removing expired infractions.
+   * Starts the task runner responsible for removing expired infractions and tasks.
    */
 
   public static startTaskRunner(): void {
@@ -104,7 +103,7 @@ export class CronUtils {
           continue;
         }
 
-        const config = await DatabaseManager.guilds.get(discordGuild.id);
+        const config = await DatabaseManager.getGuildEntry(discordGuild.id);
         const permissions = discordGuild.members.me!.permissions;
         const banPermissions = permissions.has(PermissionFlagsBits.BanMembers);
 
@@ -173,7 +172,7 @@ export class CronUtils {
   }
 
   /**
-   * Starts the task runner responsible for disregarding expired reports.
+   * Starts the task runner responsible for disregarding reports after a certain time.
    */
 
   public static startReportDisregardRunner(): void {
@@ -193,7 +192,7 @@ export class CronUtils {
       });
 
       for (const report of messageReports) {
-        const config = await DatabaseManager.guilds.get(report.guildId);
+        const config = await DatabaseManager.getGuildEntry(report.guildId);
 
         if (report.reportedAt + config.messageReportsDisregardAfter > Date.now()) {
           continue;
@@ -258,7 +257,7 @@ export class CronUtils {
       }
 
       for (const report of userReports) {
-        const config = await DatabaseManager.guilds.get(report.guildId);
+        const config = await DatabaseManager.getGuildEntry(report.guildId);
 
         if (report.reportedAt + config.userReportsDisregardAfter > Date.now()) {
           continue;

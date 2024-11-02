@@ -33,7 +33,7 @@ export default class InteractionCreate extends EventListener {
       return;
     }
 
-    const guild = await DatabaseManager.guilds.get(interaction.guildId);
+    const guild = await DatabaseManager.getGuildEntry(interaction.guildId);
 
     let data = interaction.isCommand()
       ? CommandManager.getCommand(interaction.commandId, interaction.commandName)
@@ -223,7 +223,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'node': {
-        const nodes = (await DatabaseManager.guilds.get(interaction.guildId)).permissions;
+        const nodes = (await DatabaseManager.getGuildEntry(interaction.guildId)).permissions;
 
         const filtered_nodes = nodes
           .filter(node => {
@@ -235,7 +235,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'scope': {
-        const scopes = (await DatabaseManager.guilds.get(interaction.guildId)).ephemeralScopes;
+        const scopes = (await DatabaseManager.getGuildEntry(interaction.guildId)).ephemeralScopes;
 
         const filtered_scopes = scopes
           .filter(scope => {

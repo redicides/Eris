@@ -1,14 +1,12 @@
-import { Awaitable, Collection, CommandInteraction, Snowflake } from 'discord.js';
+import { Collection, Snowflake } from 'discord.js';
 
 import path from 'path';
 import fs from 'fs';
 
-import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { pluralize } from '@utils/index';
 import { client } from '@/index';
 
 import Command from './Command';
-
 import Logger, { AnsiColor } from '@utils/Logger';
 
 export default class CommandManager {
@@ -19,7 +17,6 @@ export default class CommandManager {
 
   /**
    * Caches all commands from the commands directory.
-   *
    * @returns void
    */
   static async cacheCommands() {

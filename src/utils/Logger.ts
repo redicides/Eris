@@ -17,6 +17,14 @@ export enum AnsiColor {
 }
 
 export default class Logger {
+  /**
+   * Log a message with a level.
+   *
+   * @param level The log level
+   * @param message The message to log
+   * @param options The color options
+   */
+
   static log(level: string, message: string, options?: ColorOptions): void {
     const timestamp = new Date().toISOString();
     const timestampString = `${AnsiColor.Grey}[${timestamp}]${AnsiColor.Reset}`;
@@ -30,17 +38,36 @@ export default class Logger {
     }
   }
 
+  /**
+   * Log an info message.
+   *
+   * @param message The message to log
+   */
+
   static info(message: string): void {
     Logger.log('INFO', message, {
       color: AnsiColor.Cyan
     });
   }
 
+  /**
+   * Log a warning message.
+   *
+   * @param message The message to log
+   */
+
   static warn(message: string): void {
     Logger.log('WARN', message, {
       color: AnsiColor.Yellow
     });
   }
+
+  /**
+   * Log a debug message.
+   *
+   * @param message The message to log
+   * @param values Optional values to pass to console.debug
+   */
 
   static debug(message: string, ...values: readonly unknown[]): void {
     Logger.log('DEBUG', message, {
@@ -49,12 +76,26 @@ export default class Logger {
     console.debug(...values);
   }
 
+  /**
+   * Log an error message.
+   *
+   * @param message The message to log
+   * @param values Optional values to pass to console.error
+   */
+
   static error(message: string, ...values: readonly unknown[]): void {
     Logger.log('ERROR', message, {
       color: AnsiColor.Red
     });
     console.error(...values);
   }
+
+  /**
+   * Log a fatal message.
+   *
+   * @param message The message to log
+   * @param values Optional values to pass to console.error
+   */
 
   static fatal(message: string, ...values: readonly unknown[]): void {
     Logger.log('FATAL', message, {

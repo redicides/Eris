@@ -10,7 +10,7 @@ export default class GuildCreate extends EventListener {
   }
 
   async execute(guild: Guild) {
-    await DatabaseManager.guilds.confirm(guild.id);
+    await DatabaseManager.confirmDatabaseGuildEntry(guild.id);
     Logger.debug(`Confirmed database guild entry for guild ${guild.name} with ID ${guild.id}.`);
   }
 }

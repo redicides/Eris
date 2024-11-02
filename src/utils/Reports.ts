@@ -19,18 +19,21 @@ import {
   User,
   WebhookClient
 } from 'discord.js';
+import { MessageReport, UserReport } from '@prisma/client';
 
 import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, cropLines, formatMessageContentForShortLog, userMentionWithId } from './index';
-import { MessageReport, UserReport } from '@prisma/client';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
 export class ReportUtils {
   /**
    * Create a user report.
    *
-   * @param data The data for the report
+   * @param data.interaction The interaction data
+   * @param data.config The guild config
+   * @param data.target The user being reported
+   * @param data.reason The reason for the report
    * @returns The interaction reply data
    */
 
@@ -131,7 +134,11 @@ export class ReportUtils {
 
   /**
    * Create a message report.
-   * @param data The data for the report
+   * @param data.interaction The interaction data
+   * @param data.config The guild config
+   * @param data.target The author of the message being reported
+   * @param data.message The message being reported
+   * @param data.reason The reason for the report
    * @returns The interaction reply data
    */
 
@@ -292,7 +299,11 @@ export class ReportUtils {
   /**
    * Handle a user report action.
    *
-   * @param data The data for the action
+   * @param data.interaction The interaction data
+   * @param data.config The guild config
+   * @param data.action The action being taken
+   * @param data.report The report being acted upon
+   * @param data.reason The reason for the action
    * @returns The interaction reply data
    */
 
@@ -398,7 +409,11 @@ export class ReportUtils {
   /**
    * Handle a user report action.
    *
-   * @param data The data for the action
+   * @param data.interaction The interaction data
+   * @param data.config The guild config
+   * @param data.action The action being taken
+   * @param data.report The report being acted upon
+   * @param data.reason The reason for the action
    * @returns The interaction reply data
    */
 
@@ -504,7 +519,9 @@ export class ReportUtils {
   /**
    * Build the modal required for accepting or denying a report.
    *
-   * @param data The data for the modal
+   * @param data.action The action being taken
+   * @param data.reportType The type of report
+   * @param data.reportId The ID of the report
    * @returns The modal builder
    */
 
@@ -534,8 +551,12 @@ export class ReportUtils {
   /**
    * Send a log to the report logging webhook.
    *
-   * @param data The data for the log
-   * @returns
+   * @param data.config The guild config
+   * @param data.embed The embed to send
+   * @param data.userId The ID of the user that carried out the action
+   * @param data.action The action that was carried out
+   * @param data.reason The reason for the action
+   * @returns The message that was sent
    */
 
   public static async sendLog(data: {

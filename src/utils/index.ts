@@ -5,7 +5,6 @@ import {
   CommandInteraction,
   escapeCodeBlock,
   GuildMember,
-  GuildTextBasedChannel,
   hyperlink,
   Interaction,
   InteractionReplyOptions,
@@ -29,9 +28,9 @@ import ConfigManager from '@managers/config/ConfigManager';
 /**
  * Pluralizes a word based on the given count
  *
- * @param count - The count used to determine the plural form
- * @param singular - The singular form of the word
- * @param plural - The plural form of the word, defaults to `{singular}s`
+ * @param count The count used to determine the plural form
+ * @param singular The singular form of the word
+ * @param plural The plural form of the word, defaults to `{singular}s`
  * @returns The pluralized word
  */
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
@@ -56,17 +55,18 @@ export async function sleep(ms: number) {
  * @template T - The type of the parsed content.
  * @returns {T} The parsed content of the YAML file.
  */
+
 export function readYamlFile<T>(path: string): T {
   const raw = fs.readFileSync(path, 'utf-8');
   return YAML.parse(raw);
 }
 
 /**
- * Uploads data to hastebin.
+ * Uploads data to hastebin and returns the URL of the document.
  *
- * @param data - The data to upload
- * @param ext - The extension of the file (by default .js)
- * @returns string - The url of the document
+ * @param data The data to upload
+ * @param ext The extension of the file (default .js)
+ * @returns The url of the document
  */
 
 export async function uploadData(data: any, ext: string = 'js'): Promise<string> {
@@ -83,12 +83,23 @@ export async function uploadData(data: any, ext: string = 'js'): Promise<string>
 /**
  * Converts a { Snowflake } to a formatted string with the format <@${Snowflake}}> (\`${Snowflake}\`).
  *
- * @param id - The user id to format
- * @returns string - The formatted string
+ * @param id The user id to format
+ * @returns The formatted string
  */
 
 export function userMentionWithId(id: Snowflake): `<@${Snowflake}> (\`${Snowflake}\`)` {
   return `<@${id}> (\`${id}\`)`;
+}
+
+/**
+ * Converts a { Snowflake } to a formatted string with the format <#${Snowflake}}> (\`${Snowflake}\`).
+ *
+ * @param id The channel id to format
+ * @returns The formatted string
+ */
+
+export function channelMentionWithId(id: Snowflake): `<#${Snowflake}> (\`${Snowflake}\`)` {
+  return `<#${id}> (\`${id}\`)`;
 }
 
 /**
@@ -140,6 +151,7 @@ export function parseDuration(durationStr: string | null): number {
  * @param maxLength - The maximum length of the string
  * @returns The cropped string (if it exceeds the maximum length)
  */
+
 export function elipsify(str: string, maxLength: number): string {
   if (str.length > maxLength) {
     const croppedStr = str.slice(0, maxLength - 23);
@@ -158,6 +170,7 @@ export function elipsify(str: string, maxLength: number): string {
  * @param maxLines - The maximum number of lines to keep
  * @returns The cropped string
  */
+
 export function cropLines(str: string, maxLines: number): string {
   const lines = str.split('\n');
   const diff = lines.length - maxLines;
@@ -172,6 +185,15 @@ export function cropLines(str: string, maxLines: number): string {
   return str;
 }
 
+/**
+ * Format the content of a message for logging.
+ *
+ * @param content The content of the message
+ * @param stickerId The id of the sticker in the message
+ * @param url The URL of the message
+ * @returns The formatted message content
+ */
+
 export async function formatMessageContentForShortLog(
   content: string | null,
   stickerId: string | null,
@@ -185,6 +207,7 @@ export async function formatMessageContentForShortLog(
     if (sticker.format !== StickerFormatType.Lottie) {
       rawContent += ` \`|\` ${hyperlink(`Sticker: ${sticker.name}`, sticker.url)}`;
     } else {
+      // Lottie stickers don't have a direct URL
       rawContent += ` \`|\` Lottie Sticker: ${sticker.name}`;
     }
   }
@@ -204,13 +227,13 @@ export async function formatMessageContentForShortLog(
 /**
  * Checks if a member has a specific permission.
  * @param member The member to check
- * @param config The guild config ( with permissions )
+ * @param config The guild config
  * @param permission The permission to check for
  */
 export function hasPermission(member: GuildMember, config: GuildConfig, permission: PermissionEnum): boolean {
   return member.roles.cache.some(role => {
-    return config.permissions.some(permissions => {
-      return permissions.roles.includes(role.id) && permissions.allow.includes(permission);
+    return config.permissions.some(perm => {
+      return perm.roles.includes(role.id) && perm.allow.includes(permission);
     });
   });
 }
@@ -279,9 +302,16 @@ export function getInteractionTTL(
  */
 
 export function generateSnowflakeId(): string {
-  const currentDate = new Date();
-  return String(SnowflakeUtil.generate({ timestamp: currentDate.getTime() }));
+  return String(SnowflakeUtil.generate({ timestamp: new Date().getTime() }));
 }
+
+/**
+ * Check if the reply for an interaction should be ephemeral based on the configuration.
+ *
+ * @param data.interaction The command interaction
+ * @param data.config The guild configuration
+ * @returns Whether the reply should be ephemeral (boolean)
+ */
 
 export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }) {
   const { interaction, config } = data;

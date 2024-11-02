@@ -8,9 +8,7 @@ import { GlobalConfig, globalConfigSchema } from './ConfigSchema';
 import Logger, { AnsiColor } from '@utils/Logger';
 
 /**
- * The config manager class.
- *
- * Used for global configuration.
+ * The config manager class responsible for managing the global configuration.
  */
 
 export default class ConfigManager {
