@@ -249,28 +249,26 @@ export default class InfractionManager {
 
     const skipMultiplier = page - 1;
 
-    const [infractions, infractionCount] = await prisma.$transaction([
-      prisma.infraction.findMany({
-        where: {
-          guildId,
-          targetId: target.id,
-          flag: filter ?? undefined
-        },
-        skip: skipMultiplier * INFRACTIONS_PER_PAGE,
-        take: INFRACTIONS_PER_PAGE,
-        orderBy: {
-          createdAt: 'desc'
-        }
-      }),
+    const infractionCount = await prisma.infraction.count({
+      where: {
+        guildId,
+        targetId: target.id,
+        flag: filter ?? undefined
+      }
+    });
 
-      prisma.infraction.count({
-        where: {
-          guildId,
-          targetId: target.id,
-          flag: filter ?? undefined
-        }
-      })
-    ]);
+    const infractions = await prisma.infraction.findMany({
+      where: {
+        guildId,
+        targetId: target.id,
+        flag: filter ?? undefined
+      },
+      skip: skipMultiplier * INFRACTIONS_PER_PAGE,
+      take: INFRACTIONS_PER_PAGE,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
 
     const embed = new EmbedBuilder()
       .setColor(Colors.NotQuiteBlack)

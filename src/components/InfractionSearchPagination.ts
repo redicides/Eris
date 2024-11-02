@@ -23,6 +23,8 @@ export default class InfractionSearchPaginationComponent extends Component {
       };
     }
 
+    await interaction.deferUpdate();
+
     switch (direction) {
       case 'next':
         return InfractionSearchPaginationComponent.handleInfractionSearchPagination({
@@ -83,15 +85,14 @@ export default class InfractionSearchPaginationComponent extends Component {
       filter = null;
     }
 
-    const updatedResult = (await InfractionManager.searchInfractions({
+    const updatedResult = await InfractionManager.searchInfractions({
       guildId: interaction.guildId,
       target,
       page,
       filter
-    })) as InteractionUpdateOptions;
+    });
 
-    await interaction.update(updatedResult);
-    return null;
+    return updatedResult;
   }
 
   public static parsePageOptions(options: PageOptions, currentPage: number, totalPages: number): number {
