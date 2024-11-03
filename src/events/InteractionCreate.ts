@@ -221,13 +221,13 @@ export default class InteractionCreate extends EventListener {
 
         return interaction.respond(
           matchingUnits.map(un => ({
-        name: `${num} ${un}${num > 1 ? 's' : ''}`,
-        value: `${num} ${un}${num > 1 ? 's' : ''}`
+            name: `${num} ${un}${num > 1 ? 's' : ''}`,
+            value: `${num} ${un}${num > 1 ? 's' : ''}`
           }))
         );
       }
 
-      case 'command-name': {
+      case 'command': {
         const application_commands = CommandManager.application_commands.filter(
           command => command.category !== 'Developer'
         );

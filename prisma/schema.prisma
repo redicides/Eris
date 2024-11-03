@@ -124,6 +124,13 @@ model Guild {
   infractionLoggingEnabled Boolean @default(true)
   infractionLoggingWebhook String?
 
+  // Message logging settings
+
+  messageLoggingEnabled         Boolean  @default(true)
+  messageLoggingWebhook         String?
+  messageLoggingIgnoredChannels String[]
+  messageLoggingStoreMessages   Boolean  @default(true)
+
   // Permissions
 
   permissions Permission[]
@@ -139,6 +146,7 @@ model Guild {
   userReports    UserReport[]
   banRequests    BanRequest[]
   muteRequests   MuteRequest[]
+  messages       Message[]
   tasks          Task[]
 }
 
@@ -248,6 +256,23 @@ model MuteRequest {
 
   expiresAt BigInt
   reason    String
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id                    String  @id @map("_id")
+  guildId               String
+  authorId              String
+  channelId             String
+  channelParentId       String?
+  channelParentParentId String?
+  stickerId             String?
+  // ID of the message this message is replying to
+  referenceId           String?
+  createdAt             BigInt
+  content               String?
+  deleted               Boolean @default(false)
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }

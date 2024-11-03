@@ -24,7 +24,7 @@ export default class Help extends Command {
         type: ApplicationCommandType.ChatInput,
         options: [
           {
-            name: 'command-name',
+            name: 'command',
             description: 'The command to get detailed information about.',
             type: ApplicationCommandOptionType.String,
             required: false,
@@ -39,10 +39,10 @@ export default class Help extends Command {
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig
   ): Promise<InteractionReplyData> {
-    const commandName = interaction.options.getString('command-name', false);
+    const commandName = interaction.options.getString('command', false);
 
     if (commandName) {
-      const command = 
+      const command =
         CommandManager.application_commands.get(commandName) ??
         CommandManager.application_commands.get(commandName.toLowerCase());
 

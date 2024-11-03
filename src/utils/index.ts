@@ -25,8 +25,8 @@ import { GuildConfig, InteractionReplyData } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
 
 import ConfigManager from '@managers/config/ConfigManager';
-import { CommandCategory } from '@/managers/commands/Command';
-import CommandManager from '@/managers/commands/CommandManager';
+import { CommandCategory } from '@managers/commands/Command';
+import CommandManager from '@managers/commands/CommandManager';
 
 /**
  * Pluralizes a word based on the given count
@@ -320,17 +320,14 @@ export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; c
   const { interaction, config } = data;
   const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
 
-  if (!scope) return config.commandEphemeralReply;
-  if (!interaction.channel) return true;
+  if (!scope || !interaction.channel) return config.commandEphemeralReply;
 
   const channelId = interaction.channel.id ?? interaction.channel.parent?.id ?? interaction.channel.parent?.parentId;
-  const isIncluded = scope.includedChannels.includes(channelId);
-  const isExcluded = scope.excludedChannels.includes(channelId);
 
-  // If channel is in excludedChannels but not in includedChannels
-  // OR if channel is in includedChannels but not in excludedChannels
-  // -> reply should be ephemeral
-  return (isExcluded && !isIncluded) || (isIncluded && !isExcluded);
+  if (scope.excludedChannels.includes(channelId)) return false;
+  if (scope.includedChannels.includes(channelId)) return true;
+
+  return true;
 }
 
 /**

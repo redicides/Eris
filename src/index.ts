@@ -8,13 +8,20 @@ import * as SentryClient from '@sentry/node';
 import { sleep } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import { CLIENT_CACHE_OPTIONS, CLIENT_INTENTS, CLIENT_PARTIALS, CLIENT_SWEEPER_OPTIONS } from '@utils/Constants';
+import {
+  CLIENT_CACHE_OPTIONS,
+  CLIENT_INTENTS,
+  CLIENT_PARTIALS,
+  CLIENT_SWEEPER_OPTIONS,
+  EXIT_EVENTS
+} from '@utils/Constants';
 
 import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ComponentManager from '@managers/components/ComponentManager';
 import { createPrismaRedisCache } from 'prisma-redis-middleware';
+import DatabaseManager from './managers/database/DatabaseManager';
 
 /**
  * The main client instance.
@@ -173,4 +180,11 @@ process.on('unhandledRejection', error => {
 
 process.on('uncaughtException', error => {
   Logger.error('An uncaught exception occurred:', error);
+});
+
+EXIT_EVENTS.forEach(event => {
+  process.on(event, async () => {
+    await DatabaseManager.startCleanupOperations(event);
+    process.exit(0);
+  });
 });

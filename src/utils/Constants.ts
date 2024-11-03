@@ -85,7 +85,9 @@ export const DEFAULT_TIMEZONE = 'GMT';
 
 export const CRON_SLUGS = {
   TaskRunner: 'TASK_RUNNER',
-  ReportDisregardRunner: 'REPORT_DISREGARD_RUNNER'
+  ReportDisregardRunner: 'REPORT_DISREGARD_RUNNER',
+  MessageInsertRunner: 'MESSAGE_INSERT_RUNNER',
+  MessageDeleteRunner: 'MESSAGE_DELETE_RUNNER'
 };
 
 export const PERMANENT_DURATION_KEYS = ['permanent', 'perm', 'p', 'infinity', 'inf', 'forever', 'never'];
@@ -108,3 +110,29 @@ export const COMMON_DURATIONS = [
 ];
 
 export const DURATION_UNITS = ['second', 'minute', 'hour', 'day', 'week'];
+
+export const EXIT_EVENTS = [
+  'SIGHUP',
+  'SIGINT',
+  'SIGQUIT',
+  'SIGILL',
+  'SIGTRAP',
+  'SIGABRT',
+  'SIGBUS',
+  'SIGFPE',
+  'SIGUSR1',
+  'SIGSEGV',
+  'SIGUSR2',
+  'SIGTERM'
+];
+
+export const LOG_ENTRY_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  month: '2-digit',
+  day: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZone: DEFAULT_TIMEZONE,
+  hour12: false
+};

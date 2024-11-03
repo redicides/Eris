@@ -6,14 +6,19 @@ import {
   ChannelType,
   TextChannel,
   GuildTextBasedChannel,
-  CategoryChannel
+  CategoryChannel,
+  EmbedBuilder,
+  Colors,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
+import { PermissionEnum, Prisma } from '@prisma/client';
 
 import ms from 'ms';
 
 import { client, prisma } from '..';
-import { parseDuration } from '@utils/index';
+import { parseDuration, uploadData } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -40,7 +45,7 @@ export default class Config extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'command-name',
+                    name: 'command',
                     description: 'The name of the command to enable or disable.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -393,7 +398,8 @@ export default class Config extends Command {
                     required: true,
                     choices: [
                       { name: 'Infractions', value: 'infractionLoggingWebhook' },
-                      { name: 'Reports', value: 'reportLoggingWebhook' }
+                      { name: 'Reports', value: 'reportLoggingWebhook' },
+                      { name: 'Messages', value: 'messageLoggingWebhook' }
                     ]
                   }
                 ]
@@ -410,8 +416,51 @@ export default class Config extends Command {
                     required: true,
                     choices: [
                       { name: 'Infractions', value: 'infractionLoggingEnabled' },
-                      { name: 'Reports', value: 'reportLoggingEnabled' }
+                      { name: 'Reports', value: 'reportLoggingEnabled' },
+                      { name: 'Messages', value: 'messageLoggingEnabled' }
                     ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.AddIgnoredChannel,
+                description: 'Add a channel to the ignored channels list for a specific log type.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'channel',
+                    description: 'The channel to add to the ignored channels list.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channelTypes: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  },
+                  {
+                    name: 'log-type',
+                    description: 'The log type to add the channel to.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemoveIgnoredChannel,
+                description: 'Remove a channel from the ignored channels list for a specific log type.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'channel',
+                    description: 'The channel to remove from the ignored channels list.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channelTypes: [ChannelType.GuildText, ChannelType.GuildCategory]
+                  },
+                  {
+                    name: 'log-type',
+                    description: 'The log type to remove the channel from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
                   }
                 ]
               }
@@ -565,12 +614,17 @@ export default class Config extends Command {
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
+                name: ConfigSubcommand.Toggle,
+                description: 'Toggle if replies should be ephemeral by default.',
+                type: ApplicationCommandOptionType.Subcommand
+              },
+              {
                 name: ConfigSubcommand.CreateScope,
                 description: 'Create a new ephemeral scope.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'command-name',
+                    name: 'command',
                     description: 'The name of the command this scope will apply for.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -578,9 +632,9 @@ export default class Config extends Command {
                   },
                   {
                     name: 'include-channel',
-                    description: 'The channel or category this scope will apply for.',
+                    description: 'The channel or category this scope will include.',
                     type: ApplicationCommandOptionType.Channel,
-                    required: true,
+                    required: false,
                     channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
                   },
                   {
@@ -689,6 +743,11 @@ export default class Config extends Command {
                     channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.List,
+                description: 'List all the ephemeral scopes.',
+                type: ApplicationCommandOptionType.Subcommand
               }
             ]
           }
@@ -761,6 +820,10 @@ export default class Config extends Command {
             return Config.logging.setChannel(interaction, config);
           case ConfigSubcommand.Toggle:
             return Config.logging.toggleLogging(interaction, config);
+          case ConfigSubcommand.AddIgnoredChannel:
+            return Config.logging.addIgnoredChannel(interaction);
+          case ConfigSubcommand.RemoveIgnoredChannel:
+            return Config.logging.removeIgnoredChannel(interaction);
         }
       }
 
@@ -795,6 +858,10 @@ export default class Config extends Command {
             return Config.ephemeral.addExcludedChannel(interaction, config);
           case ConfigSubcommand.RemoveExcludedChannel:
             return Config.ephemeral.removeExcludedChannel(interaction, config);
+          case ConfigSubcommand.List:
+            return Config.ephemeral.list(interaction, config);
+          case ConfigSubcommand.Toggle:
+            return Config.ephemeral.toggle(config);
         }
       }
     }
@@ -810,7 +877,7 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const commandName = interaction.options.getString('command-name', true);
+      const commandName = interaction.options.getString('command', true);
 
       const command = CommandManager.application_commands.get(commandName);
 
@@ -1475,6 +1542,66 @@ export default class Config extends Command {
       return {
         content: `The log channel for the specified type has been set to ${channel.toString()}.`
       };
+    },
+
+    async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>) {
+      const config = (await prisma.guild.findUnique({
+        where: { id: interaction.guildId },
+        select: { messageLoggingIgnoredChannels: true }
+      }))!;
+
+      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
+      const type = interaction.options.getString('log-type', true) as keyof typeof config;
+
+      if (config[type].includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} is already in the ignored channels list for the specified type.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: { push: channel.id } }
+      });
+
+      return {
+        content: `The ${
+          isCategory(channel) ? 'category' : 'channel'
+        } ${channel} has been added to the ignored channels list for the specified type.`
+      };
+    },
+
+    async removeIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>) {
+      const config = (await prisma.guild.findUnique({
+        where: { id: interaction.guildId },
+        select: { messageLoggingIgnoredChannels: true }
+      }))!;
+
+      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
+      const type = interaction.options.getString('log-type', true) as keyof typeof config;
+
+      if (!config[type].includes(channel.id)) {
+        return {
+          error: `The ${
+            isCategory(channel) ? 'category' : 'channel'
+          } ${channel} is not in the ignored channels list for the specified type.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: { set: config[type].filter(c => c !== channel.id) } }
+      });
+
+      return {
+        content: `The ${
+          isCategory(channel) ? 'category' : 'channel'
+        } ${channel} has been removed from the ignored channels list for the specified type.`
+      };
     }
   };
 
@@ -1688,15 +1815,29 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const commandName = interaction.options.getString('command-name', true);
-      const includeChannel = interaction.options.getChannel('include-channel', true) as
+      let commandName = interaction.options.getString('command', true);
+      const includeChannel = interaction.options.getChannel('include-channel', false) as
         | GuildTextBasedChannel
-        | CategoryChannel;
+        | CategoryChannel
+        | null;
 
       const excludeChannel = interaction.options.getChannel('exclude-channel') as
         | GuildTextBasedChannel
         | CategoryChannel
         | null;
+
+      const command =
+        CommandManager.application_commands.get(commandName) ??
+        CommandManager.application_commands.get(commandName.toLowerCase());
+
+      if (!command) {
+        return {
+          error: `The command \`${commandName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      commandName = command.data.name;
 
       if (config.ephemeralScopes.some(scope => scope.commandName === commandName)) {
         return {
@@ -1705,7 +1846,7 @@ export default class Config extends Command {
         };
       }
 
-      if (excludeChannel?.id === includeChannel.id) {
+      if (excludeChannel?.id === includeChannel?.id) {
         return {
           error: 'The channel to exclude must be different from the channel to include.',
           temporary: true
@@ -1718,7 +1859,7 @@ export default class Config extends Command {
           ephemeralScopes: {
             push: {
               commandName,
-              includedChannels: [includeChannel.id],
+              includedChannels: includeChannel ? [includeChannel.id] : [],
               excludedChannels: excludeChannel ? [excludeChannel.id] : []
             }
           }
@@ -1939,6 +2080,68 @@ export default class Config extends Command {
           isCategory(channel) ? 'category' : 'channel'
         } ${channel} from the excluded channels list for the scope.`
       };
+    },
+
+    async list(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData> {
+      if (config.ephemeralScopes.length < 1) {
+        return {
+          content: 'There are no ephemeral scopes set up in this server.'
+        };
+      }
+
+      const embed = new EmbedBuilder()
+        .setAuthor({ name: 'Ephemeral Scopes', iconURL: interaction.guild!.iconURL() ?? undefined })
+        .setColor(Colors.NotQuiteBlack)
+        .setDescription('Click on the button below to view the list of ephemeral scopes.')
+        .setTimestamp();
+
+      const map = await Promise.all(
+        config.ephemeralScopes.map(async scope => {
+          const includedChannels = await Promise.all(
+            scope.includedChannels.map(async id => {
+              const channel = await interaction.guild!.channels.fetch(id).catch(() => null);
+              return channel ? `#${channel.name} (${id})` : `<#${id}>`;
+            })
+          );
+
+          const excludedChannels = await Promise.all(
+            scope.excludedChannels.map(async id => {
+              const channel = await interaction.guild!.channels.fetch(id).catch(() => null);
+              return channel ? `#${channel.name} (${id})` : `<#${id}>`;
+            })
+          );
+
+          return `- Command: ${scope.commandName}\n- Included channels: ${includedChannels.join(
+            ', '
+          )}\n- Excluded channels: ${excludedChannels.join(', ')}`;
+        })
+      );
+
+      const dataUrl = await uploadData(map.join('\n\n'), 'txt');
+      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('View List').setURL(dataUrl);
+      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
+
+      return {
+        embeds: [embed],
+        components: [actionRow]
+      };
+    },
+
+    async toggle(config: GuildConfig): Promise<InteractionReplyData> {
+      let toggle = true;
+
+      if (config.commandEphemeralReply) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: config.id },
+        data: { commandEphemeralReply: toggle }
+      });
+
+      return {
+        content: `Command replies are now ${toggle ? 'ephemeral' : 'non-ephemeral'} by default.`
+      };
     }
   };
 }
@@ -1949,7 +2152,7 @@ enum ConfigSubcommandGroup {
   Infractions = 'infractions',
   Logging = 'logging',
   Permissions = 'permissions',
-  EphemeralScopes = 'ephemeral-scopes'
+  EphemeralScopes = 'ephemeral'
 }
 
 enum ConfigSubcommand {
@@ -1974,12 +2177,22 @@ enum ConfigSubcommand {
   RemoveRoleFromNode = 'remove-role-from-node',
   GrantPermission = 'grant',
   RevokePermission = 'revoke',
-  CreateScope = 'create',
-  DeleteScope = 'delete',
+  CreateScope = 'create-scope',
+  DeleteScope = 'delete-scope',
   AddIncludedChannel = 'add-included-channel',
   RemoveIncludedChannel = 'remove-included-channel',
   AddExcludedChannel = 'add-excluded-channel',
-  RemoveExcludedChannel = 'remove-excluded-channel'
+  RemoveExcludedChannel = 'remove-excluded-channel',
+  List = 'list-scopes',
+  AddIgnoredChannel = 'add-ignored-channel',
+  RemoveIgnoredChannel = 'remove-ignored-channel'
 }
 
 const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;
+
+type ParsedConfig = Prisma.GuildGetPayload<{
+  select: {
+    id: true;
+    messageLoggingIgnoredChannels: true;
+  };
+}>;

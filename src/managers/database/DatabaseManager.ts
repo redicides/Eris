@@ -1,8 +1,21 @@
 import { prisma } from '@/index';
+import Logger, { AnsiColor } from '@/utils/Logger';
+import { Message } from '@prisma/client';
 import { GuildConfig } from '@utils/Types';
-import { Snowflake } from 'discord.js';
+import { Collection, PartialMessage, Snowflake, type Message as DiscordMessage } from 'discord.js';
 
 export default class DatabaseManager {
+  /**
+   * Collection of messages that are queued to be added to the database.
+   */
+  private static readonly _dbQueue = new Collection<Snowflake, Message>();
+
+  /**
+   * The most recent message delete audit log entry.
+   */
+
+  private static _auditLogMessageEntries?: MessageDeleteAuditLog;
+
   /**
    * Retrieves the guild data for the specified guild from the database.
    * If the guild is not in the database, it creates a new entry and returns it.
@@ -44,4 +57,181 @@ export default class DatabaseManager {
 
     return guild ? guild : DatabaseManager.createDatabaseGuildEntry(id);
   }
+
+  /**
+   * Retrieves a message from the database or the queue.
+   *
+   * @param id The ID of the message
+   * @returns The message, or null if it does not exist
+   */
+
+  public static async getMessageEntry(id: Snowflake): Promise<Message | null> {
+    let message = DatabaseManager._dbQueue.get(id) ?? null;
+
+    if (!message) {
+      message = await prisma.message.findUnique({ where: { id } });
+    }
+
+    return message;
+  }
+
+  /**
+   * Queues a message to be added to the database.
+   * @param message The message to queue
+   */
+
+  public static queueMessageEntry(message: DiscordMessage<true>): void {
+    const messageEntry = DatabaseManager.serializeMessageEntry(message);
+    DatabaseManager._dbQueue.set(message.id, messageEntry);
+  }
+
+  /**
+   * Mark a message as deleted in the database.
+   *
+   * @param id The ID of the message to update
+   * @returns The updated message, or null if it does not exist
+   */
+
+  public static async deleteMessageEntry(id: Snowflake) {
+    let message = DatabaseManager._dbQueue.get(id) ?? null;
+
+    if (message) {
+      message.deleted = true;
+    } else {
+      message = await prisma.message
+        .update({
+          data: { deleted: true },
+          where: { id }
+        })
+        .catch(() => null);
+    }
+
+    return message;
+  }
+
+  public static async bulkDeleteMessageEntries(
+    messageCollection: Collection<Snowflake, PartialMessage | DiscordMessage<true>>
+  ) {
+    const ids = Array.from(messageCollection.keys());
+
+    // Try to get the messages from cache
+    const messages = DatabaseManager._dbQueue.filter(message => ids.includes(message.id) && !message.deleted);
+
+    // Update the deletion state of the cached messages
+    const deletedMessages = messages.map(message => {
+      message.deleted = true;
+      return message;
+    });
+
+    // Update whatever wasn't cached in the database
+    if (messages.size !== deletedMessages.length) {
+      const [current, updated] = await prisma.$transaction([
+        prisma.message.updateMany({
+          where: {
+            id: { in: ids }
+          },
+          data: {
+            deleted: true
+          }
+        }),
+        prisma.message.findMany({
+          where: {
+            id: { in: ids }
+          }
+        })
+      ]);
+
+      // Merge the cached and stored messages
+      return deletedMessages.concat(updated);
+    }
+
+    return deletedMessages;
+  }
+
+  /**
+   * Stores all cached messages in the database.
+   */
+
+  public static async storeMessageEntries() {
+    Logger.info('Storing cached messages in the database...');
+
+    const messages = Array.from(DatabaseManager._dbQueue.values());
+    let count = 0;
+
+    for (const message of messages) {
+      const { id, ...data } = message;
+
+      const storedMessage = await prisma.message.upsert({
+        where: { id: message.id },
+        update: data,
+        create: message
+      });
+
+      if (storedMessage) {
+        count++;
+      }
+    }
+
+    DatabaseManager._dbQueue.clear();
+
+    if (!count) {
+      Logger.info('No messages were stored in the database.');
+    } else {
+      Logger.info(`Stored ${count} messages in the database.`);
+    }
+  }
+
+  /**
+   * Starts cleanup operations for the database.
+   */
+
+  public static async startCleanupOperations(event: string) {
+    Logger.log(event, 'Starting cleanup operations...', {
+      color: AnsiColor.Red,
+      full: true
+    });
+
+    try {
+      await DatabaseManager.storeMessageEntries();
+      await prisma.$disconnect();
+    } catch (error) {
+      Logger.error(`Cleanup operations failed:`, error);
+    } finally {
+      Logger.log(event, 'Cleanup operations complete.', { color: AnsiColor.Green, full: true });
+    }
+  }
+
+  /**
+   * Serializes a message to make it suitable for insertion into the database.
+   *
+   * @param message The message to serialize
+   * @returns The serialized message
+   */
+
+  private static serializeMessageEntry(message: DiscordMessage<true>): Message {
+    const stickerId = message.stickers?.first()?.id ?? null;
+    const referenceId = message.reference?.messageId ?? null;
+
+    return {
+      id: message.id,
+      guildId: message.guild.id,
+      authorId: message.author.id,
+      channelId: message.channel.id,
+      channelParentId: message.channel.parent?.id ?? null,
+      channelParentParentId: message.channel.parent?.parentId ?? null,
+      stickerId,
+      referenceId,
+      content: message.content,
+      createdAt: BigInt(message.createdAt.getTime()),
+      deleted: false
+    };
+  }
+}
+
+interface MessageDeleteAuditLog {
+  executorId: Snowflake;
+  authorId: Snowflake;
+  channelId: Snowflake;
+  createdAt: bigint;
+  count: number;
 }

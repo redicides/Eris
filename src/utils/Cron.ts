@@ -11,9 +11,10 @@ import {
 
 import ms from 'ms';
 
-import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/Constants';
+import { CRON_SLUGS, DEFAULT_TIMEZONE, LOG_ENTRY_DATE_FORMAT } from '@utils/Constants';
 import { ReportUtils } from '@utils/Reports';
 import { client, prisma, Sentry } from '@/index';
+import { pluralize } from '.';
 
 import Logger, { AnsiColor } from '@utils/Logger';
 import ConfigManager from '@managers/config/ConfigManager';
@@ -21,7 +22,8 @@ import InfractionManager, { INFRACTION_COLORS } from '@managers/database/Infract
 import TaskManager from '@managers/database/TaskManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
-const { task_runner_cron, report_disregard_cron } = ConfigManager.global_config.database;
+const { task_runner_cron, report_disregard_cron, message_delete_cron, message_insert_cron, message_ttl } =
+  ConfigManager.global_config.database;
 
 /**
  * The class responsible for handling cron jobs.
@@ -309,6 +311,35 @@ export class CronUtils {
         });
 
         continue;
+      }
+    });
+  }
+
+  /**
+   * Starts the task runner responsible for managing database message entries.
+   */
+
+  public static startMessageRunners(): void {
+    CronUtils.startJob(CRON_SLUGS.MessageInsertRunner, message_insert_cron, false, async () => {
+      await DatabaseManager.storeMessageEntries();
+    });
+
+    CronUtils.startJob(CRON_SLUGS.MessageDeleteRunner, message_delete_cron, false, async () => {
+      const createdAtThreshold = Date.now() - message_ttl;
+      const duration = ms(message_ttl, { long: true });
+
+      Logger.info(`Deleting messages older than ${duration}...`);
+
+      const { count } = await prisma.message.deleteMany({
+        where: {
+          createdAt: { lte: createdAtThreshold }
+        }
+      });
+
+      if (!count) {
+        Logger.info(`No messages are older than ${duration}`);
+      } else {
+        Logger.info(`Deleted ${count} ${pluralize(count, 'message')} older than ${duration}`);
       }
     });
   }
