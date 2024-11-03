@@ -1625,7 +1625,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `Message storing for cached messages has been ${toggle ? 'enabled' : 'disabled'}.`,
+        content: `Message storing for cached messages has been ${toggle ? 'enabled' : 'disabled'}.`
       };
     }
   };
