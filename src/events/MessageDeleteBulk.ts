@@ -7,8 +7,8 @@ import {
   GuildTextBasedChannel
 } from 'discord.js';
 
-import EventListener from '@/managers/events/EventListener';
-import DatabaseManager from '@/managers/database/DatabaseManager';
+import EventListener from '@managers/events/EventListener';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class MessageDeleteBulk extends EventListener {
   constructor() {

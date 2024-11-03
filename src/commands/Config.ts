@@ -23,7 +23,6 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
-import { YES_NO_ROW } from '@/utils/Constants';
 
 export default class Config extends Command {
   constructor() {

@@ -1,8 +1,10 @@
-import { prisma } from '@/index';
-import Logger, { AnsiColor } from '@/utils/Logger';
-import { Message } from '@prisma/client';
-import { GuildConfig } from '@utils/Types';
 import { Collection, PartialMessage, Snowflake, type Message as DiscordMessage } from 'discord.js';
+import { Message } from '@prisma/client';
+
+import { prisma } from '@/index';
+import { GuildConfig } from '@utils/Types';
+
+import Logger, { AnsiColor } from '@utils/Logger';
 
 export default class DatabaseManager {
   /**
