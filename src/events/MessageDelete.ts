@@ -27,7 +27,6 @@ export default class MessageDelete extends EventListener {
     const config = await DatabaseManager.getGuildEntry(deletedMessage.guild.id);
 
     if (config.messageLoggingStoreMessages) {
-      await DatabaseManager.deleteMessageEntry(deletedMessage.id);
       return MessageDelete.handleEnhancedLog(deletedMessage, config);
     }
 
