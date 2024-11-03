@@ -23,6 +23,7 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
+import { YES_NO_ROW } from '@/utils/Constants';
 
 export default class Config extends Command {
   constructor() {
@@ -463,6 +464,11 @@ export default class Config extends Command {
                     choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.StoreCachedMessages,
+                description: 'Toggle storing of cached messages for message logging.',
+                type: ApplicationCommandOptionType.Subcommand
               }
             ]
           },
@@ -824,6 +830,8 @@ export default class Config extends Command {
             return Config.logging.addIgnoredChannel(interaction);
           case ConfigSubcommand.RemoveIgnoredChannel:
             return Config.logging.removeIgnoredChannel(interaction);
+          case ConfigSubcommand.StoreCachedMessages:
+            return Config.logging.storeCachedMessages(interaction, config);
         }
       }
 
@@ -1602,6 +1610,23 @@ export default class Config extends Command {
           isCategory(channel) ? 'category' : 'channel'
         } ${channel} has been removed from the ignored channels list for the specified type.`
       };
+    },
+
+    async storeCachedMessages(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+      let toggle = true;
+
+      if (config.messageLoggingStoreMessages === true) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { messageLoggingStoreMessages: toggle }
+      });
+
+      return {
+        content: `Message storing for cached messages has been ${toggle ? 'enabled' : 'disabled'}.`,
+      };
     }
   };
 
@@ -2185,7 +2210,8 @@ enum ConfigSubcommand {
   RemoveExcludedChannel = 'remove-excluded-channel',
   List = 'list-scopes',
   AddIgnoredChannel = 'add-ignored-channel',
-  RemoveIgnoredChannel = 'remove-ignored-channel'
+  RemoveIgnoredChannel = 'remove-ignored-channel',
+  StoreCachedMessages = 'store-cached-messages'
 }
 
 const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;
