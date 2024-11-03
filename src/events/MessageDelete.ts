@@ -10,10 +10,11 @@ import {
   Snowflake
 } from 'discord.js';
 
+import { GuildConfig } from '@utils/Types';
+import { channelMentionWithId, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
+
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
-import { GuildConfig } from '@/utils/Types';
-import { channelMentionWithId, formatMessageContentForShortLog, userMentionWithId } from '@/utils';
 
 export default class MessageDelete extends EventListener {
   constructor() {

@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import { Client } from 'discord.js';
 import { PrismaClient } from '@prisma/client';
+import { createPrismaRedisCache } from 'prisma-redis-middleware';
 
 import * as SentryClient from '@sentry/node';
 
@@ -20,7 +21,6 @@ import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ComponentManager from '@managers/components/ComponentManager';
-import { createPrismaRedisCache } from 'prisma-redis-middleware';
 import DatabaseManager from './managers/database/DatabaseManager';
 
 /**
@@ -34,7 +34,7 @@ export const client = new Client({
    * The following privileged intents are required for the bot to work:
    *
    * 1. Server Members Intent - For handling guild member events
-   * 2. Message Content Intent - For handling auto-moderation
+   * 2. Message Content Intent - For handling auto-moderation and enhanced message logging
    *
    * If these intents have not been granted the client will not log in
    * @see https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -180,6 +180,13 @@ process.on('unhandledRejection', error => {
 
 process.on('uncaughtException', error => {
   Logger.error('An uncaught exception occurred:', error);
+});
+
+process.on('message', async message => {
+  if (message === 'shutdown') {
+    await DatabaseManager.startCleanupOperations('MESSAGE:SHUTDOWN');
+    process.exit(0);
+  }
 });
 
 EXIT_EVENTS.forEach(event => {
