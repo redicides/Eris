@@ -23,6 +23,7 @@ export default class MessageDelete extends EventListener {
 
   async execute(deletedMessage: DiscordMessage | PartialMessage) {
     if (!deletedMessage.inGuild()) return;
+    if (deletedMessage.partial) await deletedMessage.fetch().catch(() => null);
 
     const config = await DatabaseManager.getGuildEntry(deletedMessage.guild.id);
 
