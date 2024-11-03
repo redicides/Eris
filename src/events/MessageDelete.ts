@@ -176,15 +176,15 @@ export default class MessageDelete extends EventListener {
       .setAuthor({ name: reference ? 'Message Reference' : 'Message Deleted' })
       .setFields([
         {
-          name: 'Author',
+          name: reference ? 'Reference Author' : 'Message Author',
           value: userMentionWithId(data.authorId)
         },
         {
-          name: 'Channel',
+          name: 'Source Channel',
           value: channelMentionWithId(data.channelId)
         },
         {
-          name: 'Content',
+          name: reference ? 'Reference Content' : 'Message Content',
           value: await formatMessageContentForShortLog(data.content, data.stickerId, url)
         }
       ])
@@ -192,7 +192,7 @@ export default class MessageDelete extends EventListener {
 
     if (data.attachments?.length) {
       embed.addFields({
-        name: 'Attachments',
+        name: reference ? 'Reference Attachments' : 'Message Attachments',
         value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
       });
     }
