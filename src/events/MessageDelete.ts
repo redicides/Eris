@@ -58,7 +58,8 @@ export default class MessageDelete extends EventListener {
         channelId: message.channel.id,
         stickerId,
         createdAt: message.createdAt,
-        content: message.content
+        content: message.content,
+        attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
       },
       false
     );
@@ -74,7 +75,8 @@ export default class MessageDelete extends EventListener {
           channelId: reference.channel.id,
           stickerId,
           createdAt: reference.createdAt,
-          content: reference.content
+          content: reference.content,
+          attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
         },
         true
       );
@@ -111,7 +113,8 @@ export default class MessageDelete extends EventListener {
         channelId: message.channelId,
         stickerId: message.stickerId,
         createdAt: new Date(Number(message.createdAt)),
-        content: message.content
+        content: message.content,
+        attachments: message.attachments
       },
       false
     );
@@ -125,7 +128,8 @@ export default class MessageDelete extends EventListener {
           channelId: reference.channelId,
           stickerId: reference.stickerId,
           createdAt: new Date(Number(reference.createdAt)),
-          content: reference.content
+          content: reference.content,
+          attachments: reference.attachments
         },
         true
       );
@@ -147,6 +151,7 @@ export default class MessageDelete extends EventListener {
       stickerId: Snowflake | null;
       createdAt: Date;
       content: string | null;
+      attachments?: string[];
     },
     reference: boolean
   ): Promise<EmbedBuilder> {
@@ -170,6 +175,13 @@ export default class MessageDelete extends EventListener {
         }
       ])
       .setTimestamp(data.createdAt);
+
+    if (data.attachments?.length) {
+      embed.addFields({
+        name: 'Attachments',
+        value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
+      });
+    }
 
     return embed;
   }

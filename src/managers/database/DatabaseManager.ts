@@ -222,6 +222,7 @@ export default class DatabaseManager {
       stickerId,
       referenceId,
       content: message.content,
+      attachments: message.attachments.map(attachment => attachment.url),
       createdAt: BigInt(message.createdAt.getTime()),
       deleted: false
     };

@@ -261,7 +261,7 @@ model MuteRequest {
 }
 
 model Message {
-  id                    String  @id @map("_id")
+  id                    String   @id @map("_id")
   guildId               String
   authorId              String
   channelId             String
@@ -272,7 +272,8 @@ model Message {
   referenceId           String?
   createdAt             BigInt
   content               String?
-  deleted               Boolean @default(false)
+  attachments           String[]
+  deleted               Boolean  @default(false)
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
