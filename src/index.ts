@@ -175,11 +175,13 @@ main().catch(error => {
 // Process events
 
 process.on('unhandledRejection', error => {
-  Logger.error('An unhandled promise rejection occurred:', error);
+  const sentryId = Sentry.captureException(error);
+  Logger.error(`[${sentryId}] Unhandled promise rejection:`, error);
 });
 
 process.on('uncaughtException', error => {
-  Logger.error('An uncaught exception occurred:', error);
+  const sentryId = Sentry.captureException(error);
+  Logger.error(`[${sentryId}] Uncaught exception:`, error);
 });
 
 process.on('message', async message => {
