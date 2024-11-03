@@ -1,4 +1,4 @@
-import { ButtonInteraction, PermissionFlagsBits, TextChannel } from 'discord.js';
+import { ButtonInteraction, PermissionFlagsBits, Snowflake, TextChannel } from 'discord.js';
 
 import { InteractionReplyData } from '@utils/Types';
 

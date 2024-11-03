@@ -9,11 +9,14 @@ import {
   Colors,
   EmbedBuilder,
   EmbedData,
+  Guild,
+  GuildTextBasedChannel,
   Message,
   ModalBuilder,
   ModalSubmitInteraction,
   roleMention,
   Snowflake,
+  TextChannel,
   TextInputBuilder,
   TextInputStyle,
   User,
@@ -581,5 +584,140 @@ export class ReportUtils {
         allowedMentions: { parse: [] }
       })
       .catch(() => null);
+  }
+
+  /**
+   * Update the state of a message report.
+   *
+   * @param data.guild The guild
+   * @param data.messageId The message ID
+   * @param data.config The guild config
+   * @returns
+   */
+
+  public static async updateMessageReportState(data: { guild: Guild; messageId: Snowflake; config: GuildConfig }) {
+    const { guild, messageId, config } = data;
+
+    // Early return if reports are disabled or webhook is missing
+    if (!config.messageReportsEnabled || !config.messageReportsWebhook) return;
+
+    // Get all pending reports for this message
+    const pendingReports = await prisma.messageReport.findMany({
+      where: {
+        messageId,
+        guildId: guild.id,
+        status: 'Pending'
+      }
+    });
+
+    if (!pendingReports.length) return;
+
+    const webhook = new WebhookClient({ url: config.messageReportsWebhook });
+
+    // Process each report
+    for (const report of pendingReports) {
+      // Get the webhook message
+      const logMessage = await webhook.fetchMessage(report.id).catch(() => null);
+      if (!logMessage) continue;
+
+      // Get embeds based on components length
+      const hasMultipleComponents = logMessage.components!.length > 1;
+      const primaryEmbed = logMessage.embeds.at(hasMultipleComponents ? 1 : 0)!;
+      const secondaryEmbed = hasMultipleComponents ? logMessage.embeds.at(0) : null;
+
+      // Create updated embed with deleted flag
+      const updatedEmbed = new EmbedBuilder(primaryEmbed).addFields({ name: 'Flags', value: 'Message Deleted' });
+
+      // Update components and prepare message update
+      const components = logMessage.components!;
+      const messageUpdate = {
+        content: logMessage.content,
+        components,
+        embeds: secondaryEmbed ? [secondaryEmbed, updatedEmbed] : [updatedEmbed]
+      };
+
+      // Disable appropriate delete button
+      if (secondaryEmbed) {
+        components[1].components[0].disabled = true;
+      } else {
+        components[0].components[3].disabled = true;
+      }
+
+      // Send updated message
+      await webhook.editMessage(report.id, messageUpdate).catch(() => null);
+    }
+  }
+
+  /**
+   * Update the state of a message report reference.
+   *
+   * @param data.guild The guild
+   * @param data.referenceId The reference ID
+   * @param data.config The guild config
+   * @returns
+   */
+
+  public static async updateMessageReportReferenceState(data: {
+    guild: Guild;
+    referenceId: Snowflake;
+    config: GuildConfig;
+  }) {
+    const { referenceId, config, guild } = data;
+
+    // Early return if reports are disabled or webhook is missing
+    if (!config.messageReportsEnabled || !config.messageReportsWebhook) return;
+
+    // Get all pending reports with matching reference IDs
+    const pendingReports = await prisma.messageReport.findMany({
+      where: {
+        guildId: guild.id,
+        referenceId,
+        status: 'Pending'
+      }
+    });
+
+    if (!pendingReports.length) return;
+
+    const webhook = new WebhookClient({ url: config.messageReportsWebhook });
+
+    // Process each report
+    for (const report of pendingReports) {
+      // Get the webhook message
+      const logMessage = await webhook.fetchMessage(report.id).catch(() => null);
+      if (!logMessage) continue;
+
+      // Get embeds based on components length
+      const hasMultipleComponents = logMessage.components!.length > 1;
+      const primaryEmbed = logMessage.embeds.at(hasMultipleComponents ? 1 : 0)!;
+      const secondaryEmbed = hasMultipleComponents ? logMessage.embeds.at(0) : null;
+
+      if (!secondaryEmbed) continue;
+
+      // Check if reference message still exists
+      const channel = await guild.channels
+        .fetch(report.channelId)
+        .then(ch => ch as TextChannel)
+        .catch(() => null);
+
+      if (!channel) continue;
+
+      const referenceExists = await channel.messages.fetch(referenceId).catch(() => null);
+      if (referenceExists) continue;
+
+      // Update embed and components
+      const updatedEmbed = new EmbedBuilder(secondaryEmbed).addFields({ name: 'Flags', value: 'Reference Deleted' });
+
+      const components = logMessage.components!;
+      components[1].components[1].disabled = true;
+
+      // Send updated message
+      await webhook
+        .editMessage(report.id, {
+          content: logMessage.content,
+          embeds: [updatedEmbed, primaryEmbed],
+          components
+        })
+        .catch(() => null);
+    }
   }
 }
