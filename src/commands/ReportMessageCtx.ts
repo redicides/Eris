@@ -29,7 +29,7 @@ export default class ReportMessageCtx extends Command {
   ): Promise<InteractionReplyData | null> {
     if (!config.messageReportsEnabled) {
       return {
-        error: 'User reports are disabled in this server.',
+        error: 'Message reports are disabled in this server.',
         temporary: true
       };
     }

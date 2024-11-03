@@ -7,7 +7,9 @@ import {
   messageLink,
   WebhookClient,
   APIMessage,
-  Snowflake
+  Snowflake,
+  Guild,
+  TextChannel
 } from 'discord.js';
 
 import { GuildConfig } from '@utils/Types';
@@ -15,6 +17,7 @@ import { channelMentionWithId, formatMessageContentForShortLog, userMentionWithI
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
+import { prisma } from '..';
 
 export default class MessageDelete extends EventListener {
   constructor() {
@@ -26,6 +29,10 @@ export default class MessageDelete extends EventListener {
     if (deletedMessage.partial) await deletedMessage.fetch().catch(() => null);
 
     const config = await DatabaseManager.getGuildEntry(deletedMessage.guild.id);
+    await updateMessageReportState({
+      deletedMessage,
+      config
+    });
 
     if (config.messageLoggingStoreMessages) {
       return MessageDelete.handleEnhancedLog(deletedMessage, config);
@@ -185,5 +192,56 @@ export default class MessageDelete extends EventListener {
     }
 
     return embed;
+  }
+}
+
+async function updateMessageReportState(data: { deletedMessage: DiscordMessage<true>; config: GuildConfig }) {
+  const { deletedMessage, config } = data;
+
+  if (!config.messageReportsEnabled || !config.messageReportsWebhook) return;
+
+  const reports = await prisma.messageReport.findMany({
+    where: { messageId: deletedMessage.id, guildId: config.id, status: 'Pending' }
+  });
+
+  if (!reports.length) return;
+
+  for (const report of reports) {
+    const webhook = new WebhookClient({ url: config.messageReportsWebhook });
+    const log = await webhook.fetchMessage(report.id).catch(() => null);
+
+    if (!log) continue;
+
+    const primaryEmbed = log.embeds.at(log.components!.length === 1 ? 0 : 1)!;
+    const secondaryEmbed = log.components!.length === 1 ? null : log.embeds.at(0)!;
+
+    const updatedEmbed = new EmbedBuilder(primaryEmbed).addFields({ name: 'Flags', value: 'Message Deleted' });
+
+    const components = log.components!;
+    const baseEditOptions = {
+      content: log.content
+    };
+
+    if (secondaryEmbed) {
+      components[1].components[0].disabled = true;
+
+      await webhook
+        .editMessage(log.id, {
+          ...baseEditOptions,
+          embeds: [secondaryEmbed, updatedEmbed],
+          components
+        })
+        .catch(() => null);
+    } else {
+      components[0].components[3].disabled = true;
+
+      await webhook
+        .editMessage(log.id, {
+          ...baseEditOptions,
+          embeds: [updatedEmbed],
+          components
+        })
+        .catch(() => null);
+    }
   }
 }

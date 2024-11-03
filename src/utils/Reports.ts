@@ -281,6 +281,7 @@ export class ReportUtils {
         id: log.id,
         guildId: interaction.guildId,
         messageId: message.id,
+        referenceId: reference?.id,
         messageUrl: message.url,
         channelId: message.channel.id,
         authorId: message.author.id,

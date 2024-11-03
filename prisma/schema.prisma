@@ -182,13 +182,14 @@ model Task {
 
 model MessageReport {
   // ID of the log
-  id         String  @id @map("_id")
-  guildId    String
-  messageId  String
-  messageUrl String
-  channelId  String
-  authorId   String
-  content    String?
+  id          String  @id @map("_id")
+  guildId     String
+  messageId   String
+  referenceId String?
+  messageUrl  String
+  channelId   String
+  authorId    String
+  content     String?
 
   reportedAt   BigInt
   reportedBy   String

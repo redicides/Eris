@@ -216,8 +216,8 @@ export class CronUtils {
           continue;
         }
 
-        const primaryEmbed = log.embeds[log.components!.length === 1 ? 0 : 1];
-        const secondaryEmbed = log.embeds[0] ?? null;
+        const primaryEmbed = log.embeds.at(log.components!.length === 1 ? 0 : 1);
+        const secondaryEmbed = log.embeds.at(0);
 
         const embed = new EmbedBuilder(primaryEmbed)
           .setColor(Colors.NotQuiteBlack)
