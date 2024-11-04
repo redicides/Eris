@@ -176,13 +176,14 @@ export default class DatabaseManager {
       return oldContent;
     }
 
-    const [oldMessage, updatedMessage] = await prisma.$transaction([
-      prisma.message.findUnique({ where: { id } }),
-      prisma.message.update({
+    const oldMessage = await prisma.message.findUnique({ where: { id } });
+
+    await prisma.message
+      .update({
         where: { id },
         data: { content: newContent }
       })
-    ]);
+      .catch(() => null);
 
     return oldMessage?.content ?? EMPTY_MESSAGE_CONTENT;
   }
