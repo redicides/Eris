@@ -11,7 +11,9 @@ import {
   InteractionReplyOptions,
   Snowflake,
   SnowflakeUtil,
-  StickerFormatType
+  StickerFormatType,
+  TextBasedChannel,
+  cleanContent as djsCleanContent
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
 
@@ -359,4 +361,20 @@ export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
 
     return fields;
   });
+}
+
+/**
+ * Clean the content of a message for logging.
+ *
+ * @param str The string to clean
+ * @param channel The channel this message was sent in
+ * @returns The cleaned string
+ */
+
+export function cleanContent(str: string, channel: TextBasedChannel): string {
+  // Escape custom emojis
+  str = str.replace(/<(a?):([^:\n\r]+):(\d{17,19})>/g, '<$1\\:$2\\:$3>');
+  // Add IDs to mentions
+  str = str.replace(/<@!?(\d{17,19})>/g, `<@$1> ($1)`);
+  return djsCleanContent(str, channel);
 }

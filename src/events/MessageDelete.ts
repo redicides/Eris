@@ -48,7 +48,7 @@ export default class MessageDelete extends EventListener {
   }
 
   public static async handleNormalLog(message: DiscordMessage<true>, config: GuildConfig): Promise<APIMessage | null> {
-    if (!message.author || message.author.bot || message.webhookId) {
+    if (!message.author || message.author.bot || message.webhookId !== null) {
       return null;
     }
 
@@ -156,7 +156,7 @@ export default class MessageDelete extends EventListener {
     return new WebhookClient({ url: messageLoggingWebhook }).send({ embeds }).catch(() => null);
   }
 
-  private static async buildLogEmbed(
+  public static async buildLogEmbed(
     data: {
       guildId: Snowflake;
       messageId: Snowflake;

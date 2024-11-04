@@ -5,6 +5,7 @@ import { prisma } from '@/index';
 import { GuildConfig } from '@utils/Types';
 
 import Logger, { AnsiColor } from '@utils/Logger';
+import { EMPTY_MESSAGE_CONTENT } from '@/utils/Constants';
 
 export default class DatabaseManager {
   /**
@@ -111,6 +112,13 @@ export default class DatabaseManager {
     return message;
   }
 
+  /**
+   * Marks a group of messages as deleted in the database.
+   *
+   * @param messageCollection The collection of messages to mark as deleted
+   * @returns The updated messages
+   */
+
   public static async bulkDeleteMessageEntries(
     messageCollection: Collection<Snowflake, PartialMessage | DiscordMessage<true>>
   ) {
@@ -148,6 +156,35 @@ export default class DatabaseManager {
     }
 
     return deletedMessages;
+  }
+
+  /**
+   * Update the content of a message in the database.
+   *
+   * @param id The ID of the message to update
+   * @param newContent The new content of the message
+   */
+
+  public static async updateMessageEntry(id: Snowflake, newContent: string) {
+    // Try to get the message from cache
+    const message = DatabaseManager._dbQueue.get(id);
+
+    if (message) {
+      const oldContent = message.content ?? EMPTY_MESSAGE_CONTENT;
+      message.content = newContent;
+
+      return oldContent;
+    }
+
+    const [oldMessage, updatedMessage] = await prisma.$transaction([
+      prisma.message.findUnique({ where: { id } }),
+      prisma.message.update({
+        where: { id },
+        data: { content: newContent }
+      })
+    ]);
+
+    return oldMessage?.content ?? EMPTY_MESSAGE_CONTENT;
   }
 
   /**
