@@ -25,9 +25,9 @@ import { client } from '..';
 import { EMPTY_MESSAGE_CONTENT } from './Constants';
 import { GuildConfig, InteractionReplyData } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
+import { CommandCategory } from '@managers/commands/Command';
 
 import ConfigManager from '@managers/config/ConfigManager';
-import { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
 
 /**
