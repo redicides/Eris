@@ -75,7 +75,8 @@ export default class MessageUpdate extends EventListener {
       channelId: dbMessage.channelId,
       oldContent,
       newContent,
-      messageUrl: discordMessage.url
+      messageUrl: discordMessage.url,
+      attachments: dbMessage.attachments
     });
 
     embeds.push(embed);
@@ -114,7 +115,8 @@ export default class MessageUpdate extends EventListener {
       channelId: message.channel.id,
       oldContent: message.content ?? EMPTY_MESSAGE_CONTENT,
       newContent: message.content,
-      messageUrl: message.url
+      messageUrl: message.url,
+      attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
     });
 
     embeds.push(embed);
@@ -128,11 +130,12 @@ export default class MessageUpdate extends EventListener {
     oldContent: string;
     newContent: string;
     messageUrl: string;
+    attachments?: string[];
   }) {
     const formattedOldContent = await formatMessageContentForShortLog(data.oldContent, null, data.messageUrl);
     const formattedNewContent = await formatMessageContentForShortLog(data.newContent, null, data.messageUrl);
 
-    return new EmbedBuilder()
+    const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
       .setAuthor({ name: 'Message Updated' })
       .setFields([
@@ -154,6 +157,15 @@ export default class MessageUpdate extends EventListener {
         }
       ])
       .setTimestamp();
+
+    if (data.attachments?.length) {
+      embed.addFields({
+        name: 'Attachments',
+        value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
+      });
+    }
+
+    return embed;
   }
 
   private static async _fetchReferenceMessage(dbMessage: Message, discordMessage: DiscordMessage<true>) {
