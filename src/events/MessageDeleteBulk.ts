@@ -50,9 +50,9 @@ export default class MessageDeleteBulk extends EventListener {
     const messages = await DatabaseManager.bulkDeleteMessageEntries(filteredMessages);
 
     if (config.messageLoggingStoreMessages) {
-      return MessageDeleteBulk.handleEnhancedLog(messages, filteredMessages, channelId, config);
+      return MessageDeleteBulk.handleEnhancedLog(messages, filteredMessages, channel.id, config);
     } else {
-      return MessageDeleteBulk.handleNormalLog(filteredMessages, channelId, config);
+      return MessageDeleteBulk.handleNormalLog(filteredMessages, channel.id, config);
     }
   }
 
