@@ -71,9 +71,9 @@ export default class MessageDeleteBulk extends EventListener {
     const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
     const dataUrl = await uploadData(entries.join('\n\n'), 'txt');
 
-    const logContent = `Deleted \`${messages.size}\` ${pluralize(messages.size, 'message')} in ${channelMentionWithId(
+    const logContent = `\`${messages.size}\` ${pluralize(messages.size, 'message')} deleted in ${channelMentionWithId(
       channelId
-    )} by ${authorMentions.join(', ')}.`;
+    )} (${authorMentions.join(', ')}).`;
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
@@ -98,10 +98,10 @@ export default class MessageDeleteBulk extends EventListener {
     const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
     const dataUrl = await uploadData(entries.join('\n\n'), 'txt');
 
-    const logContent = `Deleted \`${messages.length}\` ${pluralize(
+    const logContent = `\`${messages.length}\` ${pluralize(
       messages.length,
       'message'
-    )} in ${channelMentionWithId(channelId)} by ${authorMentions.join(', ')}.`;
+    )} deleted in ${channelMentionWithId(channelId)} (${authorMentions.join(', ')}).`;
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
