@@ -2,21 +2,22 @@ import {
   type PartialMessage,
   type Message as DiscordMessage,
   type APIMessage,
-  type MessageCreateOptions,
   Events,
   Collection,
   Snowflake,
   GuildTextBasedChannel,
-  EmbedBuilder,
-  Colors,
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-  WebhookClient
+  WebhookClient,
+  userMention,
+  StickerFormatType,
+  AttachmentBuilder
 } from 'discord.js';
 import { type Message } from '@prisma/client';
 
-import { channelMentionWithId, uploadData, userMentionWithId } from '@utils/index';
+import { channelMentionWithId, pluralize, uploadData } from '@utils/index';
+import { EMPTY_MESSAGE_CONTENT, LOG_ENTRY_DATE_FORMAT } from '@utils/Constants';
 import { GuildConfig } from '@utils/Types';
 import { client } from '..';
 
@@ -43,10 +44,9 @@ export default class MessageDeleteBulk extends EventListener {
       return;
     }
 
-    const filteredMessages = deletedMessages.filter(message => message.author !== null) as Collection<
-      Snowflake,
-      DiscordMessage<true>
-    >;
+    const filteredMessages = deletedMessages.filter(
+      message => message.author !== null && !message.author.bot && message.webhookId === null
+    ) as Collection<Snowflake, DiscordMessage<true>>;
     const messages = await DatabaseManager.bulkDeleteMessageEntries(filteredMessages);
 
     if (config.messageLoggingStoreMessages) {
@@ -66,11 +66,20 @@ export default class MessageDeleteBulk extends EventListener {
     }
 
     const { messageLoggingWebhook } = config;
+    const { entries, authorMentions } = await MessageDeleteBulk._getDiscordEntries(messages);
 
-    const embed = this._buildLogEmbed({ channelId });
-    const options = await this._parseDiscordMessages(messages, embed);
+    const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
+    const dataUrl = await uploadData(entries.join('\n\n'), 'txt');
 
-    return new WebhookClient({ url: messageLoggingWebhook! }).send(options).catch(() => null);
+    const logContent = `Deleted \`${messages.size}\` ${pluralize(messages.size, 'message')} in ${channelMentionWithId(
+      channelId
+    )} by ${authorMentions.join(', ')}.`;
+    const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
+    const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
+
+    return new WebhookClient({ url: messageLoggingWebhook! })
+      .send({ content: logContent, files: [file], components: [components], allowedMentions: { parse: [] } })
+      .catch(() => null);
   }
 
   public static async handleEnhancedLog(
@@ -84,87 +93,175 @@ export default class MessageDeleteBulk extends EventListener {
     }
 
     const { messageLoggingWebhook } = config;
+    const { entries, authorMentions } = await MessageDeleteBulk._getDatabaseEntries(messages, discordMessages);
 
-    const embed = this._buildLogEmbed({ channelId });
-    const options = await this._parseDatabaseMessages(messages, embed);
+    const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
+    const dataUrl = await uploadData(entries.join('\n\n'), 'txt');
 
-    return new WebhookClient({ url: messageLoggingWebhook! }).send(options).catch(() => null);
-  }
+    const logContent = `Deleted \`${messages.length}\` ${pluralize(
+      messages.length,
+      'message'
+    )} in ${channelMentionWithId(channelId)} by ${authorMentions.join(', ')}.`;
+    const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
+    const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
-  private static _buildLogEmbed(data: { channelId: Snowflake }): EmbedBuilder {
-    return new EmbedBuilder()
-      .setColor(Colors.DarkRed)
-      .setAuthor({ name: 'Messages Bulk Deleted' })
-      .setFields([
-        {
-          name: 'Source Channel',
-          value: channelMentionWithId(data.channelId)
+    return new WebhookClient({ url: messageLoggingWebhook! })
+      .send({
+        content: logContent,
+        files: [file],
+        components: [components],
+        allowedMentions: {
+          parse: []
         }
-      ])
-      .setTimestamp();
+      })
+      .catch(() => null);
   }
 
-  private static async _parseDiscordMessages(
-    messages: Collection<Snowflake, DiscordMessage<true>>,
-    embed: EmbedBuilder
-  ): Promise<MessageCreateOptions> {
-    const messagesArray = [...messages.values()];
-    const firstMsg = messagesArray.at(-1)!;
+  private static async _getDiscordEntries(messages: Collection<Snowflake, DiscordMessage<true>>) {
+    const authorMentions: ReturnType<typeof userMention>[] = [];
+    const entries: { entry: string; createdAt: bigint | number }[] = [];
 
-    let prevUser = firstMsg.author.id;
-    let logContent = `Sent by @${firstMsg.author.username} (${firstMsg.author.id}):\n- ${firstMsg.content}`;
+    for (const message of messages.values()) {
+      const authorMention = userMention(message.author.id);
+      const entry = await MessageDeleteBulk._formatBulkMessageLogEntry({
+        authorId: message.author.id,
+        createdAt: message.createdTimestamp,
+        stickerId: null,
+        messageContent: message.content
+      });
+      const subEntries = [entry];
 
-    for (let i = messagesArray.length - 2; i >= 0; i--) {
-      const message = messagesArray[i];
-
-      if (prevUser === message.author.id) logContent += `\n- ${message.content}`;
-      else logContent += `\n\nSent by @${message.author.username} (${message.author.id}):\n- ${message.content}`;
-
-      prevUser = message.author.id;
-    }
-
-    const dataUrl = await uploadData(logContent, 'txt');
-
-    const urlButton = new ButtonBuilder().setLabel('View Log Data').setStyle(ButtonStyle.Link).setURL(dataUrl);
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
-
-    const authors = [...new Set(messages.map(message => userMentionWithId(message.author.id)))].join(', ');
-
-    return {
-      embeds: [embed.addFields({ name: 'Message Authors', value: authors })],
-      components: [actionRow]
-    };
-  }
-
-  private static async _parseDatabaseMessages(messages: Message[], embed: EmbedBuilder): Promise<MessageCreateOptions> {
-    const firstMsg = messages.at(-1)!;
-    const user = await client.users.fetch(firstMsg.authorId).catch(() => ({ username: 'unknown.user' }));
-
-    let prevUser = firstMsg.authorId;
-    let logContent = `Sent by @${user.username} (${firstMsg.authorId}):\n- ${firstMsg.content}`;
-
-    for (let i = messages.length - 2; i >= 0; i--) {
-      const message = messages[i];
-
-      if (prevUser === message.authorId) logContent += `\n- ${message.content}`;
-      else {
-        const author = await client.users.fetch(message.authorId).catch(() => ({ username: 'unknown.user' }));
-        logContent += `\n\nSent by @${author.username} (${message.authorId}):\n- ${message.content}`;
+      if (!authorMentions.includes(authorMention)) {
+        authorMentions.push(authorMention);
       }
 
-      prevUser = message.authorId;
+      if (message.reference) {
+        const reference = message.reference && (await message.fetchReference().catch(() => null));
+
+        if (reference) {
+          const referenceEntry = await MessageDeleteBulk._formatBulkMessageLogEntry({
+            authorId: reference.author.id,
+            createdAt: reference.createdTimestamp,
+            stickerId: null,
+            messageContent: reference.content
+          });
+
+          subEntries.unshift(`REF: ${referenceEntry}`);
+        }
+      }
+
+      entries.push({
+        entry: subEntries.join('\n └── '),
+        createdAt: message.createdTimestamp
+      });
     }
 
-    const dataUrl = await uploadData(logContent, 'txt');
+    // Sort entries by creation date (newest to oldest)
+    entries.sort((a, b) => {
+      return new Date(Number(b.createdAt)).getTime() - new Date(Number(a.createdAt)).getTime();
+    });
 
-    const urlButton = new ButtonBuilder().setLabel('View Log Data').setStyle(ButtonStyle.Link).setURL(dataUrl);
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
+    const mappedEntries = entries.map(({ entry }) => entry);
 
-    const authors = [...new Set(messages.map(message => userMentionWithId(message.authorId)))].join(', ');
+    return { entries: mappedEntries, authorMentions };
+  }
 
-    return {
-      embeds: [embed.addFields({ name: 'Message Authors', value: authors })],
-      components: [actionRow]
-    };
+  private static async _getDatabaseEntries(
+    messages: Message[],
+    discordMessages: Collection<Snowflake, DiscordMessage<true>>
+  ) {
+    const authorMentions: ReturnType<typeof userMention>[] = [];
+    const entries: { entry: string; createdAt: bigint | number }[] = [];
+
+    for (const message of messages.values()) {
+      const authorMention = userMention(message.authorId);
+      const entry = await MessageDeleteBulk._formatBulkMessageLogEntry({
+        authorId: message.authorId,
+        createdAt: message.createdAt,
+        stickerId: null,
+        messageContent: message.content
+      });
+      const subEntries = [entry];
+
+      if (!authorMentions.includes(authorMention)) {
+        authorMentions.push(authorMention);
+      }
+
+      if (message.referenceId) {
+        const reference = await DatabaseManager.getMessageEntry(message.referenceId).catch(() => null);
+
+        if (reference) {
+          const referenceEntry = await MessageDeleteBulk._formatBulkMessageLogEntry({
+            authorId: reference.authorId,
+            createdAt: reference.createdAt,
+            stickerId: null,
+            messageContent: reference.content
+          });
+
+          subEntries.unshift(`REF: ${referenceEntry}`);
+        } else {
+          let discordReference = discordMessages.get(message.referenceId);
+
+          if (discordReference) {
+            const referenceEntry = await MessageDeleteBulk._formatBulkMessageLogEntry({
+              authorId: discordReference.author.id,
+              createdAt: discordReference.createdTimestamp,
+              stickerId: null,
+              messageContent: discordReference.content
+            });
+
+            subEntries.unshift(`REF: ${referenceEntry}`);
+          }
+        }
+      }
+
+      entries.push({
+        entry: subEntries.join('\n └── '),
+        createdAt: message.createdAt
+      });
+    }
+
+    // Sort entries by creation date (newest to oldest)
+    entries.sort((a, b) => {
+      return new Date(Number(b.createdAt)).getTime() - new Date(Number(a.createdAt)).getTime();
+    });
+
+    const mappedEntries = entries.map(({ entry }) => entry);
+
+    return { entries: mappedEntries, authorMentions };
+  }
+
+  public static async _formatBulkMessageLogEntry(data: {
+    createdAt: bigint | number;
+    stickerId: Snowflake | null;
+    authorId: Snowflake;
+    messageContent: string | null;
+  }) {
+    const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
+    const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
+
+    let content: string | undefined;
+
+    if (data.stickerId) {
+      const sticker = await client.fetchSticker(data.stickerId).catch(() => null);
+
+      if (sticker && sticker.format === StickerFormatType.Lottie) {
+        content = `Lottie Sticker "${sticker.name}": ${data.stickerId}`;
+      } else if (sticker) {
+        content = `Sticker "${sticker.name}": ${sticker.url}`;
+      }
+
+      if (data.messageContent && content) {
+        content = ` | Message Content: ${data.messageContent}`;
+      }
+    }
+
+    content ??= data.messageContent ?? EMPTY_MESSAGE_CONTENT;
+    return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
+  }
+
+  private static mapLogEntriesToFile(entries: string[]): AttachmentBuilder {
+    const buffer = Buffer.from(entries.join('\n\n'), 'utf-8');
+    return new AttachmentBuilder(buffer, { name: 'log-data.txt' });
   }
 }
