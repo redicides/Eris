@@ -21,7 +21,7 @@ import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ComponentManager from '@managers/components/ComponentManager';
-import DatabaseManager from './managers/database/DatabaseManager';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 /**
  * The main client instance.
@@ -126,6 +126,13 @@ async function main() {
   });
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
+
+  /**
+   * Initialize the prisma memory cache middleware.
+   * It technically is deprecated but it works for now.
+   *
+   * Query results are cached for 60 seconds.
+   */
 
   prisma.$use(
     createPrismaRedisCache({

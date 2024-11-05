@@ -40,6 +40,17 @@ export default class MessageDelete extends EventListener {
       config
     });
 
+    if (!config.messageLoggingEnabled || config.messageLoggingWebhook) {
+      return;
+    }
+
+    const channelId =
+      deletedMessage.channel.id ?? deletedMessage.channel.parent?.id ?? deletedMessage.channel.parent?.parentId;
+
+    if (config.messageLoggingIgnoredChannels.includes(channelId)) {
+      return;
+    }
+
     if (config.messageLoggingStoreMessages) {
       return MessageDelete.handleEnhancedLog(deletedMessage, config);
     }
@@ -52,12 +63,7 @@ export default class MessageDelete extends EventListener {
       return null;
     }
 
-    const { messageLoggingEnabled, messageLoggingWebhook, messageLoggingIgnoredChannels } = config;
-    const channelId = message.channel.id ?? message.channel.parent?.id ?? message.channel.parent?.parentId;
-
-    if (!messageLoggingEnabled || !messageLoggingWebhook || messageLoggingIgnoredChannels.includes(channelId)) {
-      return null;
-    }
+    const { messageLoggingWebhook } = config;
 
     const stickerId = message.stickers?.first()?.id ?? null;
     const reference = message.reference && (await message.fetchReference().catch(() => null));
@@ -99,7 +105,7 @@ export default class MessageDelete extends EventListener {
     }
 
     embeds.push(embed);
-    return new WebhookClient({ url: messageLoggingWebhook }).send({ embeds }).catch(() => null);
+    return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
   }
 
   public static async handleEnhancedLog(deletedMessage: DiscordMessage<true>, config: GuildConfig) {
@@ -109,12 +115,7 @@ export default class MessageDelete extends EventListener {
       return MessageDelete.handleNormalLog(deletedMessage, config);
     }
 
-    const { messageLoggingEnabled, messageLoggingWebhook, messageLoggingIgnoredChannels } = config;
-    const channelId = message.channelId ?? message.channelParentId ?? message.channelParentParentId;
-
-    if (!messageLoggingEnabled || !messageLoggingWebhook || messageLoggingIgnoredChannels.includes(channelId)) {
-      return null;
-    }
+    const { messageLoggingWebhook } = config;
 
     const reference = message.referenceId && (await DatabaseManager.getMessageEntry(message.referenceId));
     let embeds: EmbedBuilder[] = [];
@@ -153,7 +154,7 @@ export default class MessageDelete extends EventListener {
 
     embeds.push(embed);
 
-    return new WebhookClient({ url: messageLoggingWebhook }).send({ embeds }).catch(() => null);
+    return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
   }
 
   public static async buildLogEmbed(

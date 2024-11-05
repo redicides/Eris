@@ -39,9 +39,9 @@ export default class MessageUpdate extends EventListener {
     if (config.messageLoggingIgnoredChannels.includes(channelId)) return;
 
     const newContent = cleanContent(message.content, message.channel);
+    const oldContent = await DatabaseManager.updateMessageEntry(message.id, newContent);
 
     if (config.messageLoggingStoreMessages) {
-      const oldContent = await DatabaseManager.updateMessageEntry(message.id, newContent);
       const dbMessage = await DatabaseManager.getMessageEntry(message.id);
 
       if (dbMessage) {
