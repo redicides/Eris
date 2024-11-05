@@ -73,7 +73,7 @@ export default class MessageDeleteBulk extends EventListener {
 
     const logContent = `\`${messages.size}\` ${pluralize(messages.size, 'message')} deleted in ${channelMentionWithId(
       channelId
-    )} (${authorMentions.join(', ')}).`;
+    )} - ${authorMentions.join(', ')}.`;
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
@@ -101,7 +101,7 @@ export default class MessageDeleteBulk extends EventListener {
     const logContent = `\`${messages.length}\` ${pluralize(
       messages.length,
       'message'
-    )} deleted in ${channelMentionWithId(channelId)} (${authorMentions.join(', ')}).`;
+    )} deleted in ${channelMentionWithId(channelId)} - ${authorMentions.join(', ')}.`;
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
