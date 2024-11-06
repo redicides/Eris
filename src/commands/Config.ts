@@ -11,7 +11,8 @@ import {
   Colors,
   ButtonBuilder,
   ButtonStyle,
-  ActionRowBuilder
+  ActionRowBuilder,
+  AttachmentBuilder
 } from 'discord.js';
 import { PermissionEnum, Prisma } from '@prisma/client';
 
@@ -468,6 +469,20 @@ export default class Config extends Command {
                 name: ConfigSubcommand.StoreCachedMessages,
                 description: 'Toggle storing of cached messages for message logging.',
                 type: ApplicationCommandOptionType.Subcommand
+              },
+              {
+                name: ConfigSubcommand.ListIgnoredChannels,
+                description: 'List all the ignored channels for a specific log type.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'log-type',
+                    description: 'The log type to list the ignored channels for.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
+                  }
+                ]
               }
             ]
           },
@@ -831,6 +846,8 @@ export default class Config extends Command {
             return Config.logging.removeIgnoredChannel(interaction);
           case ConfigSubcommand.StoreCachedMessages:
             return Config.logging.storeCachedMessages(interaction, config);
+          case ConfigSubcommand.ListIgnoredChannels:
+            return Config.logging.listIgnoredChannels(interaction);
         }
       }
 
@@ -1461,7 +1478,10 @@ export default class Config extends Command {
   };
 
   private static logging = {
-    async toggleLogging(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+    async toggleLogging(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('log-type', true) as keyof typeof config;
 
       let toggle = true;
@@ -1480,7 +1500,10 @@ export default class Config extends Command {
       };
     },
 
-    async setChannel(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+    async setChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
       const channel = interaction.options.getChannel('channel', true) as TextChannel;
       const type = interaction.options.getString('log-type', true) as keyof typeof config;
 
@@ -1551,7 +1574,7 @@ export default class Config extends Command {
       };
     },
 
-    async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>) {
+    async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
         select: { messageLoggingIgnoredChannels: true }
@@ -1581,7 +1604,7 @@ export default class Config extends Command {
       };
     },
 
-    async removeIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>) {
+    async removeIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
         select: { messageLoggingIgnoredChannels: true }
@@ -1611,7 +1634,10 @@ export default class Config extends Command {
       };
     },
 
-    async storeCachedMessages(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+    async storeCachedMessages(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
       let toggle = true;
 
       if (config.messageLoggingStoreMessages === true) {
@@ -1625,6 +1651,52 @@ export default class Config extends Command {
 
       return {
         content: `Message storing for cached messages has been ${toggle ? 'enabled' : 'disabled'}.`
+      };
+    },
+
+    async listIgnoredChannels(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+      const config = (await prisma.guild.findUnique({
+        where: { id: interaction.guildId },
+        select: { messageLoggingIgnoredChannels: true }
+      }))!;
+
+      const type = interaction.options.getString('log-type', true) as keyof typeof config;
+
+      if (!config[type].length) {
+        return {
+          content: `There are currently no ignored for the specified log type.`,
+          temporary: true
+        };
+      }
+
+      const channels = await Promise.all(
+        config[type].map(async id => {
+          const channel = (await interaction.guild.channels
+            .fetch(id)
+            .catch(() => null)) as GuildTextBasedChannel | null;
+          return { channel: channel, channelId: id, isCategory: channel ? isCategory(channel) : false };
+        })
+      );
+
+      const map = channels
+        .map(channels => {
+          return channels.channel
+            ? `- ${channels.isCategory ? 'Category' : 'Channel'} "#${channels.channel.name}" (${channels.channelId})`
+            : `- Unknown channel "<#${channels.channelId}>"`;
+        })
+        .join('\n');
+
+      const dataUrl = await uploadData(map, 'txt');
+      const buffer = Buffer.from(map, 'utf-8');
+      const attachment = new AttachmentBuilder(buffer, { name: 'ignored-channels.txt' });
+
+      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open in Browser').setURL(dataUrl);
+      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
+
+      return {
+        content: `There are currently **${config[type].length}** ignored channels for the specified log type.`,
+        files: [attachment],
+        components: [actionRow]
       };
     }
   };
@@ -1861,16 +1933,14 @@ export default class Config extends Command {
         };
       }
 
-      commandName = command.data.name;
-
-      if (config.ephemeralScopes.some(scope => scope.commandName === commandName)) {
+      if (config.ephemeralScopes.find(scope => scope.commandName === command.data.name)) {
         return {
-          error: `An ephemeral scope for the command \`${commandName}\` already exists.`,
+          error: `An ephemeral scope for the command \`${command.data.name}\` already exists.`,
           temporary: true
         };
       }
 
-      if (excludeChannel?.id === includeChannel?.id) {
+      if (excludeChannel && includeChannel && excludeChannel.id === includeChannel.id) {
         return {
           error: 'The channel to exclude must be different from the channel to include.',
           temporary: true
@@ -2113,12 +2183,6 @@ export default class Config extends Command {
         };
       }
 
-      const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Ephemeral Scopes', iconURL: interaction.guild!.iconURL() ?? undefined })
-        .setColor(Colors.NotQuiteBlack)
-        .setDescription('Click on the button below to view the list of ephemeral scopes.')
-        .setTimestamp();
-
       const map = await Promise.all(
         config.ephemeralScopes.map(async scope => {
           const includedChannels = await Promise.all(
@@ -2135,18 +2199,22 @@ export default class Config extends Command {
             })
           );
 
-          return `- Command: ${scope.commandName}\n- Included channels: ${includedChannels.join(
+          return `Command: ${scope.commandName}\n└── Included channels: ${includedChannels.join(
             ', '
-          )}\n- Excluded channels: ${excludedChannels.join(', ')}`;
+          )}\n└── Excluded channels: ${excludedChannels.join(', ')}`;
         })
       );
 
       const dataUrl = await uploadData(map.join('\n\n'), 'txt');
-      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('View List').setURL(dataUrl);
+      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open In Browser').setURL(dataUrl);
       const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
 
+      const buffer = Buffer.from(map.join('\n\n'), 'utf-8');
+      const attachment = new AttachmentBuilder(buffer, { name: 'ephemeral-scopes.txt' });
+
       return {
-        embeds: [embed],
+        content: `There are currently **${config.ephemeralScopes.length}** ephemeral scopes configured in this server.`,
+        files: [attachment],
         components: [actionRow]
       };
     },
@@ -2210,7 +2278,8 @@ enum ConfigSubcommand {
   List = 'list-scopes',
   AddIgnoredChannel = 'add-ignored-channel',
   RemoveIgnoredChannel = 'remove-ignored-channel',
-  StoreCachedMessages = 'store-cached-messages'
+  StoreCachedMessages = 'store-cached-messages',
+  ListIgnoredChannels = 'list-ignored-channels'
 }
 
 const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;
