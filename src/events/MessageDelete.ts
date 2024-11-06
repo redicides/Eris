@@ -47,7 +47,7 @@ export default class MessageDelete extends EventListener {
     const channelId =
       deletedMessage.channel.id || deletedMessage.channel.parent?.id || deletedMessage.channel.parent?.parentId;
 
-    if (config.messageLoggingIgnoredChannels.includes(channelId)) {
+    if (channelId && config.messageLoggingIgnoredChannels.includes(channelId)) {
       return;
     }
 

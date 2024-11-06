@@ -36,7 +36,7 @@ export default class MessageUpdate extends EventListener {
     const config = await DatabaseManager.getGuildEntry(message.guild.id);
     const channelId = message.channel.id || message.channel.parent?.id || message.channel.parent?.parentId;
 
-    if (config.messageLoggingIgnoredChannels.includes(channelId)) return;
+    if (channelId && config.messageLoggingIgnoredChannels.includes(channelId)) return;
 
     const newContent = cleanContent(message.content, message.channel);
     const oldContent = await DatabaseManager.updateMessageEntry(message.id, newContent);

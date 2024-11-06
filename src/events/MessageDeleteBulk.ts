@@ -40,7 +40,7 @@ export default class MessageDeleteBulk extends EventListener {
       return;
     }
 
-    if (config.messageLoggingIgnoredChannels.includes(channelId)) {
+    if (channelId && config.messageLoggingIgnoredChannels.includes(channelId)) {
       return;
     }
 
