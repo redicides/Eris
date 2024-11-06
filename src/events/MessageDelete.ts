@@ -40,12 +40,12 @@ export default class MessageDelete extends EventListener {
       config
     });
 
-    if (!config.messageLoggingEnabled || config.messageLoggingWebhook) {
+    if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) {
       return;
     }
 
     const channelId =
-      deletedMessage.channel.id ?? deletedMessage.channel.parent?.id ?? deletedMessage.channel.parent?.parentId;
+      deletedMessage.channel.id || deletedMessage.channel.parent?.id || deletedMessage.channel.parent?.parentId;
 
     if (config.messageLoggingIgnoredChannels.includes(channelId)) {
       return;
