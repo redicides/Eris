@@ -34,7 +34,7 @@ export default class MessageUpdate extends EventListener {
     if (!message || message.author.bot || message.webhookId !== null || !message.content) return;
 
     const config = await DatabaseManager.getGuildEntry(message.guild.id);
-    const channelId = message.channel.id ?? message.channel.parent?.id ?? message.channel.parent?.parentId;
+    const channelId = message.channel.id || message.channel.parent?.id || message.channel.parent?.parentId;
 
     if (config.messageLoggingIgnoredChannels.includes(channelId)) return;
 
