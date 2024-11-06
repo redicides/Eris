@@ -34,7 +34,7 @@ export default class MessageDeleteBulk extends EventListener {
     channel: GuildTextBasedChannel
   ) {
     const config = await DatabaseManager.getGuildEntry(channel.guild.id);
-    const channelId = channel.id ?? channel.parent?.id ?? channel.parent?.parentId;
+    const channelId = channel.id || channel.parent?.id || channel.parent?.parentId;
 
     if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) {
       return;
