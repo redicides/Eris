@@ -16,7 +16,7 @@ import {
 } from 'discord.js';
 import { type Message } from '@prisma/client';
 
-import { channelMentionWithId, pluralize, uploadData } from '@utils/index';
+import { channelMentionWithId, extractChannelIds, pluralize, uploadData } from '@utils/index';
 import { EMPTY_MESSAGE_CONTENT, LOG_ENTRY_DATE_FORMAT } from '@utils/Constants';
 import { GuildConfig } from '@utils/Types';
 import { client } from '..';
@@ -34,13 +34,13 @@ export default class MessageDeleteBulk extends EventListener {
     channel: GuildTextBasedChannel
   ) {
     const config = await DatabaseManager.getGuildEntry(channel.guild.id);
-    const channelId = channel.id || channel.parent?.id || channel.parent?.parentId;
+    const channelIds = extractChannelIds(channel);
 
     if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) {
       return;
     }
 
-    if (channelId && config.messageLoggingIgnoredChannels.includes(channelId)) {
+    if (channelIds.some(id => config.messageLoggingIgnoredChannels.includes(id))) {
       return;
     }
 
@@ -70,10 +70,15 @@ export default class MessageDeleteBulk extends EventListener {
 
     const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
     const dataUrl = await uploadData(entries.join('\n\n'), 'txt');
+    const formattedMentions =
+      authorMentions.length > 1
+        ? authorMentions.slice(0, -1).join(', ') + ', and ' + authorMentions[authorMentions.length - 1]
+        : authorMentions[0] || '';
 
-    const logContent = `\`${messages.size}\` ${pluralize(messages.size, 'message')} deleted in ${channelMentionWithId(
-      channelId
-    )} - ${authorMentions.join(', ')}.`;
+    const logContent = `\`${messages.size}\` ${pluralize(
+      messages.size,
+      'message'
+    )} sent by ${formattedMentions} deleted in ${channelMentionWithId(channelId)}.`;
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
@@ -97,11 +102,16 @@ export default class MessageDeleteBulk extends EventListener {
 
     const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
     const dataUrl = await uploadData(entries.join('\n\n'), 'txt');
+    const formattedMentions =
+      authorMentions.length > 1
+        ? authorMentions.slice(0, -1).join(', ') + ', and ' + authorMentions[authorMentions.length - 1]
+        : authorMentions[0] || '';
 
     const logContent = `\`${messages.length}\` ${pluralize(
       messages.length,
       'message'
-    )} deleted in ${channelMentionWithId(channelId)} - ${authorMentions.join(', ')}.`;
+    )} sent by ${formattedMentions} deleted in ${channelMentionWithId(channelId)}.`;
+
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 

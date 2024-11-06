@@ -5,12 +5,13 @@ import {
   EmbedBuilder,
   Colors,
   Snowflake,
-  WebhookClient
+  WebhookClient,
+  channelMention
 } from 'discord.js';
 
 import { Message } from '@prisma/client';
 
-import { channelMentionWithId, cleanContent, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
+import { cleanContent, extractChannelIds, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 import { EMPTY_MESSAGE_CONTENT } from '@utils/Constants';
 
@@ -23,7 +24,7 @@ export default class MessageUpdate extends EventListener {
     super(Events.MessageUpdate);
   }
 
-  async execute(_oldMessage: DiscordMessage, _newMessage: PartialMessage | DiscordMessage) {
+  async execute(_oldMessage: PartialMessage | DiscordMessage, _newMessage: PartialMessage | DiscordMessage) {
     if (!_newMessage.inGuild()) return;
 
     const message = _newMessage.partial
@@ -34,9 +35,11 @@ export default class MessageUpdate extends EventListener {
     if (!message || message.author.bot || message.webhookId !== null || !message.content) return;
 
     const config = await DatabaseManager.getGuildEntry(message.guild.id);
-    const channelId = message.channel.id || message.channel.parent?.id || message.channel.parent?.parentId;
+    const channelIds = extractChannelIds(message.channel);
 
-    if (channelId && config.messageLoggingIgnoredChannels.includes(channelId)) return;
+    if (channelIds.some(id => config.messageLoggingIgnoredChannels.includes(id))) {
+      return;
+    }
 
     const newContent = cleanContent(message.content, message.channel);
     const oldContent = await DatabaseManager.updateMessageEntry(message.id, newContent);
@@ -47,10 +50,10 @@ export default class MessageUpdate extends EventListener {
       if (dbMessage) {
         return MessageUpdate.handleEnhancedLog(dbMessage, message, oldContent, newContent, config);
       } else {
-        return MessageUpdate.handleNormalLog(message, config);
+        return MessageUpdate.handleNormalLog(message, _oldMessage, config);
       }
     } else {
-      return MessageUpdate.handleNormalLog(message, config);
+      return MessageUpdate.handleNormalLog(message, _oldMessage, config);
     }
   }
 
@@ -88,7 +91,11 @@ export default class MessageUpdate extends EventListener {
     return new WebhookClient({ url: config.messageLoggingWebhook }).send({ embeds }).catch(() => null);
   }
 
-  public static async handleNormalLog(message: DiscordMessage<true>, config: GuildConfig) {
+  public static async handleNormalLog(
+    message: DiscordMessage<true>,
+    oldMessage: PartialMessage | DiscordMessage,
+    config: GuildConfig
+  ) {
     if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) return;
 
     const embeds: EmbedBuilder[] = [];
@@ -117,7 +124,7 @@ export default class MessageUpdate extends EventListener {
     const embed = await MessageUpdate._buildLogEmbed({
       authorId: message.author.id,
       channelId: message.channel.id,
-      oldContent: message.content ?? EMPTY_MESSAGE_CONTENT,
+      oldContent: oldMessage.content ?? EMPTY_MESSAGE_CONTENT,
       newContent: message.content,
       messageUrl: message.url,
       attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
@@ -137,7 +144,7 @@ export default class MessageUpdate extends EventListener {
     attachments?: string[];
   }) {
     const formattedOldContent = await formatMessageContentForShortLog(data.oldContent, null, data.messageUrl);
-    const formattedNewContent = await formatMessageContentForShortLog(data.newContent, null, data.messageUrl);
+    const formattedNewContent = await formatMessageContentForShortLog(data.newContent, null, data.messageUrl, false);
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -148,8 +155,8 @@ export default class MessageUpdate extends EventListener {
           value: userMentionWithId(data.authorId)
         },
         {
-          name: 'Source Channel',
-          value: channelMentionWithId(data.channelId)
+          name: 'Channel',
+          value: channelMention(data.channelId)
         },
         {
           name: 'Content (Before)',

@@ -13,7 +13,8 @@ import {
   SnowflakeUtil,
   StickerFormatType,
   TextBasedChannel,
-  cleanContent as djsCleanContent
+  cleanContent as djsCleanContent,
+  GuildTextBasedChannel
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
 
@@ -202,9 +203,10 @@ export function cropLines(str: string, maxLines: number): string {
 export async function formatMessageContentForShortLog(
   content: string | null,
   stickerId: string | null,
-  url: string | null
+  url: string | null,
+  includeUrl: boolean = true
 ): Promise<string> {
-  let rawContent = url ? hyperlink('Jump to message', url) : '';
+  let rawContent = url && includeUrl ? hyperlink('Jump to message', url) : '';
 
   if (stickerId) {
     const sticker = await client.fetchSticker(stickerId);
@@ -318,18 +320,17 @@ export function generateSnowflakeId(): string {
  * @returns Whether the reply should be ephemeral (boolean)
  */
 
-export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }) {
+export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }): boolean {
   const { interaction, config } = data;
   const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
 
   if (!scope || !interaction.channel) return config.commandEphemeralReply;
 
-  const channelId = interaction.channel.id ?? interaction.channel.parent?.id ?? interaction.channel.parent?.parentId;
+  const channelIds = extractChannelIds(interaction.channel);
 
-  if (scope.excludedChannels.includes(channelId)) return false;
-  if (scope.includedChannels.includes(channelId)) return true;
-
-  return true;
+  return channelIds.some(id => scope.excludedChannels.includes(id))
+    ? true
+    : channelIds.some(id => scope.includedChannels.includes(id));
 }
 
 /**
@@ -377,4 +378,30 @@ export function cleanContent(str: string, channel: TextBasedChannel): string {
   // Add IDs to mentions
   str = str.replace(/<@!?(\d{17,19})>/g, `<@$1> ($1)`);
   return djsCleanContent(str, channel);
+}
+
+/**
+ * Get all possible IDs from a channel.
+ *
+ * @param channel The channel to extract IDs from
+ * @returns The extracted IDs
+ */
+
+export function extractChannelIds(channel: GuildTextBasedChannel) {
+  const ids: string[] = [channel.id];
+
+  if (channel.isThread()) {
+    // Add thread's parent channel ID
+    ids.push(channel.parent!.id);
+
+    // If thread's parent channel is in a category, add category ID
+    if (channel.parent?.parent) {
+      ids.push(channel.parent.parent.id);
+    }
+  } else if (channel.parent) {
+    // Not a thread but in a category
+    ids.push(channel.parent.id);
+  }
+
+  return ids;
 }

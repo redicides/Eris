@@ -7,12 +7,13 @@ import {
   messageLink,
   WebhookClient,
   APIMessage,
-  Snowflake
+  Snowflake,
+  channelMention
 } from 'discord.js';
 
 import { GuildConfig } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
-import { channelMentionWithId, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
+import { extractChannelIds, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
@@ -27,6 +28,7 @@ export default class MessageDelete extends EventListener {
     if (deletedMessage.partial) await deletedMessage.fetch().catch(() => null);
 
     const config = await DatabaseManager.getGuildEntry(deletedMessage.guild.id);
+    const channelIds = extractChannelIds(deletedMessage.channel);
 
     await ReportUtils.updateMessageReportState({
       guild: deletedMessage.guild,
@@ -44,10 +46,7 @@ export default class MessageDelete extends EventListener {
       return;
     }
 
-    const channelId =
-      deletedMessage.channel.id || deletedMessage.channel.parent?.id || deletedMessage.channel.parent?.parentId;
-
-    if (channelId && config.messageLoggingIgnoredChannels.includes(channelId)) {
+    if (channelIds.some(id => config.messageLoggingIgnoredChannels.includes(id))) {
       return;
     }
 
@@ -177,12 +176,12 @@ export default class MessageDelete extends EventListener {
       .setAuthor({ name: reference ? 'Message Reference' : 'Message Deleted' })
       .setFields([
         {
-          name: reference ? 'Reference Author' : 'Message Author',
+          name: 'Author',
           value: userMentionWithId(data.authorId)
         },
         {
-          name: 'Source Channel',
-          value: channelMentionWithId(data.channelId)
+          name: 'Channel',
+          value: channelMention(data.channelId)
         },
         {
           name: reference ? 'Reference Content' : 'Message Content',
