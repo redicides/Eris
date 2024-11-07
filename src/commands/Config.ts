@@ -1952,7 +1952,7 @@ export default class Config extends Command {
         data: {
           ephemeralScopes: {
             push: {
-              commandName,
+              commandName: command.data.name,
               includedChannels: includeChannel ? [includeChannel.id] : [],
               excludedChannels: excludeChannel ? [excludeChannel.id] : []
             }
@@ -1961,7 +1961,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `Successfully created the ephemeral scope for the command \`${commandName}\`.`
+        content: `Successfully created the ephemeral scope for the command \`${command.data.name}\`.`
       };
     },
 
