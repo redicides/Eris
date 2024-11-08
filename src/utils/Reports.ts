@@ -595,22 +595,30 @@ export class ReportUtils {
    * @returns
    */
 
-  public static async updateMessageReportState(data: { guild: Guild; messageId: Snowflake; config: GuildConfig }) {
+  public static async updateMessageReportStates(data: { guild: Guild; messageId: Snowflake; config: GuildConfig }) {
     const { guild, messageId, config } = data;
 
-    // Early return if reports are disabled or webhook is missing
-    if (!config.messageReportsEnabled || !config.messageReportsWebhook) return;
+    // Early return if webhook is missing
+    if (!config.messageReportsWebhook) return;
 
     // Get all pending reports for this message
-    const pendingReports = await prisma.messageReport.findMany({
-      where: {
-        messageId,
-        guildId: guild.id,
-        status: 'Pending'
-      }
-    });
+    const [pendingReports, references] = await prisma.$transaction([
+      prisma.messageReport.findMany({
+        where: {
+          messageId,
+          guildId: guild.id,
+          status: 'Pending'
+        }
+      }),
 
-    if (!pendingReports.length) return;
+      prisma.messageReport.findMany({
+        where: {
+          referenceId: messageId,
+          guildId: guild.id,
+          status: 'Pending'
+        }
+      })
+    ]);
 
     const webhook = new WebhookClient({ url: config.messageReportsWebhook });
 
@@ -646,42 +654,9 @@ export class ReportUtils {
       // Send updated message
       await webhook.editMessage(report.id, messageUpdate).catch(() => null);
     }
-  }
 
-  /**
-   * Update the state of a message report reference.
-   *
-   * @param data.guild The guild
-   * @param data.referenceId The reference ID
-   * @param data.config The guild config
-   * @returns
-   */
-
-  public static async updateMessageReportReferenceState(data: {
-    guild: Guild;
-    referenceId: Snowflake;
-    config: GuildConfig;
-  }) {
-    const { referenceId, config, guild } = data;
-
-    // Early return if reports are disabled or webhook is missing
-    if (!config.messageReportsEnabled || !config.messageReportsWebhook) return;
-
-    // Get all pending reports with matching reference IDs
-    const pendingReports = await prisma.messageReport.findMany({
-      where: {
-        guildId: guild.id,
-        referenceId,
-        status: 'Pending'
-      }
-    });
-
-    if (!pendingReports.length) return;
-
-    const webhook = new WebhookClient({ url: config.messageReportsWebhook });
-
-    // Process each report
-    for (const report of pendingReports) {
+    // Process each reference
+    for (const report of references) {
       // Get the webhook message
       const logMessage = await webhook.fetchMessage(report.id).catch(() => null);
       if (!logMessage) continue;
@@ -701,7 +676,7 @@ export class ReportUtils {
 
       if (!channel) continue;
 
-      const referenceExists = await channel.messages.fetch(referenceId).catch(() => null);
+      const referenceExists = await channel.messages.fetch(messageId).catch(() => null);
       if (referenceExists) continue;
 
       // Update embed and components

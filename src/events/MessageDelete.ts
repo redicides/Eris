@@ -9,7 +9,7 @@ import {
 
 import { GuildConfig } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
-import { extractChannelIds, getMessageLogEmbed } from '@utils/index';
+import { extractChannelIds, getMessageLogEmbed, getReferenceMessage } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
@@ -26,15 +26,9 @@ export default class MessageDelete extends EventListener {
     const config = await DatabaseManager.getGuildEntry(deletedMessage.guild.id);
     const channelIds = extractChannelIds(deletedMessage.channel);
 
-    await ReportUtils.updateMessageReportState({
+    await ReportUtils.updateMessageReportStates({
       guild: deletedMessage.guild,
       messageId: deletedMessage.id,
-      config
-    });
-
-    await ReportUtils.updateMessageReportReferenceState({
-      guild: deletedMessage.guild,
-      referenceId: deletedMessage.id,
       config
     });
 
@@ -58,8 +52,16 @@ export default class MessageDelete extends EventListener {
 
     const { messageLoggingWebhook } = config;
 
-    const reference = message.referenceId && (await DatabaseManager.getMessageEntry(message.referenceId));
     let embeds: EmbedBuilder[] = [];
+
+    if (message.referenceId || deletedMessage.reference?.messageId) {
+      const referenceMessage = await getReferenceMessage(message, deletedMessage);
+
+      if (referenceMessage) {
+        const embed = await getMessageLogEmbed(referenceMessage, true);
+        embeds.push(embed);
+      }
+    }
 
     const embed = await getMessageLogEmbed(
       {
@@ -74,24 +76,6 @@ export default class MessageDelete extends EventListener {
       },
       false
     );
-
-    if (reference) {
-      const embed = await getMessageLogEmbed(
-        {
-          guildId: reference.guildId,
-          messageId: reference.id,
-          authorId: reference.authorId,
-          channelId: reference.channelId,
-          stickerId: reference.stickerId,
-          createdAt: new Date(Number(reference.createdAt)),
-          content: reference.content,
-          attachments: reference.attachments
-        },
-        true
-      );
-
-      embeds.push(embed);
-    }
 
     embeds.push(embed);
 
@@ -109,7 +93,6 @@ export default class MessageDelete extends EventListener {
     const { messageLoggingWebhook } = config;
 
     const stickerId = message.stickers?.first()?.id ?? null;
-    const reference = message.reference && (await message.fetchReference().catch(() => null));
 
     let embeds: EmbedBuilder[] = [];
 
@@ -127,24 +110,47 @@ export default class MessageDelete extends EventListener {
       false
     );
 
-    if (reference) {
-      const stickerId = reference.stickers?.first()?.id ?? null;
+    if (message.reference?.messageId) {
+      const reference = message.reference && (await message.fetchReference().catch(() => null));
+      const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId);
 
-      const embed = await getMessageLogEmbed(
-        {
-          guildId: reference.guildId,
-          messageId: reference.id,
-          authorId: reference.author.id,
-          channelId: reference.channel.id,
-          stickerId,
-          createdAt: reference.createdAt,
-          content: reference.content,
-          attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
-        },
-        true
-      );
+      if (reference) {
+        const stickerId = reference.stickers?.first()?.id ?? null;
 
-      embeds.push(embed);
+        const embed = await getMessageLogEmbed(
+          {
+            guildId: reference.guildId,
+            messageId: reference.id,
+            authorId: reference.author.id,
+            channelId: reference.channel.id,
+            stickerId,
+            createdAt: reference.createdAt,
+            content: reference.content,
+            attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
+          },
+          true
+        );
+
+        embeds.push(embed);
+      } else if (dbReference) {
+        const stickerId = dbReference.stickerId;
+
+        const embed = await getMessageLogEmbed(
+          {
+            guildId: dbReference.guildId,
+            messageId: dbReference.id,
+            authorId: dbReference.authorId,
+            channelId: dbReference.channelId,
+            stickerId,
+            createdAt: new Date(Number(dbReference.createdAt)),
+            content: dbReference.content,
+            attachments: dbReference.attachments
+          },
+          true
+        );
+
+        embeds.push(embed);
+      }
     }
 
     embeds.push(embed);

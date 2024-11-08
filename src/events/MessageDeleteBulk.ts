@@ -144,7 +144,7 @@ export default class MessageDeleteBulk extends EventListener {
         authorMentions.push(authorMention);
       }
 
-      if (message.reference) {
+      if (message.reference?.messageId) {
         const reference = message.reference && (await message.fetchReference().catch(() => null));
 
         if (reference) {
@@ -156,6 +156,19 @@ export default class MessageDeleteBulk extends EventListener {
           });
 
           subEntries.unshift(`REF: ${referenceEntry}`);
+        } else {
+          const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId).catch(() => null);
+
+          if (dbReference) {
+            const referenceEntry = await formatMessageBulkDeleteLogEntry({
+              authorId: dbReference.authorId,
+              createdAt: dbReference.createdAt,
+              stickerId: null,
+              messageContent: dbReference.content
+            });
+
+            subEntries.unshift(`REF: ${referenceEntry}`);
+          }
         }
       }
 
