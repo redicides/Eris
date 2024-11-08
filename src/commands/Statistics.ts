@@ -63,11 +63,11 @@ export default class Statistics extends Command {
       .setFields([
         {
           name: 'Client',
-          value: `\\- Cached Guilds: \`${this.client.guilds.cache.size}\`\n\\- Cached Channels: \`${
-            this.client.channels.cache.size
-          }\`\n\\- Cached Users: \`${this.client.users.cache.size}\`\n\\- Uptime: \`${ms(this.client.uptime!, {
+          value: `\\- Uptime: \`${ms(this.client.uptime!, {
             long: true
-          })}\``
+          })}\`\n\\- Cached Guilds: \`${this.client.guilds.cache.size}\`\n\\- Cached Channels: \`${
+            this.client.channels.cache.size
+          }\`\n\\- Cached Users: \`${this.client.users.cache.size}\``
         },
         {
           name: 'Database',
@@ -77,7 +77,7 @@ export default class Statistics extends Command {
         },
         {
           name: 'Process',
-          value: `\\- Uptime: \`${ms(uptime(), { long: true })}\`\n\\- CPU: \`${cpus()
+          value: `\\- Uptime: \`${ms(uptime(), { long: true })}\`\n\\- CPU Usage: \`${cpus()
             .map(Statistics._formatCpuInfo.bind(null))
             .join(' | ')}\`\n\\- RSS Memory: \`${Math.floor(
             process.memoryUsage.rss() / 1024 / 1024
