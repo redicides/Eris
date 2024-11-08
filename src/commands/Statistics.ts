@@ -62,8 +62,12 @@ export default class Statistics extends Command {
       .setThumbnail(this.client.user!.displayAvatarURL())
       .setFields([
         {
-          name: 'Cache',
-          value: `\\- Guilds: \`${this.client.guilds.cache.size}\`\n\\- Users: \`${this.client.users.cache.size}\`\n\\- Channels: \`${this.client.channels.cache.size}\``
+          name: 'Client',
+          value: `\\- Cached Guilds: \`${this.client.guilds.cache.size}\`\n\\- Cached Channels: \`${
+            this.client.channels.cache.size
+          }\`\n\\- Cached Users: \`${this.client.users.cache.size}\`\n\\- Uptime: \`${ms(this.client.uptime!, {
+            long: true
+          })}\``
         },
         {
           name: 'Database',
@@ -75,9 +79,7 @@ export default class Statistics extends Command {
           name: 'Process',
           value: `\\- Uptime: \`${ms(uptime(), { long: true })}\`\n\\- CPU: \`${cpus()
             .map(Statistics._formatCpuInfo.bind(null))
-            .join(' | ')}\`\n\\- Client Uptime: \`${ms(this.client.uptime!, {
-            long: true
-          })}\`\n\\- RSS Memory: \`${Math.floor(
+            .join(' | ')}\`\n\\- RSS Memory: \`${Math.floor(
             process.memoryUsage.rss() / 1024 / 1024
           )} MB\`\n\\- Heap Memory: \`${Math.floor(process.memoryUsage().heapUsed / 1024 / 1024)} MB\``
         }
