@@ -51,30 +51,6 @@ export default class Config extends Command {
                     autocomplete: true
                   }
                 ]
-              },
-              {
-                name: ConfigSubcommand.TimeToLive,
-                description: 'Set the time-to-live for a command responses.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'type',
-                    description: 'The type of command response to set the time-to-live for.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Command Error', value: 'commandErrorTTL' },
-                      { name: 'Command Temporary Response', value: 'commandTemporaryReplyTTL' }
-                    ]
-                  },
-                  {
-                    name: 'duration',
-                    description: 'The duration for the time-to-live.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  }
-                ]
               }
             ]
           },
@@ -627,9 +603,35 @@ export default class Config extends Command {
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
-                name: ConfigSubcommand.Toggle,
+                name: ConfigSubcommand.ToggleDefaultEphemeralReply,
                 description: 'Toggle if replies should be ephemeral by default.',
                 type: ApplicationCommandOptionType.Subcommand
+              },
+              {
+                name: ConfigSubcommand.TimeToLive,
+                description: 'Set the time-to-live for interaction responses.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'type',
+                    description: 'The type of interaction response to set the time-to-live for.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Command Error', value: 'commandErrorTTL' },
+                      { name: 'Command Temporary Response', value: 'commandTemporaryReplyTTL' },
+                      { name: 'Component Error', value: 'componentErrorTTL' },
+                      { name: 'Component Temporary Response', value: 'componentTemporaryReplyTTL' }
+                    ]
+                  },
+                  {
+                    name: 'duration',
+                    description: 'The duration for the time-to-live.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  }
+                ]
               },
               {
                 name: ConfigSubcommand.CreateScope,
@@ -784,8 +786,6 @@ export default class Config extends Command {
         switch (subcommand) {
           case ConfigSubcommand.Toggle:
             return Config.commands.toggleCommand(interaction, config);
-          case ConfigSubcommand.TimeToLive:
-            return Config.commands.setTimeToLive(interaction, config);
         }
       }
 
@@ -862,21 +862,23 @@ export default class Config extends Command {
       case ConfigSubcommandGroup.Interactions: {
         switch (subcommand) {
           case ConfigSubcommand.CreateScope:
-            return Config.ephemeral.createScope(interaction, config);
+            return Config.interactions.createScope(interaction, config);
           case ConfigSubcommand.DeleteScope:
-            return Config.ephemeral.deleteScope(interaction, config);
+            return Config.interactions.deleteScope(interaction, config);
           case ConfigSubcommand.AddIncludedChannel:
-            return Config.ephemeral.addIncludedChannel(interaction, config);
+            return Config.interactions.addIncludedChannel(interaction, config);
           case ConfigSubcommand.RemoveIncludedChannel:
-            return Config.ephemeral.removeIncludedChannel(interaction, config);
+            return Config.interactions.removeIncludedChannel(interaction, config);
           case ConfigSubcommand.AddExcludedChannel:
-            return Config.ephemeral.addExcludedChannel(interaction, config);
+            return Config.interactions.addExcludedChannel(interaction, config);
           case ConfigSubcommand.RemoveExcludedChannel:
-            return Config.ephemeral.removeExcludedChannel(interaction, config);
+            return Config.interactions.removeExcludedChannel(interaction, config);
           case ConfigSubcommand.List:
-            return Config.ephemeral.list(interaction, config);
-          case ConfigSubcommand.Toggle:
-            return Config.ephemeral.toggle(config);
+            return Config.interactions.list(interaction, config);
+          case ConfigSubcommand.ToggleDefaultEphemeralReply:
+            return Config.interactions.toggle(config);
+          case ConfigSubcommand.TimeToLive:
+            return Config.interactions.setTimeToLive(interaction, config);
         }
       }
     }
@@ -921,55 +923,6 @@ export default class Config extends Command {
 
       return {
         content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${command.data.name}\`.`
-      };
-    },
-
-    async setTimeToLive(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const type = interaction.options.getString('type', true) as keyof typeof config;
-      const rawDuration = interaction.options.getString('duration', true);
-
-      const duration = parseDuration(rawDuration);
-
-      if (!duration || isNaN(duration)) {
-        return {
-          error: 'Invalid duration. The valid format is `<number>[s/m]` (`<number> [second/minute]`).',
-          temporary: true
-        };
-      }
-
-      if (duration < 1000) {
-        return {
-          error: 'The duration must be at least 1 second.',
-          temporary: true
-        };
-      }
-
-      if (duration > 60000) {
-        return {
-          error: 'The duration must not exceed 1 minute.',
-          temporary: true
-        };
-      }
-
-      if (config[type] === duration) {
-        return {
-          error: `The time-to-live for this type is already set to **${ms(Math.floor(duration), { long: true })}**.`,
-          temporary: true
-        };
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { [type]: duration }
-      });
-
-      return {
-        content: `The time-to-live for the specified type has been set to **${ms(Math.floor(duration), {
-          long: true
-        })}**.`
       };
     }
   };
@@ -1877,7 +1830,58 @@ export default class Config extends Command {
     }
   };
 
-  private static ephemeral = {
+  private static interactions = {
+    async setTimeToLive(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const type = interaction.options.getString('type', true) as keyof typeof config;
+      const rawDuration = interaction.options.getString('duration', true);
+
+      const duration = parseDuration(rawDuration);
+
+      if (!duration || isNaN(duration)) {
+        return {
+          error: 'Invalid duration. The valid format is `<number>[s/m]` (`<number> [second/minute]`).',
+          temporary: true
+        };
+      }
+
+      if (duration < 1000) {
+        return {
+          error: 'The duration must be at least 1 second.',
+          temporary: true
+        };
+      }
+
+      if (duration > 60000) {
+        return {
+          error: 'The duration must not exceed 1 minute.',
+          temporary: true
+        };
+      }
+
+      if (config[type] === duration) {
+        return {
+          error: `The time-to-live for this interaction type is already set to **${ms(Math.floor(duration), {
+            long: true
+          })}**.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: duration }
+      });
+
+      return {
+        content: `The time-to-live for the specified interaction type has been set to **${ms(Math.floor(duration), {
+          long: true
+        })}**.`
+      };
+    },
+
     async createScope(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -2253,7 +2257,8 @@ enum ConfigSubcommand {
   List = 'list-ephemeral-scopes',
   AddIgnoredChannel = 'add-ignored-channel',
   RemoveIgnoredChannel = 'remove-ignored-channel',
-  ListIgnoredChannels = 'list-ignored-channels'
+  ListIgnoredChannels = 'list-ignored-channels',
+  ToggleDefaultEphemeralReply = 'toggle-default-ephemeral-reply'
 }
 
 const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;
