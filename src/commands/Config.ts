@@ -1901,7 +1901,7 @@ export default class Config extends Command {
         CommandManager.application_commands.get(commandName) ??
         CommandManager.application_commands.get(commandName.toLowerCase());
 
-      if (!command) {
+      if (!command || command.category === CommandCategory.Developer) {
         return {
           error: `The command \`${commandName}\` does not exist.`,
           temporary: true
