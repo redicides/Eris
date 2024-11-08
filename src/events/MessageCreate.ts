@@ -10,13 +10,8 @@ export default class MessageCreate extends EventListener {
 
   async execute(message: Message) {
     if (!message.inGuild()) return;
+    if (message.author.bot || message.webhookId !== null || message.system) return;
 
-    const config = await DatabaseManager.getGuildEntry(message.guild.id);
-
-    if (config.messageLoggingStoreMessages) {
-      if (!message.author.bot || message.webhookId === null) {
-        DatabaseManager.queueMessageEntry(message);
-      }
-    }
+    DatabaseManager.queueMessageEntry(message);
   }
 }

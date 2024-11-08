@@ -3,17 +3,13 @@ import {
   type Message as DiscordMessage,
   Events,
   EmbedBuilder,
-  Colors,
-  messageLink,
   WebhookClient,
-  APIMessage,
-  Snowflake,
-  channelMention
+  APIMessage
 } from 'discord.js';
 
 import { GuildConfig } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
-import { extractChannelIds, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
+import { extractChannelIds, getMessageLogEmbed } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
@@ -50,68 +46,14 @@ export default class MessageDelete extends EventListener {
       return;
     }
 
-    if (config.messageLoggingStoreMessages) {
-      return MessageDelete.handleEnhancedLog(deletedMessage, config);
-    }
-
-    return MessageDelete.handleNormalLog(deletedMessage, config);
+    return MessageDelete.handleLog(deletedMessage, config);
   }
 
-  public static async handleNormalLog(message: DiscordMessage<true>, config: GuildConfig): Promise<APIMessage | null> {
-    if (!message.author || message.author.bot || message.webhookId !== null) {
-      return null;
-    }
-
-    const { messageLoggingWebhook } = config;
-
-    const stickerId = message.stickers?.first()?.id ?? null;
-    const reference = message.reference && (await message.fetchReference().catch(() => null));
-
-    let embeds: EmbedBuilder[] = [];
-
-    const embed = await MessageDelete.buildLogEmbed(
-      {
-        guildId: message.guildId,
-        messageId: message.id,
-        authorId: message.author.id,
-        channelId: message.channel.id,
-        stickerId,
-        createdAt: message.createdAt,
-        content: message.content,
-        attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
-      },
-      false
-    );
-
-    if (reference) {
-      const stickerId = reference.stickers?.first()?.id ?? null;
-
-      const embed = await MessageDelete.buildLogEmbed(
-        {
-          guildId: reference.guildId,
-          messageId: reference.id,
-          authorId: reference.author.id,
-          channelId: reference.channel.id,
-          stickerId,
-          createdAt: reference.createdAt,
-          content: reference.content,
-          attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
-        },
-        true
-      );
-
-      embeds.push(embed);
-    }
-
-    embeds.push(embed);
-    return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
-  }
-
-  public static async handleEnhancedLog(deletedMessage: DiscordMessage<true>, config: GuildConfig) {
+  public static async handleLog(deletedMessage: DiscordMessage<true>, config: GuildConfig) {
     const message = await DatabaseManager.deleteMessageEntry(deletedMessage.id);
 
     if (!message) {
-      return MessageDelete.handleNormalLog(deletedMessage, config);
+      return MessageDelete._attemptDiscordLog(deletedMessage, config);
     }
 
     const { messageLoggingWebhook } = config;
@@ -119,7 +61,7 @@ export default class MessageDelete extends EventListener {
     const reference = message.referenceId && (await DatabaseManager.getMessageEntry(message.referenceId));
     let embeds: EmbedBuilder[] = [];
 
-    const embed = await MessageDelete.buildLogEmbed(
+    const embed = await getMessageLogEmbed(
       {
         guildId: message.guildId,
         messageId: message.id,
@@ -134,7 +76,7 @@ export default class MessageDelete extends EventListener {
     );
 
     if (reference) {
-      const embed = await MessageDelete.buildLogEmbed(
+      const embed = await getMessageLogEmbed(
         {
           guildId: reference.guildId,
           messageId: reference.id,
@@ -156,47 +98,56 @@ export default class MessageDelete extends EventListener {
     return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
   }
 
-  public static async buildLogEmbed(
-    data: {
-      guildId: Snowflake;
-      messageId: Snowflake;
-      authorId: Snowflake;
-      channelId: Snowflake;
-      stickerId: Snowflake | null;
-      createdAt: Date;
-      content: string | null;
-      attachments?: string[];
-    },
-    reference: boolean
-  ): Promise<EmbedBuilder> {
-    const url = messageLink(data.channelId, data.messageId, data.guildId);
-
-    const embed = new EmbedBuilder()
-      .setColor(reference ? Colors.NotQuiteBlack : Colors.Red)
-      .setAuthor({ name: reference ? 'Message Reference' : 'Message Deleted' })
-      .setFields([
-        {
-          name: 'Author',
-          value: userMentionWithId(data.authorId)
-        },
-        {
-          name: 'Channel',
-          value: channelMention(data.channelId)
-        },
-        {
-          name: reference ? 'Reference Content' : 'Message Content',
-          value: await formatMessageContentForShortLog(data.content, data.stickerId, url)
-        }
-      ])
-      .setTimestamp(data.createdAt);
-
-    if (data.attachments?.length) {
-      embed.addFields({
-        name: reference ? 'Reference Attachments' : 'Message Attachments',
-        value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
-      });
+  public static async _attemptDiscordLog(
+    message: DiscordMessage<true>,
+    config: GuildConfig
+  ): Promise<APIMessage | null> {
+    if (!message.author || message.author.bot || message.webhookId !== null) {
+      return null;
     }
 
-    return embed;
+    const { messageLoggingWebhook } = config;
+
+    const stickerId = message.stickers?.first()?.id ?? null;
+    const reference = message.reference && (await message.fetchReference().catch(() => null));
+
+    let embeds: EmbedBuilder[] = [];
+
+    const embed = await getMessageLogEmbed(
+      {
+        guildId: message.guildId,
+        messageId: message.id,
+        authorId: message.author.id,
+        channelId: message.channel.id,
+        stickerId,
+        createdAt: message.createdAt,
+        content: message.content,
+        attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
+      },
+      false
+    );
+
+    if (reference) {
+      const stickerId = reference.stickers?.first()?.id ?? null;
+
+      const embed = await getMessageLogEmbed(
+        {
+          guildId: reference.guildId,
+          messageId: reference.id,
+          authorId: reference.author.id,
+          channelId: reference.channel.id,
+          stickerId,
+          createdAt: reference.createdAt,
+          content: reference.content,
+          attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
+        },
+        true
+      );
+
+      embeds.push(embed);
+    }
+
+    embeds.push(embed);
+    return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
   }
 }

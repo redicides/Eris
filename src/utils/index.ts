@@ -3,6 +3,7 @@ import {
   codeBlock,
   Colors,
   CommandInteraction,
+  Message as DiscordMessage,
   EmbedField,
   escapeCodeBlock,
   GuildMember,
@@ -14,22 +15,26 @@ import {
   StickerFormatType,
   TextBasedChannel,
   cleanContent as djsCleanContent,
-  GuildTextBasedChannel
+  GuildTextBasedChannel,
+  EmbedBuilder,
+  messageLink,
+  channelMention
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
+import { PermissionEnum, Message } from '@prisma/client';
 
 import YAML from 'yaml';
 import fs from 'fs';
 import ms from 'ms';
 
 import { client } from '..';
-import { EMPTY_MESSAGE_CONTENT } from './Constants';
-import { GuildConfig, InteractionReplyData } from './Types';
+import { EMPTY_MESSAGE_CONTENT, LOG_ENTRY_DATE_FORMAT } from './Constants';
+import { GuildConfig, InteractionReplyData, MessageLog } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
 import { CommandCategory } from '@managers/commands/Command';
 
 import ConfigManager from '@managers/config/ConfigManager';
 import CommandManager from '@managers/commands/CommandManager';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 /**
  * Pluralizes a word based on the given count
@@ -404,4 +409,128 @@ export function extractChannelIds(channel: GuildTextBasedChannel) {
   }
 
   return ids;
+}
+
+/**
+ * Build an embed for a message log.
+ *
+ * @param data.guildId The ID of the guild this message was sent in
+ * @param data.messageId The ID of the message
+ * @param data.authorId The ID of the author
+ * @param data.channelId The ID of the channel
+ * @param data.stickerId The ID of the sticker in the message
+ * @param data.createdAt The timestamp of the message
+ * @param data.content The content of the message
+ * @param data.attachments The attachments of the message
+ * @param reference Whether this is a reference message
+ * @returns The embed for the message log
+ */
+
+export async function getMessageLogEmbed(data: MessageLog, reference: boolean): Promise<EmbedBuilder> {
+  const url = messageLink(data.channelId, data.messageId, data.guildId);
+
+  const embed = new EmbedBuilder()
+    .setColor(reference ? Colors.NotQuiteBlack : Colors.Red)
+    .setAuthor({ name: reference ? 'Message Reference' : 'Message Deleted' })
+    .setFields([
+      {
+        name: 'Author',
+        value: userMentionWithId(data.authorId)
+      },
+      {
+        name: 'Channel',
+        value: channelMention(data.channelId)
+      },
+      {
+        name: reference ? 'Reference Content' : 'Message Content',
+        value: await formatMessageContentForShortLog(data.content, data.stickerId, url)
+      }
+    ])
+    .setTimestamp(data.createdAt);
+
+  if (data.attachments?.length) {
+    embed.addFields({
+      name: reference ? 'Reference Attachments' : 'Message Attachments',
+      value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
+    });
+  }
+
+  return embed;
+}
+
+/**
+ * Fetches a reference message from the database or Discord.
+ *
+ * @param dbMessage The database message entry
+ * @param discordMessage The Discord message
+ * @returns The reference message, or null if it could not be fetched
+ */
+
+export async function getReferenceMessage(
+  dbMessage: Message,
+  discordMessage: DiscordMessage<true>
+): Promise<MessageLog | null> {
+  const referenceMessage: Message | DiscordMessage | null =
+    (await DatabaseManager.getMessageEntry(dbMessage.referenceId!)) ??
+    (await discordMessage.fetchReference().catch(() => null));
+
+  if (!referenceMessage) return null;
+
+  return {
+    guildId: discordMessage.guildId,
+    messageId: referenceMessage.id,
+    authorId:
+      (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
+    channelId: referenceMessage.channelId,
+    stickerId:
+      'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
+    createdAt:
+      referenceMessage instanceof DiscordMessage
+        ? referenceMessage.createdAt
+        : new Date(Number(referenceMessage.createdAt)),
+    content: referenceMessage.content,
+    attachments:
+      referenceMessage instanceof DiscordMessage
+        ? Array.from(referenceMessage.attachments.values()).map(attachment => attachment.url)
+        : referenceMessage.attachments
+  };
+}
+
+/**
+ * Format a message log entry for a bulk message delete event.
+ *
+ * @param data.createdAt When the message was created
+ * @param data.stickerId The ID of the sticker in the message
+ * @param data.authorId The ID of the message author
+ * @param data.messageContent The content of the message
+ * @returns The formatted message log entry
+ */
+
+export async function formatMessageBulkDeleteLogEntry(data: {
+  createdAt: bigint | number;
+  stickerId: Snowflake | null;
+  authorId: Snowflake;
+  messageContent: string | null;
+}) {
+  const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
+  const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
+
+  let content: string | undefined;
+
+  if (data.stickerId) {
+    const sticker = await client.fetchSticker(data.stickerId).catch(() => null);
+
+    if (sticker && sticker.format === StickerFormatType.Lottie) {
+      content = `Lottie Sticker "${sticker.name}": ${data.stickerId}`;
+    } else if (sticker) {
+      content = `Sticker "${sticker.name}": ${sticker.url}`;
+    }
+
+    if (data.messageContent && content) {
+      content = ` | Message Content: ${data.messageContent}`;
+    }
+  }
+
+  content ??= data.messageContent ?? EMPTY_MESSAGE_CONTENT;
+  return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
 }

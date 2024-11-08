@@ -7,8 +7,6 @@ import {
   TextChannel,
   GuildTextBasedChannel,
   CategoryChannel,
-  EmbedBuilder,
-  Colors,
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
@@ -19,7 +17,7 @@ import { PermissionEnum, Prisma } from '@prisma/client';
 import ms from 'ms';
 
 import { client, prisma } from '..';
-import { parseDuration, uploadData } from '@utils/index';
+import { parseDuration, pluralize, uploadData } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -466,11 +464,6 @@ export default class Config extends Command {
                 ]
               },
               {
-                name: ConfigSubcommand.StoreCachedMessages,
-                description: 'Toggle storing of cached messages for message logging.',
-                type: ApplicationCommandOptionType.Subcommand
-              },
-              {
                 name: ConfigSubcommand.ListIgnoredChannels,
                 description: 'List all the ignored channels for a specific log type.',
                 type: ApplicationCommandOptionType.Subcommand,
@@ -629,8 +622,8 @@ export default class Config extends Command {
             ]
           },
           {
-            name: ConfigSubcommandGroup.EphemeralScopes,
-            description: 'Manage the ephemeral scope settings.',
+            name: ConfigSubcommandGroup.Interactions,
+            description: 'Manage the interaction settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
@@ -844,8 +837,6 @@ export default class Config extends Command {
             return Config.logging.addIgnoredChannel(interaction);
           case ConfigSubcommand.RemoveIgnoredChannel:
             return Config.logging.removeIgnoredChannel(interaction);
-          case ConfigSubcommand.StoreCachedMessages:
-            return Config.logging.storeCachedMessages(interaction, config);
           case ConfigSubcommand.ListIgnoredChannels:
             return Config.logging.listIgnoredChannels(interaction);
         }
@@ -868,7 +859,7 @@ export default class Config extends Command {
         }
       }
 
-      case ConfigSubcommandGroup.EphemeralScopes: {
+      case ConfigSubcommandGroup.Interactions: {
         switch (subcommand) {
           case ConfigSubcommand.CreateScope:
             return Config.ephemeral.createScope(interaction, config);
@@ -1634,26 +1625,6 @@ export default class Config extends Command {
       };
     },
 
-    async storeCachedMessages(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      let toggle = true;
-
-      if (config.messageLoggingStoreMessages === true) {
-        toggle = false;
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { messageLoggingStoreMessages: toggle }
-      });
-
-      return {
-        content: `Message storing for cached messages has been ${toggle ? 'enabled' : 'disabled'}.`
-      };
-    },
-
     async listIgnoredChannels(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
@@ -1710,7 +1681,7 @@ export default class Config extends Command {
       const role = interaction.options.getRole('role', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
-      if (config.permissions.some(permission => permission.name.toLowerCase() == name)) {
+      if (config.permissions.find(permission => permission.name === name)) {
         return {
           error: `A permission node with that name already exists.`,
           temporary: true
@@ -1734,7 +1705,7 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const name = interaction.options.getString('node', true);
-      const permission = config.permissions.find(permission => permission.name.toLowerCase() === name);
+      const permission = config.permissions.find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -1764,7 +1735,7 @@ export default class Config extends Command {
       const name = interaction.options.getString('node', true);
       const role = interaction.options.getRole('role', true);
 
-      const permission = config.permissions.find(permission => permission.name.toLowerCase() === name);
+      const permission = config.permissions.find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -1801,7 +1772,7 @@ export default class Config extends Command {
       const name = interaction.options.getString('node', true);
       const role = interaction.options.getRole('role', true);
 
-      const permission = config.permissions.find(permission => permission.name.toLowerCase() === name);
+      const permission = config.permissions.find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -1838,7 +1809,7 @@ export default class Config extends Command {
       const name = interaction.options.getString('node', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
-      const permissionNode = config.permissions.find(permission => permission.name.toLowerCase() === name);
+      const permissionNode = config.permissions.find(permission => permission.name === name);
 
       if (!permissionNode) {
         return {
@@ -1875,7 +1846,7 @@ export default class Config extends Command {
       const name = interaction.options.getString('node', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
-      const permissionNode = config.permissions.find(permission => permission.name.toLowerCase() === name);
+      const permissionNode = config.permissions.find(permission => permission.name === name);
 
       if (!permissionNode) {
         return {
@@ -2211,9 +2182,13 @@ export default class Config extends Command {
 
       const buffer = Buffer.from(map.join('\n\n'), 'utf-8');
       const attachment = new AttachmentBuilder(buffer, { name: 'ephemeral-scopes.txt' });
+      const length = config.ephemeralScopes.length;
 
       return {
-        content: `There are currently **${config.ephemeralScopes.length}** ephemeral scopes configured in this server.`,
+        content: `There ${length > 1 ? 'are' : 'is'} currently **${config.ephemeralScopes.length}** ${pluralize(
+          length,
+          'ephemeral scope'
+        )} configured in this server.`,
         files: [attachment],
         components: [actionRow]
       };
@@ -2244,7 +2219,7 @@ enum ConfigSubcommandGroup {
   Infractions = 'infractions',
   Logging = 'logging',
   Permissions = 'permissions',
-  EphemeralScopes = 'ephemeral'
+  Interactions = 'interactions'
 }
 
 enum ConfigSubcommand {
@@ -2269,16 +2244,15 @@ enum ConfigSubcommand {
   RemoveRoleFromNode = 'remove-role-from-node',
   GrantPermission = 'grant',
   RevokePermission = 'revoke',
-  CreateScope = 'create-scope',
-  DeleteScope = 'delete-scope',
+  CreateScope = 'create-ephemeral-scope',
+  DeleteScope = 'delete-ephemeral-scope',
   AddIncludedChannel = 'add-included-channel',
   RemoveIncludedChannel = 'remove-included-channel',
   AddExcludedChannel = 'add-excluded-channel',
   RemoveExcludedChannel = 'remove-excluded-channel',
-  List = 'list-scopes',
+  List = 'list-ephemeral-scopes',
   AddIgnoredChannel = 'add-ignored-channel',
   RemoveIgnoredChannel = 'remove-ignored-channel',
-  StoreCachedMessages = 'store-cached-messages',
   ListIgnoredChannels = 'list-ignored-channels'
 }
 

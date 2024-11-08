@@ -129,7 +129,6 @@ model Guild {
   messageLoggingEnabled         Boolean  @default(true)
   messageLoggingWebhook         String?
   messageLoggingIgnoredChannels String[]
-  messageLoggingStoreMessages   Boolean  @default(true)
 
   // Permissions
 

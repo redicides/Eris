@@ -206,13 +206,15 @@ export default class InteractionCreate extends EventListener {
     if (!interaction.inCachedGuild() || !interaction.inGuild()) return [];
 
     const option = interaction.options.getFocused(true);
-    const lowercaseOption = option.value.toLowerCase();
+
+    const value = option.value;
+    const lowercaseValue = option.value.toLowerCase();
 
     switch (option.name) {
       case 'duration': {
-        if (!lowercaseOption) return interaction.respond(COMMON_DURATIONS);
+        if (!value) return interaction.respond(COMMON_DURATIONS);
 
-        const [numStr, unit = ''] = lowercaseOption.split(' ');
+        const [numStr, unit = ''] = lowercaseValue.split(' ');
         const num = parseInt(numStr, 10);
 
         if (isNaN(num) || num < 1 || num > 1000) return interaction.respond([]);
@@ -233,7 +235,7 @@ export default class InteractionCreate extends EventListener {
         );
 
         const commands = application_commands
-          .filter(command => command.data.name.includes(lowercaseOption))
+          .filter(command => command.data.name.includes(value) || command.data.name.includes(lowercaseValue))
           .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
         return interaction.respond(
@@ -246,7 +248,7 @@ export default class InteractionCreate extends EventListener {
 
         const filtered_nodes = nodes
           .filter(node => {
-            return node.name.toLowerCase().includes(lowercaseOption);
+            return node.name.toLowerCase().includes(lowercaseValue);
           })
           .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -258,7 +260,7 @@ export default class InteractionCreate extends EventListener {
 
         const filtered_scopes = scopes
           .filter(scope => {
-            return scope.commandName.toLowerCase().includes(lowercaseOption);
+            return scope.commandName.toLowerCase().includes(lowercaseValue);
           })
           .sort((a, b) => a.commandName.localeCompare(b.commandName));
 

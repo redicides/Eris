@@ -11,13 +11,19 @@ import {
 
 import { Message } from '@prisma/client';
 
-import { cleanContent, extractChannelIds, formatMessageContentForShortLog, userMentionWithId } from '@utils/index';
+import {
+  cleanContent,
+  extractChannelIds,
+  formatMessageContentForShortLog,
+  getMessageLogEmbed,
+  getReferenceMessage,
+  userMentionWithId
+} from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 import { EMPTY_MESSAGE_CONTENT } from '@utils/Constants';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
-import MessageDelete from './MessageDelete';
 
 export default class MessageUpdate extends EventListener {
   constructor() {
@@ -31,7 +37,7 @@ export default class MessageUpdate extends EventListener {
       ? ((await _newMessage.fetch().catch(() => null)) as DiscordMessage<true> | null)
       : _newMessage;
 
-    // Early return if there is no sufficient data
+    // Early return if there is no sufficient data or if the message is from a bot or webhook
     if (!message || message.author.bot || message.webhookId !== null || !message.content) return;
 
     const config = await DatabaseManager.getGuildEntry(message.guild.id);
@@ -44,20 +50,16 @@ export default class MessageUpdate extends EventListener {
     const newContent = cleanContent(message.content, message.channel);
     const oldContent = await DatabaseManager.updateMessageEntry(message.id, newContent);
 
-    if (config.messageLoggingStoreMessages) {
-      const dbMessage = await DatabaseManager.getMessageEntry(message.id);
+    const dbMessage = await DatabaseManager.getMessageEntry(message.id);
 
-      if (dbMessage) {
-        return MessageUpdate.handleEnhancedLog(dbMessage, message, oldContent, newContent, config);
-      } else {
-        return MessageUpdate.handleNormalLog(message, _oldMessage, config);
-      }
+    if (dbMessage) {
+      return MessageUpdate.handleLog(dbMessage, message, oldContent, newContent, config);
     } else {
-      return MessageUpdate.handleNormalLog(message, _oldMessage, config);
+      return MessageUpdate._attemptDiscordLog(message, _oldMessage, config);
     }
   }
 
-  public static async handleEnhancedLog(
+  public static async handleLog(
     dbMessage: Message,
     discordMessage: DiscordMessage<true>,
     oldContent: string,
@@ -69,10 +71,10 @@ export default class MessageUpdate extends EventListener {
     const embeds: EmbedBuilder[] = [];
 
     if (dbMessage.referenceId || discordMessage.reference?.messageId) {
-      const referenceMessage = await MessageUpdate._fetchReferenceMessage(dbMessage, discordMessage);
+      const referenceMessage = await getReferenceMessage(dbMessage, discordMessage);
 
       if (referenceMessage) {
-        const embed = await MessageDelete.buildLogEmbed(referenceMessage, true);
+        const embed = await getMessageLogEmbed(referenceMessage, true);
         embeds.push(embed);
       }
     }
@@ -91,7 +93,7 @@ export default class MessageUpdate extends EventListener {
     return new WebhookClient({ url: config.messageLoggingWebhook }).send({ embeds }).catch(() => null);
   }
 
-  public static async handleNormalLog(
+  public static async _attemptDiscordLog(
     message: DiscordMessage<true>,
     oldMessage: PartialMessage | DiscordMessage,
     config: GuildConfig
@@ -104,7 +106,7 @@ export default class MessageUpdate extends EventListener {
     if (reference) {
       const stickerId = reference.stickers?.first()?.id ?? null;
 
-      const embed = await MessageDelete.buildLogEmbed(
+      const embed = await getMessageLogEmbed(
         {
           guildId: reference.guildId,
           messageId: reference.id,
@@ -177,32 +179,5 @@ export default class MessageUpdate extends EventListener {
     }
 
     return embed;
-  }
-
-  private static async _fetchReferenceMessage(dbMessage: Message, discordMessage: DiscordMessage<true>) {
-    const referenceMessage: Message | DiscordMessage | null =
-      (await DatabaseManager.getMessageEntry(dbMessage.referenceId!)) ??
-      (await discordMessage.fetchReference().catch(() => null));
-
-    if (!referenceMessage) return null;
-
-    return {
-      guildId: discordMessage.guildId,
-      messageId: referenceMessage.id,
-      authorId:
-        (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
-      channelId: referenceMessage.channelId,
-      stickerId:
-        'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
-      createdAt:
-        referenceMessage instanceof DiscordMessage
-          ? referenceMessage.createdAt
-          : new Date(Number(referenceMessage.createdAt)),
-      content: referenceMessage.content,
-      attachments:
-        referenceMessage instanceof DiscordMessage
-          ? Array.from(referenceMessage.attachments.values()).map(attachment => attachment.url)
-          : referenceMessage.attachments
-    };
   }
 }
