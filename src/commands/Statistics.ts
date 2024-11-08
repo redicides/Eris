@@ -48,11 +48,11 @@ export default class Statistics extends Command {
     await this.prisma.guild.findUnique({ where: { id: interaction.guildId } });
     const queryPing = performance.now() - queryStart;
 
-    const [guilds, infractions, messages] = await this.prisma.$transaction([
-      this.prisma.guild.count(),
-      this.prisma.infraction.count(),
-      this.prisma.message.count()
-    ]);
+    // Count "important" entries on the database
+
+    const guilds = await this.prisma.guild.count();
+    const infractions = await this.prisma.infraction.count();
+    const messages = await this.prisma.message.count();
 
     const currentDate = Math.floor(Date.now() / 1000);
 
