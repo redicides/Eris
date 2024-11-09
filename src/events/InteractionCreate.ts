@@ -252,7 +252,7 @@ export default class InteractionCreate extends EventListener {
           })
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name.toLowerCase() })));
+        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name })));
       }
 
       case 'scope': {
