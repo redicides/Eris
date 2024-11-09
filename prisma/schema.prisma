@@ -36,6 +36,7 @@ enum ReportStatus {
 
 enum RequestStatus {
   Pending
+  Disregarded
   Accepted
   Denied
 }
@@ -44,6 +45,8 @@ enum PermissionEnum {
   SearchInfractions
   ManageMessageReports
   ManageUserReports
+  ManageMuteRequests
+  ManageBanRequests
 }
 
 model Guild {
@@ -72,7 +75,7 @@ model Guild {
   messageReportsDisregardAfter      BigInt   @default(2592000000)
   messageReportsNotifyStatus        Boolean  @default(true)
   messageReportsRequireAcceptReason Boolean  @default(false)
-  messageReportsRequireDenyReason   Boolean  @default(false)
+  messageReportsRequireDenyReason   Boolean  @default(true)
 
   userReportsEnabled             Boolean  @default(false)
   userReportsWebhook             String?
@@ -83,22 +86,29 @@ model Guild {
   userReportsDisregardAfter      BigInt   @default(2592000000)
   userReportsNotifyStatus        Boolean  @default(true)
   userReportsRequireAcceptReason Boolean  @default(false)
-  userReportsRequireDenyReason   Boolean  @default(false)
+  userReportsRequireDenyReason   Boolean  @default(true)
 
   reportLoggingEnabled Boolean @default(true)
   reportLoggingWebhook String?
 
   // Request settings
 
-  banRequestsEnabled     Boolean  @default(false)
-  banRequestsWebhook     String?
-  banRequestsImmuneRoles String[]
-  banRequestsPingRoles   String[]
+  banRequestsEnabled             Boolean  @default(false)
+  banRequestsWebhook             String?
+  banRequestsImmuneRoles         String[]
+  banRequestsPingRoles           String[]
+  banRequestsRequireAcceptReason Boolean  @default(false)
+  banRequestsRequireDenyReason   Boolean  @default(true)
 
-  muteRequestsEnabled     Boolean  @default(false)
-  muteRequestsWebhook     String?
-  muteRequestsImmuneRoles String[]
-  muteRequestsPingRoles   String[]
+  muteRequestsEnabled             Boolean  @default(false)
+  muteRequestsWebhook             String?
+  muteRequestsImmuneRoles         String[]
+  muteRequestsPingRoles           String[]
+  muteRequestsRequireAcceptReason Boolean  @default(false)
+  muteRequestsRequireDenyReason   Boolean  @default(true)
+
+  requestLoggingEnabled Boolean @default(true)
+  requestLoggingWebhook String?
 
   // Infraction settings
 

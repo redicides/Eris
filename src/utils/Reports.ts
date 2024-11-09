@@ -337,8 +337,7 @@ export class ReportUtils {
     const components = interaction.message?.components!.length;
 
     const log = new EmbedBuilder(interaction.message!.embeds[components === 1 ? 0 : 1] as EmbedData)
-      .setAuthor({ name: 'Message Report' })
-      .setFooter({ text: `Report ID: #${report.id}` })
+      .setAuthor({ name: `Message Report - ID #${report.id}` })
       .setTimestamp();
 
     switch (action) {
@@ -447,8 +446,7 @@ export class ReportUtils {
     const components = interaction.message?.components!.length;
 
     const log = new EmbedBuilder(interaction.message!.embeds[components === 1 ? 0 : 1] as EmbedData)
-      .setAuthor({ name: 'User Report' })
-      .setFooter({ text: `Report ID: #${report.id}` })
+      .setAuthor({ name: `User Report - ID #${report.id}` })
       .setTimestamp();
 
     switch (action) {

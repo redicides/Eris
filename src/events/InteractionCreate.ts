@@ -159,7 +159,7 @@ export default class InteractionCreate extends EventListener {
     return handleInteractionErrorReply({
       interaction,
       error: `Failed to fetch data for ${
-        interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
+        interaction.isCommand() ? `command "${interaction.commandName}"` : `this component`
       }, please include this ID when reporting the bug: \`${sentryId}\`.`
     });
   }

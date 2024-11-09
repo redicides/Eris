@@ -514,6 +514,7 @@ export default class Config extends Command {
                     choices: [
                       { name: 'Infractions', value: 'infractionLoggingWebhook' },
                       { name: 'Reports', value: 'reportLoggingWebhook' },
+                      { name: 'Requests', value: 'requestLoggingWebhook' },
                       { name: 'Messages', value: 'messageLoggingWebhook' }
                     ]
                   }
@@ -532,6 +533,7 @@ export default class Config extends Command {
                     choices: [
                       { name: 'Infractions', value: 'infractionLoggingEnabled' },
                       { name: 'Reports', value: 'reportLoggingEnabled' },
+                      { name: 'Requests', value: 'requestLoggingEnabled' },
                       { name: 'Messages', value: 'messageLoggingEnabled' }
                     ]
                   }
@@ -705,7 +707,9 @@ export default class Config extends Command {
                     choices: [
                       { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
                       { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports }
+                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
+                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
+                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests }
                     ]
                   }
                 ]
@@ -730,7 +734,9 @@ export default class Config extends Command {
                     choices: [
                       { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
                       { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports }
+                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
+                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
+                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests }
                     ]
                   }
                 ]

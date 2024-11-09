@@ -140,6 +140,29 @@ export default class Request extends Command {
           };
         }
 
+        if (target.isCommunicationDisabled()) {
+          return {
+            error: 'The provided target is already muted.',
+            temporary: true
+          };
+        }
+
+        const exists = await this.prisma.muteRequest.findFirst({
+          where: {
+            guildId: interaction.guild.id,
+            targetId: target.id,
+            requestedBy: interaction.user.id,
+            status: 'Pending'
+          }
+        });
+
+        if (exists) {
+          return {
+            error: 'You already have a pending mute request for this user.',
+            temporary: true
+          };
+        }
+
         await interaction.deferReply({ ephemeral });
 
         return RequestUtils.createMuteRequest({
@@ -212,6 +235,22 @@ export default class Request extends Command {
               temporary: true
             };
           }
+        }
+
+        const exists = await this.prisma.banRequest.findFirst({
+          where: {
+            guildId: interaction.guild.id,
+            targetId: target.id,
+            requestedBy: interaction.user.id,
+            status: 'Pending'
+          }
+        });
+
+        if (exists) {
+          return {
+            error: 'You already have a pending ban request for this user.',
+            temporary: true
+          };
         }
 
         await interaction.deferReply({ ephemeral });
