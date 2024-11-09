@@ -4,8 +4,9 @@ import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
 
 import Component from '@managers/components/Component';
+import { hasPermission } from '@/utils';
 
-export default class MessageReportManagerComponent extends Component {
+export default class MessageReportModalComponent extends Component {
   constructor() {
     super({ matches: /^message-report-(accept|deny)-\d{17,19}$/m });
   }
@@ -28,6 +29,13 @@ export default class MessageReportManagerComponent extends Component {
 
       return {
         error: 'Failed to fetch the related report. I will attempt to delete the alert in **7 seconds**.',
+        temporary: true
+      };
+    }
+
+    if (!hasPermission(interaction.member, config, 'ManageMessageReports')) {
+      return {
+        error: 'You no longer have permission to manage message reports.',
         temporary: true
       };
     }

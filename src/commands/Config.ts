@@ -495,6 +495,20 @@ export default class Config extends Command {
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
+                name: ConfigSubcommand.SetNotificationChannel,
+                description: 'Set the public notification channel.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'channel',
+                    description: 'The channel.',
+                    type: ApplicationCommandOptionType.Channel,
+                    channelTypes: [ChannelType.GuildText],
+                    required: true
+                  }
+                ]
+              },
+              {
                 name: ConfigSubcommand.SetLogChannel,
                 description: 'Set the logging channel for a log type.',
                 type: ApplicationCommandOptionType.Subcommand,
@@ -639,7 +653,7 @@ export default class Config extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'node',
+                    name: 'permission-node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -653,7 +667,7 @@ export default class Config extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'node',
+                    name: 'permission-node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -673,7 +687,7 @@ export default class Config extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'node',
+                    name: 'permission-node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -693,7 +707,7 @@ export default class Config extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'node',
+                    name: 'permission-node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -720,7 +734,7 @@ export default class Config extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'node',
+                    name: 'permission-node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -994,6 +1008,8 @@ export default class Config extends Command {
         switch (subcommand) {
           case ConfigSubcommand.SetLogChannel:
             return Config.logging.setChannel(interaction, config);
+          case ConfigSubcommand.SetNotificationChannel:
+            return Config.logging.setNotificationChannel(interaction, config);
           case ConfigSubcommand.Toggle:
             return Config.logging.toggleLogging(interaction, config);
           case ConfigSubcommand.AddIgnoredChannel:
@@ -1925,6 +1941,76 @@ export default class Config extends Command {
       };
     },
 
+    async setNotificationChannel(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+      const channel = interaction.options.getChannel('channel', true) as TextChannel;
+
+      const webhooks = await interaction.guild.fetchWebhooks();
+      const webhook = webhooks.find(webhook => webhook.url === config.notificationWebhook);
+
+      if (
+        !channel.permissionsFor(interaction.guild.members.me!).has(PermissionFlagsBits.ManageWebhooks) ||
+        !interaction.appPermissions.has(PermissionFlagsBits.ManageWebhooks)
+      ) {
+        return {
+          error: 'I must have the `Manage Webhooks` permission to perform this action.',
+          temporary: true
+        };
+      }
+
+      if (webhook) {
+        if (webhook.channelId === channel.id) {
+          return {
+            error: `The notification channel is already set to ${channel}.`,
+            temporary: true
+          };
+        }
+
+        let failed = false;
+
+        await webhook
+          .edit({
+            channel: channel.id
+          })
+          .catch(() => {
+            failed = true;
+          });
+
+        if (failed) {
+          return {
+            error: 'Failed to update the notification channel.',
+            temporary: true
+          };
+        }
+      } else {
+        let failed = false;
+
+        const newWebhook = await channel
+          .createWebhook({
+            name: `Charmie`,
+            avatar: client.user!.displayAvatarURL()
+          })
+          .catch(() => {
+            failed = true;
+          });
+
+        if (failed || !newWebhook) {
+          return {
+            error: `Failed to create a new webhook in ${channel}.`,
+            temporary: true
+          };
+        }
+
+        await prisma.guild.update({
+          where: { id: interaction.guildId },
+          data: { notificationWebhook: newWebhook.url }
+        });
+      }
+
+      return {
+        content: `The notification channel has been set to ${channel}.`
+      };
+    },
+
     async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
@@ -2064,7 +2150,7 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('node', true);
+      const name = interaction.options.getString('permission-node', true);
       const permission = config.permissions.find(permission => permission.name === name);
 
       if (!permission) {
@@ -2092,7 +2178,7 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('node', true);
+      const name = interaction.options.getString('permission-node', true);
       const role = interaction.options.getRole('role', true);
 
       const permission = config.permissions.find(permission => permission.name === name);
@@ -2129,7 +2215,7 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('node', true);
+      const name = interaction.options.getString('permission-node', true);
       const role = interaction.options.getRole('role', true);
 
       const permission = config.permissions.find(permission => permission.name === name);
@@ -2166,7 +2252,7 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('node', true);
+      const name = interaction.options.getString('permission-node', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
       const permissionNode = config.permissions.find(permission => permission.name === name);
@@ -2203,7 +2289,7 @@ export default class Config extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('node', true);
+      const name = interaction.options.getString('permission-node', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
       const permissionNode = config.permissions.find(permission => permission.name === name);
@@ -2666,7 +2752,8 @@ enum ConfigSubcommand {
   AddIgnoredChannel = 'add-ignored-channel',
   RemoveIgnoredChannel = 'remove-ignored-channel',
   ListIgnoredChannels = 'list-ignored-channels',
-  ToggleDefaultEphemeralReply = 'toggle-default-ephemeral-reply'
+  ToggleDefaultEphemeralReply = 'toggle-default-ephemeral-reply',
+  SetNotificationChannel = 'set-notification-channel'
 }
 
 const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;

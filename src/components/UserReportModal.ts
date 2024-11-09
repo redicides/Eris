@@ -1,11 +1,12 @@
 import { ModalSubmitInteraction } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { hasPermission } from '@utils/index';
 import { ReportUtils } from '@utils/Reports';
 
 import Component from '@managers/components/Component';
 
-export default class UserReportManagerComponent extends Component {
+export default class UserReportModalComponent extends Component {
   constructor() {
     super({ matches: /^user-report-(accept|deny)-\d{17,19}$/m });
   }
@@ -28,6 +29,13 @@ export default class UserReportManagerComponent extends Component {
 
       return {
         error: 'Failed to fetch the related report. I will attempt to delete the alert in **7 seconds**.',
+        temporary: true
+      };
+    }
+
+    if (!hasPermission(interaction.member, config, 'ManageUserReports')) {
+      return {
+        error: 'You no longer have permission to manage user reports.',
         temporary: true
       };
     }

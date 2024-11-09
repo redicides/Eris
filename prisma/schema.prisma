@@ -52,6 +52,8 @@ enum PermissionEnum {
 model Guild {
   id String @id @map("_id")
 
+  notificationWebhook String?
+
   // Command settings
 
   commandDisabledList      String[]

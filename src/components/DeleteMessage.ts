@@ -29,6 +29,13 @@ export default class DeleteMessageComponent extends Component {
       };
     }
 
+    if (!channel.permissionsFor(interaction.member).has(PermissionFlagsBits.ManageMessages)) {
+      return {
+        error: `You do not have permission to delete messages in ${channel}.`,
+        temporary: true
+      };
+    }
+
     const message = await channel.messages.fetch(messageId).catch(() => null);
 
     if (!message) {

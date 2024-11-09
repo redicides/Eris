@@ -202,8 +202,8 @@ export default class InteractionCreate extends EventListener {
    * Handle an autocomplete interaction
    */
 
-  public static async handleAutocomplete(interaction: AutocompleteInteraction): Promise<unknown> {
-    if (!interaction.inCachedGuild() || !interaction.inGuild()) return [];
+  public static async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+    if (!interaction.inCachedGuild() || !interaction.inGuild()) return interaction.respond([]);
 
     const option = interaction.options.getFocused(true);
 
@@ -230,47 +230,50 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'command': {
-        const application_commands = CommandManager.application_commands.filter(
-          command => command.category !== 'Developer'
-        );
+        const commands = CommandManager.application_commands.filter(command => command.category !== 'Developer');
 
-        const commands = application_commands
-          .filter(command => command.data.name.includes(value) || command.data.name.includes(lowercaseValue))
+        const filteredCommands = commands
+          .filter(
+            command =>
+              command.data.name.includes(value) ||
+              command.data.name.includes(lowercaseValue) ||
+              command.data.name.toLowerCase().includes(lowercaseValue)
+          )
           .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
         return interaction.respond(
-          commands.map(command => ({ name: capitalize(command.data.name), value: command.data.name }))
+          filteredCommands.map(command => ({ name: capitalize(command.data.name), value: command.data.name }))
         );
       }
 
-      case 'node': {
-        const nodes = (await DatabaseManager.getGuildEntry(interaction.guildId)).permissions;
+      case 'permission-node': {
+        const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId)).permissions;
 
-        const filtered_nodes = nodes
-          .filter(node => {
-            return node.name.toLowerCase().includes(lowercaseValue);
+        const permissions = rawPermissions
+          .filter(permission => {
+            return permission.name.toLowerCase().includes(lowercaseValue);
           })
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        return interaction.respond(filtered_nodes.map(node => ({ name: node.name, value: node.name })));
+        return interaction.respond(permissions.map(permission => ({ name: permission.name, value: permission.name })));
       }
 
       case 'scope': {
-        const scopes = (await DatabaseManager.getGuildEntry(interaction.guildId)).ephemeralScopes;
+        const rawScopes = (await DatabaseManager.getGuildEntry(interaction.guildId)).ephemeralScopes;
 
-        const filtered_scopes = scopes
+        const scopes = rawScopes
           .filter(scope => {
             return scope.commandName.toLowerCase().includes(lowercaseValue);
           })
           .sort((a, b) => a.commandName.localeCompare(b.commandName));
 
         return interaction.respond(
-          filtered_scopes.map(scope => ({ name: capitalize(scope.commandName), value: scope.commandName }))
+          scopes.map(scope => ({ name: capitalize(scope.commandName), value: scope.commandName }))
         );
       }
 
       default:
-        return [];
+        return interaction.respond([]);
     }
   }
 }
