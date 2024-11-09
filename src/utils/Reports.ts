@@ -601,24 +601,22 @@ export class ReportUtils {
     // Early return if webhook is missing
     if (!config.messageReportsWebhook) return;
 
-    // Get all pending reports for this message
-    const [pendingReports, references] = await prisma.$transaction([
-      prisma.messageReport.findMany({
-        where: {
-          messageId,
-          guildId: guild.id,
-          status: 'Pending'
-        }
-      }),
+    // Get all pending reports and references
+    const pendingReports = await prisma.messageReport.findMany({
+      where: {
+        messageId,
+        guildId: guild.id,
+        status: 'Pending'
+      }
+    });
 
-      prisma.messageReport.findMany({
-        where: {
-          referenceId: messageId,
-          guildId: guild.id,
-          status: 'Pending'
-        }
-      })
-    ]);
+    const references = await prisma.messageReport.findMany({
+      where: {
+        referenceId: messageId,
+        guildId: guild.id,
+        status: 'Pending'
+      }
+    });
 
     const webhook = new WebhookClient({ url: config.messageReportsWebhook });
 

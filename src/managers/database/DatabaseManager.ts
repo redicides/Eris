@@ -135,21 +135,20 @@ export default class DatabaseManager {
 
     // Update whatever wasn't cached in the database
     if (messages.size !== deletedMessages.length) {
-      const [current, updated] = await prisma.$transaction([
-        prisma.message.updateMany({
-          where: {
-            id: { in: ids }
-          },
-          data: {
-            deleted: true
-          }
-        }),
-        prisma.message.findMany({
-          where: {
-            id: { in: ids }
-          }
-        })
-      ]);
+      await prisma.message.updateMany({
+        where: {
+          id: { in: ids }
+        },
+        data: {
+          deleted: true
+        }
+      });
+
+      const updated = await prisma.message.findMany({
+        where: {
+          id: { in: ids }
+        }
+      });
 
       // Merge the cached and stored messages
       return deletedMessages.concat(updated);
