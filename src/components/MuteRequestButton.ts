@@ -1,9 +1,11 @@
-import Component from '@/managers/components/Component';
-import { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
-import { capitalize, hasPermission, userMentionWithId } from '@/utils';
-import { RequestUtils } from '@/utils/Requests';
-import { GuildConfig, InteractionReplyData } from '@/utils/Types';
 import { ButtonInteraction, Colors, EmbedBuilder, EmbedData } from 'discord.js';
+
+import { capitalize, hasPermission, userMentionWithId } from '@utils/index';
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { RequestUtils } from '@utils/Requests';
+
+import Component from '@managers/components/Component';
 
 export default class MuteRequestButton extends Component {
   constructor() {

@@ -18,15 +18,16 @@ import {
   userMention,
   WebhookClient
 } from 'discord.js';
+import { MuteRequest } from '@prisma/client';
 
 import ms from 'ms';
 
 import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, userMentionWithId } from '.';
-import { client, prisma } from '..';
-import { MuteRequest } from '@prisma/client';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@/managers/database/InfractionManager';
-import TaskManager from '@/managers/database/TaskManager';
+import { prisma } from '..';
+
+import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import TaskManager from '@managers/database/TaskManager';
 
 export class RequestUtils {
   /**

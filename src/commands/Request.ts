@@ -237,6 +237,13 @@ export default class Request extends Command {
           }
         }
 
+        if (await interaction.guild.bans.fetch(target.id).catch(() => null)) {
+          return {
+            error: 'The provided target is already banned.',
+            temporary: true
+          };
+        }
+
         const exists = await this.prisma.banRequest.findFirst({
           where: {
             guildId: interaction.guild.id,

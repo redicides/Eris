@@ -485,7 +485,7 @@ export async function getReferenceMessage(
       (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
     channelId: referenceMessage.channelId,
     stickerId:
-      'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
+      'stickerId' in referenceMessage ? referenceMessage.stickerId : (referenceMessage.stickers?.first()?.id ?? null),
     createdAt:
       referenceMessage instanceof DiscordMessage
         ? referenceMessage.createdAt
