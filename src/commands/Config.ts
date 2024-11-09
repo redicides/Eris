@@ -35,7 +35,7 @@ export default class Config extends Command {
         options: [
           {
             name: ConfigSubcommandGroup.Commands,
-            description: 'Manage the command settings.',
+            description: 'Command settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
@@ -45,7 +45,7 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'command',
-                    description: 'The name of the command to enable or disable.',
+                    description: 'The name of the command.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
@@ -56,17 +56,17 @@ export default class Config extends Command {
           },
           {
             name: ConfigSubcommandGroup.Reports,
-            description: 'Manage the report settings.',
+            description: 'Report settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
                 name: ConfigSubcommand.Toggle,
-                description: 'Toggle message or user reports.',
+                description: 'Toggle reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'report-type',
-                    description: 'The type of report to toggle.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -78,12 +78,12 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.ToggleNotifications,
-                description: 'Toggle status notifications for a specific report type.',
+                description: 'Toggle status notifications.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'report-type',
-                    description: 'The type of the report.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -95,12 +95,12 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.RequireMember,
-                description: 'Require the user (or auther of a message) to be in the guild to report.',
+                description: 'Require members for reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'report-type',
-                    description: 'The type of report.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -117,14 +117,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'channel',
-                    description: 'The channel to set as the alert channel.',
+                    description: 'The channel.',
                     type: ApplicationCommandOptionType.Channel,
                     channelTypes: [ChannelType.GuildText],
                     required: true
                   },
                   {
                     name: 'report-type',
-                    description: 'The type of report to set the alert channel for.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -136,18 +136,18 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.AddImmuneRole,
-                description: 'Add a role to the immune roles list for a specific report type.',
+                description: 'Make a role immune to reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'role',
-                    description: 'The role to add to the immune roles list.',
+                    description: 'The role.',
                     type: ApplicationCommandOptionType.Role,
                     required: true
                   },
                   {
                     name: 'report-type',
-                    description: 'The type of report to add the immune role to.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -159,18 +159,18 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.RemoveImmuneRole,
-                description: 'Remove a role from the immune roles list for a specific report type.',
+                description: 'Make a role not immune to reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'role',
-                    description: 'The role to remove from the immune roles list.',
+                    description: 'The role.',
                     type: ApplicationCommandOptionType.Role,
                     required: true
                   },
                   {
                     name: 'report-type',
-                    description: 'The type of report to remove the immune role from.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -182,18 +182,18 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.AddPingRole,
-                description: 'Add a role to the ping roles list for a specific report type.',
+                description: 'Add a role to the ping roles list.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'role',
-                    description: 'The role to add to the ping roles list.',
+                    description: 'The role.',
                     type: ApplicationCommandOptionType.Role,
                     required: true
                   },
                   {
                     name: 'report-type',
-                    description: 'The type of report to add the ping role to.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -205,18 +205,18 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.RemovePingRole,
-                description: 'Remove a role from the ping roles list for a specific report type.',
+                description: 'Remove a role from the ping roles list.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'role',
-                    description: 'The role to remove from the ping roles list.',
+                    description: 'The role.',
                     type: ApplicationCommandOptionType.Role,
                     required: true
                   },
                   {
                     name: 'report-type',
-                    description: 'The type of report to remove the ping role from.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -228,19 +228,19 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.SetAutoDisregard,
-                description: 'Set the auto disregard duration for a specific report type.',
+                description: 'Set the auto disregard duration for reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'duration',
-                    description: 'The duration to set for the auto disregard.',
+                    description: 'The duration.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'report-type',
-                    description: 'The type of report to set the auto disregard for.',
+                    description: 'The report type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -252,7 +252,7 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.RequireReviewReason,
-                description: 'Require a reason for accepting or denying a report.',
+                description: 'Require a reason for managing reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
@@ -272,18 +272,158 @@ export default class Config extends Command {
             ]
           },
           {
+            name: ConfigSubcommandGroup.Requests,
+            description: 'Request settings.',
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+              {
+                name: ConfigSubcommand.Toggle,
+                description: 'Toggle requests.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'request-type',
+                    description: 'The request type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request', value: 'muteRequestsEnabled' },
+                      { name: 'Ban Request', value: 'banRequestsEnabled' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.SetAlertChannel,
+                description: 'Set the alert channel.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'channel',
+                    description: 'The channel.',
+                    type: ApplicationCommandOptionType.Channel,
+                    channelTypes: [ChannelType.GuildText],
+                    required: true
+                  },
+                  {
+                    name: 'request-type',
+                    description: 'The request type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request', value: 'muteRequestsWebhook' },
+                      { name: 'Ban Request', value: 'banRequestsWebhook' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.AddImmuneRole,
+                description: 'Add a role to the immune roles list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'role',
+                    description: 'The role to add.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'request-type',
+                    description: 'The request type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request', value: 'muteRequestsImmuneRoles' },
+                      { name: 'Ban Request', value: 'banRequestsImmuneRoles' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemoveImmuneRole,
+                description: 'Remove a role from the immune roles list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'role',
+                    description: 'The role to remove.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'request-type',
+                    description: 'The request type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request', value: 'muteRequestsImmuneRoles' },
+                      { name: 'Ban Request', value: 'banRequestsImmuneRoles' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.AddPingRole,
+                description: 'Add a role to the ping roles list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'role',
+                    description: 'The role to add.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'request-type',
+                    description: 'The request type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request', value: 'muteRequestsPingRoles' },
+                      { name: 'Ban Request', value: 'banRequestsPingRoles' }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: ConfigSubcommand.RemovePingRole,
+                description: 'Remove a role from the ping roles list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'role',
+                    description: 'The role to remove.',
+                    type: ApplicationCommandOptionType.Role,
+                    required: true
+                  },
+                  {
+                    name: 'request-type',
+                    description: 'The type of request to remove the ping role from.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request', value: 'muteRequestsPingRoles' },
+                      { name: 'Ban Request', value: 'banRequestsPingRoles' }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
             name: ConfigSubcommandGroup.Infractions,
-            description: 'Manage the infraction settings.',
+            description: 'Infraction settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
                 name: ConfigSubcommand.RequireReason,
-                description: 'Require a reason for issuing a certain type of infraction.',
+                description: 'Require a reason for issuing an infraction.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'type',
-                    description: 'The type of infraction to require a reason for.',
+                    description: 'The infraction type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -299,12 +439,12 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.SetDefaultDuration,
-                description: 'Set the default duration for a certain type of infraction.',
+                description: 'Set the default duration for an infraction type.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'type',
-                    description: "The type of infraction to set the default duration for. Use 'none' to reset.",
+                    description: 'The infraction type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -315,7 +455,7 @@ export default class Config extends Command {
                   },
                   {
                     name: 'duration',
-                    description: 'The duration to set as the default.',
+                    description: 'The duration.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
@@ -329,7 +469,7 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'type',
-                    description: 'The type of infraction to toggle notifications for.',
+                    description: 'The infraction type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -351,17 +491,17 @@ export default class Config extends Command {
           },
           {
             name: ConfigSubcommandGroup.Logging,
-            description: 'Manage the logging settings.',
+            description: 'Logging settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
                 name: ConfigSubcommand.SetLogChannel,
-                description: 'Set the logging channel for a specific log type.',
+                description: 'Set the logging channel for a log type.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'channel',
-                    description: 'The channel to set as the logging channel.',
+                    description: 'The channel.',
                     type: ApplicationCommandOptionType.Channel,
                     channelTypes: [ChannelType.GuildText],
                     required: true
@@ -381,7 +521,7 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.Toggle,
-                description: 'Toggle logging for a specific log type.',
+                description: 'Toggle logging.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
@@ -399,19 +539,19 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.AddIgnoredChannel,
-                description: 'Add a channel to the ignored channels list for a specific log type.',
+                description: 'Ignore a channel for a specific log type.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'channel',
-                    description: 'The channel to add to the ignored channels list.',
+                    description: 'The channel.',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                     channelTypes: [ChannelType.GuildText, ChannelType.GuildCategory]
                   },
                   {
                     name: 'log-type',
-                    description: 'The log type to add the channel to.',
+                    description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
@@ -420,19 +560,19 @@ export default class Config extends Command {
               },
               {
                 name: ConfigSubcommand.RemoveIgnoredChannel,
-                description: 'Remove a channel from the ignored channels list for a specific log type.',
+                description: 'Remove a channel from the ignored channels list.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'channel',
-                    description: 'The channel to remove from the ignored channels list.',
+                    description: 'The channel.',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                     channelTypes: [ChannelType.GuildText, ChannelType.GuildCategory]
                   },
                   {
                     name: 'log-type',
-                    description: 'The log type to remove the channel from.',
+                    description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
@@ -446,7 +586,7 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'log-type',
-                    description: 'The log type to list the ignored channels for.',
+                    description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
@@ -457,7 +597,7 @@ export default class Config extends Command {
           },
           {
             name: ConfigSubcommandGroup.Permissions,
-            description: 'Manage the guild permission nodes.',
+            description: 'Permission settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
@@ -498,7 +638,7 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'node',
-                    description: 'The name of the permission node to delete.',
+                    description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
@@ -512,14 +652,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'node',
-                    description: 'The name of the permission node to add the role to.',
+                    description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'role',
-                    description: 'The role to add to the permission node.',
+                    description: 'The role.',
                     type: ApplicationCommandOptionType.Role,
                     required: true
                   }
@@ -532,14 +672,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'node',
-                    description: 'The name of the permission node to remove the role from.',
+                    description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'role',
-                    description: 'The role to remove from the permission node.',
+                    description: 'The role.',
                     type: ApplicationCommandOptionType.Role,
                     required: true
                   }
@@ -552,14 +692,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'node',
-                    description: 'The name of the permission node to add the permission to.',
+                    description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'permission',
-                    description: 'The permission to add to the permission node.',
+                    description: 'The permission.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -577,14 +717,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'node',
-                    description: 'The name of the permission node to remove the permission from.',
+                    description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'permission',
-                    description: 'The permission to remove from the permission node.',
+                    description: 'The permission to revoke.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -599,22 +739,22 @@ export default class Config extends Command {
           },
           {
             name: ConfigSubcommandGroup.Interactions,
-            description: 'Manage the interaction settings.',
+            description: 'Interaction settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
                 name: ConfigSubcommand.ToggleDefaultEphemeralReply,
-                description: 'Toggle if replies should be ephemeral by default.',
+                description: 'Toggle default ephemeral replies.',
                 type: ApplicationCommandOptionType.Subcommand
               },
               {
                 name: ConfigSubcommand.TimeToLive,
-                description: 'Set the time-to-live for interaction responses.',
+                description: 'Set the time-to-live for interaction replies.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
                     name: 'type',
-                    description: 'The type of interaction response to set the time-to-live for.',
+                    description: 'The interaction type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
@@ -626,7 +766,7 @@ export default class Config extends Command {
                   },
                   {
                     name: 'duration',
-                    description: 'The duration for the time-to-live.',
+                    description: 'The duration.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
@@ -668,7 +808,7 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'scope',
-                    description: 'The name of the scope to delete.',
+                    description: 'The name of the scope.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
@@ -682,14 +822,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'scope',
-                    description: 'The name of the scope to add the channel to.',
+                    description: 'The name of the scope.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'channel',
-                    description: 'The channel or category to add to the scope.',
+                    description: 'The channel or category.',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                     channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
@@ -703,14 +843,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'scope',
-                    description: 'The name of the scope to remove the channel from.',
+                    description: 'The name of the scope.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'channel',
-                    description: 'The channel or category to remove from the scope.',
+                    description: 'The channel or category.',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                     channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
@@ -724,14 +864,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'scope',
-                    description: 'The name of the scope to add the channel to.',
+                    description: 'The name of the scope.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'channel',
-                    description: 'The channel or category to add to the scope.',
+                    description: 'The channel or category.',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                     channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
@@ -745,14 +885,14 @@ export default class Config extends Command {
                 options: [
                   {
                     name: 'scope',
-                    description: 'The name of the scope to remove the channel from.',
+                    description: 'The name of the scope.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     autocomplete: true
                   },
                   {
                     name: 'channel',
-                    description: 'The channel or category to remove from the scope.',
+                    description: 'The channel or category.',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                     channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
@@ -811,6 +951,23 @@ export default class Config extends Command {
             return Config.reports.setAutoDisregard(interaction, config);
           case ConfigSubcommand.RequireReviewReason:
             return Config.reports.requireReviewReason(interaction, config);
+        }
+      }
+
+      case ConfigSubcommandGroup.Requests: {
+        switch (subcommand) {
+          case ConfigSubcommand.Toggle:
+            return Config.requests.toggleRequest(interaction, config);
+          case ConfigSubcommand.SetAlertChannel:
+            return Config.requests.setAlertChannel(interaction, config);
+          case ConfigSubcommand.AddImmuneRole:
+            return Config.requests.addImmuneRole(interaction);
+          case ConfigSubcommand.RemoveImmuneRole:
+            return Config.requests.removeImmuneRole(interaction);
+          case ConfigSubcommand.AddPingRole:
+            return Config.requests.addPingRole(interaction);
+          case ConfigSubcommand.RemovePingRole:
+            return Config.requests.removePingRole(interaction);
         }
       }
 
@@ -1287,6 +1444,250 @@ export default class Config extends Command {
         content: `A reason is ${toggle ? 'now' : 'no longer'} required for ${
           type.includes('Accept') ? 'accepting' : 'denying'
         } ${type.includes('user') ? 'user reports' : 'message reports'}.`
+      };
+    }
+  };
+
+  private static requests = {
+    async toggleRequest(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      let toggle = true;
+
+      if (config[type] === true) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: toggle }
+      });
+
+      return {
+        content: `Moderators can now ${toggle ? 'submit' : 'no longer submit'} ${
+          type === 'muteRequestsEnabled' ? 'mute requests' : 'ban requests'
+        }.`
+      };
+    },
+
+    async setAlertChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const channel = interaction.options.getChannel('channel', true) as TextChannel;
+      const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      const webhooks = await interaction.guild.fetchWebhooks();
+      const webhook = webhooks.find(webhook => webhook.url === config[type]);
+
+      if (
+        !channel.permissionsFor(interaction.guild.members.me!).has(PermissionFlagsBits.ManageWebhooks) ||
+        !interaction.appPermissions.has(PermissionFlagsBits.ManageWebhooks)
+      ) {
+        return {
+          error: 'I must have the `Manage Webhooks` permission to perform this action.',
+          temporary: true
+        };
+      }
+
+      if (webhook) {
+        if (webhook.channelId === channel.id) {
+          return {
+            error: `The alert channel for ${
+              type === 'muteRequestsWebhook' ? 'mute requests' : 'ban requests'
+            } is already set to ${channel.toString()}.`,
+            temporary: true
+          };
+        }
+
+        let failed = false;
+
+        await webhook
+          .edit({
+            channel: channel.id
+          })
+          .catch(() => {
+            failed = true;
+          });
+
+        if (failed) {
+          return {
+            error: 'Failed to update the alert channel.',
+            temporary: true
+          };
+        }
+      } else {
+        let failed = false;
+
+        const newWebhook = await channel
+          .createWebhook({
+            name: `${type === 'muteRequestsWebhook' ? 'Mute' : 'Ban'} Request Alerts`,
+            avatar: client.user!.displayAvatarURL()
+          })
+          .catch(() => {
+            failed = true;
+          });
+
+        if (failed || !newWebhook) {
+          return {
+            error: `Failed to create a new webhook in ${channel.toString()}.`,
+            temporary: true
+          };
+        }
+
+        await prisma.guild.update({
+          where: { id: interaction.guildId },
+          data: { [type]: newWebhook.url }
+        });
+      }
+
+      return {
+        content: `The alert channel for ${
+          type === 'muteRequestsWebhook' ? 'mute requests' : 'ban requests'
+        } has been set to ${channel.toString()}.`
+      };
+    },
+
+    async addImmuneRole(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+      const config = (await prisma.guild.findUnique({
+        where: {
+          id: interaction.guildId
+        },
+        select: {
+          muteRequestsImmuneRoles: true,
+          banRequestsImmuneRoles: true
+        }
+      }))!;
+
+      const role = interaction.options.getRole('role', true);
+      const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      if (config[type].includes(role.id)) {
+        return {
+          error: `The role ${role.toString()} is already in the immune roles list for ${
+            type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+          }.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: { push: role.id } }
+      });
+
+      return {
+        content: `The role ${role.toString()} has been added to the immune roles list for ${
+          type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+        }.`
+      };
+    },
+
+    async removeImmuneRole(interaction: ChatInputCommandInteraction<'cached'>) {
+      const config = (await prisma.guild.findUnique({
+        where: {
+          id: interaction.guildId
+        },
+        select: {
+          muteRequestsImmuneRoles: true,
+          banRequestsImmuneRoles: true
+        }
+      }))!;
+
+      const role = interaction.options.getRole('role', true);
+      const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      if (!config[type].includes(role.id)) {
+        return {
+          error: `The role ${role.toString()} is not in the immune roles list for ${
+            type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+          }.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: { set: config[type].filter(r => r !== role.id) } }
+      });
+
+      return {
+        content: `The role ${role.toString()} has been removed from the immune roles list for ${
+          type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+        }.`
+      };
+    },
+
+    async addPingRole(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+      const config = (await prisma.guild.findUnique({
+        where: {
+          id: interaction.guildId
+        },
+        select: {
+          muteRequestsPingRoles: true,
+          banRequestsPingRoles: true
+        }
+      }))!;
+
+      const role = interaction.options.getRole('role', true);
+      const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      if (config[type].includes(role.id)) {
+        return {
+          error: `The role ${role.toString()} is already in the ping roles list for ${
+            type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+          }.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: { push: role.id } }
+      });
+
+      return {
+        content: `The role ${role.toString()} has been added to the ping roles list for ${
+          type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+        }.`
+      };
+    },
+
+    async removePingRole(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
+      const config = (await prisma.guild.findUnique({
+        where: {
+          id: interaction.guildId
+        },
+        select: {
+          muteRequestsPingRoles: true,
+          banRequestsPingRoles: true
+        }
+      }))!;
+
+      const role = interaction.options.getRole('role', true);
+      const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      if (!config[type].includes(role.id)) {
+        return {
+          error: `The role ${role.toString()} is not in the ping roles list for ${
+            type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+          }.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: { set: config[type].filter(r => r !== role.id) } }
+      });
+
+      return {
+        content: `The role ${role.toString()} has been removed from the ping roles list for ${
+          type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+        }.`
       };
     }
   };
@@ -2220,6 +2621,7 @@ export default class Config extends Command {
 enum ConfigSubcommandGroup {
   Commands = 'commands',
   Reports = 'reports',
+  Requests = 'requests',
   Infractions = 'infractions',
   Logging = 'logging',
   Permissions = 'permissions',

@@ -43,7 +43,7 @@ export default class Warn extends Command {
             description: 'The reason for warning the target.',
             type: ApplicationCommandOptionType.String,
             required: false,
-            max_length: 1000
+            max_length: 1024
           }
         ]
       }

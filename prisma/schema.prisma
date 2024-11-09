@@ -93,12 +93,12 @@ model Guild {
   banRequestsEnabled     Boolean  @default(false)
   banRequestsWebhook     String?
   banRequestsImmuneRoles String[]
-  banRequestsImmuneUsers String[]
+  banRequestsPingRoles   String[]
 
   muteRequestsEnabled     Boolean  @default(false)
   muteRequestsWebhook     String?
   muteRequestsImmuneRoles String[]
-  muteRequestsImmuneUsers String[]
+  muteRequestsPingRoles   String[]
 
   // Infraction settings
 

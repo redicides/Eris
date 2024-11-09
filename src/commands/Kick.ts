@@ -33,7 +33,7 @@ export default class Kick extends Command {
             description: 'The reason for kicking the target.',
             type: ApplicationCommandOptionType.String,
             required: false,
-            max_length: 1000
+            max_length: 1024
           }
         ]
       }

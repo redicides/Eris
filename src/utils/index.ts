@@ -18,7 +18,9 @@ import {
   GuildTextBasedChannel,
   EmbedBuilder,
   messageLink,
-  channelMention
+  channelMention,
+  ChatInputApplicationCommandData,
+  ApplicationCommandOptionType
 } from 'discord.js';
 import { PermissionEnum, Message } from '@prisma/client';
 
@@ -533,4 +535,65 @@ export async function formatMessageBulkDeleteLogEntry(data: {
 
   content ??= data.messageContent ?? EMPTY_MESSAGE_CONTENT;
   return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
+}
+
+/**
+ * Calculate the size of a command.
+ *
+ * @param command The command to calculate the size of
+ * @returns The total size of the command and a breakdown of the size
+ */
+
+export function calculateCommandSize(command: ChatInputApplicationCommandData): {
+  total: number;
+  breakdown: { [key: string]: number };
+} {
+  const breakdown: { [key: string]: number } = {};
+  let total = 0;
+
+  // Name and description
+  breakdown.name = command.name.length;
+  breakdown.description = command.description.length;
+  total += breakdown.name + breakdown.description;
+
+  // Calculate options size recursively
+  if (command.options) {
+    breakdown.options = 0;
+
+    const calculateOptionSize = (option: any): number => {
+      let size = 0;
+
+      // Add name and description lengths
+      size += option.name?.length || 0;
+      size += option.description?.length || 0;
+
+      // Add choices if present
+      if (option.choices) {
+        for (const choice of option.choices) {
+          size += choice.name.length;
+          size += String(choice.value).length;
+        }
+      }
+
+      // Recursively calculate subcommand/group options
+      if (
+        option.options &&
+        [ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(option.type)
+      ) {
+        for (const subOption of option.options) {
+          size += calculateOptionSize(subOption);
+        }
+      }
+
+      return size;
+    };
+
+    for (const option of command.options) {
+      breakdown.options += calculateOptionSize(option);
+    }
+
+    total += breakdown.options;
+  }
+
+  return { total, breakdown };
 }

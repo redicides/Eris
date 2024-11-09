@@ -45,7 +45,7 @@ export default class Ban extends Command {
             description: 'The reason for banning the target.',
             type: ApplicationCommandOptionType.String,
             required: false,
-            max_length: 1000
+            max_length: 1024
           },
           {
             name: 'delete_previous_messages',

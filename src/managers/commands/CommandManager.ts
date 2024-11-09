@@ -76,10 +76,14 @@ export default class CommandManager {
       return;
     }
 
-    const publishedCommands = await client.application?.commands.set(globalCommands).catch(() => null);
+    const publishedCommands = await client.application?.commands.set(globalCommands).catch(error => {
+      Logger.error('Failed to publish global commands:', error);
+      return null;
+    });
 
     if (!publishedCommands) {
-      throw new Error('Failed to publish global commands.');
+      return Logger.warn('No global commands were published. Aborting...');
+      process.exit(1);
     }
 
     Logger.log('GLOBAL', logMessage(publishedCommands.size), {
