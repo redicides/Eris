@@ -241,11 +241,12 @@ export default class InfractionManager {
 
   public static async searchInfractions(data: {
     guildId: Snowflake;
+    controllerId: Snowflake;
     target: User;
     filter: InfractionFlag | null;
     page: number;
   }): Promise<InteractionReplyOptions> {
-    const { guildId, target, filter, page } = data;
+    const { guildId, controllerId, target, filter, page } = data;
 
     const skipMultiplier = page - 1;
 
@@ -293,7 +294,8 @@ export default class InfractionManager {
       const totalPages = Math.ceil(infractionCount / INFRACTIONS_PER_PAGE);
       const paginationActionRow = InfractionManager._getPaginationButtons({
         page,
-        totalPages
+        totalPages,
+        controllerId
       });
 
       components.push(paginationActionRow);
@@ -369,8 +371,8 @@ export default class InfractionManager {
     return fields;
   }
 
-  private static _getPaginationButtons(data: { page: number; totalPages: number }) {
-    const { page, totalPages } = data;
+  private static _getPaginationButtons(data: { page: number; totalPages: number; controllerId: Snowflake }) {
+    const { page, totalPages, controllerId } = data;
 
     const isFirstPage = page === 1;
     const isLastPage = page === totalPages;
@@ -383,26 +385,26 @@ export default class InfractionManager {
 
     const nextButton = new ButtonBuilder()
       .setLabel('→')
-      .setCustomId(`infraction-search-next`)
+      .setCustomId(`infraction-search-next-${controllerId}`)
       .setDisabled(isLastPage)
       .setStyle(ButtonStyle.Primary);
 
     const previousButton = new ButtonBuilder()
       .setLabel('←')
-      .setCustomId(`infraction-search-back`)
+      .setCustomId(`infraction-search-back-${controllerId}`)
       .setDisabled(isFirstPage)
       .setStyle(ButtonStyle.Primary);
 
     if (totalPages > 2) {
       const firstPageButton = new ButtonBuilder()
         .setLabel('«')
-        .setCustomId(`infraction-search-first`)
+        .setCustomId(`infraction-search-first-${controllerId}`)
         .setDisabled(isFirstPage)
         .setStyle(ButtonStyle.Primary);
 
       const lastPageButton = new ButtonBuilder()
         .setLabel('»')
-        .setCustomId(`infraction-search-last`)
+        .setCustomId(`infraction-search-last-${controllerId}`)
         .setDisabled(isLastPage)
         .setStyle(ButtonStyle.Primary);
 

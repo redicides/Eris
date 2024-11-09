@@ -10,15 +10,23 @@ import InfractionManager from '@managers/database/InfractionManager';
 
 export default class InfractionSearchPaginationComponent extends Component {
   constructor() {
-    super({ matches: /^infraction-search-(next|back|last|first)$/m });
+    super({ matches: /^infraction-search-(next|back|last|first)-\d{17,19}$/m });
   }
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
     const direction = interaction.customId.split('-')[2] as 'next' | 'back' | 'last' | 'first';
+    const controllerId = interaction.customId.split('-')[3];
+
+    if (controllerId !== interaction.user.id) {
+      return {
+        error: 'Only the user who initiated the search can use these buttons.',
+        temporary: true
+      };
+    }
 
     if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
       return {
-        error: 'You cannot use this button.',
+        error: "You no longer have permission to search this user's infractions.",
         temporary: true
       };
     }
@@ -85,14 +93,13 @@ export default class InfractionSearchPaginationComponent extends Component {
       filter = null;
     }
 
-    const updatedResult = await InfractionManager.searchInfractions({
+    return InfractionManager.searchInfractions({
       guildId: interaction.guildId,
+      controllerId: interaction.user.id,
       target,
       page,
       filter
     });
-
-    return updatedResult;
   }
 
   public static parsePageOptions(options: PageOptions, currentPage: number, totalPages: number): number {

@@ -82,13 +82,14 @@ export default class Infraction extends Command {
 
         if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
           return {
-            error: 'You do not have permission to search infractions.',
+            error: "You do not have permission to search this user's infractions.",
             temporary: true
           };
         }
 
         return InfractionManager.searchInfractions({
           guildId: interaction.guildId,
+          controllerId: interaction.user.id,
           target,
           filter,
           page: 1
