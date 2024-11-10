@@ -10,7 +10,8 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-  AttachmentBuilder
+  AttachmentBuilder,
+  roleMention
 } from 'discord.js';
 import { PermissionEnum, Prisma } from '@prisma/client';
 
@@ -754,6 +755,11 @@ export default class Config extends Command {
                     ]
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.ListNodes,
+                description: 'List all the permission nodes.',
+                type: ApplicationCommandOptionType.Subcommand
               }
             ]
           },
@@ -1035,6 +1041,8 @@ export default class Config extends Command {
             return Config.permissions.addPermission(interaction, config);
           case ConfigSubcommand.RevokePermission:
             return Config.permissions.removePermission(interaction, config);
+          case ConfigSubcommand.ListNodes:
+            return Config.permissions.listNodes(interaction, config);
         }
       }
 
@@ -2192,7 +2200,7 @@ export default class Config extends Command {
 
       if (permission.roles.includes(role.id)) {
         return {
-          error: `The role ${role.toString()} is already in the permission node.`,
+          error: `The role ${role} is already in the permission node.`,
           temporary: true
         };
       }
@@ -2207,7 +2215,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `Successfully added the role ${role.toString()} to the permission node.`
+        content: `Successfully added the role ${role} to the permission node.`
       };
     },
 
@@ -2229,7 +2237,7 @@ export default class Config extends Command {
 
       if (!permission.roles.includes(role.id)) {
         return {
-          error: `The role ${role.toString()} is not in the permission node.`,
+          error: `The role ${role} is not in the permission node.`,
           temporary: true
         };
       }
@@ -2244,7 +2252,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `Successfully removed the role ${role.toString()} from the permission node.`
+        content: `Successfully removed the role ${role} from the permission node.`
       };
     },
 
@@ -2276,12 +2284,17 @@ export default class Config extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: [...config.permissions, permissionNode]
+          permissions: {
+            set: config.permissions.map(p => (p.name === permissionNode.name ? permissionNode : p))
+          }
         }
       });
 
       return {
-        content: `Successfully added the permission \`${permission}\` to the permission node.`
+        content: `Successfully added the permission \`${permission.replaceAll(
+          /([a-z])([A-Z])/g,
+          '$1 $2'
+        )}\` to the permission node.`
       };
     },
 
@@ -2313,12 +2326,62 @@ export default class Config extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: [...config.permissions, permissionNode]
+          permissions: {
+            set: config.permissions.map(p => (p.name === permissionNode.name ? permissionNode : p))
+          }
         }
       });
 
       return {
-        content: `Successfully removed the permission \`${permission}\` from the permission node.`
+        content: `Successfully removed the permission \`${permission.replaceAll(
+          /([a-z])([A-Z])/g,
+          '$1 $2'
+        )}\` from the permission node.`
+      };
+    },
+
+    async listNodes(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      if (!config.permissions.length) {
+        return {
+          content: 'There are no permission nodes for this server.',
+          temporary: true
+        };
+      }
+
+      const map = (
+        await Promise.all(
+          config.permissions.map(async permission => {
+            const roles = await Promise.all(
+              permission.roles.map(async id => {
+                const role = await interaction.guild.roles.fetch(id).catch(() => null);
+                return role ? role : { id: id, name: 'Unknown Role' };
+              })
+            );
+
+            return `Name: ${permission.name}\n└── Included Roles: ${
+              roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
+            }\n└── Allowed Permissions: ${permission.allow.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
+          })
+        )
+      ).join('\n\n');
+
+      const dataUrl = await uploadData(map, 'txt');
+      const buffer = Buffer.from(map, 'utf-8');
+      const attachment = new AttachmentBuilder(buffer, { name: 'permission-nodes.txt' });
+
+      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open in Browser').setURL(dataUrl);
+      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
+
+      return {
+        content: `There ${config.permissions.length > 1 ? 'are' : 'is'} **${config.permissions.length}** ${pluralize(
+          config.permissions.length,
+          'permission node'
+        )} for this server.`,
+        files: [attachment],
+        components: [actionRow]
       };
     }
   };
@@ -2738,6 +2801,7 @@ enum ConfigSubcommand {
   SetLogChannel = 'set-channel',
   CreateNode = 'create-node',
   DeleteNode = 'delete-node',
+  ListNodes = 'list',
   AddRoleToNode = 'add-role-to-node',
   RemoveRoleFromNode = 'remove-role-from-node',
   GrantPermission = 'grant',
