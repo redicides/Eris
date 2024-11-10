@@ -22,9 +22,22 @@ import { capitalize, elipsify, generateSnowflakeId, hierarchyCheck, userMentionW
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
 
 export default class InfractionManager {
+  /**
+   * Store an infraction in the database.
+   *
+   * @param data The infraction data
+   * @returns The stored infraction
+   */
   static async storeInfraction(data: Prisma.InfractionCreateArgs['data']): Promise<Infraction> {
     return prisma.infraction.create({ data });
   }
+
+  /**
+   * Retrieve an infraction from the database.
+   *
+   * @param where The infraction query
+   * @returns The infraction, if found
+   */
 
   static async getInfraction(where: Prisma.InfractionFindUniqueArgs['where']): Promise<Infraction | null> {
     return prisma.infraction.findUnique({
@@ -32,9 +45,24 @@ export default class InfractionManager {
     });
   }
 
+  /**
+   * Delete an infraction from the database.
+   *
+   * @param where The infraction query
+   * @returns The deleted infraction, if found
+   */
+
   static async deleteInfraction(where: Prisma.InfractionDeleteArgs['where']): Promise<Infraction | null> {
     return prisma.infraction.delete({ where });
   }
+
+  /**
+   * Check if a user has an active mute.
+   *
+   * @param options.guildId The guild ID
+   * @param options.targetId The target user ID
+   * @returns The active mute, if found
+   */
 
   static async getActiveMute(options: { guildId: Snowflake; targetId: Snowflake }): Promise<Infraction | null> {
     return prisma.infraction.findFirst({
@@ -45,6 +73,18 @@ export default class InfractionManager {
       }
     });
   }
+
+  /**
+   * Validate an moderation action.
+   *
+   * @param data.config The guild configuration
+   * @param data.guild The guild where the action is taking place
+   * @param data.target The target user
+   * @param data.executor The executor of the action
+   * @param data.action The type of action
+   * @param data.reason The reason for the action
+   * @returns The validation result
+   */
 
   public static validateAction(data: {
     config: GuildConfig;
@@ -88,6 +128,14 @@ export default class InfractionManager {
     return { success: true };
   }
 
+  /**
+   * Log an infraction to the infraction logging webhook.
+   *
+   * @param data.config The guild configuration
+   * @param data.infraction The infraction to log
+   * @returns The sent message, if successful
+   */
+
   static async logInfraction(data: { config: GuildConfig; infraction: Infraction }): Promise<APIMessage | null> {
     const { config, infraction } = data;
 
@@ -124,6 +172,16 @@ export default class InfractionManager {
     return webhook.send({ embeds: [embed] }).catch(() => null);
   }
 
+  /**
+   * Notify a user of an infraction.
+   *
+   * @param data.config The guild configuration
+   * @param data.guild The guild where tje infraction was issued from
+   * @param data.target The target user
+   * @param data.infraction The infraction that was issued
+   * @returns The sent message, if successful
+   */
+
   static async sendNotificationDM(data: {
     config: GuildConfig;
     guild: Guild;
@@ -155,6 +213,19 @@ export default class InfractionManager {
 
     return target.send({ embeds: [embed] }).catch(() => null);
   }
+
+  /**
+   * Resolve a punishment action.
+   *
+   * @param data.guild The guild where the action is taking place
+   * @param data.executor The executor of the action
+   * @param data.target The target user
+   * @param data.action The type of action
+   * @param data.reason The reason for the action
+   * @param data.duration The duration of the action
+   * @param data.deleteMessages The number of messages to delete upon ban
+   * @returns The resolved punishment
+   */
 
   public static async resolvePunishment(data: {
     guild: Guild;
@@ -191,6 +262,15 @@ export default class InfractionManager {
     }
   }
 
+  /**
+   * Format an audit log reason for an infraction.
+   *
+   * @param executor The executor of the action
+   * @param punishment The type of punishment
+   * @param reason The reason for the action
+   * @returns The formatted reason
+   */
+
   private static formatAuditLogReason(
     executor: GuildMember,
     punishment: Exclude<InfractionType, 'Warn'>,
@@ -201,19 +281,48 @@ export default class InfractionManager {
     }) - ${reason}`;
   }
 
+  /**
+   * Get the preposition for an infraction type.
+   *
+   * @param type The infraction type
+   * @returns The preposition
+   */
+
   private static getPreposition(type: InfractionType): string {
     return type === 'Ban' || type === 'Unban' ? 'from' : 'in';
   }
 
+  /**
+   * Get the past tense for an infraction type.
+   *
+   * @param type The infraction type
+   * @returns The past tense
+   */
+
   private static getPastTense(type: InfractionType): string {
     return PAST_TENSE_INFRACTIONS[type.toLowerCase() as keyof typeof PAST_TENSE_INFRACTIONS];
   }
+
+  /**
+   * Format an expiration date.
+   *
+   * @param expiration The expiration date
+   * @returns The formatted expiration date
+   */
 
   public static formatExpiration(expiration: bigint | number | null): string {
     return expiration === null
       ? 'Never'
       : `${time(Math.floor(Number(expiration) / 1000))} (${time(Math.floor(Number(expiration) / 1000), 'R')})`;
   }
+
+  /**
+   * Get the success message when issuing an infraction.
+   *
+   * @param data.target The target user
+   * @param data.infraction The issued infraction
+   * @returns The success message
+   */
 
   public static getSuccessMessage(data: { target: GuildMember | User; infraction: Infraction }): string {
     const { target, infraction } = data;
@@ -233,6 +342,13 @@ export default class InfractionManager {
 
     return `${message[type]} - ID \`#${id}\``;
   }
+
+  /**
+   * Map an infraction type to a color.
+   *
+   * @param data.infraction The infraction
+   * @returns The color
+   */
 
   public static mapActionToColor(data: { infraction: Infraction }): number {
     return INFRACTION_COLORS[data.infraction.type];
@@ -369,6 +485,13 @@ export default class InfractionManager {
     return generateSnowflakeId();
   }
 
+  /**
+   * Format the fields for infraction search.
+   *
+   * @param infractions The infractions the user has received
+   * @returns The formatted fields
+   */
+
   private static async _getSearchFields(infractions: Infraction[]) {
     let fields: EmbedField[] = [];
 
@@ -386,6 +509,15 @@ export default class InfractionManager {
 
     return fields;
   }
+
+  /**
+   * Get the pagination buttons for infraction search embed.
+   *
+   * @param data.page The current page
+   * @param data.totalPages The total number of pages
+   * @param data.controllerId Id of the user who initiated the search
+   * @returns The pagination buttons
+   */
 
   private static _getPaginationButtons(data: { page: number; totalPages: number; controllerId: Snowflake }) {
     const { page, totalPages, controllerId } = data;
