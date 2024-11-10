@@ -1,5 +1,4 @@
 import { Awaitable, MessageComponentInteraction, ModalSubmitInteraction } from 'discord.js';
-
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { client, prisma } from '@/index';
 

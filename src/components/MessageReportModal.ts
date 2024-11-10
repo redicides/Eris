@@ -1,10 +1,10 @@
 import { ModalSubmitInteraction } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { hasPermission } from '@utils/index';
 import { ReportUtils } from '@utils/Reports';
 
 import Component from '@managers/components/Component';
-import { hasPermission } from '@/utils';
 
 export default class MessageReportModalComponent extends Component {
   constructor() {

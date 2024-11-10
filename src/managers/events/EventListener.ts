@@ -1,5 +1,4 @@
 import { Events } from 'discord.js';
-
 import { client, prisma } from '@/index';
 
 export default abstract class EventListener {

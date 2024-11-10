@@ -3,9 +3,9 @@ import { Message } from '@prisma/client';
 
 import { prisma } from '@/index';
 import { GuildConfig } from '@utils/Types';
+import { EMPTY_MESSAGE_CONTENT } from '@utils/Constants';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import { EMPTY_MESSAGE_CONTENT } from '@/utils/Constants';
 
 export default class DatabaseManager {
   /**
