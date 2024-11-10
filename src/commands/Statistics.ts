@@ -54,7 +54,7 @@ export default class Statistics extends Command {
     const infractions = await this.prisma.infraction.count();
     const messages = await this.prisma.message.count();
 
-    const currentDate = Math.floor(Date.now() / 1000);
+    const currentDate = Math.round(Date.now() / 1000);
 
     const embed = new EmbedBuilder()
       .setColor(Colors.NotQuiteBlack)
