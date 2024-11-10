@@ -1,7 +1,5 @@
 interface ColorOptions {
-  // ANSI color code
   color?: AnsiColor;
-  // Whether to color the full log or just the level
   full?: boolean;
 }
 
@@ -17,90 +15,61 @@ export enum AnsiColor {
 }
 
 export default class Logger {
-  /**
-   * Log a message with a level.
-   *
-   * @param level The log level
-   * @param message The message to log
-   * @param options The color options
-   */
+  private static readonly LOG_LEVELS = {
+    INFO: { color: AnsiColor.Cyan },
+    WARN: { color: AnsiColor.Yellow },
+    DEBUG: { color: AnsiColor.Orange },
+    ERROR: { color: AnsiColor.Red },
+    FATAL: { color: AnsiColor.Red }
+  } as const;
+
+  private static formatTimestamp(): string {
+    const timestamp = new Date().toISOString();
+    return `${AnsiColor.Grey}[${timestamp}]${AnsiColor.Reset}`;
+  }
+
+  private static formatLevel(level: string, color?: AnsiColor): string {
+    return color ? `${color}[${level}]${AnsiColor.Reset}` : `[${level}]`;
+  }
+
+  private static formatMessage(message: string, options?: ColorOptions): string {
+    if (options?.color && options.full) {
+      return `${options.color}${message}${AnsiColor.Reset}`;
+    }
+    return message;
+  }
+
+  private static formatLogMessage(level: string, message: string, options?: ColorOptions): string {
+    const timestamp = this.formatTimestamp();
+    const formattedLevel = this.formatLevel(level, options?.color);
+    const formattedMessage = this.formatMessage(message, options);
+    return `${timestamp} ${formattedLevel} ${formattedMessage}`;
+  }
 
   static log(level: string, message: string, options?: ColorOptions): void {
-    const timestamp = new Date().toISOString();
-    const timestampString = `${AnsiColor.Grey}[${timestamp}]${AnsiColor.Reset}`;
-
-    if (options?.color && !options.full) {
-      console.log(`${timestampString} ${options.color}[${level}]${AnsiColor.Reset} ${message}`);
-    } else if (options?.color && options.full) {
-      console.log(`${timestampString} ${options.color}[${level}] ${message}${AnsiColor.Reset}`);
-    } else {
-      console.log(`${timestampString} [${level}] ${message}`);
-    }
+    console.log(this.formatLogMessage(level, message, options));
   }
-
-  /**
-   * Log an info message.
-   *
-   * @param message The message to log
-   */
 
   static info(message: string): void {
-    Logger.log('INFO', message, {
-      color: AnsiColor.Cyan
-    });
+    this.log('INFO', message, { color: this.LOG_LEVELS.INFO.color });
   }
-
-  /**
-   * Log a warning message.
-   *
-   * @param message The message to log
-   */
 
   static warn(message: string): void {
-    Logger.log('WARN', message, {
-      color: AnsiColor.Yellow
-    });
+    this.log('WARN', message, { color: this.LOG_LEVELS.WARN.color });
   }
 
-  /**
-   * Log a debug message.
-   *
-   * @param message The message to log
-   * @param values Optional values to pass to console.debug
-   */
-
   static debug(message: string, ...values: readonly unknown[]): void {
-    Logger.log('DEBUG', message, {
-      color: AnsiColor.Orange
-    });
+    this.log('DEBUG', message, { color: this.LOG_LEVELS.DEBUG.color });
     console.debug(...values);
   }
 
-  /**
-   * Log an error message.
-   *
-   * @param message The message to log
-   * @param values Optional values to pass to console.error
-   */
-
   static error(message: string, ...values: readonly unknown[]): void {
-    Logger.log('ERROR', message, {
-      color: AnsiColor.Red
-    });
+    this.log('ERROR', message, { color: this.LOG_LEVELS.ERROR.color });
     console.error(...values);
   }
 
-  /**
-   * Log a fatal message.
-   *
-   * @param message The message to log
-   * @param values Optional values to pass to console.error
-   */
-
   static fatal(message: string, ...values: readonly unknown[]): void {
-    Logger.log('FATAL', message, {
-      color: AnsiColor.Red
-    });
+    this.log('FATAL', message, { color: this.LOG_LEVELS.FATAL.color });
     console.error(...values);
   }
 }
