@@ -1,4 +1,9 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ChatInputCommandInteraction,
+  PermissionFlagsBits
+} from 'discord.js';
 
 import ms from 'ms';
 
@@ -16,6 +21,7 @@ export default class Request extends Command {
       data: {
         name: 'request',
         description: 'Request a moderation action.',
+        defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         type: ApplicationCommandType.ChatInput,
         options: [
           {

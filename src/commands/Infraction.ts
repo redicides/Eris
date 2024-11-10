@@ -1,4 +1,9 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ChatInputCommandInteraction,
+  PermissionFlagsBits
+} from 'discord.js';
 import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
@@ -15,6 +20,7 @@ export default class Infraction extends Command {
       data: {
         name: 'infraction',
         description: 'Manage infractions.',
+        defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         type: ApplicationCommandType.ChatInput,
         options: [
           {

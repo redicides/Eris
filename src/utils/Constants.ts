@@ -136,3 +136,5 @@ export const LOG_ENTRY_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   timeZone: DEFAULT_TIMEZONE,
   hour12: false
 };
+
+export const COMMON_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
