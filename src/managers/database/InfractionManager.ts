@@ -187,9 +187,9 @@ export default class InfractionManager {
     punishment: Exclude<InfractionType, 'Warn'>,
     reason: string
   ): string {
-    return `[${capitalize(InfractionManager.getPastTense(punishment))} by ${executor.user.username} (${
+    return `${capitalize(InfractionManager.getPastTense(punishment))} by @${executor.user.username} (${
       executor.id
-    })] ${reason}`;
+    }) - ${reason}`;
   }
 
   private static getPreposition(type: InfractionType): string {
