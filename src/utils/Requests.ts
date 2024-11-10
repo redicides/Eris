@@ -7,7 +7,6 @@ import {
   EmbedBuilder,
   EmbedData,
   GuildMember,
-  MessageCreateOptions,
   ModalBuilder,
   ModalSubmitInteraction,
   roleMention,
@@ -23,7 +22,7 @@ import { BanRequest, MuteRequest } from '@prisma/client';
 import ms from 'ms';
 
 import { GuildConfig, InteractionReplyData } from './Types';
-import { capitalize, userMentionWithId } from '.';
+import { capitalize, sendNotification, userMentionWithId } from '.';
 import { client, prisma } from '..';
 
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
@@ -263,6 +262,7 @@ export class RequestUtils {
 
     const createdAt = Date.now();
     const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
+    const parsedReason = reason ? reason.replaceAll('`', '') : null;
 
     const target = await client.users.fetch(request.targetId).catch(() => null);
     const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
@@ -274,9 +274,9 @@ export class RequestUtils {
 
     const content = `${action === 'deny' ? `${error} ` : ``}${userMention(
       request.requestedBy
-    )}, your ban request against ${userMention(request.targetId)} has been ${
+    )}, your ban request with ID \`#${request.id}\` against ${userMention(request.targetId)} has been ${
       action === 'accept' ? 'accepted' : 'denied'
-    } by ${userMention(interaction.user.id)} - ID \`#${request.id}\``;
+    } by ${userMention(interaction.user.id)}${parsedReason ? ` - ${parsedReason}` : ''}`;
 
     switch (action) {
       case 'accept': {
@@ -308,7 +308,9 @@ export class RequestUtils {
           type: 'Ban',
           reason: request.reason,
           createdAt,
-          expiresAt
+          expiresAt,
+          requestAuthorId: request.requestedBy,
+          requestId: request.id
         });
 
         if (targetMember) {
@@ -359,7 +361,8 @@ export class RequestUtils {
           data: {
             status: 'Accepted',
             resolvedBy: interaction.user.id,
-            resolvedAt: Date.now()
+            resolvedAt: Date.now(),
+            infractionId: infraction.id
           }
         });
 
@@ -371,7 +374,7 @@ export class RequestUtils {
           reason: reason ?? DEFAULT_INFRACTION_REASON
         });
 
-        await RequestUtils.sendNotification({
+        await sendNotification({
           config,
           options: { content, allowedMentions: { parse: [] } }
         });
@@ -402,7 +405,7 @@ export class RequestUtils {
           reason: reason ?? DEFAULT_INFRACTION_REASON
         });
 
-        await RequestUtils.sendNotification({
+        await sendNotification({
           config,
           options: {
             content,
@@ -444,8 +447,8 @@ export class RequestUtils {
 
     const createdAt = Date.now();
     const expiresAt = createdAt + request.duration;
-
     const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
+    const parsedReason = reason ? reason.replaceAll('`', '') : null;
 
     const embed = new EmbedBuilder(interaction.message!.embeds[0] as EmbedData)
       .setAuthor({ name: `Mute Request` })
@@ -454,9 +457,9 @@ export class RequestUtils {
 
     const content = `${action === 'deny' ? `${error} ` : ``}${userMention(
       request.requestedBy
-    )}, your mute request against ${userMention(request.targetId)} has been ${
+    )}, your mute request with ID \`#${request.id}\` against ${userMention(request.targetId)} has been ${
       action === 'accept' ? 'accepted' : 'denied'
-    } by ${userMention(interaction.user.id)} - ID \`#${request.id}\``;
+    } by ${userMention(interaction.user.id)}${parsedReason ? ` - ${parsedReason}` : ''}`;
 
     switch (action) {
       case 'accept': {
@@ -500,7 +503,9 @@ export class RequestUtils {
           type: 'Mute',
           reason: request.reason,
           createdAt,
-          expiresAt
+          expiresAt,
+          requestAuthorId: request.requestedBy,
+          requestId: request.id
         });
 
         await TaskManager.storeTask({
@@ -524,7 +529,8 @@ export class RequestUtils {
           data: {
             status: 'Accepted',
             resolvedBy: interaction.user.id,
-            resolvedAt: createdAt
+            resolvedAt: createdAt,
+            infractionId: infraction.id
           }
         });
 
@@ -536,7 +542,7 @@ export class RequestUtils {
           reason: reason ?? DEFAULT_INFRACTION_REASON
         });
 
-        await RequestUtils.sendNotification({
+        sendNotification({
           config,
           options: { content, allowedMentions: { parse: [] } }
         });
@@ -567,7 +573,7 @@ export class RequestUtils {
           reason: reason ?? DEFAULT_INFRACTION_REASON
         });
 
-        await RequestUtils.sendNotification({
+        await sendNotification({
           config,
           options: {
             content,
@@ -644,23 +650,5 @@ export class RequestUtils {
         allowedMentions: { parse: [] }
       })
       .catch(() => null);
-  }
-
-  /**
-   * Send a notification to the notification webhook.
-   *
-   * @param data.config The guild configuration
-   * @param data.options The message options
-   * @returns The notification
-   */
-
-  public static async sendNotification(data: { config: GuildConfig; options: MessageCreateOptions }) {
-    const { config, options } = data;
-
-    if (!config.notificationWebhook) {
-      return;
-    }
-
-    return new WebhookClient({ url: config.notificationWebhook }).send(options).catch(() => null);
   }
 }

@@ -106,11 +106,20 @@ export default class InfractionManager {
       ])
       .setTimestamp(Number(infraction.createdAt));
 
-    if (infraction.expiresAt)
+    if (infraction.expiresAt) {
       embed.addFields({
         name: 'Expiration',
         value: InfractionManager.formatExpiration(infraction.expiresAt)
       });
+    }
+
+    if (infraction.requestAuthorId) {
+      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.requestAuthorId) });
+    }
+
+    if (infraction.requestId) {
+      embed.setFooter({ text: `Related request: #${infraction.requestId}` });
+    }
 
     return webhook.send({ embeds: [embed] }).catch(() => null);
   }
@@ -333,11 +342,20 @@ export default class InfractionManager {
       ])
       .setTimestamp(Number(infraction.createdAt));
 
-    if (infraction.expiresAt)
+    if (infraction.expiresAt) {
       embed.addFields({
         name: 'Expiration',
         value: InfractionManager.formatExpiration(infraction.expiresAt)
       });
+    }
+
+    if (infraction.requestAuthorId) {
+      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.requestAuthorId) });
+    }
+
+    if (infraction.requestId) {
+      embed.setFooter({ text: `Related request: #${infraction.requestId}` });
+    }
 
     return { embeds: [embed], ephemeral: true };
   }

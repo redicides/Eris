@@ -20,7 +20,10 @@ import {
   messageLink,
   channelMention,
   ChatInputApplicationCommandData,
-  ApplicationCommandOptionType
+  ApplicationCommandOptionType,
+  WebhookClient,
+  MessageCreateOptions,
+  APIMessage
 } from 'discord.js';
 import { PermissionEnum, Message } from '@prisma/client';
 
@@ -484,7 +487,7 @@ export async function getReferenceMessage(
       (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
     channelId: referenceMessage.channelId,
     stickerId:
-      'stickerId' in referenceMessage ? referenceMessage.stickerId : (referenceMessage.stickers?.first()?.id ?? null),
+      'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
     createdAt:
       referenceMessage instanceof DiscordMessage
         ? referenceMessage.createdAt
@@ -595,4 +598,25 @@ export function calculateCommandSize(command: ChatInputApplicationCommandData): 
   }
 
   return { total, breakdown };
+}
+
+/**
+ * Send a notification to the configured notification webhook.
+ *
+ * @param data.config The guild configuration
+ * @param data.options The options for the message
+ * @returns The message sent to the webhook, or null if the webhook is not configured
+ */
+
+export async function sendNotification(data: {
+  config: GuildConfig;
+  options: MessageCreateOptions;
+}): Promise<APIMessage | null> {
+  const { config, options } = data;
+
+  if (!config.notificationWebhook) {
+    return null;
+  }
+
+  return new WebhookClient({ url: config.notificationWebhook }).send(options).catch(() => null);
 }
