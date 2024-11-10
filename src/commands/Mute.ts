@@ -58,6 +58,7 @@ export default class Mute extends Command {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
     const rawReason = interaction.options.getString('reason', false);
+    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     if (!target) {
       return {
@@ -106,20 +107,12 @@ export default class Mute extends Command {
       };
     }
 
-    const createdAt = Date.now();
     let expiresAt: number | null;
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
-
-    if (duration) {
-      expiresAt = createdAt + duration;
-    } else {
-      expiresAt = createdAt + Number(config.defaultMuteDuration);
-      duration = Number(config.defaultMuteDuration);
-    }
 
     await interaction.deferReply({ ephemeral });
 
     let mResult = true;
+    if (!duration) duration = Number(config.defaultMuteDuration);
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
@@ -136,6 +129,14 @@ export default class Mute extends Command {
       return {
         error: `Failed to mute ${target}; ensure the duration is correct and does not exceed 28 days.`
       };
+    }
+
+    const createdAt = Date.now();
+
+    if (duration) {
+      expiresAt = createdAt + duration;
+    } else {
+      expiresAt = createdAt + Number(config.defaultMuteDuration);
     }
 
     const infraction = await InfractionManager.storeInfraction({

@@ -58,6 +58,7 @@ export default class Warn extends Command {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
     const rawReason = interaction.options.getString('reason', false);
+    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     if (!target) {
       return {
@@ -107,9 +108,11 @@ export default class Warn extends Command {
       }
     }
 
-    const createdAt = Date.now();
     let expiresAt: number | null = null;
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+
+    await interaction.deferReply({ ephemeral });
+
+    const createdAt = Date.now();
 
     if (duration) {
       expiresAt = createdAt + duration;
@@ -119,8 +122,6 @@ export default class Warn extends Command {
     ) {
       expiresAt = createdAt + Number(config.defaultWarnDuration);
     }
-
-    await interaction.deferReply({ ephemeral });
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),

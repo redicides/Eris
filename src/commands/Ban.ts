@@ -127,11 +127,13 @@ export default class Ban extends Command {
     }
 
     const deleteMessageSeconds = Math.floor(ms(rawDeleteMessages ?? '0s') / 1000);
+    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     let expiresAt: number | null = null;
 
+    await interaction.deferReply({ ephemeral });
+
     const createdAt = Date.now();
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     if (duration) {
       expiresAt = createdAt + duration;
@@ -141,8 +143,6 @@ export default class Ban extends Command {
     ) {
       expiresAt = createdAt + Number(config.defaultBanDuration);
     }
-
-    await interaction.deferReply({ ephemeral });
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
