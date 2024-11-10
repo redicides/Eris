@@ -313,7 +313,7 @@ export default class InfractionManager {
   public static formatExpiration(expiration: bigint | number | null): string {
     return expiration === null
       ? 'Never'
-      : `${time(Math.round(Number(expiration) / 1000))} (${time(Math.round(Number(expiration) / 1000), 'R')})`;
+      : `${time(Math.floor(Number(expiration) / 1000))} (${time(Math.floor(Number(expiration) / 1000), 'R')})`;
   }
 
   /**
@@ -328,8 +328,8 @@ export default class InfractionManager {
     const { target, infraction } = data;
     const { type, id, expiresAt } = infraction;
 
-    const relativeExpiration = expiresAt ? `${time(Math.round(Number(infraction.expiresAt) / 1000), 'R')}` : '';
-    const expirationText = expiresAt ? `${time(Math.round(Number(infraction.expiresAt) / 1000))}` : '';
+    const relativeExpiration = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000), 'R')}` : '';
+    const expirationText = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000))}` : '';
 
     const message: Record<Infraction['type'], string> = {
       Warn: `Successfully added a warning for ${target}${expiresAt ? ` that will expire ${relativeExpiration}` : ''}`,
@@ -502,7 +502,7 @@ export default class InfractionManager {
         name: `${infraction.type} #${infraction.id}, by ${
           executor ? `@${executor.username} (${executor.id})` : 'an unknown user'
         }`,
-        value: `${elipsify(infraction.reason, 256)} - ${time(Math.round(Number(infraction.createdAt) / 1000))}`,
+        value: `${elipsify(infraction.reason, 256)} - ${time(Math.floor(Number(infraction.createdAt) / 1000))}`,
         inline: false
       });
     }
