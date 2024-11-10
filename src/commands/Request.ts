@@ -7,6 +7,7 @@ import { RequestUtils } from '@utils/Requests';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
+import InfractionManager from '@/managers/database/InfractionManager';
 
 export default class Request extends Command {
   constructor() {
@@ -140,9 +141,18 @@ export default class Request extends Command {
           };
         }
 
-        if (target.isCommunicationDisabled()) {
+        const result = InfractionManager.validateAction({
+          config,
+          guild: interaction.guild,
+          target,
+          executor: interaction.member,
+          action: 'Mute',
+          reason
+        });
+
+        if (!result.success) {
           return {
-            error: 'The provided target is already muted.',
+            error: result.message,
             temporary: true
           };
         }
@@ -240,6 +250,22 @@ export default class Request extends Command {
         if (await interaction.guild.bans.fetch(target.id).catch(() => null)) {
           return {
             error: 'The provided target is already banned.',
+            temporary: true
+          };
+        }
+
+        const result = InfractionManager.validateAction({
+          config,
+          guild: interaction.guild,
+          target,
+          executor: interaction.member,
+          action: 'Ban',
+          reason
+        });
+
+        if (!result.success) {
+          return {
+            error: result.message,
             temporary: true
           };
         }
