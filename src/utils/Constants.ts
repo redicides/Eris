@@ -101,7 +101,7 @@ export const YES_NO_ROW = new ActionRowBuilder<ButtonBuilder>().setComponents(YE
 
 export const COMMON_DURATIONS = [
   { name: '1 minute', value: '1 minute' },
-  { name: '15 minutes', value: '10 minutes' },
+  { name: '15 minutes', value: '15 minutes' },
   { name: '30 minutes', value: '30 minutes' },
   { name: '1 hour', value: '1 hour' },
   { name: '6 hours', value: '6 hours' },
