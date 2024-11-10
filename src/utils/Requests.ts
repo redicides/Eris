@@ -260,8 +260,6 @@ export class RequestUtils {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const createdAt = Date.now();
-    const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
     const parsedReason = reason ? reason.replaceAll('`', '') : null;
 
     const target = await client.users.fetch(request.targetId).catch(() => null);
@@ -299,6 +297,9 @@ export class RequestUtils {
         }
 
         let failed = false;
+
+        const createdAt = Date.now();
+        const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
@@ -445,8 +446,6 @@ export class RequestUtils {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const createdAt = Date.now();
-    const expiresAt = createdAt + request.duration;
     const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
     const parsedReason = reason ? reason.replaceAll('`', '') : null;
 
@@ -494,6 +493,9 @@ export class RequestUtils {
             temporary: true
           };
         }
+
+        const createdAt = Date.now();
+        const expiresAt = createdAt + Number(request.duration);
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
@@ -561,7 +563,7 @@ export class RequestUtils {
           data: {
             status: 'Denied',
             resolvedBy: interaction.user.id,
-            resolvedAt: createdAt
+            resolvedAt: Date.now()
           }
         });
 
