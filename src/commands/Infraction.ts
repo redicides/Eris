@@ -41,8 +41,7 @@ export default class Infraction extends Command {
                 required: false,
                 choices: [
                   { name: 'Automatic', value: InfractionFlag.Automatic },
-                  { name: 'Native', value: InfractionFlag.Native },
-                  { name: 'Quick', value: InfractionFlag.Quick }
+                  { name: 'Native', value: InfractionFlag.Native }
                 ]
               }
             ]
