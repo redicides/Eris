@@ -195,7 +195,7 @@ export default class Ban extends Command {
       }).catch(() => null);
     }
 
-    InfractionManager.logInfraction({ config, infraction });
+    await InfractionManager.logInfraction({ config, infraction });
 
     return {
       embeds: [

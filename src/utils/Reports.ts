@@ -10,7 +10,6 @@ import {
   EmbedBuilder,
   EmbedData,
   Guild,
-  GuildTextBasedChannel,
   Message,
   ModalBuilder,
   ModalSubmitInteraction,

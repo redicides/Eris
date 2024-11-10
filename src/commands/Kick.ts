@@ -107,7 +107,7 @@ export default class Kick extends Command {
       };
     }
 
-    InfractionManager.logInfraction({ config, infraction });
+    await InfractionManager.logInfraction({ config, infraction });
 
     return {
       embeds: [

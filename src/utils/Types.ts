@@ -1,5 +1,5 @@
 import { InteractionReplyOptions, Snowflake } from 'discord.js';
-import { Guild, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 export type InteractionReplyData = InteractionReplyOptions &
   Partial<Record<'temporary', boolean>> &

@@ -364,8 +364,6 @@ export default class InfractionManager {
         value: `${elipsify(infraction.reason, 256)} - ${time(Math.floor(Number(infraction.createdAt) / 1000))}`,
         inline: false
       });
-
-      continue;
     }
 
     return fields;

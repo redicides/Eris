@@ -14,12 +14,6 @@ export default class DatabaseManager {
   private static readonly _dbQueue = new Collection<Snowflake, Message>();
 
   /**
-   * The most recent message delete audit log entry.
-   */
-
-  private static _auditLogMessageEntries?: MessageDeleteAuditLog;
-
-  /**
    * Retrieves the guild data for the specified guild from the database.
    * If the guild is not in the database, it creates a new entry and returns it.
    *
@@ -34,12 +28,12 @@ export default class DatabaseManager {
   /**
    * Creates a new guild in the database.
    *
-   * @param guildId The ID of the guild to create
+   * @param id The ID of the guild to create
    * @returns The created guild
    */
 
   public static async createDatabaseGuildEntry(id: Snowflake): Promise<GuildConfig> {
-    return await prisma.guild.create({
+    return prisma.guild.create({
       data: { id }
     });
   }
@@ -47,7 +41,7 @@ export default class DatabaseManager {
   /**
    * Checks if the guild is in the database, and if not, creates a new entry.
    *
-   * @param guildId The ID of the guild
+   * @param id The ID of the guild
    * @returns Guild The guild model
    */
 
@@ -266,12 +260,4 @@ export default class DatabaseManager {
       deleted: false
     };
   }
-}
-
-interface MessageDeleteAuditLog {
-  executorId: Snowflake;
-  authorId: Snowflake;
-  channelId: Snowflake;
-  createdAt: bigint;
-  count: number;
 }

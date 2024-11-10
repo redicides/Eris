@@ -347,7 +347,7 @@ export class RequestUtils {
           });
         }
 
-        InfractionManager.logInfraction({ config, infraction });
+        await InfractionManager.logInfraction({ config, infraction });
 
         await prisma.banRequest.update({
           where: { id: request.id },
@@ -503,8 +503,13 @@ export class RequestUtils {
           type: 'Mute'
         });
 
-        InfractionManager.logInfraction({ config, infraction });
-        InfractionManager.sendNotificationDM({ config, infraction, guild: interaction.guild, target: targetMember });
+        await InfractionManager.logInfraction({ config, infraction });
+        await InfractionManager.sendNotificationDM({
+          config,
+          infraction,
+          guild: interaction.guild,
+          target: targetMember
+        });
 
         await prisma.muteRequest.update({
           where: { id: request.id },

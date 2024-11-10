@@ -11,7 +11,7 @@ import {
 
 import ms from 'ms';
 
-import { CRON_SLUGS, DEFAULT_TIMEZONE, LOG_ENTRY_DATE_FORMAT } from '@utils/Constants';
+import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/Constants';
 import { ReportUtils } from '@utils/Reports';
 import { client, prisma, Sentry } from '@/index';
 import { pluralize } from '.';
@@ -256,8 +256,6 @@ export class CronUtils {
             long: true
           })}**.`
         });
-
-        continue;
       }
 
       for (const report of userReports) {
@@ -309,8 +307,6 @@ export class CronUtils {
             long: true
           })}**.`
         });
-
-        continue;
       }
     });
   }

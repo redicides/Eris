@@ -133,8 +133,8 @@ export default class Warn extends Command {
       expiresAt
     });
 
-    InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
-    InfractionManager.logInfraction({ config, infraction });
+    await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
+    await InfractionManager.logInfraction({ config, infraction });
 
     return {
       embeds: [

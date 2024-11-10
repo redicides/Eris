@@ -119,7 +119,7 @@ export default class Unban extends Command {
       targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
     }).catch(() => null);
 
-    InfractionManager.logInfraction({ config, infraction });
+    await InfractionManager.logInfraction({ config, infraction });
 
     return {
       embeds: [

@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
-import { InfractionFlag, Infraction as Inf } from '@prisma/client';
+import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { hasPermission } from '@utils/index';

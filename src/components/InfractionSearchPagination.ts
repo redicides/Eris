@@ -1,4 +1,4 @@
-import { ButtonComponent, ButtonInteraction, InteractionUpdateOptions } from 'discord.js';
+import { ButtonComponent, ButtonInteraction } from 'discord.js';
 import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';

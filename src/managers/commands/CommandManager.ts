@@ -82,7 +82,7 @@ export default class CommandManager {
     });
 
     if (!publishedCommands) {
-      return Logger.warn('No global commands were published. Aborting...');
+      Logger.warn('No global commands were published. Aborting...');
       process.exit(1);
     }
 

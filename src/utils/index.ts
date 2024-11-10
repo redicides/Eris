@@ -204,6 +204,7 @@ export function cropLines(str: string, maxLines: number): string {
  * @param content The content of the message
  * @param stickerId The id of the sticker in the message
  * @param url The URL of the message
+ * @param includeUrl Whether to include the message URL in the formatted content
  * @returns The formatted message content
  */
 
@@ -365,9 +366,7 @@ export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
     };
 
     if (category === CommandCategory.Developer && !ConfigManager.global_config.developers.includes(userId)) return [];
-    const fields = [field];
-
-    return fields;
+    return [field];
   });
 }
 

@@ -10,10 +10,9 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-  AttachmentBuilder,
-  roleMention
+  AttachmentBuilder
 } from 'discord.js';
-import { PermissionEnum, Prisma } from '@prisma/client';
+import { PermissionEnum } from '@prisma/client';
 
 import ms from 'ms';
 
@@ -948,126 +947,147 @@ export default class Config extends Command {
     await interaction.deferReply({ ephemeral });
 
     switch (group) {
-      case ConfigSubcommandGroup.Commands: {
-        switch (subcommand) {
-          case ConfigSubcommand.Toggle:
-            return Config.commands.toggleCommand(interaction, config);
+      case ConfigSubcommandGroup.Commands:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.Toggle:
+              return Config.commands.toggleCommand(interaction, config);
+          }
         }
-      }
 
-      case ConfigSubcommandGroup.Reports: {
-        switch (subcommand) {
-          case ConfigSubcommand.Toggle:
-            return Config.reports.toggleReport(interaction, config);
-          case ConfigSubcommand.ToggleNotifications:
-            return Config.reports.toggleNotifications(interaction, config);
-          case ConfigSubcommand.RequireMember:
-            return Config.reports.requireMember(interaction, config);
-          case ConfigSubcommand.SetAlertChannel:
-            return Config.reports.setAlertChannel(interaction, config);
-          case ConfigSubcommand.AddImmuneRole:
-            return Config.reports.addImmuneRole(interaction);
-          case ConfigSubcommand.RemoveImmuneRole:
-            return Config.reports.removeImmuneRole(interaction);
-          case ConfigSubcommand.AddPingRole:
-            return Config.reports.addPingRole(interaction);
-          case ConfigSubcommand.RemovePingRole:
-            return Config.reports.removePingRole(interaction);
-          case ConfigSubcommand.SetAutoDisregard:
-            return Config.reports.setAutoDisregard(interaction, config);
-          case ConfigSubcommand.RequireReviewReason:
-            return Config.reports.requireReviewReason(interaction, config);
-        }
-      }
+        break;
 
-      case ConfigSubcommandGroup.Requests: {
-        switch (subcommand) {
-          case ConfigSubcommand.Toggle:
-            return Config.requests.toggleRequest(interaction, config);
-          case ConfigSubcommand.SetAlertChannel:
-            return Config.requests.setAlertChannel(interaction, config);
-          case ConfigSubcommand.AddImmuneRole:
-            return Config.requests.addImmuneRole(interaction);
-          case ConfigSubcommand.RemoveImmuneRole:
-            return Config.requests.removeImmuneRole(interaction);
-          case ConfigSubcommand.AddPingRole:
-            return Config.requests.addPingRole(interaction);
-          case ConfigSubcommand.RemovePingRole:
-            return Config.requests.removePingRole(interaction);
+      case ConfigSubcommandGroup.Reports:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.Toggle:
+              return Config.reports.toggleReport(interaction, config);
+            case ConfigSubcommand.ToggleNotifications:
+              return Config.reports.toggleNotifications(interaction, config);
+            case ConfigSubcommand.RequireMember:
+              return Config.reports.requireMember(interaction, config);
+            case ConfigSubcommand.SetAlertChannel:
+              return Config.reports.setAlertChannel(interaction, config);
+            case ConfigSubcommand.AddImmuneRole:
+              return Config.reports.addImmuneRole(interaction);
+            case ConfigSubcommand.RemoveImmuneRole:
+              return Config.reports.removeImmuneRole(interaction);
+            case ConfigSubcommand.AddPingRole:
+              return Config.reports.addPingRole(interaction);
+            case ConfigSubcommand.RemovePingRole:
+              return Config.reports.removePingRole(interaction);
+            case ConfigSubcommand.SetAutoDisregard:
+              return Config.reports.setAutoDisregard(interaction, config);
+            case ConfigSubcommand.RequireReviewReason:
+              return Config.reports.requireReviewReason(interaction, config);
+          }
         }
-      }
 
-      case ConfigSubcommandGroup.Infractions: {
-        switch (subcommand) {
-          case ConfigSubcommand.RequireReason:
-            return Config.infractions.requireReason(interaction, config);
-          case ConfigSubcommand.SetDefaultDuration:
-            return Config.infractions.setDefaultDuration(interaction, config);
-          case ConfigSubcommand.ToggleNotifications:
-            return Config.infractions.toggleNotifications(interaction, config);
-          case ConfigSubcommand.ToggleNativeIntegration:
-            return Config.infractions.toggleNativeIntegration(interaction, config);
-        }
-      }
+        break;
 
-      case ConfigSubcommandGroup.Logging: {
-        switch (subcommand) {
-          case ConfigSubcommand.SetLogChannel:
-            return Config.logging.setChannel(interaction, config);
-          case ConfigSubcommand.SetNotificationChannel:
-            return Config.logging.setNotificationChannel(interaction, config);
-          case ConfigSubcommand.Toggle:
-            return Config.logging.toggleLogging(interaction, config);
-          case ConfigSubcommand.AddIgnoredChannel:
-            return Config.logging.addIgnoredChannel(interaction);
-          case ConfigSubcommand.RemoveIgnoredChannel:
-            return Config.logging.removeIgnoredChannel(interaction);
-          case ConfigSubcommand.ListIgnoredChannels:
-            return Config.logging.listIgnoredChannels(interaction);
+      case ConfigSubcommandGroup.Requests:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.Toggle:
+              return Config.requests.toggleRequest(interaction, config);
+            case ConfigSubcommand.SetAlertChannel:
+              return Config.requests.setAlertChannel(interaction, config);
+            case ConfigSubcommand.AddImmuneRole:
+              return Config.requests.addImmuneRole(interaction);
+            case ConfigSubcommand.RemoveImmuneRole:
+              return Config.requests.removeImmuneRole(interaction);
+            case ConfigSubcommand.AddPingRole:
+              return Config.requests.addPingRole(interaction);
+            case ConfigSubcommand.RemovePingRole:
+              return Config.requests.removePingRole(interaction);
+          }
         }
-      }
 
-      case ConfigSubcommandGroup.Permissions: {
-        switch (subcommand) {
-          case ConfigSubcommand.CreateNode:
-            return Config.permissions.createNode(interaction, config);
-          case ConfigSubcommand.DeleteNode:
-            return Config.permissions.deleteNode(interaction, config);
-          case ConfigSubcommand.AddRoleToNode:
-            return Config.permissions.addRoleToNode(interaction, config);
-          case ConfigSubcommand.RemoveRoleFromNode:
-            return Config.permissions.removeRoleFromNode(interaction, config);
-          case ConfigSubcommand.GrantPermission:
-            return Config.permissions.addPermission(interaction, config);
-          case ConfigSubcommand.RevokePermission:
-            return Config.permissions.removePermission(interaction, config);
-          case ConfigSubcommand.ListNodes:
-            return Config.permissions.listNodes(interaction, config);
-        }
-      }
+        break;
 
-      case ConfigSubcommandGroup.Interactions: {
-        switch (subcommand) {
-          case ConfigSubcommand.CreateScope:
-            return Config.interactions.createScope(interaction, config);
-          case ConfigSubcommand.DeleteScope:
-            return Config.interactions.deleteScope(interaction, config);
-          case ConfigSubcommand.AddIncludedChannel:
-            return Config.interactions.addIncludedChannel(interaction, config);
-          case ConfigSubcommand.RemoveIncludedChannel:
-            return Config.interactions.removeIncludedChannel(interaction, config);
-          case ConfigSubcommand.AddExcludedChannel:
-            return Config.interactions.addExcludedChannel(interaction, config);
-          case ConfigSubcommand.RemoveExcludedChannel:
-            return Config.interactions.removeExcludedChannel(interaction, config);
-          case ConfigSubcommand.List:
-            return Config.interactions.list(interaction, config);
-          case ConfigSubcommand.ToggleDefaultEphemeralReply:
-            return Config.interactions.toggle(config);
-          case ConfigSubcommand.TimeToLive:
-            return Config.interactions.setTimeToLive(interaction, config);
+      case ConfigSubcommandGroup.Infractions:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.RequireReason:
+              return Config.infractions.requireReason(interaction, config);
+            case ConfigSubcommand.SetDefaultDuration:
+              return Config.infractions.setDefaultDuration(interaction, config);
+            case ConfigSubcommand.ToggleNotifications:
+              return Config.infractions.toggleNotifications(interaction, config);
+            case ConfigSubcommand.ToggleNativeIntegration:
+              return Config.infractions.toggleNativeIntegration(interaction, config);
+          }
         }
-      }
+
+        break;
+
+      case ConfigSubcommandGroup.Logging:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.SetLogChannel:
+              return Config.logging.setChannel(interaction, config);
+            case ConfigSubcommand.SetNotificationChannel:
+              return Config.logging.setNotificationChannel(interaction, config);
+            case ConfigSubcommand.Toggle:
+              return Config.logging.toggleLogging(interaction, config);
+            case ConfigSubcommand.AddIgnoredChannel:
+              return Config.logging.addIgnoredChannel(interaction);
+            case ConfigSubcommand.RemoveIgnoredChannel:
+              return Config.logging.removeIgnoredChannel(interaction);
+            case ConfigSubcommand.ListIgnoredChannels:
+              return Config.logging.listIgnoredChannels(interaction);
+          }
+        }
+
+        break;
+
+      case ConfigSubcommandGroup.Permissions:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.CreateNode:
+              return Config.permissions.createNode(interaction, config);
+            case ConfigSubcommand.DeleteNode:
+              return Config.permissions.deleteNode(interaction, config);
+            case ConfigSubcommand.AddRoleToNode:
+              return Config.permissions.addRoleToNode(interaction, config);
+            case ConfigSubcommand.RemoveRoleFromNode:
+              return Config.permissions.removeRoleFromNode(interaction, config);
+            case ConfigSubcommand.GrantPermission:
+              return Config.permissions.addPermission(interaction, config);
+            case ConfigSubcommand.RevokePermission:
+              return Config.permissions.removePermission(interaction, config);
+            case ConfigSubcommand.ListNodes:
+              return Config.permissions.listNodes(interaction, config);
+          }
+        }
+
+        break;
+
+      case ConfigSubcommandGroup.Interactions:
+        {
+          switch (subcommand) {
+            case ConfigSubcommand.CreateScope:
+              return Config.interactions.createScope(interaction, config);
+            case ConfigSubcommand.DeleteScope:
+              return Config.interactions.deleteScope(interaction, config);
+            case ConfigSubcommand.AddIncludedChannel:
+              return Config.interactions.addIncludedChannel(interaction, config);
+            case ConfigSubcommand.RemoveIncludedChannel:
+              return Config.interactions.removeIncludedChannel(interaction, config);
+            case ConfigSubcommand.AddExcludedChannel:
+              return Config.interactions.addExcludedChannel(interaction, config);
+            case ConfigSubcommand.RemoveExcludedChannel:
+              return Config.interactions.removeExcludedChannel(interaction, config);
+            case ConfigSubcommand.List:
+              return Config.interactions.list(interaction, config);
+            case ConfigSubcommand.ToggleDefaultEphemeralReply:
+              return Config.interactions.toggle(config);
+            case ConfigSubcommand.TimeToLive:
+              return Config.interactions.setTimeToLive(interaction, config);
+          }
+        }
+
+        break;
     }
 
     return {
@@ -1835,7 +1855,7 @@ export default class Config extends Command {
     async toggleNativeIntegration(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
       let toggle = true;
 
-      if (config.nativeModerationIntegration === true) {
+      if (config.nativeModerationIntegration) {
         toggle = false;
       }
 
@@ -2821,10 +2841,3 @@ enum ConfigSubcommand {
 }
 
 const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;
-
-type ParsedConfig = Prisma.GuildGetPayload<{
-  select: {
-    id: true;
-    messageLoggingIgnoredChannels: true;
-  };
-}>;

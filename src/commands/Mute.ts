@@ -107,7 +107,7 @@ export default class Mute extends Command {
     }
 
     const createdAt = Date.now();
-    let expiresAt: number | null = null;
+    let expiresAt: number | null;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     if (duration) {
@@ -157,8 +157,8 @@ export default class Mute extends Command {
       type: 'Mute'
     });
 
-    InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
-    InfractionManager.logInfraction({ config, infraction });
+    await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
+    await InfractionManager.logInfraction({ config, infraction });
 
     return {
       embeds: [
