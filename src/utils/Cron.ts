@@ -80,7 +80,7 @@ export class CronUtils {
    */
 
   public static startTaskRunner(): void {
-    return CronUtils.startJob('TASK_RUNNER', task_runner_cron, false, async () => {
+    return CronUtils.startJob('TASK_RUNNER', task_runner_cron, true, async () => {
       await prisma.infraction.deleteMany({
         where: {
           type: 'Warn',
