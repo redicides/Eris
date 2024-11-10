@@ -80,9 +80,10 @@ export class CronUtils {
    */
 
   public static startTaskRunner(): void {
-    return CronUtils.startJob('TASK_RUNNER', task_runner_cron, true, async () => {
+    return CronUtils.startJob('TASK_RUNNER', task_runner_cron, false, async () => {
       await prisma.infraction.deleteMany({
         where: {
+          type: 'Warn',
           AND: [{ expiresAt: { not: null } }, { expiresAt: { lte: Date.now() } }]
         }
       });
@@ -123,7 +124,7 @@ export class CronUtils {
 
         for (const task of dbGuild.tasks) {
           if (task.type === 'Ban') {
-            await discordGuild.members.unban(task.targetId).catch(() => {});
+            await discordGuild.members.unban(task.targetId).catch(() => null);
           } else {
             const member = await discordGuild.members.fetch(task.targetId).catch(() => null);
 

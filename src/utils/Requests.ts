@@ -56,7 +56,6 @@ export class RequestUtils {
     const { config, guildId, target, requestedBy, duration, reason } = data;
 
     const requestedAt = Date.now();
-    const expiresAt = requestedAt + duration;
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -125,7 +124,7 @@ export class RequestUtils {
         targetId: target.id,
         requestedBy,
         requestedAt,
-        expiresAt,
+        duration,
         reason
       }
     });
@@ -159,7 +158,6 @@ export class RequestUtils {
     const { config, guildId, target, requestedBy, duration, reason } = data;
 
     const requestedAt = Date.now();
-    const expiresAt = duration ? requestedAt + duration : null;
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -231,7 +229,7 @@ export class RequestUtils {
         targetId: target.id,
         requestedBy,
         requestedAt,
-        expiresAt,
+        duration,
         reason
       }
     });
@@ -262,6 +260,9 @@ export class RequestUtils {
     const { interaction, config, action, request, reason } = data;
 
     await interaction.deferReply({ ephemeral: true });
+
+    const createdAt = Date.now();
+    const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
 
     const target = await client.users.fetch(request.targetId).catch(() => null);
     const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
@@ -306,8 +307,8 @@ export class RequestUtils {
           executorId: interaction.user.id,
           type: 'Ban',
           reason: request.reason,
-          createdAt: Date.now(),
-          expiresAt: request.expiresAt
+          createdAt,
+          expiresAt
         });
 
         if (targetMember) {
@@ -337,13 +338,17 @@ export class RequestUtils {
           };
         }
 
-        if (request.expiresAt) {
+        if (expiresAt) {
           await TaskManager.storeTask({
             guildId: request.guildId,
             targetId: request.targetId,
             infractionId: infraction.id,
-            expiresAt: request.expiresAt,
+            expiresAt,
             type: 'Ban'
+          });
+        } else {
+          await TaskManager.deleteTask({
+            targetId_guildId_type: { targetId: request.targetId, guildId: request.guildId, type: 'Ban' }
           });
         }
 
@@ -437,6 +442,9 @@ export class RequestUtils {
 
     await interaction.deferReply({ ephemeral: true });
 
+    const createdAt = Date.now();
+    const expiresAt = createdAt + request.duration;
+
     const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
 
     const embed = new EmbedBuilder(interaction.message!.embeds[0] as EmbedData)
@@ -474,7 +482,7 @@ export class RequestUtils {
           executor: interaction.member!,
           action: 'Mute',
           reason: request.reason,
-          duration: Number(request.expiresAt - request.requestedAt)
+          duration: request.duration
         }).catch(() => (failed = true));
 
         if (failed) {
@@ -491,15 +499,15 @@ export class RequestUtils {
           executorId: interaction.user.id,
           type: 'Mute',
           reason: request.reason,
-          createdAt: Date.now(),
-          expiresAt: request.expiresAt
+          createdAt,
+          expiresAt
         });
 
         await TaskManager.storeTask({
           guildId: request.guildId,
           targetId: request.targetId,
           infractionId: infraction.id,
-          expiresAt: request.expiresAt,
+          expiresAt,
           type: 'Mute'
         });
 
@@ -516,7 +524,7 @@ export class RequestUtils {
           data: {
             status: 'Accepted',
             resolvedBy: interaction.user.id,
-            resolvedAt: Date.now()
+            resolvedAt: createdAt
           }
         });
 
@@ -547,7 +555,7 @@ export class RequestUtils {
           data: {
             status: 'Denied',
             resolvedBy: interaction.user.id,
-            resolvedAt: Date.now()
+            resolvedAt: createdAt
           }
         });
 

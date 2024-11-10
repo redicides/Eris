@@ -246,8 +246,8 @@ model BanRequest {
   requestedAt BigInt
   requestedBy String
 
-  expiresAt BigInt?
-  reason    String
+  duration BigInt?
+  reason   String
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
@@ -266,8 +266,8 @@ model MuteRequest {
   requestedAt BigInt
   requestedBy String
 
-  expiresAt BigInt
-  reason    String
+  duration Int
+  reason   String
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
