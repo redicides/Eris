@@ -166,7 +166,7 @@ export default class InfractionManager {
     }
 
     if (infraction.requestId) {
-      embed.setFooter({ text: `Related request: #${infraction.requestId}` });
+      embed.setFooter({ text: `Request ID: #${infraction.requestId}` });
     }
 
     return webhook.send({ embeds: [embed] }).catch(() => null);
@@ -470,7 +470,7 @@ export default class InfractionManager {
     }
 
     if (infraction.requestId) {
-      embed.setFooter({ text: `Related request: #${infraction.requestId}` });
+      embed.setFooter({ text: `Request ID: #${infraction.requestId}` });
     }
 
     return { embeds: [embed], ephemeral: true };
