@@ -233,8 +233,17 @@ export async function formatMessageContentForShortLog(
   if (content) {
     // Escape code blocks
     content = escapeCodeBlock(content);
-    // Truncate the content if it's too long (account for the formatting characters)
-    content = elipsify(content, 1024 - rawContent.length - 6);
+
+    if (content.length > 1024) {
+      // Upload full content to hastebin if too long
+      const hastebinUrl = await uploadData(content, 'txt');
+      return rawContent + ` \`|\` ${hyperlink('View full content', hastebinUrl)}`;
+    }
+
+    // Calculate max content length considering the code block formatting
+    const maxContentLength = Math.max(0, 1000 - rawContent.length);
+    // Truncate the content if it's too long
+    content = elipsify(content, maxContentLength);
   } else {
     content = EMPTY_MESSAGE_CONTENT;
   }
@@ -487,7 +496,7 @@ export async function getReferenceMessage(
       (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
     channelId: referenceMessage.channelId,
     stickerId:
-      'stickerId' in referenceMessage ? referenceMessage.stickerId : (referenceMessage.stickers?.first()?.id ?? null),
+      'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
     createdAt:
       referenceMessage instanceof DiscordMessage
         ? referenceMessage.createdAt
