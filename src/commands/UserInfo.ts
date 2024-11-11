@@ -1,5 +1,8 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Colors,
   EmbedBuilder,
@@ -51,7 +54,14 @@ export default class UserInfo extends Command {
       .setFields(UserInfo.formatFields(user, member))
       .setFooter({ text: `User ID: ${user.id}` });
 
-    return { embeds: [embed] };
+    const infractionSearchButton = new ButtonBuilder()
+      .setLabel('Search Infractions')
+      .setStyle(ButtonStyle.Secondary)
+      .setCustomId(`infraction-search-${user.id}`);
+
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(infractionSearchButton);
+
+    return { embeds: [embed], components: [actionRow] };
   }
 
   /**
