@@ -642,7 +642,11 @@ export default class Config extends Command {
                     choices: [
                       { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
                       { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports }
+                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
+                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
+                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
+                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
+                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
                     ]
                   }
                 ]
@@ -723,7 +727,9 @@ export default class Config extends Command {
                       { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
                       { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
                       { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests }
+                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
+                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
+                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
                     ]
                   }
                 ]
@@ -750,7 +756,9 @@ export default class Config extends Command {
                       { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
                       { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
                       { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests }
+                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
+                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
+                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
                     ]
                   }
                 ]

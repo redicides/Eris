@@ -46,6 +46,8 @@ enum PermissionEnum {
   ManageUserReports
   ManageMuteRequests
   ManageBanRequests
+  DeleteInfractions
+  UpdateInfractions
 }
 
 model Guild {

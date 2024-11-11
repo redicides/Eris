@@ -13,13 +13,16 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-  EmbedField
+  EmbedField,
+  userMention
 } from 'discord.js';
 import { Infraction, InfractionFlag, InfractionType, Prisma } from '@prisma/client';
 
 import { client, prisma } from '@/index';
 import { capitalize, elipsify, generateSnowflakeId, hierarchyCheck, userMentionWithId } from '@utils/index';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
+
+import TaskManager from './TaskManager';
 
 export default class InfractionManager {
   /**
@@ -443,7 +446,7 @@ export default class InfractionManager {
 
     if (!infraction) {
       return {
-        error: 'The infraction could not be found.',
+        error: `An infraction with the ID \`${id}\` could not be found.`,
         temporary: true
       };
     }
@@ -474,6 +477,165 @@ export default class InfractionManager {
     }
 
     return { embeds: [embed], ephemeral: true };
+  }
+
+  /**
+   * Delete an infraction that was issued.
+   *
+   * @param data.guild The guild where the infraction was issued
+   * @param data.config The guild configuration
+   * @param data.executor The executor of the deletion
+   * @param data.infractionId The ID of the infraction to delete
+   * @param data.undoPunishment Whether to undo the punishment related to the infraction
+   * @param data.notifyReceiver Whether to notify the receiver of the infraction deletion
+   * @param data.reason The reason for the deletion
+   * @returns The result of the deletion
+   */
+
+  public static async deleteReceivedInfraction(data: {
+    guild: Guild;
+    config: GuildConfig;
+    executor: GuildMember;
+    infractionId: Snowflake;
+    undoPunishment: boolean;
+    notifyReceiver: boolean;
+    reason: string;
+  }): Promise<InteractionReplyData> {
+    const { guild, config, executor, infractionId, undoPunishment, notifyReceiver, reason } = data;
+
+    const infraction = await InfractionManager.getInfraction({ id: infractionId, guildId: guild.id });
+
+    if (!infraction) {
+      return {
+        error: `An infraction with the ID \`${infractionId}\` could not be found.`,
+        temporary: true
+      };
+    }
+
+    const target = await guild.members.fetch(infraction.targetId).catch(() => null);
+
+    let failedUndo = false;
+
+    if (undoPunishment && (infraction.type === 'Mute' || infraction.type === 'Ban')) {
+      const permissions = guild.members.me!.permissions;
+      const mutePermission = permissions.has('ModerateMembers');
+      const banPermission = permissions.has('BanMembers');
+
+      switch (infraction.type) {
+        case InfractionType.Mute: {
+          if (!target) {
+            return {
+              error: `I cannot undo the mute for ${userMention(
+                infraction.targetId
+              )} as they are no longer in the server.`,
+              temporary: true
+            };
+          }
+
+          if (!mutePermission) {
+            return {
+              error: `I cannot undo the mute for ${target} as I do not have the \`Timeout Members\` permission.`,
+              temporary: true
+            };
+          }
+
+          if (!hierarchyCheck(guild.members.me!, target)) {
+            return {
+              error: `I cannot undo the mute for ${target} as they have higher or equal roles than me.`,
+              temporary: true
+            };
+          }
+
+          await target
+            .timeout(null, `Infraction ${infraction.id} deleted by @${executor.user.username} (${executor.id})`)
+            .catch(() => {
+              failedUndo = true;
+            });
+
+          break;
+        }
+
+        case InfractionType.Ban: {
+          if (!banPermission) {
+            return {
+              error: `I cannot undo the ban for ${userMention(
+                infraction.targetId
+              )} as I do not have the \`Ban Members\` permission.`,
+              temporary: true
+            };
+          }
+
+          if (!(await guild.bans.fetch(infraction.targetId).catch(() => null))) {
+            return {
+              error: `I cannot undo the ban for ${userMention(infraction.targetId)} as they are not banned.`,
+              temporary: true
+            };
+          }
+
+          await guild.members
+            .unban(
+              infraction.targetId,
+              `Infraction ${infraction.id} deleted by @${executor.user.username} (${executor.id})`
+            )
+            .catch(() => {
+              failedUndo = true;
+            });
+
+          break;
+        }
+      }
+
+      const newInfraction = await InfractionManager.storeInfraction({
+        id: InfractionManager.generateInfractionId(),
+        guildId: guild.id,
+        type: infraction.type === 'Mute' ? 'Unmute' : 'Unban',
+        targetId: infraction.targetId,
+        executorId: executor.id,
+        reason: `Original infraction \`#${infraction.id}\` deleted by @${executor.user.username} (${executor.id}).`,
+        expiresAt: null,
+        createdAt: Date.now()
+      });
+
+      InfractionManager.logInfraction({ config, infraction: newInfraction });
+    }
+
+    await InfractionManager.deleteInfraction({ id: infractionId, guildId: guild.id }).catch(() => null);
+    await TaskManager.deleteTask({
+      targetId_guildId_type: {
+        targetId: infraction.targetId,
+        guildId: guild.id,
+        type: infraction.type === 'Mute' ? 'Mute' : 'Ban'
+      }
+    }).catch(() => null);
+
+    if (notifyReceiver && target) {
+      const embed = new EmbedBuilder()
+        .setColor(Colors.Green)
+        .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
+        .setTitle('Infraction Removed')
+        .setFields([
+          { name: 'Moderator Reason', value: reason },
+          {
+            name: 'Infraction Details',
+            value: `ID: \`#n${infraction.id}\n\`Type: \`${infraction.type}\`\nDate: ${time(
+              Math.floor(Number(infraction.createdAt)) / 1000
+            )}`
+          }
+        ])
+        .setTimestamp();
+
+      await target.send({ embeds: [embed] }).catch(() => null);
+    }
+
+    return {
+      content: `Infraction \`#${infractionId}\` for ${userMention(infraction.targetId)} has been successfully deleted.${
+        undoPunishment
+          ? failedUndo
+            ? `\nI attempted to undo the ${infraction.type.toLowerCase()} but was unable to.`
+            : `\nTheir ${infraction.type.toLowerCase()} was lifted as part of the deletion.`
+          : ``
+      }`
+    };
   }
 
   /**

@@ -58,6 +58,38 @@ export default class Infraction extends Command {
                 required: true
               }
             ]
+          },
+          {
+            name: InfracionSubcommand.Delete,
+            description: 'Delete an infraction.',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'id',
+                description: 'The infraction ID.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+              },
+              {
+                name: 'reason',
+                description: 'The reason for deleting the infraction.',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+                max_length: 1024
+              },
+              {
+                name: 'undo-punishment',
+                description: 'If applicable, undo the punishment associated with the infraction.',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+              },
+              {
+                name: 'notify-receiver',
+                description: 'Toggle if the receiver should be notified of the deletion.',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+              }
+            ]
           }
         ]
       }
@@ -105,11 +137,36 @@ export default class Infraction extends Command {
 
         return InfractionManager.getInfractionInfo({ id: infractionId, guildId: interaction.guildId });
       }
+
+      case InfracionSubcommand.Delete: {
+        const infractionId = interaction.options.getString('id', true);
+        const reason = interaction.options.getString('reason', true);
+        const undoPunishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
+        const notifyReceiver = interaction.options.getBoolean('notify-receiver', false) ?? true;
+
+        if (!hasPermission(interaction.member, config, 'DeleteInfractions')) {
+          return {
+            error: 'You do not have permission to delete infractions.',
+            temporary: true
+          };
+        }
+
+        return InfractionManager.deleteReceivedInfraction({
+          guild: interaction.guild,
+          config,
+          executor: interaction.member,
+          infractionId,
+          undoPunishment,
+          notifyReceiver,
+          reason
+        });
+      }
     }
   }
 }
 
 enum InfracionSubcommand {
   Search = 'search',
-  Info = 'info'
+  Info = 'info',
+  Delete = 'delete'
 }
