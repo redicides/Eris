@@ -274,7 +274,7 @@ export class RequestUtils {
       request.requestedBy
     )}, your ban request with ID \`#${request.id}\` against ${userMention(request.targetId)} has been ${
       action === 'accept' ? 'accepted' : 'denied'
-    } by ${userMention(interaction.user.id)}${parsedReason ? ` - ${parsedReason}` : ''}`;
+    } by ${userMention(interaction.user.id)}${parsedReason ? `: ${parsedReason}` : ''}`;
 
     switch (action) {
       case 'accept': {
@@ -458,7 +458,7 @@ export class RequestUtils {
       request.requestedBy
     )}, your mute request with ID \`#${request.id}\` against ${userMention(request.targetId)} has been ${
       action === 'accept' ? 'accepted' : 'denied'
-    } by ${userMention(interaction.user.id)}${parsedReason ? ` - ${parsedReason}` : ''}`;
+    } by ${userMention(interaction.user.id)}${parsedReason ? `: ${parsedReason}` : ''}`;
 
     switch (action) {
       case 'accept': {
