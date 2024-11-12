@@ -185,7 +185,7 @@ model Task {
   id           String   @id @map("_id")
   guildId      String
   targetId     String
-  infractionId String   @unique
+  infractionId String
   type         TaskType
   expiresAt    BigInt
 
@@ -242,7 +242,7 @@ model BanRequest {
   guildId      String
   targetId     String
   // ID of the infraction that was created
-  infractionId String? @unique
+  infractionId String?
 
   status RequestStatus @default(Pending)
 
@@ -264,7 +264,7 @@ model MuteRequest {
   guildId      String
   targetId     String
   // ID of the infraction that was created
-  infractionId String? @unique
+  infractionId String?
 
   status RequestStatus @default(Pending)
 
