@@ -109,7 +109,6 @@ export default class AuditLogEntryCreate extends EventListener {
       flag: InfractionFlag.Native
     });
 
-    await InfractionManager.logInfraction({ config, infraction });
-    return;
+    return InfractionManager.logInfraction({ config, infraction });
   }
 }

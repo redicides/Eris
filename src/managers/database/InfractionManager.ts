@@ -266,47 +266,6 @@ export default class InfractionManager {
   }
 
   /**
-   * Format an audit log reason for an infraction.
-   *
-   * @param executor The executor of the action
-   * @param punishment The type of punishment
-   * @param reason The reason for the action
-   * @returns The formatted reason
-   */
-
-  private static formatAuditLogReason(
-    executor: GuildMember,
-    punishment: Exclude<InfractionType, 'Warn'>,
-    reason: string
-  ): string {
-    return `${capitalize(InfractionManager.getPastTense(punishment))} by @${executor.user.username} (${
-      executor.id
-    }) - ${reason}`;
-  }
-
-  /**
-   * Get the preposition for an infraction type.
-   *
-   * @param type The infraction type
-   * @returns The preposition
-   */
-
-  private static getPreposition(type: InfractionType): string {
-    return type === 'Ban' || type === 'Unban' ? 'from' : 'in';
-  }
-
-  /**
-   * Get the past tense for an infraction type.
-   *
-   * @param type The infraction type
-   * @returns The past tense
-   */
-
-  private static getPastTense(type: InfractionType): string {
-    return PAST_TENSE_INFRACTIONS[type.toLowerCase() as keyof typeof PAST_TENSE_INFRACTIONS];
-  }
-
-  /**
    * Format an expiration date.
    *
    * @param expiration The expiration date
@@ -628,11 +587,15 @@ export default class InfractionManager {
     }
 
     return {
-      content: `${infraction.type} with ID \`#${infractionId}\` for ${userMention(infraction.targetId)} has been deleted${
+      content: `${infraction.type} with ID \`#${infractionId}\` for ${userMention(
+        infraction.targetId
+      )} has been deleted${
         undoPunishment && (infraction.type === 'Mute' || infraction.type === 'Ban')
           ? failedUndo
-            ? ` but I was unable to ${infraction.type === 'Mute' ? 'unmute the member' : 'unban the user' }`
-            : ` and the ${infraction.type === 'Mute' ? 'member was successfully unmuted' : 'user was successfully unbanned' }`
+            ? ` but I was unable to ${infraction.type === 'Mute' ? 'unmute the member' : 'unban the user'}`
+            : ` and the ${
+                infraction.type === 'Mute' ? 'member was successfully unmuted' : 'user was successfully unbanned'
+              }`
           : ``
       }.`
     };
@@ -728,6 +691,47 @@ export default class InfractionManager {
     } else {
       return new ActionRowBuilder<ButtonBuilder>().setComponents(previousButton, pageCountButton, nextButton);
     }
+  }
+
+  /**
+   * Format an audit log reason for an infraction.
+   *
+   * @param executor The executor of the action
+   * @param punishment The type of punishment
+   * @param reason The reason for the action
+   * @returns The formatted reason
+   */
+
+  private static formatAuditLogReason(
+    executor: GuildMember,
+    punishment: Exclude<InfractionType, 'Warn'>,
+    reason: string
+  ): string {
+    return `${capitalize(InfractionManager.getPastTense(punishment))} by @${executor.user.username} (${
+      executor.id
+    }) - ${reason}`;
+  }
+
+  /**
+   * Get the preposition for an infraction type.
+   *
+   * @param type The infraction type
+   * @returns The preposition
+   */
+
+  private static getPreposition(type: InfractionType): string {
+    return type === 'Ban' || type === 'Unban' ? 'from' : 'in';
+  }
+
+  /**
+   * Get the past tense for an infraction type.
+   *
+   * @param type The infraction type
+   * @returns The past tense
+   */
+
+  private static getPastTense(type: InfractionType): string {
+    return PAST_TENSE_INFRACTIONS[type.toLowerCase() as keyof typeof PAST_TENSE_INFRACTIONS];
   }
 }
 

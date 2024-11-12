@@ -88,11 +88,20 @@ export default class InteractionCreate extends EventListener {
     }
   }
 
+  /**
+   * Handle command and component interactions
+   *
+   * @param interaction The interaction to handle
+   * @param data The command or component to execute
+   * @param config The guild configuration
+   * @returns void
+   */
+
   private static async handleInteraction(
     interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>,
     data: Command | Component,
     config: GuildConfig
-  ) {
+  ): Promise<void> {
     let response: InteractionReplyData | null;
     const ephemeral = interaction.isCommand() ? isEphemeral({ interaction, config }) : true;
 
@@ -147,62 +156,11 @@ export default class InteractionCreate extends EventListener {
     }, ttl);
   }
 
-  private static _handleUnknownInteraction(interaction: Exclude<Interaction, AutocompleteInteraction>) {
-    const sentryId = Sentry.captureException(
-      new Error(
-        `Failed to fetch data for ${
-          interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
-        }.`
-      )
-    );
-
-    return handleInteractionErrorReply({
-      interaction,
-      error: `Failed to fetch data for ${
-        interaction.isCommand() ? `command "${interaction.commandName}"` : `this component`
-      }, please include this ID when reporting the bug: \`${sentryId}\`.`
-    });
-  }
-
-  private static async _handleCommandChecks(
-    interaction: CommandInteraction<'cached'>,
-    command: Command,
-    config: GuildConfig
-  ): Promise<Result> {
-    if (command.isGuarded && !developers.includes(interaction.user.id)) {
-      return {
-        success: false,
-        message: 'This command is not accessible to regular users.'
-      };
-    }
-
-    if (config.commandDisabledList.includes(command.data.name)) {
-      return {
-        success: false,
-        message: 'This command is disabled in this guild.'
-      };
-    }
-
-    if (command.requiredPermissions) {
-      if (!interaction.appPermissions.has(command.requiredPermissions)) {
-        return {
-          success: false,
-          message: `I require the following permissions to execute this command: \`${command.requiredPermissions
-            .toArray()
-            .join(', ')
-            .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`
-        };
-      }
-    }
-
-    return { success: true };
-  }
-
   /**
    * Handle an autocomplete interaction
    */
 
-  public static async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+  private static async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
     if (!interaction.inCachedGuild() || !interaction.inGuild()) return interaction.respond([]);
 
     const option = interaction.options.getFocused(true);
@@ -275,5 +233,56 @@ export default class InteractionCreate extends EventListener {
       default:
         return interaction.respond([]);
     }
+  }
+
+  private static _handleUnknownInteraction(interaction: Exclude<Interaction, AutocompleteInteraction>) {
+    const sentryId = Sentry.captureException(
+      new Error(
+        `Failed to fetch data for ${
+          interaction.isCommand() ? `command "${interaction.commandName}"` : `component "${interaction.customId}"`
+        }.`
+      )
+    );
+
+    return handleInteractionErrorReply({
+      interaction,
+      error: `Failed to fetch data for ${
+        interaction.isCommand() ? `command "${interaction.commandName}"` : `this component`
+      }, please include this ID when reporting the bug: \`${sentryId}\`.`
+    });
+  }
+
+  private static async _handleCommandChecks(
+    interaction: CommandInteraction<'cached'>,
+    command: Command,
+    config: GuildConfig
+  ): Promise<Result> {
+    if (command.isGuarded && !developers.includes(interaction.user.id)) {
+      return {
+        success: false,
+        message: 'This command is not accessible to regular users.'
+      };
+    }
+
+    if (config.commandDisabledList.includes(command.data.name)) {
+      return {
+        success: false,
+        message: 'This command is disabled in this guild.'
+      };
+    }
+
+    if (command.requiredPermissions) {
+      if (!interaction.appPermissions.has(command.requiredPermissions)) {
+        return {
+          success: false,
+          message: `I require the following permissions to execute this command: \`${command.requiredPermissions
+            .toArray()
+            .join(', ')
+            .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`
+        };
+      }
+    }
+
+    return { success: true };
   }
 }

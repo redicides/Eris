@@ -11,7 +11,7 @@ export default class DatabaseManager {
   /**
    * Collection of messages that are queued to be added to the database.
    */
-  private static readonly _dbQueue = new Collection<Snowflake, Message>();
+  private static readonly _messageQueue = new Collection<Snowflake, Message>();
 
   /**
    * Retrieves the guild data for the specified guild from the database.
@@ -63,7 +63,7 @@ export default class DatabaseManager {
    */
 
   public static async getMessageEntry(id: Snowflake): Promise<Message | null> {
-    let message = DatabaseManager._dbQueue.get(id) ?? null;
+    let message = DatabaseManager._messageQueue.get(id) ?? null;
 
     if (!message) {
       message = await prisma.message.findUnique({ where: { id } });
@@ -79,7 +79,7 @@ export default class DatabaseManager {
 
   public static queueMessageEntry(message: DiscordMessage<true>): void {
     const messageEntry = DatabaseManager.serializeMessageEntry(message);
-    DatabaseManager._dbQueue.set(message.id, messageEntry);
+    DatabaseManager._messageQueue.set(message.id, messageEntry);
   }
 
   /**
@@ -90,7 +90,7 @@ export default class DatabaseManager {
    */
 
   public static async deleteMessageEntry(id: Snowflake) {
-    let message = DatabaseManager._dbQueue.get(id) ?? null;
+    let message = DatabaseManager._messageQueue.get(id) ?? null;
 
     if (message) {
       message.deleted = true;
@@ -119,7 +119,7 @@ export default class DatabaseManager {
     const ids = Array.from(messageCollection.keys());
 
     // Try to get the messages from cache
-    const messages = DatabaseManager._dbQueue.filter(message => ids.includes(message.id) && !message.deleted);
+    const messages = DatabaseManager._messageQueue.filter(message => ids.includes(message.id) && !message.deleted);
 
     // Update the deletion state of the cached messages
     const deletedMessages = messages.map(message => {
@@ -160,7 +160,7 @@ export default class DatabaseManager {
 
   public static async updateMessageEntry(id: Snowflake, newContent: string) {
     // Try to get the message from cache
-    const message = DatabaseManager._dbQueue.get(id);
+    const message = DatabaseManager._messageQueue.get(id);
 
     if (message) {
       const oldContent = message.content ?? EMPTY_MESSAGE_CONTENT;
@@ -188,7 +188,7 @@ export default class DatabaseManager {
   public static async storeMessageEntries() {
     Logger.info('Storing cached messages in the database...');
 
-    const messages = Array.from(DatabaseManager._dbQueue.values());
+    const messages = Array.from(DatabaseManager._messageQueue.values());
     let count = 0;
 
     for (const message of messages) {
@@ -205,7 +205,7 @@ export default class DatabaseManager {
       }
     }
 
-    DatabaseManager._dbQueue.clear();
+    DatabaseManager._messageQueue.clear();
 
     if (!count) {
       Logger.info('No messages were stored in the database.');
