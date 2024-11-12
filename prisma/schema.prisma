@@ -185,7 +185,7 @@ model Task {
   id           String   @id @map("_id")
   guildId      String
   targetId     String
-  infractionId String
+  infractionId String   @unique
   type         TaskType
   expiresAt    BigInt
 
