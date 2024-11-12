@@ -631,8 +631,8 @@ export default class InfractionManager {
       content: `${infraction.type} with ID \`#${infractionId}\` for ${userMention(infraction.targetId)} has been deleted${
         undoPunishment && (infraction.type === 'Mute' || infraction.type === 'Ban')
           ? failedUndo
-            ? `but I was unable to ${infraction.type === 'Mute' ? 'unmute the member' : 'unban the user' }`
-            : `and the ${infraction.type === 'Mute' ? 'member was successfully unmuted' : 'user was successfully unbanned' }`
+            ? ` but I was unable to ${infraction.type === 'Mute' ? 'unmute the member' : 'unban the user' }`
+            : ` and the ${infraction.type === 'Mute' ? 'member was successfully unmuted' : 'user was successfully unbanned' }`
           : ``
       }.`
     };
