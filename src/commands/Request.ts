@@ -18,6 +18,7 @@ export default class Request extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
+      usage: ['mute <target> <duration> <reason>', 'ban <target> <reason> [duration]'],
       data: {
         name: 'request',
         description: 'Request a moderation action.',

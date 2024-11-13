@@ -14,10 +14,11 @@ export default class Nickname extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
+      usage: ['set <target> [nickname]', 'censor <target>'],
       requiredPermissions: PermissionFlagsBits.ManageNicknames,
       data: {
         name: 'nickname',
-        description: "Set or censor member's nickname.",
+        description: "Set or censor a member's nickname.",
         defaultMemberPermissions: PermissionFlagsBits.ManageNicknames,
         type: ApplicationCommandType.ChatInput,
         options: [

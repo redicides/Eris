@@ -13,6 +13,7 @@ export default class Avatar extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
+      usage: `[target]`,
       data: {
         name: 'avatar',
         description: 'Get the avatar of a user.',

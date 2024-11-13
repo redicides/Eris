@@ -8,7 +8,7 @@ export default class ViewAvatar extends Command {
   constructor() {
     super({
       category: CommandCategory.Context,
-      allowInDms: false,
+      usage: `View a user's avatar.`,
       data: {
         name: 'View Global Avatar',
         type: ApplicationCommandType.User

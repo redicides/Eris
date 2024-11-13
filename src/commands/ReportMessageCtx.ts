@@ -16,6 +16,7 @@ export default class ReportMessageCtx extends Command {
   constructor() {
     super({
       category: CommandCategory.Context,
+      usage: `Report a message sent by another user.`,
       data: {
         name: 'Report Message',
         type: ApplicationCommandType.Message

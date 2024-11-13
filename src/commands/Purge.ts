@@ -15,6 +15,7 @@ export default class Purge extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
+      usage: '<amount> [channel] [target]',
       requiredPermissions: PermissionFlagsBits.ManageMessages,
       data: {
         name: 'purge',

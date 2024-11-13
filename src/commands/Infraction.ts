@@ -16,7 +16,7 @@ export default class Infraction extends Command {
   constructor() {
     super({
       category: CommandCategory.Moderation,
-      usage: ['search <target> [filter]', 'info <id>'],
+      usage: ['search <target> [filter]', 'info <id>', 'delete <id> <reason> [undo-punishment] [notify-receiver]'],
       data: {
         name: 'infraction',
         description: 'Manage infractions.',
