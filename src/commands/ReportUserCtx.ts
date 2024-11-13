@@ -16,7 +16,6 @@ export default class ReportUserCtx extends Command {
   constructor() {
     super({
       category: CommandCategory.Context,
-      usage: `Report a user in this server.`,
       data: {
         name: 'Report User',
         type: ApplicationCommandType.User

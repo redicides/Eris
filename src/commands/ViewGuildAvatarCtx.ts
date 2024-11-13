@@ -8,7 +8,6 @@ export default class ViewServerAvatar extends Command {
   constructor() {
     super({
       category: CommandCategory.Context,
-      usage: `View a user's avatar in this server.`,
       data: {
         name: 'View Server Avatar',
         type: ApplicationCommandType.User
