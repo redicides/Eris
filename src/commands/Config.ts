@@ -1111,7 +1111,7 @@ export default class Config extends Command {
     ): Promise<InteractionReplyData> {
       const commandName = interaction.options.getString('command', true);
 
-      const command = CommandManager.application_commands.get(commandName);
+      const command = CommandManager.commands.get(commandName);
 
       if (!command || command.category === CommandCategory.Developer) {
         return {
@@ -2482,8 +2482,7 @@ export default class Config extends Command {
         | null;
 
       const command =
-        CommandManager.application_commands.get(commandName) ??
-        CommandManager.application_commands.get(commandName.toLowerCase());
+        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
 
       if (!command || command.category === CommandCategory.Developer) {
         return {

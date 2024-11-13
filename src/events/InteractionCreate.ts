@@ -189,7 +189,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'command': {
-        const commands = CommandManager.application_commands.filter(command => command.category !== 'Developer');
+        const commands = CommandManager.commands.filter(command => command.category !== 'Developer');
 
         const filteredCommands = commands
           .filter(

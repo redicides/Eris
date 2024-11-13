@@ -362,7 +362,7 @@ export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; c
 
 export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
   const categories = Object.values(CommandCategory);
-  const commandStore = CommandManager.application_commands;
+  const commandStore = CommandManager.commands;
 
   return categories.flatMap(category => {
     const commands = [...commandStore.values()]

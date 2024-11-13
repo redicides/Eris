@@ -13,7 +13,7 @@ export default class CommandManager {
   /**
    * The cached application commands.
    */
-  public static readonly application_commands = new Collection<string, Command>();
+  public static readonly commands = new Collection<string, Command>();
 
   /**
    * Caches all commands from the commands directory.
@@ -45,7 +45,7 @@ export default class CommandManager {
         let logMessage: string;
         let level: string;
 
-        CommandManager.application_commands.set(command.data.name, command);
+        CommandManager.commands.set(command.data.name, command);
 
         logMessage = `Cached command "${command.data.name}"`;
         level = 'GLOBAL';
@@ -69,7 +69,7 @@ export default class CommandManager {
     const logMessage = (commandCount: number): string =>
       `Published ${commandCount} ${pluralize(commandCount, 'command')}.`;
 
-    const globalCommands = CommandManager.application_commands.map(command => command.data);
+    const globalCommands = CommandManager.commands.map(command => command.data);
 
     if (!globalCommands.length) {
       Logger.warn('No global commands to publish.');
@@ -95,7 +95,7 @@ export default class CommandManager {
     const isGlobalCommand = client.application?.commands.cache.has(commandId);
 
     if (isGlobalCommand) {
-      return CommandManager.application_commands.get(commandName) ?? null;
+      return CommandManager.commands.get(commandName) ?? null;
     }
 
     return null;

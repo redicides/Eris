@@ -43,8 +43,7 @@ export default class Help extends Command {
 
     if (commandName) {
       const command =
-        CommandManager.application_commands.get(commandName) ??
-        CommandManager.application_commands.get(commandName.toLowerCase());
+        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
 
       if (
         !command ||
