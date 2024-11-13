@@ -3,6 +3,7 @@ import { Events } from 'discord.js';
 import { CronUtils } from '@utils/Cron';
 
 import EventListener from '@managers/events/EventListener';
+import ConfigManager from '@managers/config/ConfigManager';
 import Logger, { AnsiColor } from '@utils/Logger';
 
 export default class Ready extends EventListener {
@@ -16,8 +17,11 @@ export default class Ready extends EventListener {
       full: true
     });
 
-    CronUtils.startTaskRunner();
-    CronUtils.startReportDisregardRunner();
-    CronUtils.startMessageRunners();
+    if (ConfigManager.global_config.bot.activity) {
+      const { type, name } = ConfigManager.global_config.bot.activity;
+      this.client.user!.setActivity({ name, type });
+    }
+
+    Promise.all([CronUtils.startTaskRunner(), CronUtils.startReportDisregardRunner(), CronUtils.startMessageRunners()]);
   }
 }

@@ -41,7 +41,11 @@ DATABASE_URL={mongodb database url}
 You’ll need some basic knowledge about cron here, so if you don’t have any, go ask ChatGPT. I recommend you don’t change the task_runner setting.
 
 ```yaml
-developers: ['1234', '4321'] # A list of user IDs the bot will recognize as developers
+bot:
+  developers: ['1234', '4321'] # A list of user IDs the bot will recognize as developers
+  activity: # Optional activity config for the client
+    name: 'some name' # The activity message
+    type: 1 # The activity type (see https://discord.com/developers/docs/events/gateway-events#activity-object-activity-types)
 
 commands:
   error_ttl: 1234 # The default time-to-live for error embeds (in milliseconds)

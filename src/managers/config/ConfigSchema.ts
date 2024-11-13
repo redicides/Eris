@@ -1,3 +1,4 @@
+import { ActivityType } from 'discord.js';
 import { z } from 'zod';
 
 // ————————————————————————————————————————————————————————————————————————————————
@@ -34,7 +35,16 @@ const zCron = z
  */
 
 export const globalConfigSchema = z.object({
-  developers: z.array(zSnowflake).default([]),
+  bot: z.object({
+    developers: z.array(zSnowflake).default([]),
+    activity: z
+      .object({
+        name: z.string().default('Watching messages zoom by'),
+        type: z.nativeEnum(ActivityType).default(ActivityType.Custom)
+      })
+      .optional()
+  }),
+
   database: z.object({
     task_runner_cron: zCron,
     report_disregard_cron: zCron,
@@ -46,7 +56,6 @@ export const globalConfigSchema = z.object({
     error_ttl: z.number().default(7500),
     reply_ttl: z.number().default(10000)
   }),
-
   emojis: z.object({
     error: discordEmojiRegex.min(1)
   })

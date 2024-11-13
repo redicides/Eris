@@ -377,7 +377,8 @@ export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
       inline: false
     };
 
-    if (category === CommandCategory.Developer && !ConfigManager.global_config.developers.includes(userId)) return [];
+    if (category === CommandCategory.Developer && !ConfigManager.global_config.bot.developers.includes(userId))
+      return [];
     return [field];
   });
 }

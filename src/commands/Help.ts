@@ -48,7 +48,7 @@ export default class Help extends Command {
 
       if (
         !command ||
-        (command.category === 'Developer' && !ConfigManager.global_config.developers.includes(interaction.user.id))
+        (command.category === 'Developer' && !ConfigManager.global_config.bot.developers.includes(interaction.user.id))
       ) {
         return {
           error: 'The provided command does not exist.',

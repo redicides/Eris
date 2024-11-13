@@ -14,7 +14,8 @@ import ComponentManager from '@managers/components/ComponentManager';
 import Command from '@managers/commands/Command';
 import Component from '@managers/components/Component';
 
-const { emojis, developers } = ConfigManager.global_config;
+const { emojis } = ConfigManager.global_config;
+const { developers } = ConfigManager.global_config.bot;
 
 export default class InteractionCreate extends EventListener {
   constructor() {
