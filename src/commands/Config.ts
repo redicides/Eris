@@ -12,7 +12,6 @@ import {
   ActionRowBuilder,
   AttachmentBuilder
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
 
 import ms from 'ms';
 
@@ -29,31 +28,10 @@ export default class Config extends Command {
       category: CommandCategory.Management,
       data: {
         name: 'config',
-        description: 'Manage the guild configuration.',
+        description: 'Configure features for this server.',
         type: ApplicationCommandType.ChatInput,
         defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
         options: [
-          {
-            name: ConfigSubcommandGroup.Commands,
-            description: 'Command settings.',
-            type: ApplicationCommandOptionType.SubcommandGroup,
-            options: [
-              {
-                name: ConfigSubcommand.Toggle,
-                description: 'Enable or disable a command.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'command',
-                    description: 'The name of the command.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  }
-                ]
-              }
-            ]
-          },
           {
             name: ConfigSubcommandGroup.Reports,
             description: 'Report settings.',
@@ -412,84 +390,6 @@ export default class Config extends Command {
             ]
           },
           {
-            name: ConfigSubcommandGroup.Infractions,
-            description: 'Infraction settings.',
-            type: ApplicationCommandOptionType.SubcommandGroup,
-            options: [
-              {
-                name: ConfigSubcommand.RequireReason,
-                description: 'Require a reason for issuing an infraction.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'type',
-                    description: 'The infraction type.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Warn', value: 'requireWarnReason' },
-                      { name: 'Mute', value: 'requireMuteReason' },
-                      { name: 'Kick', value: 'requireKickReason' },
-                      { name: 'Ban', value: 'requireBanReason' },
-                      { name: 'Unmute', value: 'requireUnmuteReason' },
-                      { name: 'Unban', value: 'requireUnbanReason' }
-                    ]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.SetDefaultDuration,
-                description: 'Set the default duration for an infraction type.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'type',
-                    description: 'The infraction type.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Warn', value: 'defaultWarnDuration' },
-                      { name: 'Mute', value: 'defaultMuteDuration' },
-                      { name: 'Ban', value: 'defaultBanDuration' }
-                    ]
-                  },
-                  {
-                    name: 'duration',
-                    description: 'The duration.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.ToggleNotifications,
-                description: 'Toggle notification DMs when a user is punished.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'type',
-                    description: 'The infraction type.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Warn', value: 'notifyWarnAction' },
-                      { name: 'Mute', value: 'notifyMuteAction' },
-                      { name: 'Kick', value: 'notifyKickAction' },
-                      { name: 'Ban', value: 'notifyBanAction' },
-                      { name: 'Unmute', value: 'notifyUnmuteAction' }
-                    ]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.ToggleNativeIntegration,
-                description: 'Toggle tracking of infractions from native moderation.',
-                type: ApplicationCommandOptionType.Subcommand
-              }
-            ]
-          },
-          {
             name: ConfigSubcommandGroup.Logging,
             description: 'Logging settings.',
             type: ApplicationCommandOptionType.SubcommandGroup,
@@ -610,334 +510,6 @@ export default class Config extends Command {
                 ]
               }
             ]
-          },
-          {
-            name: ConfigSubcommandGroup.Permissions,
-            description: 'Permission settings.',
-            type: ApplicationCommandOptionType.SubcommandGroup,
-            options: [
-              {
-                name: ConfigSubcommand.CreateNode,
-                description: 'Create a new permission node.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'name',
-                    description: 'The name of the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    max_length: 50
-                  },
-                  {
-                    name: 'role',
-                    description: 'The first role to add to the permission node.',
-                    type: ApplicationCommandOptionType.Role,
-                    required: true
-                  },
-                  {
-                    name: 'permission',
-                    description: 'The first permission to add to the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
-                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
-                    ]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.DeleteNode,
-                description: 'Delete a permission node.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'permission-node',
-                    description: 'The name of the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.AddRoleToNode,
-                description: 'Add a role to a permission node.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'permission-node',
-                    description: 'The name of the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'role',
-                    description: 'The role.',
-                    type: ApplicationCommandOptionType.Role,
-                    required: true
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.RemoveRoleFromNode,
-                description: 'Remove a role from a permission node.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'permission-node',
-                    description: 'The name of the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'role',
-                    description: 'The role.',
-                    type: ApplicationCommandOptionType.Role,
-                    required: true
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.GrantPermission,
-                description: 'Grant a permission to a permission node.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'permission-node',
-                    description: 'The name of the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'permission',
-                    description: 'The permission.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
-                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
-                    ]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.RevokePermission,
-                description: 'Revoke a permission from a permission node.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'permission-node',
-                    description: 'The name of the permission node.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'permission',
-                    description: 'The permission to revoke.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
-                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
-                    ]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.ListNodes,
-                description: 'List all the permission nodes.',
-                type: ApplicationCommandOptionType.Subcommand
-              }
-            ]
-          },
-          {
-            name: ConfigSubcommandGroup.Interactions,
-            description: 'Interaction settings.',
-            type: ApplicationCommandOptionType.SubcommandGroup,
-            options: [
-              {
-                name: ConfigSubcommand.ToggleDefaultEphemeralReply,
-                description: 'Toggle default ephemeral replies.',
-                type: ApplicationCommandOptionType.Subcommand
-              },
-              {
-                name: ConfigSubcommand.TimeToLive,
-                description: 'Set the time-to-live for interaction replies.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'type',
-                    description: 'The interaction type.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    choices: [
-                      { name: 'Command Error', value: 'commandErrorTTL' },
-                      { name: 'Command Temporary Response', value: 'commandTemporaryReplyTTL' },
-                      { name: 'Component Error', value: 'componentErrorTTL' },
-                      { name: 'Component Temporary Response', value: 'componentTemporaryReplyTTL' }
-                    ]
-                  },
-                  {
-                    name: 'duration',
-                    description: 'The duration.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.CreateScope,
-                description: 'Create a new ephemeral scope.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'command',
-                    description: 'The name of the command this scope will apply for.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'include-channel',
-                    description: 'The channel or category this scope will include.',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: false,
-                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
-                  },
-                  {
-                    name: 'exclude-channel',
-                    description: 'The channel or category this scope will exclude.',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: false,
-                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.DeleteScope,
-                description: 'Delete an ephemeral scope.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'scope',
-                    description: 'The name of the scope.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.AddIncludedChannel,
-                description: 'Add a channel or category to an ephemeral scope.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'scope',
-                    description: 'The name of the scope.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'channel',
-                    description: 'The channel or category.',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: true,
-                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.RemoveIncludedChannel,
-                description: 'Remove a channel or category from an ephemeral scope.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'scope',
-                    description: 'The name of the scope.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'channel',
-                    description: 'The channel or category.',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: true,
-                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.AddExcludedChannel,
-                description: 'Add a channel or category to exclude from an ephemeral scope.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'scope',
-                    description: 'The name of the scope.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'channel',
-                    description: 'The channel or category.',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: true,
-                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.RemoveExcludedChannel,
-                description: 'Remove a channel or category from an ephemeral scope.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                  {
-                    name: 'scope',
-                    description: 'The name of the scope.',
-                    type: ApplicationCommandOptionType.String,
-                    required: true,
-                    autocomplete: true
-                  },
-                  {
-                    name: 'channel',
-                    description: 'The channel or category.',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: true,
-                    channel_types: [ChannelType.GuildText, ChannelType.GuildCategory]
-                  }
-                ]
-              },
-              {
-                name: ConfigSubcommand.List,
-                description: 'List all the ephemeral scopes.',
-                type: ApplicationCommandOptionType.Subcommand
-              }
-            ]
           }
         ]
       }
@@ -955,39 +527,29 @@ export default class Config extends Command {
     await interaction.deferReply({ ephemeral });
 
     switch (group) {
-      case ConfigSubcommandGroup.Commands:
-        {
-          switch (subcommand) {
-            case ConfigSubcommand.Toggle:
-              return Config.commands.toggleCommand(interaction, config);
-          }
-        }
-
-        break;
-
       case ConfigSubcommandGroup.Reports:
         {
           switch (subcommand) {
             case ConfigSubcommand.Toggle:
-              return Config.reports.toggleReport(interaction, config);
+              return Config.Reports.toggleReport(interaction, config);
             case ConfigSubcommand.ToggleNotifications:
-              return Config.reports.toggleNotifications(interaction, config);
+              return Config.Reports.toggleNotifications(interaction, config);
             case ConfigSubcommand.RequireMember:
-              return Config.reports.requireMember(interaction, config);
+              return Config.Reports.requireMember(interaction, config);
             case ConfigSubcommand.SetAlertChannel:
-              return Config.reports.setAlertChannel(interaction, config);
+              return Config.Reports.setAlertChannel(interaction, config);
             case ConfigSubcommand.AddImmuneRole:
-              return Config.reports.addImmuneRole(interaction);
+              return Config.Reports.addImmuneRole(interaction);
             case ConfigSubcommand.RemoveImmuneRole:
-              return Config.reports.removeImmuneRole(interaction);
+              return Config.Reports.removeImmuneRole(interaction);
             case ConfigSubcommand.AddPingRole:
-              return Config.reports.addPingRole(interaction);
+              return Config.Reports.addPingRole(interaction);
             case ConfigSubcommand.RemovePingRole:
-              return Config.reports.removePingRole(interaction);
+              return Config.Reports.removePingRole(interaction);
             case ConfigSubcommand.SetAutoDisregard:
-              return Config.reports.setAutoDisregard(interaction, config);
+              return Config.Reports.setAutoDisregard(interaction, config);
             case ConfigSubcommand.RequireReviewReason:
-              return Config.reports.requireReviewReason(interaction, config);
+              return Config.Reports.requireReviewReason(interaction, config);
           }
         }
 
@@ -997,33 +559,17 @@ export default class Config extends Command {
         {
           switch (subcommand) {
             case ConfigSubcommand.Toggle:
-              return Config.requests.toggleRequest(interaction, config);
+              return Config.Requests.toggleRequest(interaction, config);
             case ConfigSubcommand.SetAlertChannel:
-              return Config.requests.setAlertChannel(interaction, config);
+              return Config.Requests.setAlertChannel(interaction, config);
             case ConfigSubcommand.AddImmuneRole:
-              return Config.requests.addImmuneRole(interaction);
+              return Config.Requests.addImmuneRole(interaction);
             case ConfigSubcommand.RemoveImmuneRole:
-              return Config.requests.removeImmuneRole(interaction);
+              return Config.Requests.removeImmuneRole(interaction);
             case ConfigSubcommand.AddPingRole:
-              return Config.requests.addPingRole(interaction);
+              return Config.Requests.addPingRole(interaction);
             case ConfigSubcommand.RemovePingRole:
-              return Config.requests.removePingRole(interaction);
-          }
-        }
-
-        break;
-
-      case ConfigSubcommandGroup.Infractions:
-        {
-          switch (subcommand) {
-            case ConfigSubcommand.RequireReason:
-              return Config.infractions.requireReason(interaction, config);
-            case ConfigSubcommand.SetDefaultDuration:
-              return Config.infractions.setDefaultDuration(interaction, config);
-            case ConfigSubcommand.ToggleNotifications:
-              return Config.infractions.toggleNotifications(interaction, config);
-            case ConfigSubcommand.ToggleNativeIntegration:
-              return Config.infractions.toggleNativeIntegration(interaction, config);
+              return Config.Requests.removePingRole(interaction);
           }
         }
 
@@ -1033,65 +579,17 @@ export default class Config extends Command {
         {
           switch (subcommand) {
             case ConfigSubcommand.SetLogChannel:
-              return Config.logging.setChannel(interaction, config);
+              return Config.Logging.setChannel(interaction, config);
             case ConfigSubcommand.SetNotificationChannel:
-              return Config.logging.setNotificationChannel(interaction, config);
+              return Config.Logging.setNotificationChannel(interaction, config);
             case ConfigSubcommand.Toggle:
-              return Config.logging.toggleLogging(interaction, config);
+              return Config.Logging.toggleLogging(interaction, config);
             case ConfigSubcommand.AddIgnoredChannel:
-              return Config.logging.addIgnoredChannel(interaction);
+              return Config.Logging.addIgnoredChannel(interaction);
             case ConfigSubcommand.RemoveIgnoredChannel:
-              return Config.logging.removeIgnoredChannel(interaction);
+              return Config.Logging.removeIgnoredChannel(interaction);
             case ConfigSubcommand.ListIgnoredChannels:
-              return Config.logging.listIgnoredChannels(interaction);
-          }
-        }
-
-        break;
-
-      case ConfigSubcommandGroup.Permissions:
-        {
-          switch (subcommand) {
-            case ConfigSubcommand.CreateNode:
-              return Config.permissions.createNode(interaction, config);
-            case ConfigSubcommand.DeleteNode:
-              return Config.permissions.deleteNode(interaction, config);
-            case ConfigSubcommand.AddRoleToNode:
-              return Config.permissions.addRoleToNode(interaction, config);
-            case ConfigSubcommand.RemoveRoleFromNode:
-              return Config.permissions.removeRoleFromNode(interaction, config);
-            case ConfigSubcommand.GrantPermission:
-              return Config.permissions.addPermission(interaction, config);
-            case ConfigSubcommand.RevokePermission:
-              return Config.permissions.removePermission(interaction, config);
-            case ConfigSubcommand.ListNodes:
-              return Config.permissions.listNodes(interaction, config);
-          }
-        }
-
-        break;
-
-      case ConfigSubcommandGroup.Interactions:
-        {
-          switch (subcommand) {
-            case ConfigSubcommand.CreateScope:
-              return Config.interactions.createScope(interaction, config);
-            case ConfigSubcommand.DeleteScope:
-              return Config.interactions.deleteScope(interaction, config);
-            case ConfigSubcommand.AddIncludedChannel:
-              return Config.interactions.addIncludedChannel(interaction, config);
-            case ConfigSubcommand.RemoveIncludedChannel:
-              return Config.interactions.removeIncludedChannel(interaction, config);
-            case ConfigSubcommand.AddExcludedChannel:
-              return Config.interactions.addExcludedChannel(interaction, config);
-            case ConfigSubcommand.RemoveExcludedChannel:
-              return Config.interactions.removeExcludedChannel(interaction, config);
-            case ConfigSubcommand.List:
-              return Config.interactions.list(interaction, config);
-            case ConfigSubcommand.ToggleDefaultEphemeralReply:
-              return Config.interactions.toggle(config);
-            case ConfigSubcommand.TimeToLive:
-              return Config.interactions.setTimeToLive(interaction, config);
+              return Config.Logging.listIgnoredChannels(interaction);
           }
         }
 
@@ -1104,45 +602,11 @@ export default class Config extends Command {
     };
   }
 
-  private static commands = {
-    async toggleCommand(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const commandName = interaction.options.getString('command', true);
+  /**
+   * Collection of subcommands for the Reports group.
+   */
 
-      const command = CommandManager.commands.get(commandName);
-
-      if (!command || command.category === CommandCategory.Developer) {
-        return {
-          error: `The command \`${commandName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      let { commandDisabledList } = config;
-
-      let toggle = false;
-
-      if (commandDisabledList.includes(command.data.name)) {
-        commandDisabledList = commandDisabledList.filter(c => c !== command.data.name);
-        toggle = true;
-      } else {
-        commandDisabledList.push(command.data.name);
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { commandDisabledList }
-      });
-
-      return {
-        content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${command.data.name}\`.`
-      };
-    }
-  };
-
-  private static reports = {
+  public static Reports = {
     async requireMember(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -1506,7 +970,11 @@ export default class Config extends Command {
     }
   };
 
-  private static requests = {
+  /**
+   * Collection of subcommands for the Requests group.
+   */
+
+  public static Requests = {
     async toggleRequest(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -1750,137 +1218,11 @@ export default class Config extends Command {
     }
   };
 
-  private static infractions = {
-    async requireReason(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const type = interaction.options.getString('type', true) as keyof typeof config;
+  /**
+   * Collection of subcommands for the Interactions group.
+   */
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { [type]: toggle }
-      });
-
-      return {
-        content: `A reason is ${toggle ? 'now' : 'no longer'} required for issuing infractions of the specified type.`
-      };
-    },
-
-    async setDefaultDuration(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const type = interaction.options.getString('type', true) as keyof typeof config;
-      const rawDuration = interaction.options.getString('duration', true);
-
-      let duration = parseDuration(rawDuration);
-
-      if (Number.isNaN(duration) && rawDuration.toLowerCase() !== 'none') {
-        return {
-          error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
-          temporary: true
-        };
-      }
-
-      if (config[type] === duration) {
-        return {
-          error: `The default duration for this infraction type is already set to **${ms(Math.floor(duration), {
-            long: true
-          })}**.`,
-          temporary: true
-        };
-      }
-
-      if (duration < 1000 && rawDuration.toLowerCase() !== 'none') {
-        return {
-          error: 'The duration must be at least 1 second.',
-          temporary: true
-        };
-      }
-
-      if (type === 'defaultMuteDuration') {
-        if (duration > ms('28d')) {
-          return {
-            error: 'The duration must not exceed 28 days for mute infractions.',
-            temporary: true
-          };
-        }
-      }
-
-      if (duration > ms('365d')) {
-        return {
-          error: 'The duration must not exceed 1 year.',
-          temporary: true
-        };
-      }
-
-      if (rawDuration === 'none') duration = 0;
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { [type]: duration }
-      });
-
-      return {
-        content: `The default duration for the specified infraction type has been ${
-          rawDuration.toLowerCase() === 'none'
-            ? 'reset'
-            : `set to **${ms(Math.floor(duration), {
-                long: true
-              })}**`
-        }.`
-      };
-    },
-
-    async toggleNotifications(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
-      const type = interaction.options.getString('type', true) as keyof typeof config;
-
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { [type]: toggle }
-      });
-
-      return {
-        content: `Users will ${
-          toggle ? 'now' : 'no longer'
-        } receive DM notifications for the specified infraction type.`
-      };
-    },
-
-    async toggleNativeIntegration(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
-      let toggle = true;
-
-      if (config.nativeModerationIntegration) {
-        toggle = false;
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { nativeModerationIntegration: toggle }
-      });
-
-      return {
-        content: `Native moderation infractions will ${
-          toggle ? 'now' : 'no longer'
-        } be tracked by the infraction system.`
-      };
-    }
-  };
-
-  private static logging = {
+  public static Logging = {
     async toggleLogging(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -2154,267 +1496,11 @@ export default class Config extends Command {
     }
   };
 
-  private static permissions = {
-    async createNode(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('name', true);
-      const role = interaction.options.getRole('role', true);
-      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+  /**
+   * Collection of subcommands for the Interactions group.
+   */
 
-      if (config.permissions.find(permission => permission.name === name)) {
-        return {
-          error: `A permission node with that name already exists.`,
-          temporary: true
-        };
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          permissions: { push: { name, roles: [role.id], allow: [permission] } }
-        }
-      });
-
-      return {
-        content: `Successfully created the permission node \`${name}\`.`
-      };
-    },
-
-    async deleteNode(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
-      const permission = config.permissions.find(permission => permission.name === name);
-
-      if (!permission) {
-        return {
-          error: `A permission node with that name does not exist.`,
-          temporary: true
-        };
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          permissions: {
-            set: config.permissions.filter(permissions => permissions !== permission)
-          }
-        }
-      });
-
-      return {
-        content: `Successfully deleted the permission node \`${name}\`.`
-      };
-    },
-
-    async addRoleToNode(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
-      const role = interaction.options.getRole('role', true);
-
-      const permission = config.permissions.find(permission => permission.name === name);
-
-      if (!permission) {
-        return {
-          error: `A permission node with that name does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (permission.roles.includes(role.id)) {
-        return {
-          error: `The role ${role} is already in the permission node.`,
-          temporary: true
-        };
-      }
-
-      permission.roles.push(role.id);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          permissions: [...config.permissions, permission]
-        }
-      });
-
-      return {
-        content: `Successfully added the role ${role} to the permission node.`
-      };
-    },
-
-    async removeRoleFromNode(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
-      const role = interaction.options.getRole('role', true);
-
-      const permission = config.permissions.find(permission => permission.name === name);
-
-      if (!permission) {
-        return {
-          error: `A permission node with that name does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (!permission.roles.includes(role.id)) {
-        return {
-          error: `The role ${role} is not in the permission node.`,
-          temporary: true
-        };
-      }
-
-      permission.roles = permission.roles.filter(r => r !== role.id);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          permissions: [...config.permissions, permission]
-        }
-      });
-
-      return {
-        content: `Successfully removed the role ${role} from the permission node.`
-      };
-    },
-
-    async addPermission(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
-      const permission = interaction.options.getString('permission', true) as PermissionEnum;
-
-      const permissionNode = config.permissions.find(permission => permission.name === name);
-
-      if (!permissionNode) {
-        return {
-          error: `A permission node with that name does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (permissionNode.allow.includes(permission)) {
-        return {
-          error: `The permission \`${permission}\` is already in the permission node.`,
-          temporary: true
-        };
-      }
-
-      permissionNode.allow.push(permission);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          permissions: {
-            set: config.permissions.map(p => (p.name === permissionNode.name ? permissionNode : p))
-          }
-        }
-      });
-
-      return {
-        content: `Successfully added the permission \`${permission.replaceAll(
-          /([a-z])([A-Z])/g,
-          '$1 $2'
-        )}\` to the permission node.`
-      };
-    },
-
-    async removePermission(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
-      const permission = interaction.options.getString('permission', true) as PermissionEnum;
-
-      const permissionNode = config.permissions.find(permission => permission.name === name);
-
-      if (!permissionNode) {
-        return {
-          error: `A permission node with that name does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (!permissionNode.allow.includes(permission)) {
-        return {
-          error: `The permission \`${permission}\` is not in the permission node.`,
-          temporary: true
-        };
-      }
-
-      permissionNode.allow = permissionNode.allow.filter(p => p !== permission);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          permissions: {
-            set: config.permissions.map(p => (p.name === permissionNode.name ? permissionNode : p))
-          }
-        }
-      });
-
-      return {
-        content: `Successfully removed the permission \`${permission.replaceAll(
-          /([a-z])([A-Z])/g,
-          '$1 $2'
-        )}\` from the permission node.`
-      };
-    },
-
-    async listNodes(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      if (!config.permissions.length) {
-        return {
-          content: 'There are no permission nodes for this server.',
-          temporary: true
-        };
-      }
-
-      const map = (
-        await Promise.all(
-          config.permissions.map(async permission => {
-            const roles = await Promise.all(
-              permission.roles.map(async id => {
-                const role = await interaction.guild.roles.fetch(id).catch(() => null);
-                return role ? role : { id: id, name: 'Unknown Role' };
-              })
-            );
-
-            return `Name: ${permission.name}\n└── Included Roles: ${
-              roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
-            }\n└── Allowed Permissions: ${permission.allow.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
-          })
-        )
-      ).join('\n\n');
-
-      const dataUrl = await uploadData(map, 'txt');
-      const buffer = Buffer.from(map, 'utf-8');
-      const attachment = new AttachmentBuilder(buffer, { name: 'permission-nodes.txt' });
-
-      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open in Browser').setURL(dataUrl);
-      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
-
-      return {
-        content: `There ${config.permissions.length > 1 ? 'are' : 'is'} **${config.permissions.length}** ${pluralize(
-          config.permissions.length,
-          'permission node'
-        )} for this server.`,
-        files: [attachment],
-        components: [actionRow]
-      };
-    }
-  };
-
-  private static interactions = {
+  public static Interactions = {
     async setTimeToLive(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -2801,13 +1887,9 @@ export default class Config extends Command {
 }
 
 enum ConfigSubcommandGroup {
-  Commands = 'commands',
   Reports = 'reports',
   Requests = 'requests',
-  Infractions = 'infractions',
-  Logging = 'logging',
-  Permissions = 'permissions',
-  Interactions = 'interactions'
+  Logging = 'logging'
 }
 
 enum ConfigSubcommand {
@@ -2847,4 +1929,5 @@ enum ConfigSubcommand {
   SetNotificationChannel = 'set-notification-channel'
 }
 
-const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean => channel instanceof CategoryChannel;
+export const isCategory = (channel: GuildTextBasedChannel | CategoryChannel): boolean =>
+  channel instanceof CategoryChannel;
