@@ -63,7 +63,7 @@ export default class Unlock extends Command {
     if (!hasPermission(interaction.member, config, 'UnlockChannels')) {
       return {
         error: `You do not have permission to use this command.`,
-        ephemeral: true
+        temporary: true
       };
     }
 

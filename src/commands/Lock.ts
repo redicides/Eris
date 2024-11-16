@@ -62,7 +62,7 @@ export default class Lock extends Command {
     if (!hasPermission(interaction.member, config, 'LockChannels')) {
       return {
         error: `You do not have permission to use this command.`,
-        ephemeral
+        temporary: true
       };
     }
 
