@@ -3,7 +3,7 @@ import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interactio
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
 import { Sentry } from '@/index';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
-import { COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
+import { CHANNEL_PERMISSION_OVERRIDES, COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
@@ -229,6 +229,16 @@ export default class InteractionCreate extends EventListener {
         return interaction.respond(
           scopes.map(scope => ({ name: capitalize(scope.commandName), value: scope.commandName }))
         );
+      }
+
+      case 'override': {
+        const filteredOverrides = CHANNEL_PERMISSION_OVERRIDES.filter(override =>
+          override.name.toLowerCase().includes(lowercaseValue)
+        )
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .slice(0, 25);
+
+        return interaction.respond(filteredOverrides);
       }
 
       default:

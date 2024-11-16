@@ -7,8 +7,10 @@ import {
   CategoryChannel,
   ChannelType,
   ChatInputCommandInteraction,
+  ForumChannel,
   GuildTextBasedChannel,
-  PermissionFlagsBits
+  PermissionFlagsBits,
+  VoiceChannel
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
 
@@ -16,6 +18,7 @@ import ms from 'ms';
 
 import { prisma } from '..';
 import { isCategory } from './Config';
+import { CHANNEL_PERMISSION_OVERRIDES } from '@utils/Constants';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { parseDuration, pluralize, uploadData } from '@utils/index';
 
@@ -66,7 +69,8 @@ export default class Settings extends Command {
                       { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
                       { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
                       { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
+                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
+                      { name: `Override Lockdown Notifications`, value: PermissionEnum.OverrideLockdownNotificatons }
                     ]
                   }
                 ]
@@ -149,7 +153,8 @@ export default class Settings extends Command {
                       { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
                       { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
                       { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
+                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
+                      { name: `Override Lockdown Notifications`, value: PermissionEnum.OverrideLockdownNotificatons }
                     ]
                   }
                 ]
@@ -178,7 +183,8 @@ export default class Settings extends Command {
                       { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
                       { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
                       { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions }
+                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
+                      { name: `Override Lockdown Notifications`, value: PermissionEnum.OverrideLockdownNotificatons }
                     ]
                   }
                 ]
@@ -450,6 +456,94 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand
               }
             ]
+          },
+          {
+            name: SettingsSubcommandGroup.Lockdown,
+            description: 'Lockdown settings.',
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+              {
+                name: SettingsSubcommand.AddChannel,
+                description: 'Add a channel to the lockdown list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'channel',
+                    description: 'The channel.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildForum]
+                  }
+                ]
+              },
+              {
+                name: SettingsSubcommand.RemoveChannel,
+                description: 'Remove a channel from the lockdown list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'channel',
+                    description: 'The channel.',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                    channel_types: [ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildForum]
+                  }
+                ]
+              },
+              {
+                name: SettingsSubcommand.ListChannels,
+                description: 'List all the channels in the lockdown list.',
+                type: ApplicationCommandOptionType.Subcommand
+              },
+              {
+                name: SettingsSubcommand.AddOverride,
+                description: 'Add an override to deny when locking channels.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'override',
+                    description: 'The override.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  }
+                ]
+              },
+              {
+                name: SettingsSubcommand.RemoveOverride,
+                description: 'Remove an override from the deny list.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'override',
+                    description: 'The override.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    autocomplete: true
+                  }
+                ]
+              },
+              {
+                name: SettingsSubcommand.ListOverrides,
+                description: 'List all the overrides in the deny list.',
+                type: ApplicationCommandOptionType.Subcommand
+              },
+              {
+                name: SettingsSubcommand.ToggleNotifications,
+                description: `Toggle notifying all channels when a lock/unlock occurs.`,
+                type: ApplicationCommandOptionType.Subcommand
+              },
+              {
+                name: SettingsSubcommand.DisplayExecutor,
+                description: 'Toggle displaying the executor when a lock/unlock completes.',
+                type: ApplicationCommandOptionType.Subcommand
+              },
+              {
+                name: SettingsSubcommand.RequireReason,
+                description: 'Require a reason for initiating locks/unlocks.',
+                type: ApplicationCommandOptionType.Subcommand
+              }
+            ]
           }
         ]
       }
@@ -532,6 +626,27 @@ export default class Settings extends Command {
         }
 
         break;
+
+      case SettingsSubcommandGroup.Lockdown: {
+        switch (subcommand) {
+          case SettingsSubcommand.AddChannel:
+            return Settings.Lockdown.addChannel(interaction, config);
+          case SettingsSubcommand.RemoveChannel:
+            return Settings.Lockdown.removeChannel(interaction, config);
+          case SettingsSubcommand.ListChannels:
+            return Settings.Lockdown.listChannels(interaction, config);
+          case SettingsSubcommand.AddOverride:
+            return Settings.Lockdown.addOverride(interaction, config);
+          case SettingsSubcommand.RemoveOverride:
+            return Settings.Lockdown.removeOverride(interaction, config);
+          case SettingsSubcommand.ListOverrides:
+            return Settings.Lockdown.listOverrides(interaction, config);
+          case SettingsSubcommand.ToggleNotifications:
+            return Settings.Lockdown.toggleNotifications(config);
+          case SettingsSubcommand.DisplayExecutor:
+            return Settings.Lockdown.showExecutor(config);
+        }
+      }
     }
 
     return {
@@ -628,7 +743,9 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: [...config.permissions, permission]
+          permissions: {
+            set: config.permissions.map(p => (p.name === permission.name ? permission : p))
+          }
         }
       });
 
@@ -665,7 +782,9 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: [...config.permissions, permission]
+          permissions: {
+            set: config.permissions.map(p => (p.name === permission.name ? permission : p))
+          }
         }
       });
 
@@ -1020,7 +1139,9 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
+          ephemeralScopes: {
+            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          }
         }
       });
 
@@ -1061,7 +1182,9 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
+          ephemeralScopes: {
+            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          }
         }
       });
 
@@ -1111,7 +1234,9 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
+          ephemeralScopes: {
+            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          }
         }
       });
 
@@ -1152,7 +1277,9 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
+          ephemeralScopes: {
+            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          }
         }
       });
 
@@ -1235,7 +1362,7 @@ export default class Settings extends Command {
    * Collection of subcommands for the Infractions subcommand group.
    */
 
-  private static Infractions = {
+  public static Infractions = {
     async requireReason(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -1364,12 +1491,263 @@ export default class Settings extends Command {
       };
     }
   };
+
+  /**
+   * Collection of subcommands for the Lockdown subcommand group.
+   */
+
+  public static Lockdown = {
+    async addChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const channel = interaction.options.getChannel('channel', true) as
+        | GuildTextBasedChannel
+        | VoiceChannel
+        | ForumChannel;
+
+      if (config.lockdownChannels.includes(channel.id)) {
+        return {
+          error: `The channel ${channel} is already in the lockdown list.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { lockdownChannels: { push: channel.id } }
+      });
+
+      return {
+        content: `Successfully added the channel ${channel} to the lockdown list.`
+      };
+    },
+
+    async removeChannel(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const channel = interaction.options.getChannel('channel', true) as
+        | GuildTextBasedChannel
+        | VoiceChannel
+        | ForumChannel;
+
+      if (!config.lockdownChannels.includes(channel.id)) {
+        return {
+          error: `The channel ${channel} is not in the lockdown list.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { lockdownChannels: { set: config.lockdownChannels.filter(c => c !== channel.id) } }
+      });
+
+      return {
+        content: `Successfully removed the channel ${channel} from the lockdown list.`
+      };
+    },
+
+    async listChannels(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      if (!config.lockdownChannels.length) {
+        return {
+          error: 'There are no channels in the lockdown list.',
+          temporary: true
+        };
+      }
+
+      const channels = await Promise.all(
+        config.lockdownChannels.map(async id => {
+          const channel = await interaction.guild.channels.fetch(id).catch(() => null);
+          return channel ? `#${channel.name} (${id})` : `<#${id}>`;
+        })
+      );
+
+      const dataUrl = await uploadData(channels.join('\n'), 'txt');
+      const buffer = Buffer.from(channels.join('\n'), 'utf-8');
+      const attachment = new AttachmentBuilder(buffer, { name: 'lockdown-channels.txt' });
+
+      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open In Browser').setURL(dataUrl);
+      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
+
+      return {
+        content: `There ${
+          config.lockdownChannels.length > 1
+            ? `are currently **${config.lockdownChannels.length}** channels`
+            : `is currently **1** channel`
+        } in the lockdown list.`,
+        files: [attachment],
+        components: [actionRow]
+      };
+    },
+
+    async addOverride(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const override = interaction.options.getString('override', true);
+
+      if (!PermissionFlagsBits.hasOwnProperty(override)) {
+        return {
+          error: 'Invalid override. Please select a valid permission override.',
+          temporary: true
+        };
+      }
+
+      const overrideBit = PermissionFlagsBits[override as keyof typeof PermissionFlagsBits];
+
+      if (config.lockdownOverrides & overrideBit) {
+        return {
+          error: `This override is already in the deny list.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { lockdownOverrides: config.lockdownOverrides | overrideBit }
+      });
+
+      return {
+        content: `The override \`${override.replaceAll(
+          /[a-z][A-Z]/g,
+          m => `${m[0]} ${m[1]}`
+        )}\` will now be denied upon a channel lock.`
+      };
+    },
+
+    async removeOverride(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const override = interaction.options.getString('override', true);
+
+      if (!PermissionFlagsBits.hasOwnProperty(override)) {
+        return {
+          error: 'Invalid override. Please select a valid permission override.',
+          temporary: true
+        };
+      }
+
+      const overrideBit = PermissionFlagsBits[override as keyof typeof PermissionFlagsBits];
+
+      if ((config.lockdownOverrides & overrideBit) === 0n) {
+        return {
+          error: `This override is not in the deny list.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { lockdownOverrides: config.lockdownOverrides ^ overrideBit }
+      });
+
+      return {
+        content: `The override \`${override.replaceAll(
+          /[a-z][A-Z]/g,
+          m => `${m[0]} ${m[1]}`
+        )}\` will no longer be denied upon a channel lock.`
+      };
+    },
+
+    async listOverrides(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const overrides = Object.entries(PermissionFlagsBits)
+        .filter(([_, bit]) => (config.lockdownOverrides & bit) === bit)
+        .map(([name]) => name.replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`));
+
+      if (!overrides.length) {
+        return {
+          error: 'There are no overrides in the deny list.',
+          temporary: true
+        };
+      }
+
+      const dataUrl = await uploadData(overrides.join('\n'), 'txt');
+      const buffer = Buffer.from(overrides.join('\n'), 'utf-8');
+      const attachment = new AttachmentBuilder(buffer, { name: 'lockdown-overrides.txt' });
+
+      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open In Browser').setURL(dataUrl);
+      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
+
+      return {
+        content: `There ${
+          overrides.length > 1 ? `are currently **${overrides.length}** overrides` : `is currently **1** override`
+        } in the deny list.`,
+        files: [attachment],
+        components: [actionRow]
+      };
+    },
+
+    async showExecutor(config: GuildConfig): Promise<InteractionReplyData> {
+      let toggle = true;
+
+      if (config.lockdownDisplayExecutor) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: config.id },
+        data: { lockdownDisplayExecutor: toggle }
+      });
+
+      return {
+        content: `The executor responsible for locking channels will ${
+          toggle ? 'now' : 'no longer'
+        } be displayed in the information embed.`
+      };
+    },
+
+    async toggleNotifications(config: GuildConfig): Promise<InteractionReplyData> {
+      let toggle = true;
+
+      if (config.lockdownNotify) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: config.id },
+        data: { lockdownNotify: toggle }
+      });
+
+      return {
+        content: `Channels in the lockdown list will ${
+          toggle ? 'now' : 'no longer'
+        } have a notification sent upon locking.`
+      };
+    },
+
+    async requireReason(config: GuildConfig): Promise<InteractionReplyData> {
+      let toggle = true;
+
+      if (config.lockdownRequireReason) {
+        toggle = false;
+      }
+
+      await prisma.guild.update({
+        where: { id: config.id },
+        data: { lockdownRequireReason: toggle }
+      });
+
+      return {
+        content: `A reason is ${toggle ? 'now' : 'no longer'} required for locking/unlocking channels.`
+      };
+    }
+  };
 }
 
 enum SettingsSubcommandGroup {
   Infractions = 'infractions',
   Permissions = 'permissions',
-  Commands = 'commands'
+  Commands = 'commands',
+  Lockdown = 'lockdown'
 }
 
 enum SettingsSubcommand {
@@ -1393,5 +1771,12 @@ enum SettingsSubcommand {
   RemoveRoleFromNode = 'remove-role-from-node',
   GrantPermission = 'grant',
   RevokePermission = 'revoke',
-  ListNodes = 'list-nodes'
+  ListNodes = 'list-nodes',
+  AddChannel = 'add-channel',
+  RemoveChannel = 'remove-channel',
+  ListChannels = 'list-channels',
+  AddOverride = 'add-override',
+  RemoveOverride = 'remove-override',
+  ListOverrides = 'list-overrides',
+  DisplayExecutor = 'display-executor'
 }

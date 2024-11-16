@@ -48,6 +48,11 @@ enum PermissionEnum {
   ManageBanRequests
   DeleteInfractions
   UpdateInfractions
+  LockChannels
+  UnlockChannels
+  StartLockdown
+  EndLockdown
+  OverrideLockdownNotificatons
 }
 
 model Guild {
@@ -143,6 +148,14 @@ model Guild {
   messageLoggingWebhook         String?
   messageLoggingIgnoredChannels String[]
 
+  // Lockdown settings
+
+  lockdownChannels        String[]
+  lockdownNotify          Boolean  @default(true)
+  lockdownRequireReason   Boolean  @default(true)
+  lockdownDisplayExecutor Boolean  @default(false)
+  lockdownOverrides       BigInt   @default(377957124160) // SendMessages + CreatePublicThreads + CreatePrivateThreads + SendMessagesInThreads + AddReactions
+
   // Permissions
 
   permissions Permission[]
@@ -154,6 +167,7 @@ model Guild {
   // Relations
 
   infractions    Infraction[]
+  channelLocks   ChannelLock[]
   messageReports MessageReport[]
   userReports    UserReport[]
   banRequests    BanRequest[]
@@ -294,6 +308,14 @@ model Message {
   content               String?
   attachments           String[]
   deleted               Boolean  @default(false)
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model ChannelLock {
+  id      String @id @map("_id")
+  guildId String
+  allow   BigInt
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
