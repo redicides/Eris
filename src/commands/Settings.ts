@@ -373,7 +373,7 @@ export default class Settings extends Command {
                 ]
               },
               {
-                name: SettingsSubcommand.List,
+                name: SettingsSubcommand.ListEphemeralScopes,
                 description: 'List all the ephemeral scopes.',
                 type: ApplicationCommandOptionType.Subcommand
               }
@@ -604,7 +604,7 @@ export default class Settings extends Command {
               return Settings.Commands.addExcludedChannel(interaction, config);
             case SettingsSubcommand.RemoveExcludedChannel:
               return Settings.Commands.removeExcludedChannel(interaction, config);
-            case SettingsSubcommand.List:
+            case SettingsSubcommand.ListEphemeralScopes:
               return Settings.Commands.listEphemeralScopes(interaction, config);
           }
         }
@@ -1764,7 +1764,7 @@ enum SettingsSubcommand {
   RemoveIncludedChannel = 'remove-included-channel',
   AddExcludedChannel = 'add-excluded-channel',
   RemoveExcludedChannel = 'remove-excluded-channel',
-  List = 'list',
+  ListEphemeralScopes = 'list-ephemeral-scopes',
   CreateNode = 'create-node',
   DeleteNode = 'delete-node',
   AddRoleToNode = 'add-role-to-node',
