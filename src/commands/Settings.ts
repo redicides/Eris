@@ -192,6 +192,10 @@ export default class Settings extends Command {
                       { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
                       { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
                       { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
+                      { name: 'Lock Channels', value: PermissionEnum.LockChannels },
+                      { name: 'Unlock Channels', value: PermissionEnum.UnlockChannels },
+                      { name: 'Start Lockdown', value: PermissionEnum.StartLockdown },
+                      { name: 'End Lockdown', value: PermissionEnum.EndLockdown },
                       { name: `Override Lockdown Notifications`, value: PermissionEnum.OverrideLockdownNotificatons }
                     ]
                   }
