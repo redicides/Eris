@@ -1135,7 +1135,7 @@ export default class Settings extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is already in the included channels list for the scope.`,
+          } ${channel}  is already in the included channels list for the scope.`,
           temporary: true
         };
       }
@@ -1144,7 +1144,7 @@ export default class Settings extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is in the excluded channels list for the scope. Remove it from the excluded channels list first.`,
+          } ${channel} is in the excluded channels list for the scope. Remove it from the excluded channels list first.`,
           temporary: true
         };
       }
@@ -1196,7 +1196,7 @@ export default class Settings extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is not in the included channels list for the scope.`,
+          } ${channel} is not in the included channels list for the scope.`,
           temporary: true
         };
       }
@@ -1239,7 +1239,7 @@ export default class Settings extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is already in the excluded channels list for the scope.`,
+          } ${channel} is already in the excluded channels list for the scope.`,
           temporary: true
         };
       }
@@ -1248,7 +1248,7 @@ export default class Settings extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is in the included channels list for the scope. Remove it from the included channels list first.`,
+          } ${channel} is in the included channels list for the scope. Remove it from the included channels list first.`,
           temporary: true
         };
       }
@@ -1300,7 +1300,7 @@ export default class Settings extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is not in the excluded channels list for the scope.`,
+          } ${channel} is not in the excluded channels list for the scope.`,
           temporary: true
         };
       }
