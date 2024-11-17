@@ -657,6 +657,8 @@ export default class Settings extends Command {
             return Settings.Lockdown.toggleNotifications(config);
           case SettingsSubcommand.DisplayExecutor:
             return Settings.Lockdown.showExecutor(config);
+          case SettingsSubcommand.RequireReason:
+            return Settings.Lockdown.requireReason(config);
         }
       }
     }
