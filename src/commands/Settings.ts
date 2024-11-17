@@ -10,6 +10,7 @@ import {
   ForumChannel,
   GuildTextBasedChannel,
   PermissionFlagsBits,
+  TextChannel,
   VoiceChannel
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
@@ -1148,6 +1149,15 @@ export default class Settings extends Command {
         };
       }
 
+      if (channel instanceof TextChannel && channel.parentId) {
+        if (scope.includedChannels.includes(channel.parentId)) {
+          return {
+            error: `Cannot add this channel to the scope because the parent category of the channel is already in the included channels list for the scope.`,
+            temporary: true
+          };
+        }
+      }
+
       scope.includedChannels.push(channel.id);
 
       await prisma.guild.update({
@@ -1241,6 +1251,15 @@ export default class Settings extends Command {
           } ${channel} ${channel.toString()} is in the included channels list for the scope. Remove it from the included channels list first.`,
           temporary: true
         };
+      }
+
+      if (channel instanceof TextChannel && channel.parentId) {
+        if (scope.includedChannels.includes(channel.parentId)) {
+          return {
+            error: `Cannot add this channel to the scope because the parent category of the channel is already in the excluded channels list for the scope.`,
+            temporary: true
+          };
+        }
       }
 
       scope.excludedChannels.push(channel.id);
