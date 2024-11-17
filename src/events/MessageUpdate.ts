@@ -52,6 +52,8 @@ export default class MessageUpdate extends EventListener {
 
     const dbMessage = await DatabaseManager.getMessageEntry(message.id);
 
+    if (oldContent === newContent || !oldContent) return;
+
     if (dbMessage) {
       return MessageUpdate.handleLog(dbMessage, message, oldContent, newContent, config);
     } else {
