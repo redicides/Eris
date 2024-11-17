@@ -1152,7 +1152,7 @@ export default class Settings extends Command {
       if (channel instanceof TextChannel && channel.parentId) {
         if (scope.includedChannels.includes(channel.parentId)) {
           return {
-            error: `Cannot add this channel to the scope because the parent category of the channel is already in the included channels list for the scope.`,
+            error: `Cannot add this channel to the scope because the parent category of the channel is already included.`,
             temporary: true
           };
         }
@@ -1256,7 +1256,7 @@ export default class Settings extends Command {
       if (channel instanceof TextChannel && channel.parentId) {
         if (scope.includedChannels.includes(channel.parentId)) {
           return {
-            error: `Cannot add this channel to the scope because the parent category of the channel is already in the excluded channels list for the scope.`,
+            error: `Cannot add this channel to the scope because the parent category of the channel is already excluded.`,
             temporary: true
           };
         }
