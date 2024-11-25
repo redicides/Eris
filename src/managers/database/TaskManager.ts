@@ -50,6 +50,6 @@ export default class TaskManager {
    */
 
   public static async deleteTask(where: Prisma.TaskDeleteArgs['where']): Promise<Task | null> {
-    return prisma.task.delete({ where });
+    return prisma.task.delete({ where }).catch(() => null);
   }
 }
