@@ -103,26 +103,48 @@ export default class MessageUpdate extends EventListener {
     if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) return;
 
     const embeds: EmbedBuilder[] = [];
-    const reference = message.reference && (await message.fetchReference().catch(() => null));
 
-    if (reference) {
-      const stickerId = reference.stickers?.first()?.id ?? null;
+    if (message.reference?.messageId) {
+      const reference = message.reference && (await message.fetchReference().catch(() => null));
+      const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId);
 
-      const embed = await getMessageLogEmbed(
-        {
-          guildId: reference.guildId,
-          messageId: reference.id,
-          authorId: reference.author.id,
-          channelId: reference.channel.id,
-          stickerId,
-          createdAt: reference.createdAt,
-          content: reference.content,
-          attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
-        },
-        true
-      );
+      if (reference) {
+        const stickerId = reference.stickers?.first()?.id ?? null;
 
-      embeds.push(embed);
+        const embed = await getMessageLogEmbed(
+          {
+            guildId: reference.guildId,
+            messageId: reference.id,
+            authorId: reference.author.id,
+            channelId: reference.channel.id,
+            stickerId,
+            createdAt: reference.createdAt,
+            content: reference.content,
+            attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
+          },
+          true
+        );
+
+        embeds.push(embed);
+      } else if (dbReference) {
+        const stickerId = dbReference.stickerId;
+
+        const embed = await getMessageLogEmbed(
+          {
+            guildId: dbReference.guildId,
+            messageId: dbReference.id,
+            authorId: dbReference.authorId,
+            channelId: dbReference.channelId,
+            stickerId,
+            createdAt: new Date(Number(dbReference.createdAt)),
+            content: dbReference.content,
+            attachments: dbReference.attachments
+          },
+          true
+        );
+
+        embeds.push(embed);
+      }
     }
 
     const embed = await MessageUpdate._buildLogEmbed({

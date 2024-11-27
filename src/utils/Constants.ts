@@ -90,8 +90,6 @@ export const CRON_SLUGS = {
   MessageDeleteRunner: 'MESSAGE_DELETE_RUNNER'
 };
 
-export const PERMANENT_DURATION_KEYS = ['permanent', 'perm', 'p', 'infinity', 'inf', 'forever', 'never'];
-
 export const EMPTY_MESSAGE_CONTENT = 'Unknown message content.';
 
 export const YES_BUTTON = new ButtonBuilder().setCustomId('?yes').setLabel('Yes').setStyle(ButtonStyle.Success);

@@ -5,6 +5,7 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
+import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -35,7 +36,8 @@ export default class Avatar extends Command {
 
     if (!target) {
       return {
-        error: 'The target user could not be found.'
+        error: MessageKeys.Errors.TargetNotFound,
+        temporary: true
       };
     }
 

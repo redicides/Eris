@@ -8,6 +8,7 @@ import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { hasPermission } from '@utils/index';
+import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager from '@managers/database/InfractionManager';
@@ -112,14 +113,14 @@ export default class Infraction extends Command {
 
         if (!target) {
           return {
-            error: 'The target user could not be found.',
+            error: MessageKeys.Errors.TargetNotFound,
             temporary: true
           };
         }
 
         if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
           return {
-            error: "You do not have permission to search this user's infractions.",
+            error: MessageKeys.Errors.MissingUserPermission('SearchInfractions', 'search for infractions'),
             temporary: true
           };
         }
@@ -146,7 +147,7 @@ export default class Infraction extends Command {
 
         if (!hasPermission(interaction.member, config, 'DeleteInfractions')) {
           return {
-            error: 'You do not have permission to delete infractions.',
+            error: MessageKeys.Errors.MissingUserPermission('DeleteInfractions', 'delete infractions'),
             temporary: true
           };
         }

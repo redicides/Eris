@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits
 } from 'discord.js';
 
+import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -51,7 +52,7 @@ export default class Unban extends Command {
 
     if (!target) {
       return {
-        error: 'The provided target is invalid.',
+        error: MessageKeys.Errors.TargetNotFound,
         temporary: true
       };
     }
@@ -110,14 +111,14 @@ export default class Unban extends Command {
     if (!uResult) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
       return {
-        error: 'Failed to unban the target.',
+        error: MessageKeys.Errors.PunishmentFailed('Unban', target),
         temporary: true
       };
     }
 
     await TaskManager.deleteTask({
       targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
-    }).catch(() => null);
+    });
 
     await InfractionManager.logInfraction({ config, infraction });
 

@@ -7,8 +7,8 @@ import {
 
 import ms from 'ms';
 
+import { MessageKeys, DurationKeys } from '@utils/Keys';
 import { parseDuration } from '@utils/index';
-import { PERMANENT_DURATION_KEYS } from '@utils/Constants';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -62,7 +62,7 @@ export default class Warn extends Command {
 
     if (!target) {
       return {
-        error: 'The provided user is not a member of this server.',
+        error: MessageKeys.Errors.MemberNotFound,
         temporary: true
       };
     }
@@ -85,9 +85,9 @@ export default class Warn extends Command {
 
     const duration = rawDuration ? parseDuration(rawDuration) : null;
 
-    if (Number.isNaN(duration) && !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '')) {
+    if (Number.isNaN(duration) && !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '')) {
       return {
-        error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+        error: MessageKeys.Errors.InvalidDuration(),
         temporary: true
       };
     }
@@ -95,14 +95,14 @@ export default class Warn extends Command {
     if (duration) {
       if (duration < 1000) {
         return {
-          error: 'The duration must be at least 1 second.',
+          error: MessageKeys.Errors.DurationTooShort('1 second'),
           temporary: true
         };
       }
 
       if (duration > ms('365d')) {
         return {
-          error: 'The duration must not exceed 1 year.',
+          error: MessageKeys.Errors.DurationTooLong('1 year'),
           temporary: true
         };
       }
@@ -117,7 +117,7 @@ export default class Warn extends Command {
     if (duration) {
       expiresAt = createdAt + duration;
     } else if (
-      !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '') &&
+      !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') &&
       config.defaultWarnDuration !== 0n
     ) {
       expiresAt = createdAt + Number(config.defaultWarnDuration);

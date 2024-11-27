@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits
 } from 'discord.js';
 
+import { MessageKeys } from '@utils/Keys';
 import { hierarchyCheck } from '@utils/index';
 import { COMMON_CHARACTERS } from '@utils/Constants';
 
@@ -71,7 +72,7 @@ export default class Nickname extends Command {
 
         if (!target) {
           return {
-            error: 'The target member could not be found.',
+            error: MessageKeys.Errors.MemberNotFound,
             temporary: true
           };
         }
@@ -92,14 +93,14 @@ export default class Nickname extends Command {
 
         if (!hierarchyCheck(interaction.member!, target)) {
           return {
-            error: 'You cannot set the nickname of a member with higher or equal roles than you.',
+            error: MessageKeys.Errors.InadequateUserHierarchy('set the nickname of'),
             temporary: true
           };
         }
 
         if (!hierarchyCheck(interaction.guild.members.me!, target)) {
           return {
-            error: 'I cannot set the nickname of a member with higher or equal roles than me.',
+            error: MessageKeys.Errors.InadequateBotHierarchy('set the nickname of'),
             temporary: true
           };
         }
@@ -135,7 +136,7 @@ export default class Nickname extends Command {
 
         if (!target) {
           return {
-            error: 'The target member could not be found.',
+            error: MessageKeys.Errors.MemberNotFound,
             temporary: true
           };
         }
@@ -156,14 +157,14 @@ export default class Nickname extends Command {
 
         if (!hierarchyCheck(interaction.member!, target)) {
           return {
-            error: 'You cannot censor the nickname of a member with higher or equal roles than you.',
+            error: MessageKeys.Errors.InadequateUserHierarchy('censor the nickname of'),
             temporary: true
           };
         }
 
         if (!hierarchyCheck(interaction.guild.members.me!, target)) {
           return {
-            error: 'I cannot censor the nickname of a member with higher or equal roles than me.',
+            error: MessageKeys.Errors.InadequateBotHierarchy('censor the nickname of'),
             temporary: true
           };
         }

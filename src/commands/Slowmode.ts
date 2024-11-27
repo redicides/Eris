@@ -1,8 +1,10 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  ChannelType,
   ChatInputCommandInteraction,
-  PermissionFlagsBits
+  PermissionFlagsBits,
+  TextChannel
 } from 'discord.js';
 
 import ms from 'ms';
@@ -28,6 +30,13 @@ export default class Slowmode extends Command {
             description: 'The time to set the slowmode to.',
             type: ApplicationCommandOptionType.String,
             required: false
+          },
+          {
+            name: 'channel',
+            description: 'The channel to set the slowmode in.',
+            type: ApplicationCommandOptionType.Channel,
+            required: false,
+            channelTypes: [ChannelType.GuildText]
           }
         ]
       }
@@ -35,14 +44,21 @@ export default class Slowmode extends Command {
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    if (!interaction.channel?.isTextBased()) {
-      return {
-        error: `This command cannot be used here.`
-      };
+    let channel = interaction.options.getChannel('channel', false) as TextChannel | null;
+
+    if (!channel) {
+      if (!interaction.channel || !interaction.channel.isTextBased()) {
+        return {
+          error: `This command must be used in a text channel or a channel must be specified in the 'channel' option.`,
+          temporary: true
+        };
+      }
+
+      channel = interaction.channel as TextChannel;
     }
 
     let time = interaction.options.getString('time', false);
-    const current = interaction.channel.rateLimitPerUser;
+    const current = channel.rateLimitPerUser;
     const parsedSlowmode = current ? ms(current * 1000, { long: true }).replace(/(\d+)/g, '**$1**') : '**0** seconds';
 
     if (!time) {
@@ -87,7 +103,7 @@ export default class Slowmode extends Command {
       };
     }
 
-    const set = await interaction.channel
+    const set = await channel
       .setRateLimitPerUser(slowmode, `Slowmode set by @${interaction.user.username} (${interaction.user.id})`)
       .catch(() => null);
 

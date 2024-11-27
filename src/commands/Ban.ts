@@ -7,9 +7,9 @@ import {
 
 import ms from 'ms';
 
-import { PERMANENT_DURATION_KEYS } from '@utils/Constants';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { parseDuration } from '@utils/index';
+import { MessageKeys, DurationKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
@@ -80,7 +80,7 @@ export default class Ban extends Command {
 
     if (!target) {
       return {
-        error: 'The provided target is invalid.',
+        error: MessageKeys.Errors.InvalidTarget,
         temporary: true
       };
     }
@@ -103,9 +103,9 @@ export default class Ban extends Command {
 
     const duration = rawDuration ? parseDuration(rawDuration) : null;
 
-    if (Number.isNaN(duration) && !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '')) {
+    if (Number.isNaN(duration) && !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '')) {
       return {
-        error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+        error: MessageKeys.Errors.InvalidDuration(true),
         temporary: true
       };
     }
@@ -113,14 +113,14 @@ export default class Ban extends Command {
     if (duration) {
       if (duration < 1000) {
         return {
-          error: 'The duration must be at least 1 second.',
+          error: MessageKeys.Errors.DurationTooShort('1 second'),
           temporary: true
         };
       }
 
       if (duration > ms('365d')) {
         return {
-          error: 'The duration must not exceed 1 year.',
+          error: MessageKeys.Errors.DurationTooLong('1 year'),
           temporary: true
         };
       }
@@ -137,10 +137,7 @@ export default class Ban extends Command {
 
     if (duration) {
       expiresAt = createdAt + duration;
-    } else if (
-      !PERMANENT_DURATION_KEYS.includes(rawDuration?.toLowerCase() ?? '') &&
-      config.defaultBanDuration !== 0n
-    ) {
+    } else if (!DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.defaultBanDuration !== 0n) {
       expiresAt = createdAt + Number(config.defaultBanDuration);
     }
 
@@ -176,7 +173,7 @@ export default class Ban extends Command {
     if (!bResult) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
       return {
-        error: `Failed to ban ${target}. The related infraction has been deleted.`,
+        error: MessageKeys.Errors.PunishmentFailed('Ban', target),
         temporary: true
       };
     }
@@ -192,7 +189,7 @@ export default class Ban extends Command {
     } else {
       await TaskManager.deleteTask({
         targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
-      }).catch(() => null);
+      });
     }
 
     await InfractionManager.logInfraction({ config, infraction });

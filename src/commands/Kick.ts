@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
+import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
@@ -50,7 +51,7 @@ export default class Kick extends Command {
 
     if (!target) {
       return {
-        error: 'The provided user is not a member of this server.',
+        error: MessageKeys.Errors.MemberNotFound,
         temporary: true
       };
     }
@@ -102,7 +103,7 @@ export default class Kick extends Command {
     if (!kResult) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
       return {
-        error: `Failed to kick ${target}. The related infraction has been deleted.`,
+        error: MessageKeys.Errors.PunishmentFailed('Kick', target),
         temporary: true
       };
     }

@@ -96,7 +96,7 @@ export default class Lock extends Command {
         })
       )
         return {
-          error: `I cannot lock this channel as it does not have any overrides for me to deny.`,
+          error: `I cannot lock this channel as it does not have any overrides for me to deny and I lack the \`Administrator\` permission.`,
           temporary: true
         };
     }

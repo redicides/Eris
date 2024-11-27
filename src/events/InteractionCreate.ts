@@ -2,6 +2,7 @@ import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interactio
 
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
 import { Sentry } from '@/index';
+import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
 import { CHANNEL_PERMISSION_OVERRIDES, COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
 
@@ -278,18 +279,18 @@ export default class InteractionCreate extends EventListener {
     if (config.commandDisabledList.includes(command.data.name)) {
       return {
         success: false,
-        message: 'This command is disabled in this guild.'
+        message: MessageKeys.Errors.CommandDisabled
       };
     }
 
     if (command.requiredPermissions) {
-      if (!interaction.appPermissions.has(command.requiredPermissions)) {
+      if (
+        !interaction.appPermissions.has(command.requiredPermissions) ||
+        !interaction.channel?.permissionsFor(interaction.guild.members.me!).has(command.requiredPermissions)
+      ) {
         return {
           success: false,
-          message: `I require the following permissions to execute this command: \`${command.requiredPermissions
-            .toArray()
-            .join(', ')
-            .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`
+          message: MessageKeys.Errors.MissingPermissions(command.requiredPermissions.bitfield)
         };
       }
     }

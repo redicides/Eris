@@ -8,6 +8,7 @@ import {
 } from 'discord.js';
 import { ReportStatus } from '@prisma/client';
 
+import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -53,7 +54,7 @@ export default class ReportUserCtx extends Command {
 
     if (!target) {
       return {
-        error: 'The target user could not be found.',
+        error: MessageKeys.Errors.TargetNotFound,
         temporary: true
       };
     }

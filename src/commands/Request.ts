@@ -7,6 +7,7 @@ import {
 
 import ms from 'ms';
 
+import { MessageKeys } from '@utils/Keys';
 import { parseDuration } from '@utils/index';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
@@ -113,7 +114,7 @@ export default class Request extends Command {
 
         if (!target) {
           return {
-            error: 'The provided target is invalid.',
+            error: MessageKeys.Errors.MemberNotFound,
             temporary: true
           };
         }
@@ -129,21 +130,21 @@ export default class Request extends Command {
 
         if (Number.isNaN(duration)) {
           return {
-            error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+            error: MessageKeys.Errors.InvalidDuration(false),
             temporary: true
           };
         }
 
         if (duration < 1000) {
           return {
-            error: 'The duration must be at least 1 second.',
+            error: MessageKeys.Errors.DurationTooShort('1 second'),
             temporary: true
           };
         }
 
         if (duration > ms('28d')) {
           return {
-            error: 'The duration must not exceed 28 days.',
+            error: MessageKeys.Errors.DurationTooLong('28 days'),
             temporary: true
           };
         }
@@ -213,7 +214,7 @@ export default class Request extends Command {
 
         if (!target) {
           return {
-            error: 'The provided target is invalid.',
+            error: MessageKeys.Errors.TargetNotFound,
             temporary: true
           };
         }
@@ -229,11 +230,18 @@ export default class Request extends Command {
           };
         }
 
+        if (await interaction.guild.bans.fetch(target.id).catch(() => null)) {
+          return {
+            error: 'The provided target is already banned.',
+            temporary: true
+          };
+        }
+
         const duration = rawDuration ? parseDuration(rawDuration) : null;
 
         if (Number.isNaN(duration)) {
           return {
-            error: 'Invalid duration. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+            error: MessageKeys.Errors.InvalidDuration(),
             temporary: true
           };
         }
@@ -241,24 +249,17 @@ export default class Request extends Command {
         if (duration) {
           if (duration < 1000) {
             return {
-              error: 'The duration must be at least 1 second.',
+              error: MessageKeys.Errors.DurationTooShort('1 second'),
               temporary: true
             };
           }
 
           if (duration > ms('365d')) {
             return {
-              error: 'The duration must not exceed 1 year.',
+              error: MessageKeys.Errors.DurationTooLong('1 year'),
               temporary: true
             };
           }
-        }
-
-        if (await interaction.guild.bans.fetch(target.id).catch(() => null)) {
-          return {
-            error: 'The provided target is already banned.',
-            temporary: true
-          };
         }
 
         const result = InfractionManager.validateAction({

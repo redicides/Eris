@@ -8,6 +8,7 @@ import ms from 'ms';
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { parseDuration } from '@utils/index';
+import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
@@ -62,7 +63,7 @@ export default class Mute extends Command {
 
     if (!target) {
       return {
-        error: 'The provided user is not a member of this server.',
+        error: MessageKeys.Errors.MemberNotFound,
         temporary: true
       };
     }
@@ -87,22 +88,21 @@ export default class Mute extends Command {
 
     if (Number.isNaN(duration) && config.defaultMuteDuration === 0n) {
       return {
-        error:
-          'A valid duration is required. The valid format is `<number>[s/m/h/d]` (`<number> [second/minute/hour/day]`).',
+        error: MessageKeys.Errors.InvalidDuration(false),
         temporary: true
       };
     }
 
     if (duration < 1000) {
       return {
-        error: 'The duration must be at least 1 second.',
+        error: MessageKeys.Errors.DurationTooShort('1 second'),
         temporary: true
       };
     }
 
     if (duration > ms('28d')) {
       return {
-        error: 'The duration must not exceed 28 days.',
+        error: MessageKeys.Errors.DurationTooLong('28 days'),
         temporary: true
       };
     }

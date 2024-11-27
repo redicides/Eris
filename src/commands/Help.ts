@@ -8,6 +8,7 @@ import {
 
 import { capitalize, generateHelpMenuFields } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
@@ -50,7 +51,7 @@ export default class Help extends Command {
         (command.category === 'Developer' && !ConfigManager.global_config.bot.developers.includes(interaction.user.id))
       ) {
         return {
-          error: 'The provided command does not exist.',
+          error: MessageKeys.Errors.CommandNotFound,
           temporary: true
         };
       }

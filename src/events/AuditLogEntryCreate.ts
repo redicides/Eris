@@ -35,7 +35,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
         await TaskManager.deleteTask({
           targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
-        }).catch(() => null);
+        });
 
         break;
       case AuditLogEvent.MemberBanRemove:
@@ -45,7 +45,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
         await TaskManager.deleteTask({
           targetId_guildId_type: { guildId: guild.id, targetId: target.id, type: 'Ban' }
-        }).catch(() => null);
+        });
 
         break;
       case AuditLogEvent.MemberUpdate:
@@ -88,7 +88,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
               await TaskManager.deleteTask({
                 targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
-              }).catch(() => null);
+              });
             }
           }
         }

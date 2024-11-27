@@ -18,6 +18,7 @@ import {
 } from 'discord.js';
 import { Infraction, InfractionFlag, InfractionType, Prisma } from '@prisma/client';
 
+import { MessageKeys } from '@utils/Keys';
 import { client, prisma } from '@/index';
 import { capitalize, elipsify, generateSnowflakeId, hierarchyCheck, userMentionWithId } from '@utils/index';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
@@ -100,23 +101,24 @@ export default class InfractionManager {
     const { target, executor, action, guild, reason, config } = data;
     const lAction = action.toLowerCase();
 
-    if (executor.id === target.id) return { success: false, message: `You cannot ${lAction} yourself.` };
-    if (target.id === client.user!.id) return { success: false, message: `You cannot ${lAction} me.` };
+    if (executor.id === target.id) return { success: false, message: MessageKeys.Errors.CantPunishSelf(action) };
+    if (target.id === client.user!.id) return { success: false, message: MessageKeys.Errors.CantPunishBot(action) };
 
-    if (target.id === guild.ownerId) return { success: false, message: `You cannot ${lAction} the server owner.` };
+    if (target.id === guild.ownerId)
+      return { success: false, message: MessageKeys.Errors.CantPunishServerOwner(action) };
 
     if (target instanceof GuildMember) {
       if (!hierarchyCheck(executor, target))
-        return { success: false, message: `You cannot ${lAction} someone with higher or equal roles than you.` };
+        return { success: false, message: MessageKeys.Errors.InadequateUserHierarchy(action.toLocaleLowerCase()) };
 
       if (action !== InfractionType.Warn && !hierarchyCheck(guild.members.me!, target))
-        return { success: false, message: `I cannot ${lAction} someone with higher or equal roles than me.` };
+        return { success: false, message: MessageKeys.Errors.InadequateBotHierarchy(action.toLocaleLowerCase()) };
 
       if (action === InfractionType.Unmute && !target.isCommunicationDisabled())
-        return { success: false, message: `You cannot ${lAction} someone who is not muted.` };
+        return { success: false, message: MessageKeys.Errors.CantUnmuteUnmutedMember };
 
       if (target.permissions.has('Administrator') && action === 'Mute')
-        return { success: false, message: `You cannot mute an administrator.` };
+        return { success: false, message: MessageKeys.Errors.CantMuteAdmin };
     }
 
     const reasonKey = `require${action}Reason` as keyof typeof config;
@@ -124,7 +126,9 @@ export default class InfractionManager {
     if (config[reasonKey] && !reason) {
       return {
         success: false,
-        message: `You must provide a reason to ${lAction} the provided ${target instanceof User ? 'user' : 'member'}.`
+        message: MessageKeys.Errors.ReasonRequired(
+          `${lAction} the provided ${target instanceof User ? 'user' : 'member'}`
+        )
       };
     }
 
@@ -405,7 +409,7 @@ export default class InfractionManager {
 
     if (!infraction) {
       return {
-        error: `An infraction with the ID \`${id}\` could not be found.`,
+        error: MessageKeys.Errors.InfractionNotFound(id),
         temporary: true
       };
     }
@@ -466,7 +470,7 @@ export default class InfractionManager {
 
     if (!infraction) {
       return {
-        error: `An infraction with the ID \`${infractionId}\` could not be found.`,
+        error: MessageKeys.Errors.InfractionNotFound(infractionId),
         temporary: true
       };
     }
@@ -565,7 +569,7 @@ export default class InfractionManager {
         guildId: guild.id,
         type: infraction.type === 'Mute' ? 'Mute' : 'Ban'
       }
-    }).catch(() => null);
+    });
 
     if (notifyReceiver && target) {
       const embed = new EmbedBuilder()
