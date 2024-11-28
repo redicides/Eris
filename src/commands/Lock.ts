@@ -123,7 +123,7 @@ export default class Lock extends Command {
       };
     }
 
-    if (!rawReason && !config.lockdownRequireReason) {
+    if (!rawReason && config.lockdownRequireReason) {
       return {
         error: `A reason is required to lock ${parsedChannelStr}.`,
         temporary: true

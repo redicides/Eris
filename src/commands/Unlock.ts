@@ -132,7 +132,7 @@ export default class Unlock extends Command {
       };
     }
 
-    if (!rawReason && !config.lockdownRequireReason) {
+    if (!rawReason && config.lockdownRequireReason) {
       return {
         error: `A reason is required to unlock ${parsedChannelStr}.`,
         temporary: true
