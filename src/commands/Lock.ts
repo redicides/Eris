@@ -20,6 +20,7 @@ export default class Lock extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
+      usage: '[channel] [reason] [override-notification]',
       data: {
         name: 'lock',
         description: 'Lock a channel.',
@@ -167,7 +168,8 @@ export default class Lock extends Command {
         (overrideNotification && !hasPermission(interaction.member, config, 'OverrideLockdownNotificatons'))) &&
       channel.isTextBased()
     ) {
-      await channel.send({ embeds: [embed] }).catch(() => {});
+      await channel.send({ embeds: [embed] }).catch(() => {
+      });
     }
 
     return {
