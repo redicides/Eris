@@ -826,7 +826,10 @@ export default class Settings extends Command {
 
       if (permissionNode.allow.includes(permission)) {
         return {
-          error: `The permission \`${permission}\` is already in the permission node.`,
+          error: `The permission \`${permission.replaceAll(
+            /([a-z])([A-Z])/g,
+            '$1 $2'
+          )}\` is already in the permission node.`,
           temporary: true
         };
       }
@@ -868,7 +871,10 @@ export default class Settings extends Command {
 
       if (!permissionNode.allow.includes(permission)) {
         return {
-          error: `The permission \`${permission}\` is not in the permission node.`,
+          error: `The permission \`${permission.replaceAll(
+            /([a-z])([A-Z])/g,
+            '$1 $2'
+          )}\` is not in the permission node.`,
           temporary: true
         };
       }
@@ -1336,15 +1342,15 @@ export default class Settings extends Command {
       const map = await Promise.all(
         config.ephemeralScopes.map(async scope => {
           const includedChannels = await Promise.all(
-            scope.includedChannels.map(async id => {
-              const channel = await interaction.guild!.channels.fetch(id).catch(() => null);
+            scope.includedChannels.map(id => {
+              const channel = interaction.guild!.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
 
           const excludedChannels = await Promise.all(
-            scope.excludedChannels.map(async id => {
-              const channel = await interaction.guild!.channels.fetch(id).catch(() => null);
+            scope.excludedChannels.map(id => {
+              const channel = interaction.guild!.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
@@ -1594,8 +1600,8 @@ export default class Settings extends Command {
       }
 
       const channels = await Promise.all(
-        config.lockdownChannels.map(async id => {
-          const channel = await interaction.guild.channels.fetch(id).catch(() => null);
+        config.lockdownChannels.map(id => {
+          const channel = interaction.guild.channels.cache.get(id);
           return channel ? `#${channel.name} (${id})` : `<#${id}>`;
         })
       );
