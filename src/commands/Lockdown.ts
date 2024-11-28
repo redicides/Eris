@@ -265,11 +265,11 @@ export default class Lockdown extends Command {
     let content = `Successfully locked \`${lockedChannels.length}\` out of \`${lockdownChannels.length}\` ${pluralize(
       lockdownChannels.length,
       'channel'
-    )}.\n\n`;
+    )}.\n`;
 
-    if (map.unknown) content += `\\- Unknown Channels: ${map.unknown}\n`;
-    if (map.failed) content += `\\- Failed Channels: ${map.failed}\n`;
-    if (map.alreadyLocked) content += `\\- Already Locked Channels: ${map.alreadyLocked}\n`;
+    if (map.unknown) content += `\\- Channels I failed to fetch: ${map.unknown}\n`;
+    if (map.failed) content += `\\- Channels I failed to lock: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `\\- Channels that were already locked: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
@@ -414,11 +414,11 @@ export default class Lockdown extends Command {
 
     let content = `Successfully unlocked \`${unlockedChannels.length}\` out of \`${
       lockdownChannels.length
-    }\` ${pluralize(lockdownChannels.length, 'channel')}.\n\n`;
+    }\` ${pluralize(lockdownChannels.length, 'channel')}.\n`;
 
-    if (map.unknown) content += `\\- Unknown Channels: ${map.unknown}\n`;
-    if (map.failed) content += `\\- Failed Channels: ${map.failed}\n`;
-    if (map.alreadyLocked) content += `\\- Already Unlocked Channels: ${map.alreadyLocked}\n`;
+    if (map.unknown) content += `\\- Channels I failed to fetch: ${map.unknown}\n`;
+    if (map.failed) content += `\\- Channels I failed to unlock: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `\\- Channels that were already unlocked: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
