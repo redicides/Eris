@@ -265,7 +265,7 @@ export default class Lockdown extends Command {
     let content = `Successfully locked \`${lockedChannels.length}\` out of \`${lockdownChannels.length}\` ${pluralize(
       lockdownChannels.length,
       'channel'
-    )}.`;
+    )}\n\n.`;
 
     if (map.unknown) content += `\n\- Unknown Channels: \`${map.unknown}\``;
     if (map.failed) content += `\n\- Failed Channels: \`${map.failed}\``;
@@ -414,7 +414,7 @@ export default class Lockdown extends Command {
 
     let content = `Successfully unlocked \`${unlockedChannels.length}\` out of \`${
       lockdownChannels.length
-    }\` ${pluralize(lockdownChannels.length, 'channel')}.`;
+    }\` ${pluralize(lockdownChannels.length, 'channel')}.\n\n`;
 
     if (map.unknown) content += `\n\- Unknown Channels: \`${map.unknown}\``;
     if (map.failed) content += `\n\- Failed Channels: \`${map.failed}\``;
