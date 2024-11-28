@@ -234,6 +234,16 @@ export default class Lockdown extends Command {
         await channel.send({ content: `This channel has been locked due to a server wide lockdown.` });
       }
 
+      if (channel.isVoiceBased() && channel.members.size) {
+        channel.members.forEach(async member => {
+          return member.voice
+            .disconnect(
+              elipsify(`Channel locked by @${interaction.user.username} (${interaction.user.id}) - ${reason}`, 128)
+            )
+            .catch(() => null);
+        });
+      }
+
       lockedChannels.push(channelId);
 
       // Pause for a second to prevent rate limiting
