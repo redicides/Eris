@@ -267,9 +267,9 @@ export default class Lockdown extends Command {
       'channel'
     )}.\n\n`;
 
-    if (map.unknown) content += `\n\- Unknown Channels: \`${map.unknown}\``;
-    if (map.failed) content += `\n\- Failed Channels: \`${map.failed}\``;
-    if (map.alreadyLocked) content += `\n\- Already Locked Channels: \`${map.alreadyLocked}\``;
+    if (map.unknown) content += `\\- Unknown Channels: ${map.unknown}\n`;
+    if (map.failed) content += `\\- Failed Channels: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `\\- Already Locked Channels: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
@@ -416,9 +416,9 @@ export default class Lockdown extends Command {
       lockdownChannels.length
     }\` ${pluralize(lockdownChannels.length, 'channel')}.\n\n`;
 
-    if (map.unknown) content += `\n\- Unknown Channels: \`${map.unknown}\``;
-    if (map.failed) content += `\n\- Failed Channels: \`${map.failed}\``;
-    if (map.alreadyLocked) content += `\n\- Already Unlocked Channels: \`${map.alreadyLocked}\``;
+    if (map.unknown) content += `\\- Unknown Channels: ${map.unknown}\n`;
+    if (map.failed) content += `\\- Failed Channels: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `\\- Already Unlocked Channels: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
