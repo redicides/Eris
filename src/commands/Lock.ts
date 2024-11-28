@@ -9,6 +9,7 @@ import {
   TextChannel,
   VoiceChannel
 } from 'discord.js';
+import { PermissionEnum } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { capitalize, elipsify, hasPermission } from '@utils/index';
@@ -21,6 +22,7 @@ export default class Lock extends Command {
     super({
       category: CommandCategory.Utility,
       usage: '[channel] [reason] [override-notification]',
+      requiredPermissions: PermissionFlagsBits.ManageChannels,
       data: {
         name: 'lock',
         description: 'Lock a channel.',
@@ -42,8 +44,8 @@ export default class Lock extends Command {
             max_length: 1024
           },
           {
-            name: 'override-notification',
-            description: 'Whether to override the channel notification setting.',
+            name: 'send-channel-notification',
+            description: 'Whether to send a notification to the channel.',
             type: ApplicationCommandOptionType.Boolean,
             required: false
           }
@@ -58,7 +60,9 @@ export default class Lock extends Command {
     ephemeral: boolean
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
-    const overrideNotification = interaction.options.getBoolean('override-notification', false) ?? false;
+    const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify
+      : config.lockdownNotify;
 
     if (!hasPermission(interaction.member, config, 'LockChannels')) {
       return {
@@ -162,14 +166,8 @@ export default class Lock extends Command {
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();
 
-    if (
-      config.lockdownNotify &&
-      (!overrideNotification ||
-        (overrideNotification && !hasPermission(interaction.member, config, 'OverrideLockdownNotificatons'))) &&
-      channel.isTextBased()
-    ) {
-      await channel.send({ embeds: [embed] }).catch(() => {
-      });
+    if (notifyChannel && channel.isTextBased()) {
+      await channel.send({ embeds: [embed] }).catch(() => {});
     }
 
     return {

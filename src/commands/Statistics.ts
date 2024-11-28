@@ -23,7 +23,7 @@ export default class Statistics extends Command {
       usage: '[ephemeral]',
       data: {
         name: 'statistics',
-        description: 'Displays the bot\'s statistics as of the current date.',
+        description: "Displays the bot's statistics as of the current date.",
         type: ApplicationCommandType.ChatInput,
         options: [
           {
