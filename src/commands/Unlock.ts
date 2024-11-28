@@ -12,6 +12,7 @@ import {
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
 
+import { MessageKeys } from '@utils/Keys';
 import { elipsify, hasPermission } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
@@ -67,7 +68,7 @@ export default class Unlock extends Command {
 
     if (!hasPermission(interaction.member, config, 'UnlockChannels')) {
       return {
-        error: `You do not have permission to use this command.`,
+        error: MessageKeys.Errors.MissingUserPermission('UnlockChannels', 'unlock a channel'),
         temporary: true
       };
     }

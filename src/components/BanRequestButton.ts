@@ -4,6 +4,7 @@ import { capitalize, hasPermission, userMentionWithId } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
+import { MessageKeys } from '@utils/Keys';
 
 import Component from '@managers/components/Component';
 
@@ -14,6 +15,13 @@ export default class BanRequestButtonComponent extends Component {
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig) {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
+
+    if (!hasPermission(interaction.member, config, 'ManageBanRequests')) {
+      return {
+        error: MessageKeys.Errors.MissingUserPermission('ManageBanRequests', 'manage ban requests'),
+        temporary: true
+      };
+    }
 
     const request = await this.prisma.banRequest.findUnique({
       where: { id: interaction.message.id, guildId: interaction.guildId }
@@ -39,13 +47,6 @@ export default class BanRequestButtonComponent extends Component {
         error: `This report has already been resolved by ${userMentionWithId(
           request.resolvedBy
         )}. I will attempt to delete the alert in **7 seconds**.`,
-        temporary: true
-      };
-    }
-
-    if (!hasPermission(interaction.member, config, 'ManageBanRequests')) {
-      return {
-        error: 'You do not have permission to manage ban requests.',
         temporary: true
       };
     }

@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 import { PermissionEnum } from '@prisma/client';
 
+import { MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { capitalize, elipsify, hasPermission } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
@@ -66,7 +67,7 @@ export default class Lock extends Command {
 
     if (!hasPermission(interaction.member, config, 'LockChannels')) {
       return {
-        error: `You do not have permission to use this command.`,
+        error: MessageKeys.Errors.MissingUserPermission('LockChannels', 'lock a channel'),
         temporary: true
       };
     }

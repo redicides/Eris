@@ -4,6 +4,7 @@ import { capitalize, hasPermission, userMentionWithId } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { RequestUtils } from '@utils/Requests';
+import { MessageKeys } from '@utils/Keys';
 
 import Component from '@managers/components/Component';
 
@@ -14,6 +15,13 @@ export default class MuteRequestButton extends Component {
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
+
+    if (!hasPermission(interaction.member, config, 'ManageMuteRequests')) {
+      return {
+        error: MessageKeys.Errors.MissingUserPermission('ManageMuteRequests', 'manage mute requests'),
+        temporary: true
+      };
+    }
 
     const request = await this.prisma.muteRequest.findUnique({
       where: { id: interaction.message.id }
@@ -39,13 +47,6 @@ export default class MuteRequestButton extends Component {
         error: `This report has already been resolved by ${userMentionWithId(
           request.resolvedBy
         )}. I will attempt to delete the alert in **7 seconds**.`,
-        temporary: true
-      };
-    }
-
-    if (!hasPermission(interaction.member, config, 'ManageMuteRequests')) {
-      return {
-        error: 'You do not have permission to manage mute requests.',
         temporary: true
       };
     }

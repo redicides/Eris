@@ -3,6 +3,7 @@ import { ModalSubmitInteraction } from 'discord.js';
 import { RequestUtils } from '@utils/Requests';
 import { hasPermission } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
+import { MessageKeys } from '@utils/Keys';
 
 import Component from '@managers/components/Component';
 
@@ -14,6 +15,13 @@ export default class MuteRequestModalComponent extends Component {
   async execute(interaction: ModalSubmitInteraction<'cached'>, config: GuildConfig) {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
     const requestId = interaction.customId.split('-')[3];
+
+    if (!hasPermission(interaction.member, config, 'ManageMuteRequests')) {
+      return {
+        error: MessageKeys.Errors.MissingUserPermission('ManageMuteRequests', 'manage mute requests'),
+        temporary: true
+      };
+    }
 
     const request = await this.prisma.muteRequest.findUnique({
       where: { id: requestId, guildId: interaction.guildId }

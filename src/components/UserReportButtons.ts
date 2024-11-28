@@ -1,5 +1,6 @@
 import { ButtonInteraction, EmbedBuilder, EmbedData } from 'discord.js';
 
+import { MessageKeys } from '@utils/Keys';
 import { hasPermission } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
@@ -14,6 +15,13 @@ export default class UserReportButtonsComponent extends Component {
   }
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
+    if (!hasPermission(interaction.member, config, 'ManageUserReports')) {
+      return {
+        error: MessageKeys.Errors.MissingUserPermission('ManageUserReports', 'manage user reports'),
+        temporary: true
+      };
+    }
+
     const report = await this.prisma.userReport.findUnique({
       where: {
         id: interaction.message.id,
@@ -41,13 +49,6 @@ export default class UserReportButtonsComponent extends Component {
         error: `This report has already been resolved by ${userMentionWithId(
           report.resolvedBy
         )}. I will attempt to delete the alert in **7 seconds**.`,
-        temporary: true
-      };
-    }
-
-    if (!hasPermission(interaction.member, config, 'ManageUserReports')) {
-      return {
-        error: 'You do not have permission to manage user reports.',
         temporary: true
       };
     }

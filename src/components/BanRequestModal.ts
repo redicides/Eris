@@ -1,5 +1,6 @@
 import { ModalSubmitInteraction } from 'discord.js';
 
+import { MessageKeys } from '@utils/Keys';
 import { hasPermission } from '@utils/index';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
@@ -15,6 +16,13 @@ export default class BanRequestModalComponent extends Component {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
     const requestId = interaction.customId.split('-')[3];
 
+    if (!hasPermission(interaction.member, config, 'ManageBanRequests')) {
+      return {
+        error: MessageKeys.Errors.MissingUserPermission('ManageBanRequests', 'manage ban requests'),
+        temporary: true
+      };
+    }
+
     const request = await this.prisma.banRequest.findUnique({
       where: { id: requestId, guildId: interaction.guildId }
     });
@@ -26,13 +34,6 @@ export default class BanRequestModalComponent extends Component {
 
       return {
         error: 'Failed to fetch the related ban request. I will attempt to delete the alert in **7 seconds**.',
-        temporary: true
-      };
-    }
-
-    if (!hasPermission(interaction.member, config, 'ManageBanRequests')) {
-      return {
-        error: 'You no longer have permission to manage ban requests.',
         temporary: true
       };
     }
