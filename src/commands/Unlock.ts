@@ -63,7 +63,7 @@ export default class Unlock extends Command {
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify
+      ? (interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify)
       : config.lockdownNotify;
 
     if (!hasPermission(interaction.member, config, 'UnlockChannels')) {

@@ -85,7 +85,7 @@ export default class Lockdown extends Command {
 
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannels = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdownNotify
+      ? (interaction.options.getBoolean('notify-channels', false) ?? config.lockdownNotify)
       : config.lockdownNotify;
 
     if (subcommand === LockdownSubcommand.Start) {
@@ -267,9 +267,9 @@ export default class Lockdown extends Command {
       'channel'
     )}.\n`;
 
-    if (map.unknown) content += `\\- Channels I failed to fetch: ${map.unknown}\n`;
-    if (map.failed) content += `\\- Channels I failed to lock: ${map.failed}\n`;
-    if (map.alreadyLocked) content += `\\- Channels that were already locked: ${map.alreadyLocked}\n`;
+    if (map.unknown) content += `└── Channels I failed to fetch: ${map.unknown}\n`;
+    if (map.failed) content += `└── Channels I failed to lock: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `└── Channels that were already locked: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
@@ -416,9 +416,9 @@ export default class Lockdown extends Command {
       lockdownChannels.length
     }\` ${pluralize(lockdownChannels.length, 'channel')}.\n`;
 
-    if (map.unknown) content += `\\- Channels I failed to fetch: ${map.unknown}\n`;
-    if (map.failed) content += `\\- Channels I failed to unlock: ${map.failed}\n`;
-    if (map.alreadyLocked) content += `\\- Channels that were already unlocked: ${map.alreadyLocked}\n`;
+    if (map.unknown) content += `└── Channels I failed to fetch: ${map.unknown}\n`;
+    if (map.failed) content += `└── Channels I failed to unlock: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `└── Channels that were already unlocked: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
