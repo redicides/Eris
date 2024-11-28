@@ -19,3 +19,7 @@ charmie.cfg.yml
 # Webstorm stuff
 
 /.idea
+
+# Fleet stuff
+
+/.fleet
