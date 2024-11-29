@@ -197,7 +197,7 @@ export default class CommandManager {
     });
 
     if (expiresAt && (action === 'Mute' || action === 'Ban')) {
-      TaskManager.storeTask({
+      await TaskManager.storeTask({
         guildId: interaction.guildId,
         targetId: target.id,
         infractionId: infraction.id,
@@ -208,6 +208,12 @@ export default class CommandManager {
       if (action === 'Ban') {
         await TaskManager.deleteTask({
           targetId_guildId_type: { targetId: target.id, guildId: interaction.guildId, type: 'Ban' }
+        });
+      }
+
+      if (action === 'Unmute') {
+        await TaskManager.deleteTask({
+          targetId_guildId_type: { targetId: target.id, guildId: interaction.guildId, type: 'Mute' }
         });
       }
     }

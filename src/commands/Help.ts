@@ -6,13 +6,14 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
-import { capitalize, generateHelpMenuFields } from '@utils/index';
+import { capitalize, elipsify, generateHelpMenuFields } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
+import ms from 'ms';
 
 export default class Help extends Command {
   constructor() {
@@ -45,10 +46,53 @@ export default class Help extends Command {
     if (commandName) {
       const command =
         CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
+      const shortcut =
+        (await this.prisma.moderationCommand.findUnique({
+          where: { name: commandName, guildId: interaction.guildId }
+        })) ??
+        (await this.prisma.moderationCommand.findUnique({
+          where: { name: commandName.toLowerCase(), guildId: interaction.guildId }
+        }));
+
+      if (!command) {
+        if (shortcut) {
+          let details = `\\- Action: \`${shortcut.action}\`\n\\- Reason: \`${elipsify(shortcut.reason, 256)}\`\n`;
+
+          if (shortcut.additionalInfo) {
+            details += `\\- Additional Info: \`${elipsify(shortcut.additionalInfo, 256)}\`\n`;
+          }
+
+          if (shortcut.duration) {
+            details += `\\- Duration: \`${ms(Number(shortcut.duration), { long: true })}\`\n`;
+          }
+
+          if (shortcut.messageDeleteTime) {
+            details += `\\- Message Delete Time: \`${ms(Number(shortcut.messageDeleteTime), { long: true })}\`\n`;
+          }
+
+          const embed = new EmbedBuilder()
+            .setColor(Colors.NotQuiteBlack)
+            .setAuthor({ name: this.client.user!.username, iconURL: this.client.user!.displayAvatarURL() })
+            .setTitle(shortcut.name)
+            .setDescription(shortcut.description)
+            .setFields([
+              { name: 'Usage', value: `\`/${shortcut.name} <target>\`` },
+              { name: 'Details', value: details }
+            ])
+            .setFooter({ text: `<> = required, [] = optional` });
+
+          return { embeds: [embed] };
+        }
+
+        return {
+          error: MessageKeys.Errors.CommandNotFound,
+          temporary: true
+        };
+      }
 
       if (
-        !command ||
-        (command.category === 'Developer' && !ConfigManager.global_config.bot.developers.includes(interaction.user.id))
+        command.category === CommandCategory.Developer &&
+        !ConfigManager.global_config.bot.developers.includes(interaction.user.id)
       ) {
         return {
           error: MessageKeys.Errors.CommandNotFound,

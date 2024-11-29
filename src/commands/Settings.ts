@@ -20,7 +20,6 @@ import ms from 'ms';
 
 import { prisma } from '..';
 import { isCategory } from './Config';
-import { CHANNEL_PERMISSION_OVERRIDES } from '@utils/Constants';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { parseDuration, pluralize, uploadData } from '@utils/index';
 
@@ -957,18 +956,46 @@ export default class Settings extends Command {
     ): Promise<InteractionReplyData> {
       const commandName = interaction.options.getString('command', true);
 
+      let toggle = false;
+
       const command = CommandManager.commands.get(commandName);
 
-      if (!command || command.category === CommandCategory.Developer) {
+      const shortcut =
+        (await prisma.moderationCommand.findUnique({
+          where: { name: commandName, guildId: interaction.guildId }
+        })) ??
+        (await prisma.moderationCommand.findUnique({
+          where: { name: commandName.toLowerCase(), guildId: interaction.guildId }
+        }));
+
+      if (!command) {
+        if (shortcut) {
+          if (!shortcut.enabled) toggle = true;
+
+          await prisma.moderationCommand.update({
+            where: { name: commandName, guildId: interaction.guildId },
+            data: { enabled: toggle }
+          });
+
+          return {
+            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${commandName}\`.`
+          };
+        }
+
         return {
           error: `The command \`${commandName}\` does not exist.`,
           temporary: true
         };
       }
 
-      let { commandDisabledList } = config;
+      if (command.category === CommandCategory.Developer) {
+        return {
+          error: `You cannot enable or disable a developer command.`,
+          temporary: true
+        };
+      }
 
-      let toggle = false;
+      let { commandDisabledList } = config;
 
       if (commandDisabledList.includes(command.data.name)) {
         commandDisabledList = commandDisabledList.filter(c => c !== command.data.name);
@@ -1041,7 +1068,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      let commandName = interaction.options.getString('command', true);
+      const commandName = interaction.options.getString('command', true);
       const includeChannel = interaction.options.getChannel('include-channel', false) as
         | GuildTextBasedChannel
         | CategoryChannel
@@ -1055,16 +1082,40 @@ export default class Settings extends Command {
       const command =
         CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
 
-      if (!command || command.category === CommandCategory.Developer) {
+      const shortcut =
+        (await prisma.moderationCommand.findUnique({
+          where: { name: commandName, guildId: interaction.guildId }
+        })) ??
+        (await prisma.moderationCommand.findUnique({
+          where: { name: commandName.toLowerCase(), guildId: interaction.guildId }
+        }));
+
+      if (!command && !shortcut) {
         return {
           error: `The command \`${commandName}\` does not exist.`,
           temporary: true
         };
       }
 
-      if (config.ephemeralScopes.find(scope => scope.commandName === command.data.name)) {
+      if (command?.category === CommandCategory.Developer) {
         return {
-          error: `An ephemeral scope for the command \`${command.data.name}\` already exists.`,
+          error: `You cannot create an ephemeral scope for a developer command.`,
+          temporary: true
+        };
+      }
+
+      const scopeName = shortcut ? shortcut.name : command ? command.data.name : null;
+
+      if (!scopeName) {
+        return {
+          error: `The command \`${commandName}\` does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (config.ephemeralScopes.find(scope => scope.commandName === scopeName)) {
+        return {
+          error: `An ephemeral scope for the command \`${scopeName}\` already exists.`,
           temporary: true
         };
       }
@@ -1081,7 +1132,7 @@ export default class Settings extends Command {
         data: {
           ephemeralScopes: {
             push: {
-              commandName: command.data.name,
+              commandName: scopeName,
               includedChannels: includeChannel ? [includeChannel.id] : [],
               excludedChannels: excludeChannel ? [excludeChannel.id] : []
             }
@@ -1090,7 +1141,7 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `Successfully created the ephemeral scope for the command \`${command.data.name}\`.`
+        content: `Successfully created the ephemeral scope for the command \`${scopeName}\`.`
       };
     },
 

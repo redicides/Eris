@@ -267,6 +267,7 @@ export default class InteractionCreate extends EventListener {
 
       case 'command': {
         const commands = CommandManager.commands.filter(command => command.category !== 'Developer');
+        const shortcuts = await prisma.moderationCommand.findMany({ where: { guildId: interaction.guildId } });
 
         const filteredCommands = commands
           .filter(
@@ -277,9 +278,27 @@ export default class InteractionCreate extends EventListener {
           )
           .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
-        return interaction.respond(
-          filteredCommands.map(command => ({ name: capitalize(command.data.name), value: command.data.name }))
-        );
+        const filteredShortcuts = shortcuts
+          .filter(
+            shortcut =>
+              shortcut.name.includes(value) ||
+              shortcut.name.includes(lowercaseValue) ||
+              shortcut.name.toLowerCase().includes(lowercaseValue)
+          )
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        const results = [
+          ...filteredCommands.map(command => ({
+            name: capitalize(command.data.name),
+            value: command.data.name
+          })),
+          ...filteredShortcuts.map(shortcut => ({
+            name: `${capitalize(shortcut.name)} (Custom)`,
+            value: shortcut.name
+          }))
+        ].slice(0, 25); // Discord has a 25 choice limit for autocomplete
+
+        return interaction.respond(results);
       }
 
       case 'permission-node': {
