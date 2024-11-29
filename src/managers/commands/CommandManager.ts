@@ -253,6 +253,8 @@ export default class CommandManager {
       }
     }
 
+    await InfractionManager.logInfraction({ config, infraction });
+
     return {
       embeds: [
         {
