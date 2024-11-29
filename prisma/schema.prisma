@@ -137,6 +137,13 @@ model Guild {
   defaultMuteDuration BigInt @default(0)
   defaultBanDuration  BigInt @default(0)
 
+  defaultAdditionalWarnInfo   String?
+  defaultAdditionalMuteInfo   String?
+  defaultAdditionalKickInfo   String?
+  defaultAdditionalBanInfo    String?
+  defaultAdditionalUnmuteInfo String?
+  defaultAdditionalUnbanInfo  String?
+
   nativeModerationIntegration Boolean @default(true)
 
   infractionLoggingEnabled Boolean @default(true)
@@ -166,14 +173,15 @@ model Guild {
 
   // Relations
 
-  infractions    Infraction[]
-  channelLocks   ChannelLock[]
-  messageReports MessageReport[]
-  userReports    UserReport[]
-  banRequests    BanRequest[]
-  muteRequests   MuteRequest[]
-  messages       Message[]
-  tasks          Task[]
+  moderationCommands ModerationCommand[]
+  infractions        Infraction[]
+  channelLocks       ChannelLock[]
+  messageReports     MessageReport[]
+  userReports        UserReport[]
+  banRequests        BanRequest[]
+  muteRequests       MuteRequest[]
+  messages           Message[]
+  tasks              Task[]
 }
 
 model Infraction {
@@ -316,6 +324,26 @@ model ChannelLock {
   id      String @id @map("_id")
   guildId String
   allow   BigInt
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model ModerationCommand {
+  enabled Boolean @default(true)
+
+  // Surface level details
+  guildId     String
+  name        String @id @map("_id")
+  description String
+
+  // Case details
+  action   InfractionType
+  reason   String
+  duration BigInt?
+
+  // Other details
+  additionalInfo    String?
+  messageDeleteTime Int?
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }

@@ -6,6 +6,8 @@ import {
   GuildMember,
   Options,
   Partials,
+  PermissionFlagsBits,
+  PermissionsBitField,
   Sweepers
 } from 'discord.js';
 
@@ -168,3 +170,11 @@ export const CHANNEL_PERMISSION_OVERRIDES = [
   { name: 'Use Voice-Activity-Detection (VAD)', value: 'UseVAD' },
   { name: 'View Channel', value: 'ViewChannel' }
 ];
+
+export const SHORTCUT_PERMISSIONS = {
+  Mute: new PermissionsBitField(PermissionFlagsBits.ModerateMembers),
+  Unmute: new PermissionsBitField(PermissionFlagsBits.ModerateMembers),
+  Kick: new PermissionsBitField(PermissionFlagsBits.KickMembers),
+  Ban: new PermissionsBitField(PermissionFlagsBits.BanMembers),
+  Unban: new PermissionsBitField(PermissionFlagsBits.BanMembers)
+};

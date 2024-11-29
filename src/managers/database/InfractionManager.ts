@@ -194,11 +194,15 @@ export default class InfractionManager {
     guild: Guild;
     target: GuildMember;
     infraction: Infraction;
+    additional?: string;
   }): Promise<Message | null> {
-    const { guild, target, infraction, config } = data;
+    const { guild, target, infraction, config, additional } = data;
 
-    const key = `notify${infraction.type}Action` as keyof typeof config;
-    if (!config[key]) return null;
+    const notificationKey = `notify${infraction.type}Action` as keyof typeof config;
+    const additionalInfoKey = `defaultAdditional${infraction.type}Info` as keyof typeof config;
+    const additionalInfo = additional ?? (config[additionalInfoKey] as string | null);
+
+    if (!config[notificationKey]) return null;
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
@@ -212,11 +216,19 @@ export default class InfractionManager {
       .setFooter({ text: `Infraction ID: ${infraction.id}` })
       .setTimestamp(Number(infraction.createdAt));
 
-    if (infraction.expiresAt)
+    if (infraction.expiresAt) {
       embed.addFields({
         name: 'Expiration',
         value: InfractionManager.formatExpiration(infraction.expiresAt)
       });
+    }
+
+    if (additionalInfo) {
+      embed.spliceFields(1, 0, {
+        name: 'Additional Information',
+        value: additionalInfo
+      });
+    }
 
     return target.send({ embeds: [embed] }).catch(() => null);
   }

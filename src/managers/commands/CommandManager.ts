@@ -1,13 +1,19 @@
-import { Collection, Snowflake } from 'discord.js';
+import { ChatInputCommandInteraction, Collection, GuildMember, Snowflake, User } from 'discord.js';
+import { ModerationCommand } from '@prisma/client';
 
 import path from 'path';
 import fs from 'fs';
 
+import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { MessageKeys } from '@utils/Keys';
 import { pluralize } from '@utils/index';
 import { client } from '@/index';
 
 import Command from './Command';
+import InfractionManager from '../database/InfractionManager';
+import TaskManager from '../database/TaskManager';
 import Logger, { AnsiColor } from '@utils/Logger';
+import { SHORTCUT_PERMISSIONS } from '@/utils/Constants';
 
 export default class CommandManager {
   /**
@@ -99,5 +105,152 @@ export default class CommandManager {
     }
 
     return null;
+  }
+
+  /**
+   * Handler for custom moderation commands
+   *
+   * @param interaction The interaction that triggered the command
+   * @param config The guild's configuration
+   * @param command The command data
+   * @param ephemeral Whether the reply should be ephemeral
+   * @returns The reply data
+   */
+
+  static async handleCustomModerationCommand(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig,
+    command: ModerationCommand,
+    ephemeral: boolean
+  ): Promise<InteractionReplyData> {
+    if (!command.enabled) {
+      return {
+        error: MessageKeys.Errors.CommandDisabled,
+        temporary: true
+      };
+    }
+
+    const { action, reason, duration, messageDeleteTime } = command;
+
+    if (action !== 'Warn') {
+      const requiredPermissions = SHORTCUT_PERMISSIONS[action];
+      if (
+        !interaction.appPermissions.has(requiredPermissions) ||
+        !interaction.channel?.permissionsFor(interaction.guild.members.me!).has(requiredPermissions)
+      ) {
+        return {
+          error: MessageKeys.Errors.MissingPermissions(requiredPermissions.bitfield),
+          temporary: true
+        };
+      }
+    }
+
+    const target = interaction.options.getUser('target', true) ?? interaction.options.getMember('target');
+
+    if (!target) {
+      return {
+        error:
+          action === 'Ban' || action === 'Unban'
+            ? MessageKeys.Errors.MemberNotFound
+            : MessageKeys.Errors.TargetNotFound,
+        temporary: true
+      };
+    }
+
+    if (action !== 'Ban' && action !== 'Unban' && target instanceof User) {
+      return {
+        error: MessageKeys.Errors.MemberNotFound,
+        temporary: true
+      };
+    }
+
+    const vResult = InfractionManager.validateAction({
+      config,
+      guild: interaction.guild,
+      executor: interaction.member!,
+      target,
+      action,
+      reason
+    });
+
+    if (!vResult.success) {
+      return {
+        error: vResult.message,
+        temporary: true
+      };
+    }
+
+    await interaction.deferReply({ ephemeral });
+
+    const createdAt = Date.now();
+    const expiresAt = duration ? createdAt + Number(duration) : null;
+
+    const infraction = await InfractionManager.storeInfraction({
+      id: InfractionManager.generateInfractionId(),
+      guildId: interaction.guildId,
+      targetId: target.id,
+      executorId: interaction.user.id,
+      type: action,
+      reason,
+      createdAt,
+      expiresAt
+    });
+
+    if (expiresAt && (action === 'Mute' || action === 'Ban')) {
+      TaskManager.storeTask({
+        guildId: interaction.guildId,
+        targetId: target.id,
+        infractionId: infraction.id,
+        type: action,
+        expiresAt
+      });
+    } else {
+      if (action === 'Ban') {
+        await TaskManager.deleteTask({
+          targetId_guildId_type: { targetId: target.id, guildId: interaction.guildId, type: 'Ban' }
+        });
+      }
+    }
+
+    if (target instanceof GuildMember) {
+      await InfractionManager.sendNotificationDM({
+        config,
+        guild: interaction.guild,
+        target,
+        infraction,
+        additional: command.additionalInfo ?? undefined
+      });
+    }
+
+    let punishmentFailed = false;
+
+    if (action !== 'Warn') {
+      await InfractionManager.resolvePunishment({
+        guild: interaction.guild,
+        executor: interaction.member!,
+        target,
+        action,
+        reason,
+        duration: duration ? Number(duration) : null,
+        deleteMessages: messageDeleteTime ?? undefined
+      }).catch(() => (punishmentFailed = true));
+
+      if (punishmentFailed) {
+        await InfractionManager.deleteInfraction({ id: infraction.id });
+        return {
+          error: MessageKeys.Errors.PunishmentFailed(action, target),
+          temporary: true
+        };
+      }
+    }
+
+    return {
+      embeds: [
+        {
+          description: InfractionManager.getSuccessMessage({ target, infraction }),
+          color: InfractionManager.mapActionToColor({ infraction })
+        }
+      ]
+    };
   }
 }

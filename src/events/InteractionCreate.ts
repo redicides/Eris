@@ -1,7 +1,15 @@
-import { AutocompleteInteraction, Colors, CommandInteraction, Events, Interaction } from 'discord.js';
+import {
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+  Colors,
+  CommandInteraction,
+  Events,
+  Interaction
+} from 'discord.js';
+import { ModerationCommand } from '@prisma/client';
 
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
-import { Sentry } from '@/index';
+import { prisma, Sentry } from '@/index';
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
 import { CHANNEL_PERMISSION_OVERRIDES, COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
@@ -43,6 +51,18 @@ export default class InteractionCreate extends EventListener {
       : ComponentManager.getComponent(interaction.customId);
 
     if (!data) {
+      if (interaction.isChatInputCommand()) {
+        const command = await prisma.moderationCommand.findUnique({
+          where: { name: interaction.commandName, guildId: interaction.guildId }
+        });
+
+        if (!command) {
+          return InteractionCreate._handleUnknownInteraction(interaction);
+        } else {
+          return InteractionCreate.handleCustomCommandInteraction(interaction, guild, command);
+        }
+      }
+
       return InteractionCreate._handleUnknownInteraction(interaction);
     }
 
@@ -105,6 +125,7 @@ export default class InteractionCreate extends EventListener {
     config: GuildConfig
   ): Promise<void> {
     let response: InteractionReplyData | null;
+
     const ephemeral = interaction.isCommand() ? isEphemeral({ interaction, config }) : true;
 
     if (interaction.isCommand()) {
@@ -121,6 +142,61 @@ export default class InteractionCreate extends EventListener {
 
     const options = response;
 
+    const ttl = getInteractionTTL(interaction, config, options);
+
+    const isTemporary = options.temporary;
+    delete options.temporary;
+
+    const error = options.error;
+    delete options.error;
+
+    const defaultOptions = {
+      ephemeral,
+      allowedMentions: { parse: [] }
+    };
+
+    const replyOptions = error
+      ? {
+          ...defaultOptions,
+          ...options,
+          embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
+        }
+      : { ...defaultOptions, ...options };
+
+    if (!interaction.deferred && !interaction.replied) {
+      await interaction.reply({ ...replyOptions });
+    } else {
+      const { ephemeral, ...rest } = replyOptions;
+      await interaction.editReply({ ...rest });
+    }
+
+    if (!isTemporary) {
+      return;
+    }
+
+    setTimeout(async () => {
+      await interaction.deleteReply().catch(() => null);
+    }, ttl);
+  }
+
+  /**
+   * Handle custom moderation command interactions
+   *
+   * @param interaction The interaction to handle
+   * @param config The guild configuration
+   * @param command The moderation command to execute
+   * @returns void
+   */
+
+  private static async handleCustomCommandInteraction(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig,
+    command: ModerationCommand
+  ) {
+    const ephemeral = isEphemeral({ interaction, config });
+    const response = await CommandManager.handleCustomModerationCommand(interaction, config, command, ephemeral);
+
+    const options = response;
     const ttl = getInteractionTTL(interaction, config, options);
 
     const isTemporary = options.temporary;
@@ -247,7 +323,7 @@ export default class InteractionCreate extends EventListener {
     }
   }
 
-  private static _handleUnknownInteraction(interaction: Exclude<Interaction, AutocompleteInteraction>) {
+  private static _handleUnknownInteraction(interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>) {
     const sentryId = Sentry.captureException(
       new Error(
         `Failed to fetch data for ${
