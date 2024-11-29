@@ -576,66 +576,69 @@ export default class Settings extends Command {
     await interaction.deferReply({ ephemeral });
 
     switch (group) {
-      case SettingsSubcommandGroup.Permissions: {
-        switch (subcommand) {
-          case SettingsSubcommand.CreateNode:
-            return Settings.Permissions.createNode(interaction, config);
-          case SettingsSubcommand.DeleteNode:
-            return Settings.Permissions.deleteNode(interaction, config);
-          case SettingsSubcommand.AddRoleToNode:
-            return Settings.Permissions.addRoleToNode(interaction, config);
-          case SettingsSubcommand.RemoveRoleFromNode:
-            return Settings.Permissions.removeRoleFromNode(interaction, config);
-          case SettingsSubcommand.GrantPermission:
-            return Settings.Permissions.addPermission(interaction, config);
-          case SettingsSubcommand.RevokePermission:
-            return Settings.Permissions.removePermission(interaction, config);
-          case SettingsSubcommand.ListNodes:
-            return Settings.Permissions.listNodes(interaction, config);
+      case SettingsSubcommandGroup.Permissions:
+        {
+          switch (subcommand) {
+            case SettingsSubcommand.CreateNode:
+              return Settings.Permissions.createNode(interaction, config);
+            case SettingsSubcommand.DeleteNode:
+              return Settings.Permissions.deleteNode(interaction, config);
+            case SettingsSubcommand.AddRoleToNode:
+              return Settings.Permissions.addRoleToNode(interaction, config);
+            case SettingsSubcommand.RemoveRoleFromNode:
+              return Settings.Permissions.removeRoleFromNode(interaction, config);
+            case SettingsSubcommand.GrantPermission:
+              return Settings.Permissions.addPermission(interaction, config);
+            case SettingsSubcommand.RevokePermission:
+              return Settings.Permissions.removePermission(interaction, config);
+            case SettingsSubcommand.ListNodes:
+              return Settings.Permissions.listNodes(interaction, config);
+          }
         }
-      }
 
         break;
 
-      case SettingsSubcommandGroup.Commands: {
-        switch (subcommand) {
-          case SettingsSubcommand.Toggle:
-            return Settings.Commands.toggleCommand(interaction, config);
-          case SettingsSubcommand.ToggleDefaultEphemeralReply:
-            return Settings.Commands.toggleDefaultEphemeralReply(config);
-          case SettingsSubcommand.TimeToLive:
-            return Settings.Commands.setTimeToLive(interaction, config);
-          case SettingsSubcommand.CreateEphemeralScope:
-            return Settings.Commands.createScope(interaction, config);
-          case SettingsSubcommand.DeleteEphemeralScope:
-            return Settings.Commands.deleteScope(interaction, config);
-          case SettingsSubcommand.AddIncludedChannel:
-            return Settings.Commands.addIncludedChannel(interaction, config);
-          case SettingsSubcommand.RemoveIncludedChannel:
-            return Settings.Commands.removeIncludedChannel(interaction, config);
-          case SettingsSubcommand.AddExcludedChannel:
-            return Settings.Commands.addExcludedChannel(interaction, config);
-          case SettingsSubcommand.RemoveExcludedChannel:
-            return Settings.Commands.removeExcludedChannel(interaction, config);
-          case SettingsSubcommand.ListEphemeralScopes:
-            return Settings.Commands.listEphemeralScopes(interaction, config);
+      case SettingsSubcommandGroup.Commands:
+        {
+          switch (subcommand) {
+            case SettingsSubcommand.Toggle:
+              return Settings.Commands.toggleCommand(interaction, config);
+            case SettingsSubcommand.ToggleDefaultEphemeralReply:
+              return Settings.Commands.toggleDefaultEphemeralReply(config);
+            case SettingsSubcommand.TimeToLive:
+              return Settings.Commands.setTimeToLive(interaction, config);
+            case SettingsSubcommand.CreateEphemeralScope:
+              return Settings.Commands.createScope(interaction, config);
+            case SettingsSubcommand.DeleteEphemeralScope:
+              return Settings.Commands.deleteScope(interaction, config);
+            case SettingsSubcommand.AddIncludedChannel:
+              return Settings.Commands.addIncludedChannel(interaction, config);
+            case SettingsSubcommand.RemoveIncludedChannel:
+              return Settings.Commands.removeIncludedChannel(interaction, config);
+            case SettingsSubcommand.AddExcludedChannel:
+              return Settings.Commands.addExcludedChannel(interaction, config);
+            case SettingsSubcommand.RemoveExcludedChannel:
+              return Settings.Commands.removeExcludedChannel(interaction, config);
+            case SettingsSubcommand.ListEphemeralScopes:
+              return Settings.Commands.listEphemeralScopes(interaction, config);
+          }
         }
-      }
 
         break;
 
-      case SettingsSubcommandGroup.Infractions: {
-        switch (subcommand) {
-          case SettingsSubcommand.RequireReason:
-            return Settings.Infractions.requireReason(interaction, config);
-          case SettingsSubcommand.SetDefaultDuration:
-            return Settings.Infractions.setDefaultDuration(interaction, config);
-          case SettingsSubcommand.ToggleNotifications:
-            return Settings.Infractions.toggleNotifications(interaction, config);
-          case SettingsSubcommand.ToggleNativeIntegration:
-            return Settings.Infractions.toggleNativeIntegration(interaction, config);
+      case SettingsSubcommandGroup.Infractions:
+        {
+          switch (subcommand) {
+            case SettingsSubcommand.RequireReason:
+              return Settings.Infractions.requireReason(interaction, config);
+            case SettingsSubcommand.SetDefaultDuration:
+              return Settings.Infractions.setDefaultDuration(interaction, config);
+            case SettingsSubcommand.ToggleNotifications:
+              return Settings.Infractions.toggleNotifications(interaction, config);
+            case SettingsSubcommand.ToggleNativeIntegration:
+              return Settings.Infractions.toggleNativeIntegration(interaction, config);
+          }
         }
-      }
 
         break;
 
@@ -1483,8 +1486,8 @@ export default class Settings extends Command {
           rawDuration.toLowerCase() === 'none'
             ? 'reset'
             : `set to **${ms(Math.floor(duration), {
-              long: true
-            })}**`
+                long: true
+              })}**`
         }.`
       };
     },

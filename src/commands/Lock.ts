@@ -166,8 +166,7 @@ export default class Lock extends Command {
       .setTimestamp();
 
     if (notifyChannel && channel.isTextBased()) {
-      await channel.send({ embeds: [embed] }).catch(() => {
-      });
+      await channel.send({ embeds: [embed] }).catch(() => {});
     }
 
     return {

@@ -112,10 +112,10 @@ export default class Slowmode extends Command {
     return slowmode === 0
       ? { content: `Slowmode has been turned off.`, temporary: true }
       : {
-        content: `Slowmode has been set to ${ms(slowmode * 1000, { long: true })
-          .replace(/(\d+)/g, '`$1`')
-          .replace('ms', 'seconds')}.`,
-        temporary: true
-      };
+          content: `Slowmode has been set to ${ms(slowmode * 1000, { long: true })
+            .replace(/(\d+)/g, '`$1`')
+            .replace('ms', 'seconds')}.`,
+          temporary: true
+        };
   }
 }

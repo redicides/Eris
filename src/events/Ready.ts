@@ -23,7 +23,7 @@ export default class Ready extends EventListener {
     }
 
     // Start cron jobs
-    
+
     CronUtils.startTaskRunner();
     CronUtils.startReportDisregardRunner();
     CronUtils.startMessageRunners();
