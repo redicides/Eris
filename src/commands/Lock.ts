@@ -96,9 +96,7 @@ export default class Lock extends Command {
       if (
         !channel.permissionOverwrites.cache.some(override => {
           if (override.id === interaction.guildId) return false;
-          if (!override.allow.has(config.lockdownOverrides)) return false;
-
-          return true;
+          return override.allow.has(config.lockdownOverrides);
         })
       )
         return {
@@ -168,7 +166,8 @@ export default class Lock extends Command {
       .setTimestamp();
 
     if (notifyChannel && channel.isTextBased()) {
-      await channel.send({ embeds: [embed] }).catch(() => {});
+      await channel.send({ embeds: [embed] }).catch(() => {
+      });
     }
 
     return {

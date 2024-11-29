@@ -22,6 +22,10 @@ export default class Ready extends EventListener {
       this.client.user!.setActivity({ name, type });
     }
 
-    Promise.all([CronUtils.startTaskRunner(), CronUtils.startReportDisregardRunner(), CronUtils.startMessageRunners()]);
+    // Start cron jobs
+    
+    CronUtils.startTaskRunner();
+    CronUtils.startReportDisregardRunner();
+    CronUtils.startMessageRunners();
   }
 }

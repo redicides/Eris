@@ -83,15 +83,10 @@ export default class Slowmode extends Command {
       };
     }
 
-    switch (method) {
-      case 'add':
-        slowmode += current ?? 0;
-        break;
-      case 'remove':
-        slowmode = (current ?? 0) - slowmode;
-        break;
-      case 'set':
-        slowmode = slowmode;
+    if (method === 'add') {
+      slowmode += current ?? 0;
+    } else if (method === 'remove') {
+      slowmode = (current ?? 0) - slowmode;
     }
 
     if (slowmode !== 0 && slowmode < 1) slowmode = 0;
@@ -117,10 +112,10 @@ export default class Slowmode extends Command {
     return slowmode === 0
       ? { content: `Slowmode has been turned off.`, temporary: true }
       : {
-          content: `Slowmode has been set to ${ms(slowmode * 1000, { long: true })
-            .replace(/(\d+)/g, '`$1`')
-            .replace('ms', 'seconds')}.`,
-          temporary: true
-        };
+        content: `Slowmode has been set to ${ms(slowmode * 1000, { long: true })
+          .replace(/(\d+)/g, '`$1`')
+          .replace('ms', 'seconds')}.`,
+        temporary: true
+      };
   }
 }

@@ -184,9 +184,8 @@ export default class Lockdown extends Command {
         if (
           !channel.permissionOverwrites.cache.some(override => {
             if (override.id === interaction.guildId) return false;
-            if (!override.allow.has(lockdownOverrides)) return false;
+            return override.allow.has(lockdownOverrides);
 
-            return true;
           })
         ) {
           failedChannels.push(channelId);
@@ -260,7 +259,8 @@ export default class Lockdown extends Command {
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();
 
-    await interaction.channel?.send({ embeds: [embed] }).catch(() => {});
+    await interaction.channel?.send({ embeds: [embed] }).catch(() => {
+    });
 
     let content = `Successfully locked \`${lockedChannels.length}\` out of \`${lockdownChannels.length}\` ${pluralize(
       lockdownChannels.length,
@@ -277,7 +277,8 @@ export default class Lockdown extends Command {
         ephemeral
       })
       .catch(() => {
-        interaction.channel?.send({ content }).catch(() => {});
+        interaction.channel?.send({ content }).catch(() => {
+        });
       });
 
     return null;
@@ -329,9 +330,8 @@ export default class Lockdown extends Command {
         if (
           !channel.permissionOverwrites.cache.some(override => {
             if (override.id === interaction.guildId) return false;
-            if (!override.allow.has(lockdownOverrides)) return false;
+            return override.allow.has(lockdownOverrides);
 
-            return true;
           })
         ) {
           failedChannels.push(channelId);
@@ -410,7 +410,8 @@ export default class Lockdown extends Command {
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();
 
-    await interaction.channel?.send({ embeds: [embed] }).catch(() => {});
+    await interaction.channel?.send({ embeds: [embed] }).catch(() => {
+    });
 
     let content = `Successfully unlocked \`${unlockedChannels.length}\` out of \`${
       lockdownChannels.length
@@ -426,7 +427,8 @@ export default class Lockdown extends Command {
         ephemeral
       })
       .catch(() => {
-        interaction.channel?.send({ content }).catch(() => {});
+        interaction.channel?.send({ content }).catch(() => {
+        });
       });
 
     return null;
