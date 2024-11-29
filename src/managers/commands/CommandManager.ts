@@ -145,7 +145,7 @@ export default class CommandManager {
       }
     }
 
-    const target = interaction.options.getUser('target', true) ?? interaction.options.getMember('target');
+    const target = interaction.options.getUser('target') ?? interaction.options.getMember('target');
 
     if (!target) {
       return {
