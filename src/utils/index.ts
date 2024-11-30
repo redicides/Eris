@@ -25,7 +25,7 @@ import {
   MessageCreateOptions,
   APIMessage
 } from 'discord.js';
-import { PermissionEnum, Message } from '@prisma/client';
+import { PermissionEnum, Message, EphemeralScope } from '@prisma/client';
 
 import YAML from 'yaml';
 import fs from 'fs';
@@ -342,22 +342,54 @@ export function generateSnowflakeId(): string {
 
 export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }): boolean {
   const { interaction, config } = data;
+
   const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
+  const channel = interaction.channel;
 
-  if (!scope || !interaction.channel) return config.commandEphemeralReply;
+  // If no scope or channel, return default setting
+  if (!scope || !channel) return config.commandEphemeralReply;
 
-  const channelIds = extractChannelIds(interaction.channel);
-  // If any channel ID is in excluded channels, return false
-  if (channelIds.some(id => scope.excludedChannels.includes(id))) {
-    return false;
+  const channelData: ChannelScopingParams = {
+    channelId: channel.id,
+    threadId: channel.parentId,
+    categoryId: null
+  };
+
+  // Update channel data if it's a thread
+  if (channel.isThread() && channel.parent) {
+    channelData.categoryId = channel.parent.parentId;
+    channelData.threadId = channel.parentId;
   }
 
-  // If included channels are specified and none of the channel IDs are in included channels, return false
-  if (scope.includedChannels.length > 0 && !channelIds.some(id => scope.includedChannels.includes(id))) {
-    return false;
+  const channelIds = [channelData.channelId, channelData.threadId, channelData.categoryId].filter(id => id !== null);
+
+  // If both lists are empty, return default setting
+  if (scope.excludedChannels.length === 0 && scope.includedChannels.length === 0) {
+    return config.commandEphemeralReply;
   }
 
-  // Otherwise, return the default ephemeral reply setting
+  // If excluded channels is not empty, check for exclusion
+  if (scope.excludedChannels.length > 0) {
+    // If ANY of the channel IDs are in excluded channels, return false (non-ephemeral)
+    if (channelIds.some(id => scope.excludedChannels.includes(id))) {
+      return false;
+    }
+
+    // If no channel IDs are in excluded channels, return true (ephemeral)
+    return true;
+  }
+
+  // If included channels is not empty, check for inclusion
+  if (scope.includedChannels.length > 0) {
+    // If ANY of the channel IDs are in included channels, return true (ephemeral)
+    if (channelIds.some(id => scope.includedChannels.includes(id))) {
+      return true;
+    }
+    // If no channel IDs are in included channels, return default setting
+    return config.commandEphemeralReply;
+  }
+
+  // If no included or excluded channels are specified, return default
   return config.commandEphemeralReply;
 }
 
@@ -637,4 +669,12 @@ export async function sendNotification(data: {
   }
 
   return new WebhookClient({ url: config.notificationWebhook }).send(options).catch(() => null);
+}
+
+// Things that are used in this file only
+
+interface ChannelScopingParams {
+  channelId: Snowflake;
+  threadId: Snowflake | null;
+  categoryId: Snowflake | null;
 }
