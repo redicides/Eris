@@ -208,11 +208,15 @@ export default class CommandManager {
         expiresAt
       });
     } else {
-      if (action === 'Ban') {
+      // Delete ban task if the action is a permanent ban or an unban
+
+      if (action === 'Ban' || action === 'Unban') {
         await TaskManager.deleteTask({
           targetId_guildId_type: { targetId: target.id, guildId: interaction.guildId, type: 'Ban' }
         });
       }
+
+      // Delete mute task if the action is an unmute
 
       if (action === 'Unmute') {
         await TaskManager.deleteTask({
