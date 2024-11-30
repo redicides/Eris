@@ -406,10 +406,11 @@ export default class ShortcutManager extends Command {
       };
     }
 
-    const command = interaction.guild.commands.cache.find(c => c.name === name)?.id;
+    const command = await interaction.guild.commands.fetch().then(commands => commands.find(c => c.name === name));
+    const commandId = command?.id;
 
-    if (command) {
-      const deleted = await interaction.guild.commands.delete(command).catch(() => null);
+    if (commandId) {
+      const deleted = await interaction.guild.commands.delete(commandId).catch(() => null);
 
       if (!deleted) {
         return {
