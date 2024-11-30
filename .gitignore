@@ -23,3 +23,9 @@ charmie.cfg.yml
 # Fleet stuff
 
 /.fleet
+
+# Private files
+
+undeploy.ts
+get-stats.ts
+get-ws-stats.ts
