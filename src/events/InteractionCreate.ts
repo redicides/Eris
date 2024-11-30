@@ -11,7 +11,7 @@ import { ModerationCommand } from '@prisma/client';
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
 import { prisma, Sentry } from '@/index';
 import { MessageKeys } from '@utils/Keys';
-import { InteractionReplyData, GuildConfig, Result } from '@utils/Types';
+import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
 import { CHANNEL_PERMISSION_OVERRIDES, COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
 
 import CommandManager from '@managers/commands/CommandManager';
@@ -157,10 +157,10 @@ export default class InteractionCreate extends EventListener {
 
     const replyOptions = error
       ? {
-          ...defaultOptions,
-          ...options,
-          embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
-        }
+        ...defaultOptions,
+        ...options,
+        embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
+      }
       : { ...defaultOptions, ...options };
 
     if (!interaction.deferred && !interaction.replied) {
@@ -194,9 +194,8 @@ export default class InteractionCreate extends EventListener {
     command: ModerationCommand
   ) {
     const ephemeral = isEphemeral({ interaction, config });
-    const response = await CommandManager.handleCustomModerationCommand(interaction, config, command, ephemeral);
+    const options = await CommandManager.handleCustomModerationCommand(interaction, config, command, ephemeral);
 
-    const options = response;
     const ttl = getInteractionTTL(interaction, config, options);
 
     const isTemporary = options.temporary;
@@ -212,10 +211,10 @@ export default class InteractionCreate extends EventListener {
 
     const replyOptions = error
       ? {
-          ...defaultOptions,
-          ...options,
-          embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
-        }
+        ...defaultOptions,
+        ...options,
+        embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
+      }
       : { ...defaultOptions, ...options };
 
     if (!interaction.deferred && !interaction.replied) {

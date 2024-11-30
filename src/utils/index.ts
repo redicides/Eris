@@ -1,29 +1,29 @@
 import {
-  AutocompleteInteraction,
-  codeBlock,
-  Colors,
-  CommandInteraction,
-  Message as DiscordMessage,
-  EmbedField,
-  escapeCodeBlock,
-  GuildMember,
-  hyperlink,
-  Interaction,
-  InteractionReplyOptions,
-  Snowflake,
-  SnowflakeUtil,
-  StickerFormatType,
-  TextBasedChannel,
-  cleanContent as djsCleanContent,
-  GuildTextBasedChannel,
-  EmbedBuilder,
-  messageLink,
-  channelMention,
-  ChatInputApplicationCommandData,
-  ApplicationCommandOptionType,
-  WebhookClient,
-  MessageCreateOptions,
-  APIMessage
+    AutocompleteInteraction,
+    codeBlock,
+    Colors,
+    CommandInteraction,
+    Message as DiscordMessage,
+    EmbedField,
+    escapeCodeBlock,
+    GuildMember,
+    hyperlink,
+    Interaction,
+    InteractionReplyOptions,
+    Snowflake,
+    SnowflakeUtil,
+    StickerFormatType,
+    TextBasedChannel,
+    cleanContent as djsCleanContent,
+    GuildTextBasedChannel,
+    EmbedBuilder,
+    messageLink,
+    channelMention,
+    ChatInputApplicationCommandData,
+    ApplicationCommandOptionType,
+    WebhookClient,
+    MessageCreateOptions,
+    APIMessage
 } from 'discord.js';
 import { PermissionEnum, Message } from '@prisma/client';
 
@@ -50,7 +50,7 @@ import DatabaseManager from '@managers/database/DatabaseManager';
  * @returns The pluralized word
  */
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
-  return count === 1 ? singular : plural;
+    return count === 1 ? singular : plural;
 }
 
 /**
@@ -61,7 +61,7 @@ export function pluralize(count: number, singular: string, plural = `${singular}
  */
 
 export async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -73,8 +73,8 @@ export async function sleep(ms: number) {
  */
 
 export function readYamlFile<T>(path: string): T {
-  const raw = fs.readFileSync(path, 'utf-8');
-  return YAML.parse(raw);
+    const raw = fs.readFileSync(path, 'utf-8');
+    return YAML.parse(raw);
 }
 
 /**
@@ -86,14 +86,14 @@ export function readYamlFile<T>(path: string): T {
  */
 
 export async function uploadData(data: any, ext: string = 'js'): Promise<string> {
-  const binReq = await fetch('https://hst.sh/documents', {
-    method: 'POST',
-    body: typeof data === 'object' ? JSON.stringify(data, null, 2) : data
-  });
+    const binReq = await fetch('https://hst.sh/documents', {
+        method: 'POST',
+        body: typeof data === 'object' ? JSON.stringify(data, null, 2) : data
+    });
 
-  if (!binReq.ok) throw `Error uploading to hastebin. Status code \`${binReq.status}\`.`;
-  const bin = (await binReq.json()) as { key: string };
-  return `https://hst.sh/${bin.key}.${ext}`;
+    if (!binReq.ok) throw `Error uploading to hastebin. Status code \`${binReq.status}\`.`;
+    const bin = (await binReq.json()) as { key: string };
+    return `https://hst.sh/${bin.key}.${ext}`;
 }
 
 /**
@@ -104,7 +104,7 @@ export async function uploadData(data: any, ext: string = 'js'): Promise<string>
  */
 
 export function userMentionWithId(id: Snowflake): `<@${Snowflake}> (\`${Snowflake}\`)` {
-  return `<@${id}> (\`${id}\`)`;
+    return `<@${id}> (\`${id}\`)`;
 }
 
 /**
@@ -115,7 +115,7 @@ export function userMentionWithId(id: Snowflake): `<@${Snowflake}> (\`${Snowflak
  */
 
 export function channelMentionWithId(id: Snowflake): `<#${Snowflake}> (\`${Snowflake}\`)` {
-  return `<#${id}> (\`${id}\`)`;
+    return `<#${id}> (\`${id}\`)`;
 }
 
 /**
@@ -127,9 +127,9 @@ export function channelMentionWithId(id: Snowflake): `<#${Snowflake}> (\`${Snowf
  */
 
 export function hierarchyCheck(executor: GuildMember, target: GuildMember): boolean {
-  if (executor.guild.ownerId === executor.id) return true;
-  if (target.guild.ownerId === target.id) return false;
-  return executor.roles.highest.comparePositionTo(target.roles.highest) > 0;
+    if (executor.guild.ownerId === executor.id) return true;
+    if (target.guild.ownerId === target.id) return false;
+    return executor.roles.highest.comparePositionTo(target.roles.highest) > 0;
 }
 
 /**
@@ -140,8 +140,8 @@ export function hierarchyCheck(executor: GuildMember, target: GuildMember): bool
  */
 
 export function capitalize(str: string): string {
-  if (str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
+    if (str.length === 0) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -152,12 +152,12 @@ export function capitalize(str: string): string {
  */
 
 export function parseDuration(durationStr: string | null): number {
-  if (durationStr === null) return NaN;
+    if (durationStr === null) return NaN;
 
-  const numericValue = Number(durationStr);
+    const numericValue = Number(durationStr);
 
-  if (!isNaN(numericValue)) return numericValue * 1000;
-  return ms(durationStr) ?? NaN;
+    if (!isNaN(numericValue)) return numericValue * 1000;
+    return ms(durationStr) ?? NaN;
 }
 
 /**
@@ -169,12 +169,12 @@ export function parseDuration(durationStr: string | null): number {
  */
 
 export function elipsify(str: string, maxLength: number): string {
-  if (str.length > maxLength) {
-    const croppedStr = str.slice(0, maxLength - 23);
-    return `${croppedStr}…(${str.length - croppedStr.length} more characters)`;
-  }
+    if (str.length > maxLength) {
+        const croppedStr = str.slice(0, maxLength - 23);
+        return `${croppedStr}…(${str.length - croppedStr.length} more characters)`;
+    }
 
-  return str;
+    return str;
 }
 
 /**
@@ -188,17 +188,17 @@ export function elipsify(str: string, maxLength: number): string {
  */
 
 export function cropLines(str: string, maxLines: number): string {
-  const lines = str.split('\n');
-  const diff = lines.length - maxLines;
+    const lines = str.split('\n');
+    const diff = lines.length - maxLines;
 
-  if (diff > 0) {
-    const croppedLines = lines.slice(0, maxLines - 1);
-    croppedLines.push(`(${diff} more ${pluralize(diff, 'line')})`);
+    if (diff > 0) {
+        const croppedLines = lines.slice(0, maxLines - 1);
+        croppedLines.push(`(${diff} more ${pluralize(diff, 'line')})`);
 
-    return croppedLines.join('\n');
-  }
+        return croppedLines.join('\n');
+    }
 
-  return str;
+    return str;
 }
 
 /**
@@ -212,43 +212,43 @@ export function cropLines(str: string, maxLines: number): string {
  */
 
 export async function formatMessageContentForShortLog(
-  content: string | null,
-  stickerId: string | null,
-  url: string | null,
-  includeUrl: boolean = true
+    content: string | null,
+    stickerId: string | null,
+    url: string | null,
+    includeUrl: boolean = true
 ): Promise<string> {
-  let rawContent = url && includeUrl ? hyperlink('Jump to message', url) : '';
+    let rawContent = url && includeUrl ? hyperlink('Jump to message', url) : '';
 
-  if (stickerId) {
-    const sticker = await client.fetchSticker(stickerId);
+    if (stickerId) {
+        const sticker = await client.fetchSticker(stickerId);
 
-    if (sticker.format !== StickerFormatType.Lottie) {
-      rawContent += ` \`|\` ${hyperlink(`Sticker: ${sticker.name}`, sticker.url)}`;
+        if (sticker.format !== StickerFormatType.Lottie) {
+            rawContent += ` \`|\` ${hyperlink(`Sticker: ${sticker.name}`, sticker.url)}`;
+        } else {
+            // Lottie stickers don't have a direct URL
+            rawContent += ` \`|\` Lottie Sticker: ${sticker.name}`;
+        }
+    }
+
+    if (content) {
+        // Escape code blocks
+        content = escapeCodeBlock(content);
+
+        if (content.length > 1024) {
+            // Upload full content to hastebin if too long
+            const hastebinUrl = await uploadData(content, 'txt');
+            return rawContent + ` \`|\` ${hyperlink('View full content', hastebinUrl)}`;
+        }
+
+        // Calculate max content length considering the code block formatting
+        const maxContentLength = Math.max(0, 1000 - rawContent.length);
+        // Truncate the content if it's too long
+        content = elipsify(content, maxContentLength);
     } else {
-      // Lottie stickers don't have a direct URL
-      rawContent += ` \`|\` Lottie Sticker: ${sticker.name}`;
-    }
-  }
-
-  if (content) {
-    // Escape code blocks
-    content = escapeCodeBlock(content);
-
-    if (content.length > 1024) {
-      // Upload full content to hastebin if too long
-      const hastebinUrl = await uploadData(content, 'txt');
-      return rawContent + ` \`|\` ${hyperlink('View full content', hastebinUrl)}`;
+        content = EMPTY_MESSAGE_CONTENT;
     }
 
-    // Calculate max content length considering the code block formatting
-    const maxContentLength = Math.max(0, 1000 - rawContent.length);
-    // Truncate the content if it's too long
-    content = elipsify(content, maxContentLength);
-  } else {
-    content = EMPTY_MESSAGE_CONTENT;
-  }
-
-  return rawContent + codeBlock(content);
+    return rawContent + codeBlock(content);
 }
 
 /**
@@ -258,11 +258,11 @@ export async function formatMessageContentForShortLog(
  * @param permission The permission to check for
  */
 export function hasPermission(member: GuildMember, config: GuildConfig, permission: PermissionEnum): boolean {
-  return member.roles.cache.some(role => {
-    return config.permissions.some(perm => {
-      return perm.roles.includes(role.id) && perm.allow.includes(permission);
+    return member.roles.cache.some(role => {
+        return config.permissions.some(perm => {
+            return perm.roles.includes(role.id) && perm.allow.includes(permission);
+        });
     });
-  });
 }
 
 /**
@@ -273,14 +273,16 @@ export function hasPermission(member: GuildMember, config: GuildConfig, permissi
  */
 
 export function handleInteractionReply(
-  interaction: ComponentInteraction | CommandInteraction,
-  options: InteractionReplyOptions
+    interaction: ComponentInteraction | CommandInteraction,
+    options: InteractionReplyOptions
 ): unknown {
-  const { ephemeral, ...parsedOptions } = options;
+    const { ephemeral, ...parsedOptions } = options;
 
-  return !interaction.deferred && !interaction.replied
-    ? interaction.reply(options).catch(() => {})
-    : interaction.editReply({ ...parsedOptions }).catch(() => {});
+    return !interaction.deferred && !interaction.replied
+        ? interaction.reply(options).catch(() => {
+        })
+        : interaction.editReply({ ...parsedOptions }).catch(() => {
+        });
 }
 
 /**
@@ -291,15 +293,15 @@ export function handleInteractionReply(
  */
 
 export function handleInteractionErrorReply(data: {
-  interaction: ComponentInteraction | CommandInteraction;
-  error: string;
+    interaction: ComponentInteraction | CommandInteraction;
+    error: string;
 }): unknown {
-  const { interaction, error } = data;
+    const { interaction, error } = data;
 
-  return handleInteractionReply(interaction, {
-    embeds: [{ description: `${ConfigManager.global_config.emojis.error} ${error}`, color: Colors.NotQuiteBlack }],
-    ephemeral: true
-  });
+    return handleInteractionReply(interaction, {
+        embeds: [{ description: `${ConfigManager.global_config.emojis.error} ${error}`, color: Colors.NotQuiteBlack }],
+        ephemeral: true
+    });
 }
 
 /**
@@ -312,15 +314,15 @@ export function handleInteractionErrorReply(data: {
  */
 
 export function getInteractionTTL(
-  interaction: Exclude<Interaction, AutocompleteInteraction> | CommandInteraction,
-  config: GuildConfig,
-  options: InteractionReplyData
+    interaction: Exclude<Interaction, AutocompleteInteraction> | CommandInteraction,
+    config: GuildConfig,
+    options: InteractionReplyData
 ): number {
-  if (interaction.isCommand()) {
-    return options.temporary ? config.commandTemporaryReplyTTL : config.commandErrorTTL;
-  } else {
-    return options.temporary ? config.componentTemporaryReplyTTL : config.componentErrorTTL;
-  }
+    if (interaction.isCommand()) {
+        return options.temporary ? config.commandTemporaryReplyTTL : config.commandErrorTTL;
+    } else {
+        return options.temporary ? config.componentTemporaryReplyTTL : config.componentErrorTTL;
+    }
 }
 
 /**
@@ -329,7 +331,7 @@ export function getInteractionTTL(
  */
 
 export function generateSnowflakeId(): string {
-  return String(SnowflakeUtil.generate({ timestamp: new Date().getTime() }));
+    return String(SnowflakeUtil.generate({ timestamp: new Date().getTime() }));
 }
 
 /**
@@ -341,16 +343,16 @@ export function generateSnowflakeId(): string {
  */
 
 export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }): boolean {
-  const { interaction, config } = data;
-  const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
+    const { interaction, config } = data;
+    const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
 
-  if (!scope || !interaction.channel) return config.commandEphemeralReply;
+    if (!scope || !interaction.channel) return config.commandEphemeralReply;
 
-  const channelIds = extractChannelIds(interaction.channel);
+    const channelIds = extractChannelIds(interaction.channel);
 
-  return channelIds.some(id => scope.excludedChannels.includes(id))
-    ? true
-    : channelIds.some(id => scope.includedChannels.includes(id));
+    return channelIds.some(id => scope.excludedChannels.includes(id))
+        ? false
+        : channelIds.some(id => scope.includedChannels.includes(id));
 }
 
 /**
@@ -361,26 +363,26 @@ export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; c
  */
 
 export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
-  const categories = Object.values(CommandCategory);
-  const commandStore = CommandManager.commands;
+    const categories = Object.values(CommandCategory);
+    const commandStore = CommandManager.commands;
 
-  return categories.flatMap(category => {
-    const commands = [...commandStore.values()]
-      .filter(c => c.category === category)
-      .sort((a, b) => a.data.name.localeCompare(b.data.name));
+    return categories.flatMap(category => {
+        const commands = [...commandStore.values()]
+            .filter(c => c.category === category)
+            .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
-    if (commands.length === 0) return [];
+        if (commands.length === 0) return [];
 
-    const field: EmbedField = {
-      name: category,
-      value: commands.map(c => `\`${c.data.name}\``).join(', '),
-      inline: false
-    };
+        const field: EmbedField = {
+            name: category,
+            value: commands.map(c => `\`${c.data.name}\``).join(', '),
+            inline: false
+        };
 
-    if (category === CommandCategory.Developer && !ConfigManager.global_config.bot.developers.includes(userId))
-      return [];
-    return [field];
-  });
+        if (category === CommandCategory.Developer && !ConfigManager.global_config.bot.developers.includes(userId))
+            return [];
+        return [field];
+    });
 }
 
 /**
@@ -392,11 +394,11 @@ export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
  */
 
 export function cleanContent(str: string, channel: TextBasedChannel): string {
-  // Escape custom emojis
-  str = str.replace(/<(a?):([^:\n\r]+):(\d{17,19})>/g, '<$1\\:$2\\:$3>');
-  // Add IDs to mentions
-  str = str.replace(/<@!?(\d{17,19})>/g, `<@$1> ($1)`);
-  return djsCleanContent(str, channel);
+    // Escape custom emojis
+    str = str.replace(/<(a?):([^:\n\r]+):(\d{17,19})>/g, '<$1\\:$2\\:$3>');
+    // Add IDs to mentions
+    str = str.replace(/<@!?(\d{17,19})>/g, `<@$1> ($1)`);
+    return djsCleanContent(str, channel);
 }
 
 /**
@@ -407,22 +409,22 @@ export function cleanContent(str: string, channel: TextBasedChannel): string {
  */
 
 export function extractChannelIds(channel: GuildTextBasedChannel) {
-  const ids: string[] = [channel.id];
+    const ids: string[] = [channel.id];
 
-  if (channel.isThread()) {
-    // Add thread's parent channel ID
-    ids.push(channel.parent!.id);
+    if (channel.isThread()) {
+        // Add thread's parent channel ID
+        ids.push(channel.parent!.id);
 
-    // If thread's parent channel is in a category, add category ID
-    if (channel.parent?.parent) {
-      ids.push(channel.parent.parent.id);
+        // If thread's parent channel is in a category, add category ID
+        if (channel.parent?.parent) {
+            ids.push(channel.parent.parent.id);
+        }
+    } else if (channel.parent) {
+        // Not a thread but in a category
+        ids.push(channel.parent.id);
     }
-  } else if (channel.parent) {
-    // Not a thread but in a category
-    ids.push(channel.parent.id);
-  }
 
-  return ids;
+    return ids;
 }
 
 /**
@@ -441,35 +443,35 @@ export function extractChannelIds(channel: GuildTextBasedChannel) {
  */
 
 export async function getMessageLogEmbed(data: MessageLog, reference: boolean): Promise<EmbedBuilder> {
-  const url = messageLink(data.channelId, data.messageId, data.guildId);
+    const url = messageLink(data.channelId, data.messageId, data.guildId);
 
-  const embed = new EmbedBuilder()
-    .setColor(reference ? Colors.NotQuiteBlack : Colors.Red)
-    .setAuthor({ name: reference ? 'Message Reference' : 'Message Deleted' })
-    .setFields([
-      {
-        name: 'Author',
-        value: userMentionWithId(data.authorId)
-      },
-      {
-        name: 'Channel',
-        value: channelMention(data.channelId)
-      },
-      {
-        name: reference ? 'Reference Content' : 'Message Content',
-        value: await formatMessageContentForShortLog(data.content, data.stickerId, url)
-      }
-    ])
-    .setTimestamp(data.createdAt);
+    const embed = new EmbedBuilder()
+        .setColor(reference ? Colors.NotQuiteBlack : Colors.Red)
+        .setAuthor({ name: reference ? 'Message Reference' : 'Message Deleted' })
+        .setFields([
+            {
+                name: 'Author',
+                value: userMentionWithId(data.authorId)
+            },
+            {
+                name: 'Channel',
+                value: channelMention(data.channelId)
+            },
+            {
+                name: reference ? 'Reference Content' : 'Message Content',
+                value: await formatMessageContentForShortLog(data.content, data.stickerId, url)
+            }
+        ])
+        .setTimestamp(data.createdAt);
 
-  if (data.attachments?.length) {
-    embed.addFields({
-      name: reference ? 'Reference Attachments' : 'Message Attachments',
-      value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
-    });
-  }
+    if (data.attachments?.length) {
+        embed.addFields({
+            name: reference ? 'Reference Attachments' : 'Message Attachments',
+            value: data.attachments.map(attachment => `[Attachment](${attachment})`).join(', ')
+        });
+    }
 
-  return embed;
+    return embed;
 }
 
 /**
@@ -481,33 +483,33 @@ export async function getMessageLogEmbed(data: MessageLog, reference: boolean): 
  */
 
 export async function getReferenceMessage(
-  dbMessage: Message,
-  discordMessage: DiscordMessage<true>
+    dbMessage: Message,
+    discordMessage: DiscordMessage<true>
 ): Promise<MessageLog | null> {
-  const referenceMessage: Message | DiscordMessage | null =
-    (await DatabaseManager.getMessageEntry(dbMessage.referenceId!)) ??
-    (await discordMessage.fetchReference().catch(() => null));
+    const referenceMessage: Message | DiscordMessage | null =
+        (await DatabaseManager.getMessageEntry(dbMessage.referenceId!)) ??
+        (await discordMessage.fetchReference().catch(() => null));
 
-  if (!referenceMessage) return null;
+    if (!referenceMessage) return null;
 
-  return {
-    guildId: discordMessage.guildId,
-    messageId: referenceMessage.id,
-    authorId:
-      (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
-    channelId: referenceMessage.channelId,
-    stickerId:
-      'stickerId' in referenceMessage ? referenceMessage.stickerId : (referenceMessage.stickers?.first()?.id ?? null),
-    createdAt:
-      referenceMessage instanceof DiscordMessage
-        ? referenceMessage.createdAt
-        : new Date(Number(referenceMessage.createdAt)),
-    content: referenceMessage.content,
-    attachments:
-      referenceMessage instanceof DiscordMessage
-        ? Array.from(referenceMessage.attachments.values()).map(attachment => attachment.url)
-        : referenceMessage.attachments
-  };
+    return {
+        guildId: discordMessage.guildId,
+        messageId: referenceMessage.id,
+        authorId:
+            (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
+        channelId: referenceMessage.channelId,
+        stickerId:
+            'stickerId' in referenceMessage ? referenceMessage.stickerId : (referenceMessage.stickers?.first()?.id ?? null),
+        createdAt:
+            referenceMessage instanceof DiscordMessage
+                ? referenceMessage.createdAt
+                : new Date(Number(referenceMessage.createdAt)),
+        content: referenceMessage.content,
+        attachments:
+            referenceMessage instanceof DiscordMessage
+                ? Array.from(referenceMessage.attachments.values()).map(attachment => attachment.url)
+                : referenceMessage.attachments
+    };
 }
 
 /**
@@ -521,32 +523,32 @@ export async function getReferenceMessage(
  */
 
 export async function formatMessageBulkDeleteLogEntry(data: {
-  createdAt: bigint | number;
-  stickerId: Snowflake | null;
-  authorId: Snowflake;
-  messageContent: string | null;
+    createdAt: bigint | number;
+    stickerId: Snowflake | null;
+    authorId: Snowflake;
+    messageContent: string | null;
 }) {
-  const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
-  const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
+    const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
+    const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
 
-  let content: string | undefined;
+    let content: string | undefined;
 
-  if (data.stickerId) {
-    const sticker = await client.fetchSticker(data.stickerId).catch(() => null);
+    if (data.stickerId) {
+        const sticker = await client.fetchSticker(data.stickerId).catch(() => null);
 
-    if (sticker && sticker.format === StickerFormatType.Lottie) {
-      content = `Lottie Sticker "${sticker.name}": ${data.stickerId}`;
-    } else if (sticker) {
-      content = `Sticker "${sticker.name}": ${sticker.url}`;
+        if (sticker && sticker.format === StickerFormatType.Lottie) {
+            content = `Lottie Sticker "${sticker.name}": ${data.stickerId}`;
+        } else if (sticker) {
+            content = `Sticker "${sticker.name}": ${sticker.url}`;
+        }
+
+        if (data.messageContent && content) {
+            content = ` | Message Content: ${data.messageContent}`;
+        }
     }
 
-    if (data.messageContent && content) {
-      content = ` | Message Content: ${data.messageContent}`;
-    }
-  }
-
-  content ??= data.messageContent ?? EMPTY_MESSAGE_CONTENT;
-  return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
+    content ??= data.messageContent ?? EMPTY_MESSAGE_CONTENT;
+    return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
 }
 
 /**
@@ -557,57 +559,57 @@ export async function formatMessageBulkDeleteLogEntry(data: {
  */
 
 export function calculateCommandSize(command: ChatInputApplicationCommandData): {
-  total: number;
-  breakdown: { [key: string]: number };
+    total: number;
+    breakdown: { [key: string]: number };
 } {
-  const breakdown: { [key: string]: number } = {};
-  let total = 0;
+    const breakdown: { [key: string]: number } = {};
+    let total = 0;
 
-  // Name and description
-  breakdown.name = command.name.length;
-  breakdown.description = command.description.length;
-  total += breakdown.name + breakdown.description;
+    // Name and description
+    breakdown.name = command.name.length;
+    breakdown.description = command.description.length;
+    total += breakdown.name + breakdown.description;
 
-  // Calculate options size recursively
-  if (command.options) {
-    breakdown.options = 0;
+    // Calculate options size recursively
+    if (command.options) {
+        breakdown.options = 0;
 
-    const calculateOptionSize = (option: any): number => {
-      let size = 0;
+        const calculateOptionSize = (option: any): number => {
+            let size = 0;
 
-      // Add name and description lengths
-      size += option.name?.length || 0;
-      size += option.description?.length || 0;
+            // Add name and description lengths
+            size += option.name?.length || 0;
+            size += option.description?.length || 0;
 
-      // Add choices if present
-      if (option.choices) {
-        for (const choice of option.choices) {
-          size += choice.name.length;
-          size += String(choice.value).length;
+            // Add choices if present
+            if (option.choices) {
+                for (const choice of option.choices) {
+                    size += choice.name.length;
+                    size += String(choice.value).length;
+                }
+            }
+
+            // Recursively calculate subcommand/group options
+            if (
+                option.options &&
+                [ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(option.type)
+            ) {
+                for (const subOption of option.options) {
+                    size += calculateOptionSize(subOption);
+                }
+            }
+
+            return size;
+        };
+
+        for (const option of command.options) {
+            breakdown.options += calculateOptionSize(option);
         }
-      }
 
-      // Recursively calculate subcommand/group options
-      if (
-        option.options &&
-        [ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(option.type)
-      ) {
-        for (const subOption of option.options) {
-          size += calculateOptionSize(subOption);
-        }
-      }
-
-      return size;
-    };
-
-    for (const option of command.options) {
-      breakdown.options += calculateOptionSize(option);
+        total += breakdown.options;
     }
 
-    total += breakdown.options;
-  }
-
-  return { total, breakdown };
+    return { total, breakdown };
 }
 
 /**
@@ -619,14 +621,14 @@ export function calculateCommandSize(command: ChatInputApplicationCommandData): 
  */
 
 export async function sendNotification(data: {
-  config: GuildConfig;
-  options: MessageCreateOptions;
+    config: GuildConfig;
+    options: MessageCreateOptions;
 }): Promise<APIMessage | null> {
-  const { config, options } = data;
+    const { config, options } = data;
 
-  if (!config.notificationWebhook) {
-    return null;
-  }
+    if (!config.notificationWebhook) {
+        return null;
+    }
 
-  return new WebhookClient({ url: config.notificationWebhook }).send(options).catch(() => null);
+    return new WebhookClient({ url: config.notificationWebhook }).send(options).catch(() => null);
 }
