@@ -544,7 +544,7 @@ export class RequestUtils {
           reason: reason ?? DEFAULT_INFRACTION_REASON
         });
 
-        sendNotification({
+        await sendNotification({
           config,
           options: { content, allowedMentions: { parse: [] } }
         });

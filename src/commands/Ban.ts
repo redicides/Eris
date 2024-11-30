@@ -8,6 +8,7 @@ import {
 import ms from 'ms';
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
+import { MAX_DURATION_STR } from '@utils/Constants';
 import { parseDuration } from '@utils/index';
 import { MessageKeys, DurationKeys } from '@utils/Keys';
 
@@ -118,7 +119,7 @@ export default class Ban extends Command {
         };
       }
 
-      if (duration > ms('365d')) {
+      if (duration > ms(MAX_DURATION_STR)) {
         return {
           error: MessageKeys.Errors.DurationTooLong('1 year'),
           temporary: true

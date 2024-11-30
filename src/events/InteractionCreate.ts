@@ -301,6 +301,23 @@ export default class InteractionCreate extends EventListener {
         return interaction.respond(results);
       }
 
+      case 'shortcut': {
+        const shortcuts = await prisma.moderationCommand.findMany({ where: { guildId: interaction.guildId } });
+
+        const filteredShortcuts = shortcuts
+          .filter(
+            shortcut =>
+              shortcut.name.includes(value) ||
+              shortcut.name.includes(lowercaseValue) ||
+              shortcut.name.toLowerCase().includes(lowercaseValue)
+          )
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        return interaction.respond(
+          filteredShortcuts.map(shortcut => ({ name: capitalize(shortcut.name), value: shortcut.name }))
+        );
+      }
+
       case 'permission-node': {
         const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId)).permissions;
 

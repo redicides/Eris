@@ -1,3 +1,4 @@
+import Warn from '@/commands/Warn';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -111,6 +112,8 @@ export const COMMON_DURATIONS = [
 
 export const DURATION_UNITS = ['second', 'minute', 'hour', 'day', 'week'];
 
+export const MAX_DURATION_STR = '1826 days';
+
 export const EXIT_EVENTS = [
   'SIGHUP',
   'SIGINT',
@@ -177,4 +180,13 @@ export const SHORTCUT_PERMISSIONS = {
   Kick: new PermissionsBitField(PermissionFlagsBits.KickMembers),
   Ban: new PermissionsBitField(PermissionFlagsBits.BanMembers),
   Unban: new PermissionsBitField(PermissionFlagsBits.BanMembers)
+};
+
+export const SHORTCUT_PERMISSION_FLAGS = {
+  Warn: PermissionFlagsBits.ModerateMembers,
+  Mute: PermissionFlagsBits.ModerateMembers,
+  Unmute: PermissionFlagsBits.ModerateMembers,
+  Kick: PermissionFlagsBits.KickMembers,
+  Ban: PermissionFlagsBits.BanMembers,
+  Unban: PermissionFlagsBits.BanMembers
 };

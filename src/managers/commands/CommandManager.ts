@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { SHORTCUT_PERMISSIONS } from '@utils/Constants';
 import { MessageKeys } from '@utils/Keys';
 import { pluralize } from '@utils/index';
 import { client } from '@/index';
@@ -13,7 +14,6 @@ import Command from './Command';
 import InfractionManager from '../database/InfractionManager';
 import TaskManager from '../database/TaskManager';
 import Logger, { AnsiColor } from '@utils/Logger';
-import { SHORTCUT_PERMISSIONS } from '@/utils/Constants';
 
 export default class CommandManager {
   /**
