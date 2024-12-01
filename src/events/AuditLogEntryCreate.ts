@@ -31,8 +31,7 @@ export default class AuditLogEntryCreate extends EventListener {
       case AuditLogEvent.MemberBanAdd:
         action = InfractionType.Ban;
 
-        // If the user was banned, we delete any mute related tasks (if any).
-
+        // Delete mute task upon ban (if it exists)
         await TaskManager.deleteTask({
           targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
         });
@@ -41,8 +40,7 @@ export default class AuditLogEntryCreate extends EventListener {
       case AuditLogEvent.MemberBanRemove:
         action = InfractionType.Unban;
 
-        // If the user was unbanned, we delete any ban related tasks (if any).
-
+        // Delete ban task upon unban (if it exists)
         await TaskManager.deleteTask({
           targetId_guildId_type: { guildId: guild.id, targetId: target.id, type: 'Ban' }
         });
@@ -86,6 +84,7 @@ export default class AuditLogEntryCreate extends EventListener {
             if (!mute.new) {
               action = InfractionType.Unmute;
 
+              // Delete mute task upon unmute
               await TaskManager.deleteTask({
                 targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
               });

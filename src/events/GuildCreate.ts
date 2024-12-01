@@ -9,6 +9,7 @@ export default class GuildCreate extends EventListener {
   }
 
   async execute(guild: Guild) {
-    await DatabaseManager.confirmDatabaseGuildEntry(guild.id);
+    // Fetch the guild entry from the database if it already exists, if not create a new entry
+    await DatabaseManager.getGuildEntry(guild.id);
   }
 }

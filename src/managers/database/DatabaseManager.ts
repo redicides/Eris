@@ -22,7 +22,13 @@ export default class DatabaseManager {
    */
 
   public static async getGuildEntry(id: Snowflake): Promise<GuildConfig> {
-    return DatabaseManager.confirmDatabaseGuildEntry(id);
+    const guild = await prisma.guild.findUnique({
+      where: {
+        id
+      }
+    });
+
+    return guild ?? DatabaseManager.createDatabaseGuildEntry(id);
   }
 
   /**
@@ -36,23 +42,6 @@ export default class DatabaseManager {
     return prisma.guild.create({
       data: { id }
     });
-  }
-
-  /**
-   * Checks if the guild is in the database, and if not, creates a new entry.
-   *
-   * @param id The ID of the guild
-   * @returns Guild The guild model
-   */
-
-  public static async confirmDatabaseGuildEntry(id: Snowflake): Promise<GuildConfig> {
-    const guild = await prisma.guild.findUnique({
-      where: {
-        id
-      }
-    });
-
-    return guild ? guild : DatabaseManager.createDatabaseGuildEntry(id);
   }
 
   /**

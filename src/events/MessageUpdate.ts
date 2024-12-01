@@ -37,8 +37,8 @@ export default class MessageUpdate extends EventListener {
       ? ((await _newMessage.fetch().catch(() => null)) as DiscordMessage<true> | null)
       : _newMessage;
 
-    // Early return if there is no sufficient data or if the message is from a bot or webhook
-    if (!message || message.author.bot || message.webhookId !== null || !message.content) return;
+    // Early return if there is no sufficient data or if the message is from a bot, webhook, or the system
+    if (!message || message.author.bot || message.webhookId !== null || message.system || !message.content) return;
 
     const config = await DatabaseManager.getGuildEntry(message.guild.id);
     const channelIds = extractChannelIds(message.channel);

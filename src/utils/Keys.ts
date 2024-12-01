@@ -4,17 +4,11 @@ import { InfractionType, PermissionEnum } from '@prisma/client';
 export const MessageKeys = {
   Errors: {
     InvalidTarget: 'The provided target is invalid.',
-
     TargetNotFound: 'The target user could not be found.',
-
     MemberNotFound: 'The target member could not be found.',
-
     CommandNotFound: 'The provided command could not be found.',
-
     CommandDisabled: 'This command is disabled in this guild.',
-
     CantUnmuteUnmutedMember: `You cannot unmute someone who is not muted.`,
-
     CantMuteAdmin: `You cannot mute an Administrator.`,
 
     InvalidDuration(canBePermanent: boolean = true) {

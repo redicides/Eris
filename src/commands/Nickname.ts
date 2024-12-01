@@ -183,7 +183,10 @@ export default class Nickname extends Command {
         }
 
         const set = await target
-          .setNickname(`User ${code}`, `Nickname censored by @${interaction.user.username} (${interaction.user.id})`)
+          .setNickname(
+            `Censored ${code}`,
+            `Nickname censored by @${interaction.user.username} (${interaction.user.id})`
+          )
           .catch(() => null);
 
         return set
@@ -193,7 +196,7 @@ export default class Nickname extends Command {
     }
   }
 
-  private static readonly _censorRegex = /^User [A-Za-z0-9]{8}$/;
+  private static readonly _censorRegex = /^Censored [A-Za-z0-9]{8}$/;
 }
 
 enum NicknameSubcommand {

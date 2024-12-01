@@ -38,13 +38,6 @@ export default class MuteRequestModalComponent extends Component {
       };
     }
 
-    if (!hasPermission(interaction.member, config, 'ManageMuteRequests')) {
-      return {
-        error: 'You no longer have permission to manage mute requests.',
-        temporary: true
-      };
-    }
-
     const reason = interaction.fields.getTextInputValue('reason');
 
     return RequestUtils.handleMuteRequestAction({ interaction, config, request, action, reason });

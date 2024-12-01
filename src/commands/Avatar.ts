@@ -41,7 +41,7 @@ export default class Avatar extends Command {
       };
     }
 
-    const targetMember = await interaction.guild?.members.fetch(target.id).catch(() => null);
+    const targetMember = await interaction.guild.members.fetch(target.id).catch(() => null);
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: `@${target.username}'s Avatar`, iconURL: target.displayAvatarURL() })
