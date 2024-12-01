@@ -20,6 +20,7 @@ import ms from 'ms';
 
 import { prisma } from '..';
 import { isCategory } from './Config';
+import { MAX_DURATION_STR } from '@utils/Constants';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { parseDuration, pluralize, uploadData } from '@utils/index';
 
@@ -465,6 +466,35 @@ export default class Settings extends Command {
                 ]
               },
               {
+                name: SettingsSubcommand.SetAdditionalInfo,
+                description:
+                  'Include additional details in the punishment DM sent to users when they receive an infraction.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'type',
+                    description: 'The infraction type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Warn', value: 'defaultAdditionalWarnInfo' },
+                      { name: 'Mute', value: 'defaultAdditionalMuteInfo' },
+                      { name: 'Unmute', value: 'defaultAdditionalUnmuteInfo' },
+                      { name: 'Kick', value: 'defaultAdditionalKickInfo' },
+                      { name: 'Ban', value: 'defaultAdditionalBanInfo' }
+                    ]
+                  },
+                  {
+                    name: 'info',
+                    description: 'The additional information. Use "none" to remove the current info.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    minLength: 1,
+                    maxLength: 1024
+                  }
+                ]
+              },
+              {
                 name: SettingsSubcommand.ToggleNativeIntegration,
                 description: 'Toggle tracking of infractions from native moderation.',
                 type: ApplicationCommandOptionType.Subcommand
@@ -636,6 +666,8 @@ export default class Settings extends Command {
               return Settings.Infractions.toggleNotifications(interaction, config);
             case SettingsSubcommand.ToggleNativeIntegration:
               return Settings.Infractions.toggleNativeIntegration(interaction, config);
+            case SettingsSubcommand.SetAdditionalInfo:
+              return Settings.Infractions.setAdditionalInformation(interaction, config);
           }
         }
 
@@ -1455,6 +1487,35 @@ export default class Settings extends Command {
    */
 
   public static Infractions = {
+    async setAdditionalInformation(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+      const type = interaction.options.getString('type', true) as keyof typeof config;
+      let info: string | null = interaction.options.getString('info', true);
+
+      if (info.toLowerCase() === 'none') info = null;
+
+      if (config[type] === info) {
+        return {
+          error: `${
+            info
+              ? 'The new additional information cannot be the same as the current'
+              : 'There is no additional information to reset.'
+          }.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: info }
+      });
+
+      return {
+        content: `Successfully ${info ? 'set' : 'reset'} the information for \`${Settings._parseAdditionalInfoType(
+          type
+        )}\` infractions.`
+      };
+    },
+
     async requireReason(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
@@ -1473,7 +1534,9 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `A reason is ${toggle ? 'now' : 'no longer'} required for issuing infractions of the specified type.`
+        content: `A reason is ${
+          toggle ? 'now' : 'no longer'
+        } required for issuing \`${Settings._parseRequiredReasonType(type)}\` infractions.`
       };
     },
 
@@ -1495,7 +1558,9 @@ export default class Settings extends Command {
 
       if (config[type] === duration) {
         return {
-          error: `The default duration for this infraction type is already set to **${ms(Math.floor(duration), {
+          error: `The default duration for \`${Settings._parseRequiredReasonType(
+            type
+          )}\` infractions is already set to **${ms(Math.floor(duration), {
             long: true
           })}**.`,
           temporary: true
@@ -1518,9 +1583,9 @@ export default class Settings extends Command {
         }
       }
 
-      if (duration > ms('365d')) {
+      if (duration > ms(MAX_DURATION_STR)) {
         return {
-          error: 'The duration must not exceed 1 year.',
+          error: 'The duration must not exceed 5 years.',
           temporary: true
         };
       }
@@ -1533,7 +1598,9 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `The default duration for the specified infraction type has been ${
+        content: `The default duration for the \`${Settings._parseRequiredReasonType(
+          type
+        )}\` infraction type has been ${
           rawDuration.toLowerCase() === 'none'
             ? 'reset'
             : `set to **${ms(Math.floor(duration), {
@@ -1560,7 +1627,7 @@ export default class Settings extends Command {
       return {
         content: `Users will ${
           toggle ? 'now' : 'no longer'
-        } receive DM notifications for the specified infraction type.`
+        } receive DM notifications for \`${Settings._parseRequiredReasonType(type)}\` infractions.`
       };
     },
 
@@ -1833,6 +1900,38 @@ export default class Settings extends Command {
       };
     }
   };
+
+  public static _parseAdditionalInfoType(key: keyof GuildConfig) {
+    switch (key) {
+      case 'defaultAdditionalBanInfo':
+        return 'ban';
+      case 'defaultAdditionalKickInfo':
+        return 'kick';
+      case 'defaultAdditionalMuteInfo':
+        return 'mute';
+      case 'defaultAdditionalWarnInfo':
+        return 'warn';
+      case 'defaultAdditionalUnmuteInfo':
+        return 'unmute';
+    }
+  }
+
+  public static _parseRequiredReasonType(key: keyof GuildConfig) {
+    switch (key) {
+      case 'requireBanReason':
+        return 'ban';
+      case 'requireKickReason':
+        return 'kick';
+      case 'requireMuteReason':
+        return 'mute';
+      case 'requireWarnReason':
+        return 'warn';
+      case 'requireUnmuteReason':
+        return 'unmute';
+      case 'requireUnbanReason':
+        return 'unban';
+    }
+  }
 }
 
 enum SettingsSubcommandGroup {
@@ -1870,5 +1969,6 @@ enum SettingsSubcommand {
   AddOverride = 'add-override',
   RemoveOverride = 'remove-override',
   ListOverrides = 'list-overrides',
-  DisplayExecutor = 'display-executor'
+  DisplayExecutor = 'display-executor',
+  SetAdditionalInfo = 'set-additional-info'
 }

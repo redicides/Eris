@@ -16,7 +16,7 @@ import {
 import ms from 'ms';
 
 import { client, prisma } from '..';
-import { parseDuration, pluralize, uploadData } from '@utils/index';
+import { capitalize, parseDuration, pluralize, uploadData } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -649,7 +649,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `Users will ${toggle ? 'now' : 'no longer'} receive status notifications for ${
+        content: `Report authors will ${toggle ? 'now' : 'no longer'} receive status notifications for ${
           type === 'messageReportsNotifyStatus' ? 'message reports' : 'user reports'
         }.`
       };
@@ -926,7 +926,9 @@ export default class Config extends Command {
 
       if (config[type] === duration) {
         return {
-          error: `The auto disregard duration for this type is already set to **${ms(Math.floor(duration), {
+          error: `The auto disregard duration for ${
+            type === 'messageReportsDisregardAfter' ? 'message reports' : 'user reports'
+          } is already set to **${ms(Math.floor(duration), {
             long: true
           })}**.`,
           temporary: true
@@ -939,7 +941,9 @@ export default class Config extends Command {
       });
 
       return {
-        content: `The auto disregard duration for the specified type has been set to **${ms(Math.floor(duration), {
+        content: `The auto disregard duration for ${
+          type === 'messageReportsDisregardAfter' ? 'message reports' : 'user reports'
+        } has been set to **${ms(Math.floor(duration), {
           long: true
         })}**.`
       };
@@ -1241,7 +1245,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `Logging for the specified type has been ${toggle ? 'enabled' : 'disabled'}.`
+        content: `${capitalize(Config._parseLogType(type))} logging has been ${toggle ? 'enabled' : 'disabled'}.`
       };
     },
 
@@ -1268,7 +1272,7 @@ export default class Config extends Command {
       if (webhook) {
         if (webhook.channelId === channel.id) {
           return {
-            error: `The log channel for the specified type is already set to ${channel.toString()}.`,
+            error: `The log channel for ${Config._parseLogType(type)}s is already set to ${channel.toString()}.`,
             temporary: true
           };
         }
@@ -1315,7 +1319,7 @@ export default class Config extends Command {
       }
 
       return {
-        content: `The log channel for the specified type has been set to ${channel.toString()}.`
+        content: `The log channel for ${Config._parseLogType(type)}s has been set to ${channel.toString()}.`
       };
     },
 
@@ -1402,7 +1406,7 @@ export default class Config extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} is already in the ignored channels list for the specified type.`,
+          } ${channel} is already in the ignored list for ${Config._parseLogType(type)} logging.`,
           temporary: true
         };
       }
@@ -1415,7 +1419,7 @@ export default class Config extends Command {
       return {
         content: `The ${
           isCategory(channel) ? 'category' : 'channel'
-        } ${channel} has been added to the ignored channels list for the specified type.`
+        } ${channel} has been added to the ignored list for ${Config._parseLogType(type)} logging.`
       };
     },
 
@@ -1432,7 +1436,7 @@ export default class Config extends Command {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
-          } ${channel} is not in the ignored channels list for the specified type.`,
+          } ${channel} is not in the ignored list for ${Config._parseLogType(type)} logging.`,
           temporary: true
         };
       }
@@ -1445,7 +1449,7 @@ export default class Config extends Command {
       return {
         content: `The ${
           isCategory(channel) ? 'category' : 'channel'
-        } ${channel} has been removed from the ignored channels list for the specified type.`
+        } ${channel} has been removed from the ignored channels for ${Config._parseLogType(type)} logging.`
       };
     },
 
@@ -1459,7 +1463,7 @@ export default class Config extends Command {
 
       if (!config[type].length) {
         return {
-          content: `There are currently no ignored for the specified log type.`,
+          content: `There are currently no ignored channels or categories for ${Config._parseLogType(type)} logging.`,
           temporary: true
         };
       }
@@ -1489,7 +1493,9 @@ export default class Config extends Command {
       const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
 
       return {
-        content: `There are currently **${config[type].length}** ignored channels for the specified log type.`,
+        content: `There are currently **${config[type].length}** ignored channels for ${Config._parseLogType(
+          type
+        )} logging.`,
         files: [attachment],
         components: [actionRow]
       };
@@ -1884,6 +1890,30 @@ export default class Config extends Command {
       };
     }
   };
+
+  public static _parseLogType(key: keyof GuildConfig): string {
+    switch (key) {
+      case 'infractionLoggingEnabled':
+      case 'infractionLoggingWebhook':
+        return 'infraction';
+
+      case 'messageLoggingEnabled':
+      case 'messageLoggingWebhook':
+      case 'messageLoggingIgnoredChannels':
+        return 'message';
+
+      case 'reportLoggingEnabled':
+      case 'reportLoggingWebhook':
+        return 'report';
+
+      case 'requestLoggingEnabled':
+      case 'requestLoggingWebhook':
+        return 'request';
+
+      default:
+        return 'unknown';
+    }
+  }
 }
 
 enum ConfigSubcommandGroup {

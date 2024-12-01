@@ -157,10 +157,10 @@ export default class InteractionCreate extends EventListener {
 
     const replyOptions = error
       ? {
-        ...defaultOptions,
-        ...options,
-        embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
-      }
+          ...defaultOptions,
+          ...options,
+          embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
+        }
       : { ...defaultOptions, ...options };
 
     if (!interaction.deferred && !interaction.replied) {
@@ -211,10 +211,10 @@ export default class InteractionCreate extends EventListener {
 
     const replyOptions = error
       ? {
-        ...defaultOptions,
-        ...options,
-        embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
-      }
+          ...defaultOptions,
+          ...options,
+          embeds: [{ description: `${emojis.error} ${error}`, color: Colors.NotQuiteBlack }, ...(options.embeds ?? [])]
+        }
       : { ...defaultOptions, ...options };
 
     if (!interaction.deferred && !interaction.replied) {
