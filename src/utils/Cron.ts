@@ -11,7 +11,7 @@ import {
 
 import ms from 'ms';
 
-import { CRON_SLUGS, DEFAULT_TIMEZONE } from '@utils/Constants';
+import { CRON_SLUGS, DEFAULT_TIMEZONE, LOG_ENTRY_DATE_FORMAT } from '@utils/Constants';
 import { ReportUtils } from '@utils/Reports';
 import { client, prisma, Sentry } from '@/index';
 import { pluralize } from '.';
@@ -22,8 +22,7 @@ import InfractionManager, { INFRACTION_COLORS } from '@managers/database/Infract
 import TaskManager from '@managers/database/TaskManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
-const { task_runner_cron, report_disregard_cron, message_delete_cron, message_insert_cron, message_ttl } =
-  ConfigManager.global_config.database;
+const { runners, messages } = ConfigManager.global_config.database;
 
 /**
  * The class responsible for handling cron jobs.
@@ -80,7 +79,7 @@ export class CronUtils {
    */
 
   public static startTaskRunner(): void {
-    return CronUtils.startJob('TASK_RUNNER', task_runner_cron, true, async () => {
+    return CronUtils.startJob('TASK_RUNNER', runners.tasks, true, async () => {
       await prisma.infraction.deleteMany({
         where: {
           type: 'Warn',
@@ -179,7 +178,7 @@ export class CronUtils {
    */
 
   public static startReportDisregardRunner(): void {
-    return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, report_disregard_cron, true, async () => {
+    return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, runners.reports, true, async () => {
       const messageReports = await prisma.messageReport.findMany({
         where: {
           reportedAt: { lte: Date.now() },
@@ -315,15 +314,16 @@ export class CronUtils {
    */
 
   public static startMessageRunners(): void {
-    CronUtils.startJob(CRON_SLUGS.MessageInsertRunner, message_insert_cron, false, async () => {
+    CronUtils.startJob(CRON_SLUGS.MessageInsertRunner, messages.insert, false, async () => {
       await DatabaseManager.storeMessageEntries();
     });
 
-    CronUtils.startJob(CRON_SLUGS.MessageDeleteRunner, message_delete_cron, false, async () => {
-      const createdAtThreshold = Date.now() - message_ttl;
-      const duration = ms(message_ttl, { long: true });
+    CronUtils.startJob(CRON_SLUGS.MessageDeleteRunner, messages.delete, false, async () => {
+      const createdAtThreshold = Date.now() - messages.ttl;
+      const duration = ms(messages.ttl, { long: true });
+      const createdAtStr = new Date(createdAtThreshold).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
 
-      Logger.info(`Deleting messages older than ${duration}...`);
+      Logger.info(`Deleting messages created before ${createdAtStr} (olrder than ${duration})...`);
 
       const { count } = await prisma.message.deleteMany({
         where: {

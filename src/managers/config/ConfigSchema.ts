@@ -12,12 +12,19 @@ const zSnowflake = z.string().regex(/^\d{17,19}$/gm);
 
 /**
  * Discord emoji regex.
+ *
+ * Accepted formats:
+ * - <:name:id>
+ * - <a:name:id>
  */
 
 const discordEmojiRegex = z.string().regex(/<(a)?:([a-zA-Z0-9_]+):(\d{17,19})>/);
 
 /**
- * Cron schema
+ * Cron schema for cron expressions.
+ *
+ * WARNING:
+ *  The other formats in the regex __ARE NOT SUPPORTED__ by the cron library used in the project.
  */
 
 const zCron = z
@@ -46,11 +53,15 @@ export const globalConfigSchema = z.object({
   }),
 
   database: z.object({
-    task_runner_cron: zCron,
-    report_disregard_cron: zCron,
-    message_insert_cron: zCron,
-    message_delete_cron: zCron,
-    message_ttl: z.number().min(1000).default(86400000)
+    runners: z.object({
+      tasks: zCron,
+      reports: zCron
+    }),
+    messages: z.object({
+      insert: zCron,
+      delete: zCron,
+      ttl: z.number().min(1000).default(86400000)
+    })
   }),
   commands: z.object({
     error_ttl: z.number().default(7500),

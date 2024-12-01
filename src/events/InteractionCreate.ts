@@ -124,23 +124,21 @@ export default class InteractionCreate extends EventListener {
     data: Command | Component,
     config: GuildConfig
   ): Promise<void> {
-    let response: InteractionReplyData | null;
+    let options: InteractionReplyData | null;
 
     const ephemeral = interaction.isCommand() ? isEphemeral({ interaction, config }) : true;
 
     if (interaction.isCommand()) {
-      response = await (data as Command).execute(interaction as CommandInteraction<'cached'>, config, ephemeral);
+      options = await (data as Command).execute(interaction as CommandInteraction<'cached'>, config, ephemeral);
     } else {
-      response = await (data as Component).execute(interaction, config);
+      options = await (data as Component).execute(interaction, config);
     }
 
     // The interaction's response was handled manually.
 
-    if (response === null) {
+    if (options === null) {
       return;
     }
-
-    const options = response;
 
     const ttl = getInteractionTTL(interaction, config, options);
 

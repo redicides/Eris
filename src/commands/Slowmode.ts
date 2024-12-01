@@ -9,10 +9,10 @@ import {
 
 import ms from 'ms';
 
+import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import { MessageKeys } from '@/utils/Keys';
 
 export default class Slowmode extends Command {
   constructor() {

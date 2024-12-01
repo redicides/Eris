@@ -8,7 +8,7 @@ export default abstract class Component {
   public client = client;
 
   /**
-   * Attached prisma client for ease of use
+   * Attached prisma client for ease of use.
    */
 
   public prisma = prisma;
@@ -21,6 +21,7 @@ export default abstract class Component {
 
   /**
    * Handles the component interaction
+   *
    * @param interaction The interaction to handle.
    * @param config The guild configuration for the guild where the interaction was created.
    */
