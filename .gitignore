@@ -27,5 +27,6 @@ charmie.cfg.yml
 # Private files
 
 undeploy.ts
+unregister.ts
 get-stats.ts
 get-ws-stats.ts
