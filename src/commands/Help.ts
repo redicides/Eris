@@ -41,17 +41,16 @@ export default class Help extends Command {
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig
   ): Promise<InteractionReplyData> {
-    const commandName = interaction.options.getString('command', false);
+    const cmd = interaction.options.getString('command', false);
 
-    if (commandName) {
-      const command =
-        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
+    if (cmd) {
+      const command = CommandManager.commands.get(cmd) ?? CommandManager.commands.get(cmd.toLowerCase());
       const shortcut =
         (await this.prisma.moderationCommand.findUnique({
-          where: { name: commandName, guildId: interaction.guildId }
+          where: { name: cmd, guildId: interaction.guildId }
         })) ??
         (await this.prisma.moderationCommand.findUnique({
-          where: { name: commandName.toLowerCase(), guildId: interaction.guildId }
+          where: { name: cmd.toLowerCase(), guildId: interaction.guildId }
         }));
 
       if (!command) {
@@ -129,11 +128,13 @@ export default class Help extends Command {
       return { embeds: [embed] };
     }
 
+    const shortcuts = await this.prisma.moderationCommand.findMany({ where: { guildId: interaction.guildId } });
+
     const embed = new EmbedBuilder()
       .setColor(Colors.NotQuiteBlack)
       .setAuthor({ name: this.client.user!.username, iconURL: this.client.user!.displayAvatarURL() })
       .setTitle('Command List')
-      .setFields(generateHelpMenuFields(interaction.user.id))
+      .setFields(generateHelpMenuFields(interaction.user.id, shortcuts))
       .setTimestamp();
 
     return { embeds: [embed] };

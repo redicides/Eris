@@ -25,7 +25,7 @@ import {
   MessageCreateOptions,
   APIMessage
 } from 'discord.js';
-import { PermissionEnum, Message, EphemeralScope } from '@prisma/client';
+import { PermissionEnum, Message, EphemeralScope, ModerationCommand } from '@prisma/client';
 
 import YAML from 'yaml';
 import fs from 'fs';
@@ -400,7 +400,7 @@ export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; c
  * @returns The help menu fields
  */
 
-export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
+export function generateHelpMenuFields(userId: Snowflake, shortcuts: ModerationCommand[]): EmbedField[] {
   const categories = Object.values(CommandCategory);
   const commandStore = CommandManager.commands;
 
@@ -411,15 +411,25 @@ export function generateHelpMenuFields(userId: Snowflake): EmbedField[] {
 
     if (commands.length === 0) return [];
 
-    const field: EmbedField = {
-      name: category,
-      value: commands.map(c => `\`${c.data.name}\``).join(', '),
-      inline: false
-    };
+    const fields: EmbedField[] = [
+      {
+        name: category,
+        value: commands.map(c => `\`${c.data.name}\``).join(', '),
+        inline: false
+      }
+    ];
+
+    if (category === CommandCategory.Moderation && shortcuts.length > 0) {
+      fields.push({
+        name: 'Shortcuts',
+        value: shortcuts.map(s => `\`${s.name}\``).join(', '),
+        inline: false
+      });
+    }
 
     if (category === CommandCategory.Developer && !ConfigManager.global_config.bot.developers.includes(userId))
       return [];
-    return [field];
+    return fields;
   });
 }
 
