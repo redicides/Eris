@@ -9,7 +9,7 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 ## Prerequisites
 
 > [!NOTE]
-> ❗ To help you with setting up the database, I've published a guide [`here`](/guides/DATABASE.md)!
+> ❗ To help you with setting up the database, I've published a guide [`here`](/guides/DATABASE-SETUP.md).
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
 - MongoDB Database (to store data on)
@@ -53,11 +53,14 @@ commands:
   reply_ttl: 1234 # The default time-to-live for temporary responses (in milliseconds)
 
 database:
-  task_runner_cron: '* * * * *' # Cron expression for handling expired punishments
-  report_disregard_cron: '* * * * *' # Cron expression for disregarding expired reports
-  message_insert_cron: '0 */1 * * *' # Cron expression for inserting cached messages into the database
-  message_delete_cron: '*/30 * * * *' # Cron expression from deleting old messages from the database
-  message_ttl: 86400000 # How old (in milliseconds) messages in the database have to be before they are deleted
+  messages:
+    insert: '0 */1 * * *' # Cron expression for inserting cached messages into the database
+    delete: '*/30 * * * *' # Cron expression from deleting old messages from the database
+    ttl: 86400000 # How old (in milliseconds) messages in the database have to be before they are deleted
+
+  runners:
+    tasks: # Cron expression for handling expired punishments
+    reports: # Cron expression for disregarding expired reports
 ```
 
 The values provided above are equal to:
