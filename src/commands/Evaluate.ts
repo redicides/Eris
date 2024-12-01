@@ -66,83 +66,116 @@ export default class Evaluate extends Command {
   }
 
   async execute(interaction: ChatInputCommandInteraction): Promise<InteractionReplyData> {
-    const code = interaction.options.getString('code', true);
-    const async = interaction.options.getBoolean('async') ?? false;
-    const depth = interaction.options.getInteger('depth') ?? 0;
-    const dm = interaction.options.getBoolean('dm') ?? false;
-    const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
-
-    let output;
-    let error: boolean = false;
-
-    let start: number;
-    let timeTaken: number;
+    const context = Evaluate.getExecutionContext(interaction);
+    const { ephemeral } = context;
 
     await interaction.deferReply({ ephemeral });
 
-    try {
-      start = performance.now();
-      output = await eval(async ? `(async() => { ${code} })()` : code);
-      timeTaken = performance.now() - start;
-    } catch (e) {
-      timeTaken = performance.now() - start!;
-      error = true;
-      output = e;
-    }
-
-    _ = output;
-    const type = typeof output;
-    output = typeof output === 'string' ? output : util.inspect(output, { depth });
-
-    const unit =
-      timeTaken < 1 ? `${Math.round(timeTaken / 1e-2)} microseconds` : ms(Math.round(timeTaken), { long: true });
-
-    if (output.length > 1900) {
-      const dataUrl = await uploadData(output, 'ts');
-
-      const button = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('View Output').setURL(dataUrl);
-      const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-
-      if (dm) {
-        let failed = false;
-
-        await interaction.user
-          .send({
-            content: `**Return Type:** \`${type}\`\n**Time Taken:** \`${unit}\``,
-            components: [actionRow]
-          })
-          .catch(() => {
-            failed = true;
-          });
-
-        return {
-          content: failed
-            ? 'The output could not be sent to your DMs. Please make sure they are enabled.'
-            : 'Successfully sent the output to your DMs.'
-        };
-      }
-
-      return { content: `**Return Type:** \`${type}\`\n**Time Taken:** \`${unit}\``, components: [actionRow] };
-    }
-
-    const content = error
-      ? `**Error**\n${codeBlock('ts', output)}`
-      : `**Output**\n${codeBlock('ts', output)}\n**Return Type:** \`${type}\`\n**Time Taken:** \`${unit}\``;
-
-    if (dm) {
-      let failed = false;
-
-      await interaction.user.send({ content }).catch(() => {
-        failed = true;
-      });
-
-      return {
-        content: failed
-          ? 'The output could not be sent to your DMs. Please make sure they are enabled.'
-          : 'Successfully sent the output to your DMs.'
-      };
-    }
-
-    return { content };
+    return Evaluate.processResult(interaction, await Evaluate.executeCode(context), context);
   }
+
+  private static getExecutionContext(interaction: ChatInputCommandInteraction) {
+    return {
+      code: interaction.options.getString('code', true),
+      async: interaction.options.getBoolean('async') ?? false,
+      depth: interaction.options.getInteger('depth') ?? 0,
+      dm: interaction.options.getBoolean('dm') ?? false,
+      ephemeral: interaction.options.getBoolean('ephemeral') ?? false
+    };
+  }
+
+  private static async executeCode(context: ExecutionContext) {
+    let output;
+    let error = false;
+    const start = performance.now();
+
+    try {
+      output = await eval(context.async ? `(async() => { ${context.code} })()` : context.code);
+    } catch (e) {
+      output = e;
+      error = true;
+    }
+
+    const timeTaken = performance.now() - start;
+    const type = typeof output;
+    const formattedOutput = typeof output === 'string' ? output : util.inspect(output, { depth: context.depth });
+
+    return { output: formattedOutput, type, timeTaken, error };
+  }
+
+  private static async processResult(
+    interaction: ChatInputCommandInteraction,
+    result: ExecutionResult,
+    context: ExecutionContext
+  ): Promise<InteractionReplyData> {
+    if (result.output.length > 1900) {
+      return Evaluate.handleLargeOutput(interaction, result, context);
+    }
+
+    const content = result.error
+      ? `**Error**\n${codeBlock('ts', result.output)}`
+      : `**Output**\n${codeBlock('ts', result.output)}\n**Return Type:** \`${
+          result.type
+        }\`\n**Time Taken:** \`${Evaluate.formatTime(result.timeTaken)}\``;
+
+    return context.dm ? Evaluate.sendDirectMessage(interaction, content) : { content };
+  }
+
+  private static formatTime(timeTaken: number): string {
+    return timeTaken < 1 ? `${Math.round(timeTaken / 1e-2)} microseconds` : ms(Math.round(timeTaken), { long: true });
+  }
+
+  private static async handleLargeOutput(
+    interaction: ChatInputCommandInteraction,
+    result: ExecutionResult,
+    context: ExecutionContext
+  ): Promise<InteractionReplyData> {
+    const dataUrl = await uploadData(result.output, 'ts');
+    const button = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('View Output').setURL(dataUrl);
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+
+    if (context.dm) {
+      try {
+        await interaction.user.send({
+          content: `**Return Type:** \`${result.type}\`\n**Time Taken:** \`${this.formatTime(result.timeTaken)}\``,
+          components: [actionRow]
+        });
+        return { content: 'Successfully sent the output to your DMs.' };
+      } catch {
+        return { content: 'The output could not be sent to your DMs. Please make sure they are enabled.' };
+      }
+    }
+
+    return {
+      content: `**Return Type:** \`${result.type}\`\n**Time Taken:** \`${this.formatTime(result.timeTaken)}\``,
+      components: [actionRow]
+    };
+  }
+
+  private static async sendDirectMessage(
+    interaction: ChatInputCommandInteraction,
+    content: string
+  ): Promise<InteractionReplyData> {
+    try {
+      await interaction.user.send({ content });
+      return { content: 'Successfully sent the output to your DMs.' };
+    } catch {
+      return { content: 'The output could not be sent to your DMs. Please make sure they are enabled.' };
+    }
+  }
+}
+
+interface ExecutionContext {
+  code: string;
+  async: boolean;
+  depth: number;
+  dm: boolean;
+  ephemeral: boolean;
+}
+
+interface ExecutionResult {
+  output: string;
+  type: string;
+  timeTaken: number;
+  error: boolean;
 }

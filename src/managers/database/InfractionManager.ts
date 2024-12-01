@@ -667,7 +667,6 @@ export default class InfractionManager {
 
     const pageCountButton = new ButtonBuilder()
       .setLabel(`${page} / ${totalPages}`)
-      .setCustomId('?')
       .setDisabled(true)
       .setStyle(ButtonStyle.Secondary);
 

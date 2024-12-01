@@ -12,7 +12,7 @@ import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral
 import { prisma, Sentry } from '@/index';
 import { MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
-import { CHANNEL_PERMISSION_OVERRIDES, COMMON_DURATIONS, DURATION_UNITS } from '@utils/Constants';
+import { COMMON_DURATIONS, DURATION_UNITS, LOCKDOWN_OVERRIDES } from '@utils/Constants';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
@@ -40,7 +40,7 @@ export default class InteractionCreate extends EventListener {
       return handleInteractionErrorReply({ interaction, error: 'Interactions are not supported in DMs.' });
     }
 
-    if (!interaction.isCommand() && interaction.customId.startsWith('?')) {
+    if (!interaction.isCommand() && interaction.customId.startsWith('&')) {
       return;
     }
 
@@ -344,7 +344,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'override': {
-        const filteredOverrides = CHANNEL_PERMISSION_OVERRIDES.filter(override =>
+        const filteredOverrides = LOCKDOWN_OVERRIDES.filter(override =>
           override.name.toLowerCase().includes(lowercaseValue)
         )
           .sort((a, b) => a.name.localeCompare(b.name))

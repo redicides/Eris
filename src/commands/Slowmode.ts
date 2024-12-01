@@ -12,6 +12,7 @@ import ms from 'ms';
 import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
+import { MessageKeys } from '@/utils/Keys';
 
 export default class Slowmode extends Command {
   constructor() {
@@ -44,56 +45,39 @@ export default class Slowmode extends Command {
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    let channel = interaction.options.getChannel('channel', false) as TextChannel | null;
+    const channel = Slowmode.resolveChannel(interaction);
 
     if (!channel) {
-      if (!interaction.channel || !interaction.channel.isTextBased()) {
-        return {
-          error: `This command must be used in a text channel or a channel must be specified in the 'channel' option.`,
-          temporary: true
-        };
-      }
-
-      channel = interaction.channel as TextChannel;
-    }
-
-    let time = interaction.options.getString('time', false);
-    const current = channel.rateLimitPerUser;
-    const parsedSlowmode = current ? ms(current * 1000, { long: true }).replace(/(\d+)/g, '**$1**') : '**0** seconds';
-
-    if (!time) {
       return {
-        content: `The current slowmode is set to ${parsedSlowmode}.`
-      };
-    }
-
-    let method = 'set';
-
-    if (time.startsWith('+') || time.startsWith('-')) {
-      method = time.startsWith('+') ? 'add' : 'remove';
-      time = time.slice(1);
-    }
-
-    let slowmode = +time || Math.floor(ms(time) / 1000);
-
-    if (isNaN(slowmode)) {
-      return {
-        error: `The time provided is invalid.`,
+        error: `This command must be used in a text channel or a channel must be specified in the 'channel' option.`,
         temporary: true
       };
     }
 
-    if (method === 'add') {
-      slowmode += current ?? 0;
-    } else if (method === 'remove') {
-      slowmode = (current ?? 0) - slowmode;
+    const time = interaction.options.getString('time', false);
+    const current = channel.rateLimitPerUser;
+    const parsedSlowmode = current ? ms(current * 1000, { long: true }).replace(/(\d+)/g, '**$1**') : '**0** seconds';
+    const parsedChannel = channel === interaction.channel ? '' : `in ${channel}`;
+
+    if (!time) {
+      return { content: `The current slowmode ${parsedChannel} is set to ${parsedSlowmode}.` };
     }
 
-    if (slowmode !== 0 && slowmode < 1) slowmode = 0;
-    if (slowmode > 21600) slowmode = 21600;
+    const method = time.startsWith('+') ? 'add' : time.startsWith('-') ? 'remove' : 'set';
+
+    const cleanedTime = method !== 'set' ? time.slice(1) : time;
+    const slowmode = Slowmode.calculateSlowmode(cleanedTime, current, method);
+
+    if (isNaN(slowmode)) {
+      return {
+        error: MessageKeys.Errors.InvalidDuration(false).replaceAll('duraton', 'time'),
+        temporary: true
+      };
+    }
+
     if (slowmode === current) {
       return {
-        error: `The slowmode is already set to ${parsedSlowmode}.`,
+        error: `The slowmode ${parsedChannel} is already set to ${parsedSlowmode}.`,
         temporary: true
       };
     }
@@ -104,18 +88,44 @@ export default class Slowmode extends Command {
 
     if (!set) {
       return {
-        error: `Failed to set the slowmode.`,
+        error: `I could not update the slowmode. Please check my permissions and try again.`,
         temporary: true
       };
     }
 
     return slowmode === 0
-      ? { content: `Slowmode has been turned off.`, temporary: true }
+      ? { content: `Slowmode ${parsedChannel} has been turned off.`, temporary: true }
       : {
-          content: `Slowmode has been set to ${ms(slowmode * 1000, { long: true })
+          content: `Slowmode ${parsedChannel} has been set to ${ms(slowmode * 1000, { long: true })
             .replace(/(\d+)/g, '`$1`')
             .replace('ms', 'seconds')}.`,
           temporary: true
         };
+  }
+
+  private static resolveChannel(interaction: ChatInputCommandInteraction<'cached'>): TextChannel | null {
+    let channel = interaction.options.getChannel('channel', false) as TextChannel | null;
+
+    if (!channel) {
+      if (!interaction.channel || !interaction.channel.isTextBased()) {
+        return null;
+      }
+
+      channel = interaction.channel as TextChannel;
+    }
+
+    return channel;
+  }
+
+  private static calculateSlowmode(time: string, current: number | null, method: string): number {
+    let slowmode = +time || Math.floor(ms(time) / 1000);
+
+    if (method === 'add') {
+      slowmode += current ?? 0;
+    } else if (method === 'remove') {
+      slowmode = (current ?? 0) - slowmode;
+    }
+
+    return slowmode !== 0 && slowmode < 1 ? 0 : slowmode > 21600 ? 21600 : slowmode;
   }
 }

@@ -1,7 +1,4 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   GatewayIntentBits,
   GuildMember,
   Options,
@@ -37,11 +34,13 @@ export const CLIENT_PARTIALS = [Partials.Channel, Partials.User, Partials.GuildM
 
 /**
  * The cache options for the client.
+ *
+ * Channel messages are cached with a limit of 1000 messages, which may lead to significant memory usage.
  */
 
 export const CLIENT_CACHE_OPTIONS = Options.cacheWithLimits({
   ...Options.DefaultMakeCacheSettings,
-  GuildMessageManager: 100, // Channel messages
+  GuildMessageManager: 1000, // Channel messages
   BaseGuildEmojiManager: 0, // Guild emojis
   StageInstanceManager: 0, // Guild stage instances
   ThreadManager: 0, // Channel threads
@@ -57,17 +56,19 @@ export const CLIENT_CACHE_OPTIONS = Options.cacheWithLimits({
 /**
  * The sweeper options for the client.
 
- * Guild members are sweeped every 10 minutes and must be older than 30 minutes.
- * Messages sweeped every hour and must be older than 6 hours.
+ * Guild members are sweeped every 30 minutes and must be older than 1 hour.
+ * Messages sweeped every hour and must be older than 3 hours.
  *
+ * The bot is excluded from the guild members sweeper.
+ * The bot is not excluded from the messages sweeper.
  */
 
 export const CLIENT_SWEEPER_OPTIONS = {
   ...Options.DefaultSweeperSettings,
   guildMembers: {
-    interval: 600,
+    interval: 1800,
     filter: Sweepers.filterByLifetime({
-      lifetime: 1800,
+      lifetime: 3600,
       excludeFromSweep: (member: GuildMember) => member.id !== process.env.BOT_ID!
     })
   },
@@ -94,23 +95,26 @@ export const CRON_SLUGS = {
 
 export const EMPTY_MESSAGE_CONTENT = 'Unknown message content.';
 
-export const YES_BUTTON = new ButtonBuilder().setCustomId('?yes').setLabel('Yes').setStyle(ButtonStyle.Success);
-export const NO_BUTTON = new ButtonBuilder().setCustomId('?no').setLabel('No').setStyle(ButtonStyle.Danger);
-
-export const YES_NO_ROW = new ActionRowBuilder<ButtonBuilder>().setComponents(YES_BUTTON, NO_BUTTON);
-
 export const COMMON_DURATIONS = [
   { name: '1 minute', value: '1 minute' },
+  { name: '5 minutes', value: '5 minutes' },
   { name: '15 minutes', value: '15 minutes' },
   { name: '30 minutes', value: '30 minutes' },
+  { name: '45 minutes', value: '45 minutes' },
   { name: '1 hour', value: '1 hour' },
+  { name: '2 hours', value: '2 hours' },
+  { name: '3 hours', value: '3 hours' },
   { name: '6 hours', value: '6 hours' },
+  { name: '12 hours', value: '12 hours' },
   { name: '1 day', value: '1 day' },
-  { name: '1 week', value: '7 days' }
+  { name: '2 days', value: '2 days' },
+  { name: '3 days', value: '3 days' },
+  { name: '1 week', value: '7 days' },
+  { name: '2 weeks', value: '14 days' },
+  { name: '1 month', value: '30 days' }
 ];
 
 export const DURATION_UNITS = ['second', 'minute', 'hour', 'day', 'week'];
-
 export const MAX_DURATION_STR = '1826 days';
 
 export const EXIT_EVENTS = [
@@ -141,7 +145,7 @@ export const LOG_ENTRY_DATE_FORMAT: Intl.DateTimeFormatOptions = {
 
 export const COMMON_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
 
-export const CHANNEL_PERMISSION_OVERRIDES = [
+export const LOCKDOWN_OVERRIDES = [
   { name: 'Add Reactions', value: 'AddReactions' },
   { name: 'Attach Files', value: 'AttachFiles' },
   { name: 'Connect', value: 'Connect' },
@@ -149,11 +153,6 @@ export const CHANNEL_PERMISSION_OVERRIDES = [
   { name: 'Create Private Threads', value: 'CreatePrivateThreads' },
   { name: 'Create Public Threads', value: 'CreatePublicThreads' },
   { name: 'Embed Links', value: 'EmbedLinks' },
-  { name: 'Manage Channel', value: 'ManageChannels' },
-  { name: 'Manage Messages', value: 'ManageMessages' },
-  { name: 'Manage Threads', value: 'ManageThreads' },
-  { name: 'Manage Webhooks', value: 'ManageWebhooks' },
-  { name: 'Mention Everyone', value: 'MentionEveryone' },
   { name: 'Priority Speaker', value: 'PrioritySpeaker' },
   { name: 'Read Message History', value: 'ReadMessageHistory' },
   { name: 'Request to Speak', value: 'RequestToSpeak' },

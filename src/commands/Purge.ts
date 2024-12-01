@@ -54,7 +54,6 @@ export default class Purge extends Command {
     const target = interaction.options.getUser('target', false);
 
     let channel = interaction.options.getChannel('channel', false) as TextChannel | null;
-    let deleted = 0;
 
     if (!channel) {
       if (!interaction.channel || !interaction.channel.isTextBased()) {
@@ -63,25 +62,26 @@ export default class Purge extends Command {
           temporary: true
         };
       }
-
       channel = interaction.channel as TextChannel;
     }
 
+    const parsedChannelStr = channel === interaction.channel ? 'this channel' : `${channel}`;
+
     if (!channel.permissionsFor(interaction.member).has(PermissionFlagsBits.ManageMessages)) {
       return {
-        error: `You do not have permission to delete messages in this channel.`,
+        error: `You do not have permission to delete messages in ${parsedChannelStr}.`,
         temporary: true
       };
     }
 
     if (!channel.permissionsFor(interaction.guild.members.me!).has(PermissionFlagsBits.ManageMessages)) {
       return {
-        error: `I do not have permission to delete messages in this channel.`,
+        error: `I do not have permission to delete messages in ${parsedChannelStr}.`,
         temporary: true
       };
     }
 
-    // Force ephemeral reply to prevent it from being deleted
+    // Force epehemeral reply to prevent it from being deleted by the command
     await interaction.deferReply({ ephemeral: true });
 
     if (target) {
@@ -91,17 +91,14 @@ export default class Purge extends Command {
         const targetMessages = await channel.messages.fetch({ limit: 100 }).then(messages => {
           if (messages.size === 0) return null;
 
-          const filtered = [...messages.values()].filter(msg => msg.author.id === target.id).slice(0, amount - deleted);
-          if (filtered.length === 0) return null;
-
-          return filtered;
+          return [...messages.values()].filter(msg => msg.author.id === target.id).slice(0, amount - targetDeleted);
         });
 
-        if (!targetMessages) {
+        if (!targetMessages || targetMessages.length === 0) {
           break;
         }
 
-        deleted = (await channel.bulkDelete(targetMessages, true)).size;
+        const deleted = (await channel.bulkDelete(targetMessages, true)).size;
         if (deleted === 0) {
           break;
         }
@@ -111,20 +108,20 @@ export default class Purge extends Command {
 
       return targetDeleted === 0
         ? {
-            error: `No messages from ${target} were found in ${channel}.`,
+            error: `No messages from ${target} were found in ${parsedChannelStr}.`,
             temporary: true
           }
         : {
-            content: `Successfully deleted **${targetDeleted}** messages in ${channel} from ${target}.`,
+            content: `Successfully deleted **${targetDeleted}** messages in ${parsedChannelStr} from ${target}.`,
             temporary: true
           };
     }
 
     const messages = await channel.messages.fetch({ limit: amount });
-    deleted = (await channel.bulkDelete(messages, true)).size;
+    const deleted = (await channel.bulkDelete(messages, true)).size;
 
     return deleted === 0
-      ? { error: `No messages to delete were found in ${channel}.`, temporary: true }
-      : { content: `Successfully deleted **${deleted}** messages in ${channel}.`, temporary: true };
+      ? { error: `No messages to delete were found in ${parsedChannelStr}.`, temporary: true }
+      : { content: `Successfully deleted **${deleted}** messages in ${parsedChannelStr}.`, temporary: true };
   }
 }

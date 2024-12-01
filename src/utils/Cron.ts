@@ -225,7 +225,6 @@ export class CronUtils {
           .setAuthor({ name: 'Message Report' });
 
         const disregardedButton = new ButtonBuilder()
-          .setCustomId('?')
           .setDisabled(true)
           .setLabel('Disregarded (Auto)')
           .setStyle(ButtonStyle.Secondary);
@@ -285,7 +284,6 @@ export class CronUtils {
         const embed = new EmbedBuilder(log.embeds[0]).setColor(Colors.NotQuiteBlack).setAuthor({ name: 'User Report' });
 
         const disregardedButton = new ButtonBuilder()
-          .setCustomId('?')
           .setDisabled(true)
           .setLabel('Disregarded (Auto)')
           .setStyle(ButtonStyle.Secondary);
