@@ -4,7 +4,7 @@ Charmie uses MongoDB as its database provider. Setting up MongoDB can be challen
 
 ### docker-compose.yml
 
-To assist you with setting up your database, we provide the `docker-compose.yml` configuration that we personally use. While this configuration is not perfect, it currently works as expected.
+To assist you with setting up your database, I provide the `docker-compose.yml` configuration that I personally use. While this configuration is not perfect, it currently works as expected.
 
 This configuration uses port `27017` on your host, so ensure no other processes are running on that port.
 

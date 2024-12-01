@@ -9,7 +9,7 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 ## Prerequisites
 
 > [!NOTE]
-> ❗ To help you with setting up the database, we've published a guide [`here`](/guides/DATABASE.md)!
+> ❗ To help you with setting up the database, I've published a guide [`here`](/guides/DATABASE.md)!
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
 - MongoDB Database (to store data on)
