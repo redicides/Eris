@@ -306,8 +306,6 @@ model Message {
   guildId               String
   authorId              String
   channelId             String
-  channelParentId       String?
-  channelParentParentId String?
   stickerId             String?
   // ID of the message this message is replying to
   referenceId           String?

@@ -250,8 +250,6 @@ export default class DatabaseManager {
       guildId: message.guild.id,
       authorId: message.author.id,
       channelId: message.channel.id,
-      channelParentId: message.channel.parent?.id ?? null,
-      channelParentParentId: message.channel.parent?.parentId ?? null,
       stickerId,
       referenceId,
       content: message.content,
