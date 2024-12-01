@@ -4,7 +4,7 @@ Charmie uses MongoDB as its database provider. Setting up MongoDB can be challen
 
 ### docker-compose.yml
 
-To assist you with setting up your database, I provide the `docker-compose.yml` configuration that I personally use. While this configuration is not perfect, it currently works as expected.
+To assist you with setting up your database, I've provided the `docker-compose.yml` configuration that I personally use. While this configuration is not perfect, it currently works as expected.
 
 This configuration uses port `27017` on your host, so ensure no other processes are running on that port.
 
@@ -16,7 +16,7 @@ services:
     user: mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: <root username>
-      MONGO_INITDB_ROOT_PASSWORD: <password of your choice>
+      MONGO_INITDB_ROOT_PASSWORD: <root password>
       MONGO_INITDB_DATABASE: <initial database name>
     volumes:
       - charmie-mongodb_data:/data/db
@@ -35,14 +35,14 @@ volumes:
 You'll need to replace 3 values with ones of your choice:
 
 1. `<root username>`
-2. `<password of your choice/root password>`
+2. `<root password>`
 3. `<initial database name>`
 
 ## Setup
 
-This guide provides setup instructions for a Unix-like environment, specifically tailored for Ubuntu 24 LTS. It is important to follow each of the steps carefully to ensure a successful installation process.
+This guide provides setup instructions for a Unix-like environment, specifically tailored for Ubuntu 24 LTS. It is important to follow each of the steps carefully.
 
-### Step 1. Installation
+### Step 1. Confirming Docker Installation
 
 Before you attempt to run the database, it's essential to make sure that both `docker` and `docker-compose` are installed on your machine. There are various methods to install them, so feel free to choose the one that works best for you.
 
