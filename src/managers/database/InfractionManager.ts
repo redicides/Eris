@@ -99,7 +99,6 @@ export default class InfractionManager {
     reason: string | null;
   }): Result {
     const { target, executor, action, guild, reason, config } = data;
-    const lAction = action.toLowerCase();
 
     if (executor.id === target.id) return { success: false, message: MessageKeys.Errors.CantPunishSelf(action) };
     if (target.id === client.user!.id) return { success: false, message: MessageKeys.Errors.CantPunishBot(action) };
@@ -127,7 +126,7 @@ export default class InfractionManager {
       return {
         success: false,
         message: MessageKeys.Errors.ReasonRequired(
-          `${lAction} the provided ${target instanceof User ? 'user' : 'member'}`
+          `${action.toLowerCase()} the provided ${target instanceof User ? 'user' : 'member'}`
         )
       };
     }

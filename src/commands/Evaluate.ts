@@ -16,6 +16,7 @@ import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
+// @ts-ignore
 let _;
 
 export default class Evaluate extends Command {

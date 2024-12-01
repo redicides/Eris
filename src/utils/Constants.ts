@@ -1,4 +1,3 @@
-import Warn from '@/commands/Warn';
 import {
   ActionRowBuilder,
   ButtonBuilder,

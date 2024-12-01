@@ -16,7 +16,7 @@ import ms from 'ms';
 import { prisma } from '..';
 import { DurationKeys, MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { parseDuration, pluralize, uploadData } from '@utils/index';
+import { isEphemeral, parseDuration, pluralize, uploadData } from '@utils/index';
 import { MAX_DURATION_STR, SHORTCUT_PERMISSION_FLAGS } from '@utils/Constants';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -230,8 +230,12 @@ export default class ShortcutManager extends Command {
     });
   }
 
-  async execute(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig, ephemeral: boolean) {
+  async execute(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig
+  ): Promise<InteractionReplyData> {
     const subcommand = interaction.options.getSubcommand() as ShortcutSubcommand;
+    const ephemeral = interaction.channel ? isEphemeral({ interaction, config }) : true;
 
     await interaction.deferReply({ ephemeral });
 

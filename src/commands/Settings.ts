@@ -686,7 +686,7 @@ export default class Settings extends Command {
           case SettingsSubcommand.RemoveOverride:
             return Settings.Lockdown.removeOverride(interaction, config);
           case SettingsSubcommand.ListOverrides:
-            return Settings.Lockdown.listOverrides(interaction, config);
+            return Settings.Lockdown.listOverrides(config);
           case SettingsSubcommand.ToggleNotifications:
             return Settings.Lockdown.toggleNotifications(config);
           case SettingsSubcommand.DisplayExecutor:
@@ -1814,10 +1814,7 @@ export default class Settings extends Command {
       };
     },
 
-    async listOverrides(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
+    async listOverrides(config: GuildConfig): Promise<InteractionReplyData> {
       const overrides = Object.entries(PermissionFlagsBits)
         .filter(([_, bit]) => (config.lockdownOverrides & bit) === bit)
         .map(([name]) => name.replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`));

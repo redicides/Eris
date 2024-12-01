@@ -33,6 +33,8 @@
       "pretty": true,
       "removeComments": true,
       "preserveConstEnums": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
   
       // Library and Types
       "lib": ["ESNext"],
