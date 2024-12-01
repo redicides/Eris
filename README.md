@@ -11,8 +11,11 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 Before you get started, ensure you have the following:
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
-- MongoDB Server (to store data on)
+- MongoDB Database (to store data on)
 - Sentry Project (to log errors)
+
+> [!NOTE]
+> ❗ To help you with setting up the database, we've published a guide [`here`](/guides/DATABASE.md)!
 
 ## Configuration & Environment Variables
 

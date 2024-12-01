@@ -1,0 +1,19 @@
+.env
+.prettierrc.yml
+.prettierignore
+.gitignore
+.dockerignore
+
+# MD
+
+README.md
+LICENSE
+
+# Folders
+
+node_modules/
+dist/
+
+# Docker
+
+Dockerfile*
