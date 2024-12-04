@@ -237,7 +237,7 @@ export async function formatMessageContentForShortLog(
     if (content.length > 1024) {
       // Upload full content to hastebin if too long
       const hastebinUrl = await uploadData(content, 'txt');
-      return rawContent + ` \`|\` ${hyperlink('View full content', hastebinUrl)}`;
+      return rawContent + `${url && includeUrl ? ` \`|\` ` : ''}${hyperlink('View full content', hastebinUrl)}`;
     }
 
     // Calculate max content length considering the code block formatting
