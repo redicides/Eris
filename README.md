@@ -9,7 +9,7 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 ## Prerequisites
 
 > [!NOTE]
-> ❗ To help you with setting up the database, I've published a guide [`here`](/guides/DATABASE-SETUP.md).
+> Setting up a MongoDB database that is compatible with Charmie can be challenging! To help, a detailed guide has been published [`here`](/guides/DATABASE-SETUP.md).
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
 - MongoDB Database (to store data on)
@@ -17,58 +17,13 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 
 ## Configuration & Environment Variables
 
-A few variables are required, and this section explians what you need to fill out. I promise this isn't rocket science.
+Charmie relies on specific environment variables and global configuration settings, which should be specified in two files: `.env` and `charmie.cfg.yml`. Basic understanding of cron is essential, as Charmie utilizes the [cron npm package](https://www.npmjs.com/package/cron) to automate certain tasks.
 
-Note: The headers below represent the names of the files you should fill these values in.
+To get started, check the example files, [`config.example.yml`](/config.example.yml) and [`.env.example`](/.env.example), for the required values.  
+Remember to rename `config.example.yml` to `charmie.cfg.yml` and `.env.example` to `.env`.
 
-### .env
-
-```bash
-# Authentication token for logging into Discord, obtained from Discord's developer portal
-BOT_TOKEN={token}
-
-# Bot ID (client ID)
-BOT_ID={id}
-
-# The Sentry DSN for logging errors
-SENTRY_DSN={sentry dsn url}
-
-# The database URL for connecting to the database and storing data
-DATABASE_URL={mongodb database url}
-```
-
-### charmie.cfg.yml
-
-You’ll need some basic knowledge about cron here, so if you don’t have any, go ask ChatGPT. I recommend you don’t change the task_runner setting.
-
-```yaml
-bot:
-  developers: ['1234', '4321'] # A list of user IDs the bot will recognize as developers
-  activity: # Optional activity config for the client
-    name: 'some name' # The activity message
-    type: 1 # The activity type (see https://discord.com/developers/docs/events/gateway-events#activity-object-activity-types)
-
-commands:
-  error_ttl: 1234 # The default time-to-live for error embeds (in milliseconds)
-  reply_ttl: 1234 # The default time-to-live for temporary responses (in milliseconds)
-
-database:
-  messages:
-    insert: '0 */1 * * *' # Cron expression for inserting cached messages into the database
-    delete: '*/30 * * * *' # Cron expression from deleting old messages from the database
-    ttl: 86400000 # How old (in milliseconds) messages in the database have to be before they are deleted
-
-  runners:
-    tasks: # Cron expression for handling expired punishments
-    reports: # Cron expression for disregarding expired reports
-```
-
-The values provided above are equal to:
-
-- `'* * * * *'` - A minutely interval
-- `'0 */1 * * *'` - An hourly interval
-- `'*/30 * * * *'` - A 30 minute interval
-- `86400000` - 1 day
+> [!NOTE]
+> ❗ It is recommended not to modify the default values for the `tasks` and `reports` runners, as a minutely interval is optimal.
 
 ## Step-By-Step Guide
 

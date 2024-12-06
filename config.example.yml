@@ -1,0 +1,19 @@
+bot:
+  developers: ['1234', '4321'] # A list of user IDs the bot will recognize as developers
+  activity: # Optional activity config for the client
+    name: 'some name' # The activity message
+    type: 1 # The activity type (see https://discord.com/developers/docs/events/gateway-events#activity-object-activity-types)
+
+commands:
+  error_ttl: 1234 # The default time-to-live for error embeds (in milliseconds)
+  reply_ttl: 1234 # The default time-to-live for temporary responses (in milliseconds)
+
+database:
+  messages:
+    insert: '0 */1 * * *' # Cron expression for inserting cached messages into the database every hour
+    delete: '*/30 * * * *' # Cron expression from deleting old messages from the database every 30 minutes
+    ttl: 86400000 # How old (in milliseconds) messages in the database have to be before they are deleted
+
+  runners:
+    tasks: '* * * * *' # Cron expression for removing expired punishments every minute
+    reports: '* * * * *' # Cron expression for disregarding expired reports every minute
