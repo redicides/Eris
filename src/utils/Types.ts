@@ -12,12 +12,12 @@ export type Result<T = undefined> =
 export type GuildConfig = Prisma.GuildGetPayload<{}>;
 
 export type MessageLog = {
-  guildId: Snowflake;
-  messageId: Snowflake;
-  authorId: Snowflake;
-  channelId: Snowflake;
-  stickerId: Snowflake | null;
-  createdAt: Date;
+  guild_id: Snowflake;
+  message_id: Snowflake;
+  author_id: Snowflake;
+  channel_id: Snowflake;
+  sticker_id: Snowflake | null;
+  created_at: Date;
   content: string | null;
   attachments?: string[];
 };

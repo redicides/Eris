@@ -21,7 +21,7 @@ export default class Ping extends Command {
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig
   ): Promise<InteractionReplyData> {
-    const ephemeral = isEphemeralReply({ interaction, config });
+    const ephemeral = isEphemeralReply(interaction, config);
 
     const start = performance.now();
     await interaction.deferReply({ ephemeral });

@@ -6,7 +6,7 @@ import {
   Events,
   Interaction
 } from 'discord.js';
-import { ModerationCommand } from '@prisma/client';
+import { Shortcut } from '@prisma/client';
 
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeralReply } from '@utils/index';
 import { prisma, Sentry } from '@/index';
@@ -37,7 +37,7 @@ export default class InteractionCreate extends EventListener {
     }
 
     if (!interaction.inCachedGuild()) {
-      return handleInteractionErrorReply({ interaction, error: 'Interactions are not supported in DMs.' });
+      return handleInteractionErrorReply(interaction, 'Interactions are not supported in DMs.');
     }
 
     if (!interaction.isCommand() && interaction.customId.startsWith('&')) {
@@ -52,14 +52,14 @@ export default class InteractionCreate extends EventListener {
 
     if (!data) {
       if (interaction.isChatInputCommand()) {
-        const command = await prisma.moderationCommand.findUnique({
-          where: { name: interaction.commandName, guildId: interaction.guildId }
+        const shortcut = await prisma.shortcut.findUnique({
+          where: { name: interaction.commandName, guild_id: interaction.guildId }
         });
 
-        if (!command) {
+        if (!shortcut) {
           return InteractionCreate._handleUnknownInteraction(interaction);
         } else {
-          return InteractionCreate.handleCustomCommandInteraction(interaction, guild, command);
+          return InteractionCreate.handleCustomCommandInteraction(interaction, guild, shortcut);
         }
       }
 
@@ -74,7 +74,7 @@ export default class InteractionCreate extends EventListener {
       );
 
       if (!result.success) {
-        return handleInteractionErrorReply({ interaction, error: result.message });
+        return handleInteractionErrorReply(interaction, result.message);
       }
     }
 
@@ -101,12 +101,12 @@ export default class InteractionCreate extends EventListener {
         error
       );
 
-      return handleInteractionErrorReply({
+      return handleInteractionErrorReply(
         interaction,
-        error: `An error occured while executing this ${
+        `An error occured while executing this ${
           interaction.isCommand() ? 'command' : 'component'
         }, please include this ID when reporting the bug: \`${sentryId}\`.`
-      });
+      );
     }
   }
 
@@ -126,7 +126,7 @@ export default class InteractionCreate extends EventListener {
   ): Promise<void> {
     let options: InteractionReplyData | null;
 
-    const ephemeral = interaction.isCommand() ? isEphemeralReply({ interaction, config }) : true;
+    const ephemeral = interaction.isCommand() ? isEphemeralReply(interaction, config) : true;
 
     if (interaction.isCommand()) {
       options = await (data as Command).execute(interaction as CommandInteraction<'cached'>, config);
@@ -189,9 +189,9 @@ export default class InteractionCreate extends EventListener {
   private static async handleCustomCommandInteraction(
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig,
-    command: ModerationCommand
+    command: Shortcut
   ) {
-    const ephemeral = isEphemeralReply({ interaction, config });
+    const ephemeral = isEphemeralReply(interaction, config);
     const options = await CommandManager.handleCustomModerationCommand(interaction, config, command, ephemeral);
 
     const ttl = getInteractionTTL(interaction, config, options);
@@ -264,7 +264,7 @@ export default class InteractionCreate extends EventListener {
 
       case 'command': {
         const commands = CommandManager.commands.filter(command => command.category !== 'Developer');
-        const shortcuts = await prisma.moderationCommand.findMany({ where: { guildId: interaction.guildId } });
+        const shortcuts = await prisma.shortcut.findMany({ where: { guild_id: interaction.guildId } });
 
         const filteredCommands = commands
           .filter(
@@ -299,7 +299,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'shortcut': {
-        const shortcuts = await prisma.moderationCommand.findMany({ where: { guildId: interaction.guildId } });
+        const shortcuts = await prisma.shortcut.findMany({ where: { guild_id: interaction.guildId } });
 
         const filteredShortcuts = shortcuts
           .filter(
@@ -316,7 +316,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'permission-node': {
-        const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId)).permissions;
+        const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId)).permission_nodes;
 
         const permissions = rawPermissions
           .filter(permission => {
@@ -328,16 +328,16 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'scope': {
-        const rawScopes = (await DatabaseManager.getGuildEntry(interaction.guildId)).ephemeralScopes;
+        const rawScopes = (await DatabaseManager.getGuildEntry(interaction.guildId)).ephemeral_scopes;
 
         const scopes = rawScopes
           .filter(scope => {
-            return scope.commandName.toLowerCase().includes(lowercaseValue);
+            return scope.command_name.toLowerCase().includes(lowercaseValue);
           })
-          .sort((a, b) => a.commandName.localeCompare(b.commandName));
+          .sort((a, b) => a.command_name.localeCompare(b.command_name));
 
         return interaction.respond(
-          scopes.map(scope => ({ name: capitalize(scope.commandName), value: scope.commandName }))
+          scopes.map(scope => ({ name: capitalize(scope.command_name), value: scope.command_name }))
         );
       }
 
@@ -365,12 +365,12 @@ export default class InteractionCreate extends EventListener {
       )
     );
 
-    return handleInteractionErrorReply({
+    return handleInteractionErrorReply(
       interaction,
-      error: `Failed to fetch data for ${
+      `Failed to fetch data for ${
         interaction.isCommand() ? `command "${interaction.commandName}"` : `this component`
       }, please include this ID when reporting the bug: \`${sentryId}\`.`
-    });
+    );
   }
 
   private static async _handleCommandChecks(
@@ -385,7 +385,7 @@ export default class InteractionCreate extends EventListener {
       };
     }
 
-    if (config.commandDisabledList.includes(command.data.name)) {
+    if (config.command_disabled_list.includes(command.data.name)) {
       return {
         success: false,
         message: MessageKeys.Errors.CommandDisabled

@@ -39,11 +39,11 @@ export default class MessageDeleteBulk extends EventListener {
     const config = await DatabaseManager.getGuildEntry(channel.guild.id);
     const channelIds = extractChannelIds(channel);
 
-    if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) {
+    if (!config.message_logging_enabled || !config.message_logging_webhook) {
       return;
     }
 
-    if (channelIds.some(id => config.messageLoggingIgnoredChannels.includes(id))) {
+    if (channelIds.some(id => config.message_logging_ignored_channels.includes(id))) {
       return;
     }
 
@@ -65,7 +65,7 @@ export default class MessageDeleteBulk extends EventListener {
       return MessageDeleteBulk._attemptDiscordLog(discordMessages, channelId, config);
     }
 
-    const { messageLoggingWebhook } = config;
+    const { message_logging_webhook } = config;
     const { entries, authorMentions } = await MessageDeleteBulk._getDatabaseEntries(messages, discordMessages);
 
     const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
@@ -83,7 +83,7 @@ export default class MessageDeleteBulk extends EventListener {
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
-    return new WebhookClient({ url: messageLoggingWebhook! })
+    return new WebhookClient({ url: message_logging_webhook! })
       .send({
         content: logContent,
         files: [file],
@@ -104,7 +104,7 @@ export default class MessageDeleteBulk extends EventListener {
       return null;
     }
 
-    const { messageLoggingWebhook } = config;
+    const { message_logging_webhook } = config;
     const { entries, authorMentions } = await MessageDeleteBulk._getDiscordEntries(messages);
 
     const file = MessageDeleteBulk.mapLogEntriesToFile(entries);
@@ -121,7 +121,7 @@ export default class MessageDeleteBulk extends EventListener {
     const urlButton = new ButtonBuilder().setLabel('Open In Browser').setStyle(ButtonStyle.Link).setURL(dataUrl);
     const components = new ActionRowBuilder<ButtonBuilder>().addComponents(urlButton);
 
-    return new WebhookClient({ url: messageLoggingWebhook! })
+    return new WebhookClient({ url: message_logging_webhook! })
       .send({ content: logContent, files: [file], components: [components], allowedMentions: { parse: [] } })
       .catch(() => null);
   }
@@ -161,8 +161,8 @@ export default class MessageDeleteBulk extends EventListener {
 
           if (dbReference) {
             const referenceEntry = await formatMessageBulkDeleteLogEntry({
-              authorId: dbReference.authorId,
-              createdAt: dbReference.createdAt,
+              authorId: dbReference.author_id,
+              createdAt: dbReference.created_at,
               stickerId: null,
               messageContent: dbReference.content
             });
@@ -196,10 +196,10 @@ export default class MessageDeleteBulk extends EventListener {
     const entries: { entry: string; createdAt: bigint | number }[] = [];
 
     for (const message of messages.values()) {
-      const authorMention = userMention(message.authorId);
+      const authorMention = userMention(message.author_id);
       const entry = await formatMessageBulkDeleteLogEntry({
-        authorId: message.authorId,
-        createdAt: message.createdAt,
+        authorId: message.author_id,
+        createdAt: message.created_at,
         stickerId: null,
         messageContent: message.content
       });
@@ -209,20 +209,20 @@ export default class MessageDeleteBulk extends EventListener {
         authorMentions.push(authorMention);
       }
 
-      if (message.referenceId) {
-        const reference = await DatabaseManager.getMessageEntry(message.referenceId).catch(() => null);
+      if (message.reference_id) {
+        const reference = await DatabaseManager.getMessageEntry(message.reference_id).catch(() => null);
 
         if (reference) {
           const referenceEntry = await formatMessageBulkDeleteLogEntry({
-            authorId: reference.authorId,
-            createdAt: reference.createdAt,
+            authorId: reference.author_id,
+            createdAt: reference.created_at,
             stickerId: null,
             messageContent: reference.content
           });
 
           subEntries.unshift(`REF: ${referenceEntry}`);
         } else {
-          let discordReference = discordMessages.get(message.referenceId);
+          let discordReference = discordMessages.get(message.reference_id);
 
           if (discordReference) {
             const referenceEntry = await formatMessageBulkDeleteLogEntry({
@@ -239,7 +239,7 @@ export default class MessageDeleteBulk extends EventListener {
 
       entries.push({
         entry: subEntries.join('\n └── '),
-        createdAt: message.createdAt
+        createdAt: message.created_at
       });
     }
 

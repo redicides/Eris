@@ -16,9 +16,9 @@ export default class InfractionSearchComponent extends Component {
     const targetId = interaction.customId.split('-')[2];
     const target = await this.client.users.fetch(targetId).catch(() => null);
 
-    if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
+    if (!hasPermission(interaction.member, config, 'Search_Infractions')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('SearchInfractions', 'search infractions'),
+        error: MessageKeys.Errors.MissingUserPermission('Search_Infractions', 'search infractions'),
         temporary: true
       };
     }
@@ -31,8 +31,8 @@ export default class InfractionSearchComponent extends Component {
     }
 
     return InfractionManager.searchInfractions({
-      guildId: interaction.guildId,
-      controllerId: interaction.user.id,
+      guild_id: interaction.guildId,
+      controller_id: interaction.user.id,
       target,
       filter: null,
       page: 1

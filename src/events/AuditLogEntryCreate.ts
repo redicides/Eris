@@ -33,7 +33,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
         // Delete mute task upon ban (if it exists)
         await TaskManager.deleteTask({
-          targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
+          target_id_guild_id_type: { target_id: target.id, guild_id: guild.id, type: 'Mute' }
         });
 
         break;
@@ -42,7 +42,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
         // Delete ban task upon unban (if it exists)
         await TaskManager.deleteTask({
-          targetId_guildId_type: { guildId: guild.id, targetId: target.id, type: 'Ban' }
+          target_id_guild_id_type: { guild_id: guild.id, target_id: target.id, type: 'Ban' }
         });
 
         break;
@@ -52,29 +52,29 @@ export default class AuditLogEntryCreate extends EventListener {
 
           if (mute) {
             if (mute.new) {
-              if (!config.nativeModerationIntegration) return;
+              if (!config.native_moderation_integration) return;
 
-              const expiresAt = Date.parse(mute.new as string);
+              const expires_at = Date.parse(mute.new as string);
               action = InfractionType.Mute;
 
               const infraction = await InfractionManager.storeInfraction({
                 id: InfractionManager.generateInfractionId(),
-                guildId: guild.id,
-                targetId: target.id,
-                executorId: executor.id,
+                guild_id: guild.id,
+                target_id: target.id,
+                executor_id: executor.id,
                 type: action,
                 reason,
-                expiresAt,
-                createdAt: Date.now(),
+                expires_at,
+                created_at: Date.now(),
                 flag: InfractionFlag.Native
               });
 
               await TaskManager.storeTask({
-                guildId: guild.id,
-                targetId: target.id,
-                infractionId: infraction.id,
+                guild_id: guild.id,
+                target_id: target.id,
+                infraction_id: infraction.id,
                 type: 'Mute',
-                expiresAt
+                expires_at
               });
 
               await InfractionManager.logInfraction({ config, infraction });
@@ -86,7 +86,7 @@ export default class AuditLogEntryCreate extends EventListener {
 
               // Delete mute task upon unmute
               await TaskManager.deleteTask({
-                targetId_guildId_type: { targetId: target.id, guildId: guild.id, type: 'Mute' }
+                target_id_guild_id_type: { target_id: target.id, guild_id: guild.id, type: 'Mute' }
               });
             }
           }
@@ -95,16 +95,16 @@ export default class AuditLogEntryCreate extends EventListener {
         break;
     }
 
-    if (!action || !config.nativeModerationIntegration) return;
+    if (!action || !config.native_moderation_integration) return;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: guild.id,
-      targetId: target.id,
-      executorId: executor.id,
+      guild_id: guild.id,
+      target_id: target.id,
+      executor_id: executor.id,
       type: action,
       reason,
-      createdAt: Date.now(),
+      created_at: Date.now(),
       flag: InfractionFlag.Native
     });
 

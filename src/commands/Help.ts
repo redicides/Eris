@@ -6,7 +6,7 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
-import { capitalize, elipsify, generateHelpMenuFields } from '@utils/index';
+import { elipsify, generateHelpMenuFields } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 
@@ -46,27 +46,27 @@ export default class Help extends Command {
     if (cmd) {
       const command = CommandManager.commands.get(cmd) ?? CommandManager.commands.get(cmd.toLowerCase());
       const shortcut =
-        (await this.prisma.moderationCommand.findUnique({
-          where: { name: cmd, guildId: interaction.guildId }
+        (await this.prisma.shortcut.findUnique({
+          where: { name: cmd, guild_id: interaction.guildId }
         })) ??
-        (await this.prisma.moderationCommand.findUnique({
-          where: { name: cmd.toLowerCase(), guildId: interaction.guildId }
+        (await this.prisma.shortcut.findUnique({
+          where: { name: cmd.toLowerCase(), guild_id: interaction.guildId }
         }));
 
       if (!command) {
         if (shortcut) {
           let details = `\\- Action: \`${shortcut.action}\`\n\\- Reason: \`${elipsify(shortcut.reason, 256)}\`\n`;
 
-          if (shortcut.additionalInfo) {
-            details += `\\- Additional Info: \`${elipsify(shortcut.additionalInfo, 256)}\`\n`;
+          if (shortcut.additional_info) {
+            details += `\\- Additional Info: \`${elipsify(shortcut.additional_info, 256)}\`\n`;
           }
 
           if (shortcut.duration) {
             details += `\\- Duration: \`${ms(Number(shortcut.duration), { long: true })}\`\n`;
           }
 
-          if (shortcut.messageDeleteTime) {
-            details += `\\- Message Delete Time: \`${ms(Number(shortcut.messageDeleteTime), { long: true })}\`\n`;
+          if (shortcut.message_delete_time) {
+            details += `\\- Message Delete Time: \`${ms(Number(shortcut.message_delete_time), { long: true })}\`\n`;
           }
 
           const embed = new EmbedBuilder()
@@ -128,7 +128,7 @@ export default class Help extends Command {
       return { embeds: [embed] };
     }
 
-    const shortcuts = await this.prisma.moderationCommand.findMany({ where: { guildId: interaction.guildId } });
+    const shortcuts = await this.prisma.shortcut.findMany({ where: { guild_id: interaction.guildId } });
 
     const embed = new EmbedBuilder()
       .setColor(Colors.NotQuiteBlack)
@@ -141,10 +141,10 @@ export default class Help extends Command {
   }
 
   private static _parseModerationUsage(command: Command, config: GuildConfig): string {
-    const reasonKey = `require${capitalize(command.data.name)}Reason` as keyof typeof config;
+    const reasonKey = `require_${command.data.name}_reason` as keyof typeof config;
     let usage = Help._parseUsage(command);
 
-    if (command.data.name === 'mute' && config.defaultMuteDuration === 0n) {
+    if (command.data.name === 'mute' && config.default_mute_duration === 0n) {
       usage = usage.replaceAll('[duration]', '<duration>');
     }
 

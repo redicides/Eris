@@ -24,7 +24,7 @@ export default class InfractionSearchPaginationComponent extends Component {
       };
     }
 
-    if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
+    if (!hasPermission(interaction.member, config, 'Search_Infractions')) {
       return {
         error: "You no longer have permission to search this user's infractions.",
         temporary: true
@@ -94,8 +94,8 @@ export default class InfractionSearchPaginationComponent extends Component {
     }
 
     return InfractionManager.searchInfractions({
-      guildId: interaction.guildId,
-      controllerId: interaction.user.id,
+      guild_id: interaction.guildId,
+      controller_id: interaction.user.id,
       target,
       page,
       filter

@@ -16,15 +16,15 @@ export default class BanRequestModalComponent extends Component {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
     const requestId = interaction.customId.split('-')[3];
 
-    if (!hasPermission(interaction.member, config, 'ManageBanRequests')) {
+    if (!hasPermission(interaction.member, config, 'Manage_Ban_Requests')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('ManageBanRequests', 'manage ban requests'),
+        error: MessageKeys.Errors.MissingUserPermission('Manage_Ban_Requests', 'manage ban requests'),
         temporary: true
       };
     }
 
     const request = await this.prisma.banRequest.findUnique({
-      where: { id: requestId, guildId: interaction.guildId }
+      where: { id: requestId, guild_id: interaction.guildId }
     });
 
     if (!request) {

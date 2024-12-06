@@ -103,11 +103,11 @@ export class ReportUtils {
     );
 
     const content =
-      config.userReportsPingRoles.length > 0
-        ? config.userReportsPingRoles.map(r => roleMention(r)).join(', ')
+      config.user_reports_ping_roles.length > 0
+        ? config.user_reports_ping_roles.map(r => roleMention(r)).join(', ')
         : undefined;
 
-    const webhook = new WebhookClient({ url: config.userReportsWebhook! });
+    const webhook = new WebhookClient({ url: config.user_reports_webhook! });
     const log = await webhook
       .send({ content, embeds: [embed], components: [actionRow], allowedMentions: { parse: ['roles'] } })
       .catch(() => null);
@@ -121,11 +121,11 @@ export class ReportUtils {
     await prisma.userReport.create({
       data: {
         id: log.id,
-        guildId: interaction.guildId,
-        targetId: target.id,
-        reportedBy: interaction.user.id,
-        reportedAt: Date.now(),
-        reportReason: reason
+        guild_id: interaction.guildId,
+        target_id: target.id,
+        reported_by: interaction.user.id,
+        reported_at: Date.now(),
+        report_reason: reason
       }
     });
 
@@ -258,11 +258,11 @@ export class ReportUtils {
     }
 
     const content =
-      config.messageReportsPingRoles.length > 0
-        ? config.messageReportsPingRoles.map(r => roleMention(r)).join(', ')
+      config.message_reports_ping_roles.length > 0
+        ? config.message_reports_ping_roles.map(r => roleMention(r)).join(', ')
         : undefined;
 
-    const webhook = new WebhookClient({ url: config.messageReportsWebhook! });
+    const webhook = new WebhookClient({ url: config.message_reports_webhook! });
     const log = await webhook
       .send({
         content,
@@ -281,16 +281,16 @@ export class ReportUtils {
     await prisma.messageReport.create({
       data: {
         id: log.id,
-        guildId: interaction.guildId,
-        messageId: message.id,
-        referenceId: reference?.id,
-        messageUrl: message.url,
-        channelId: message.channel.id,
-        authorId: message.author.id,
+        guild_id: interaction.guildId,
+        message_id: message.id,
+        reference_id: reference?.id,
+        message_url: message.url,
+        channel_id: message.channel.id,
+        author_id: message.author.id,
         content: content,
-        reportedBy: interaction.user.id,
-        reportedAt: Date.now(),
-        reportReason: reason
+        reported_by: interaction.user.id,
+        reported_at: Date.now(),
+        report_reason: reason
       }
     });
 
@@ -319,13 +319,13 @@ export class ReportUtils {
   }): Promise<InteractionReplyData> {
     const { interaction, config, action, report, reason } = data;
 
-    const user = await client.users.fetch(report.reportedBy).catch(() => null);
+    const user = await client.users.fetch(report.reported_by).catch(() => null);
 
     const embed = new EmbedBuilder()
       .setColor(action === 'accept' ? Colors.Green : Colors.Red)
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
       .setTitle(`Message Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
-      .setFields([{ name: 'Reported Message', value: `${report.messageUrl} (\`${report.messageId}\`)` }])
+      .setFields([{ name: 'Reported Message', value: `${report.message_url} (\`${report.message_id}\`)` }])
       .setFooter({ text: `Report ID: #${report.id}` })
       .setTimestamp();
 
@@ -345,13 +345,13 @@ export class ReportUtils {
         await prisma.messageReport.update({
           where: { id: report.id },
           data: {
-            resolvedAt: Date.now(),
-            resolvedBy: interaction.user.id,
+            resolved_at: Date.now(),
+            resolved_by: interaction.user.id,
             status: 'Accepted'
           }
         });
 
-        if (user && config.messageReportsNotifyStatus) {
+        if (user && config.message_reports_notify_status) {
           await user.send({ embeds: [embed] }).catch(() => null);
         }
 
@@ -378,13 +378,13 @@ export class ReportUtils {
         await prisma.messageReport.update({
           where: { id: report.id },
           data: {
-            resolvedAt: Date.now(),
-            resolvedBy: interaction.user.id,
+            resolved_at: Date.now(),
+            resolved_by: interaction.user.id,
             status: 'Denied'
           }
         });
 
-        if (user && config.messageReportsNotifyStatus) {
+        if (user && config.message_reports_notify_status) {
           await user.send({ embeds: [embed] }).catch(() => null);
         }
 
@@ -429,13 +429,13 @@ export class ReportUtils {
   }): Promise<InteractionReplyData> {
     const { interaction, config, action, report, reason } = data;
 
-    const user = await client.users.fetch(report.reportedBy).catch(() => null);
+    const user = await client.users.fetch(report.reported_by).catch(() => null);
 
     const embed = new EmbedBuilder()
       .setColor(action === 'accept' ? Colors.Green : Colors.Red)
       .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL() ?? undefined })
       .setTitle(`User Report ${action === 'accept' ? 'Accepted' : 'Denied'}`)
-      .setFields([{ name: 'Reported User', value: userMentionWithId(report.targetId) }])
+      .setFields([{ name: 'Reported User', value: userMentionWithId(report.target_id) }])
       .setFooter({ text: `Report ID: #${report.id}` })
       .setTimestamp();
 
@@ -455,13 +455,13 @@ export class ReportUtils {
         await prisma.userReport.update({
           where: { id: report.id },
           data: {
-            resolvedAt: Date.now(),
-            resolvedBy: interaction.user.id,
+            resolved_at: Date.now(),
+            resolved_by: interaction.user.id,
             status: 'Accepted'
           }
         });
 
-        if (user && config.userReportsNotifyStatus) {
+        if (user && config.user_reports_notify_status) {
           await user.send({ embeds: [embed] }).catch(() => null);
         }
 
@@ -488,13 +488,13 @@ export class ReportUtils {
         await prisma.userReport.update({
           where: { id: report.id },
           data: {
-            resolvedAt: Date.now(),
-            resolvedBy: interaction.user.id,
+            resolved_at: Date.now(),
+            resolved_by: interaction.user.id,
             status: 'Denied'
           }
         });
 
-        if (user && config.userReportsNotifyStatus) {
+        if (user && config.user_reports_notify_status) {
           await user.send({ embeds: [embed] }).catch(() => null);
         }
 
@@ -571,9 +571,9 @@ export class ReportUtils {
   }): Promise<APIMessage | null> {
     const { config, embed, action, userId, reason } = data;
 
-    if (!config.reportLoggingEnabled || !config.reportLoggingWebhook) return null;
+    if (!config.report_logging_enabled || !config.report_logging_webhook) return null;
 
-    const webhook = new WebhookClient({ url: config.reportLoggingWebhook });
+    const webhook = new WebhookClient({ url: config.report_logging_webhook });
     const parsedReason = reason.replaceAll('`', '');
 
     return webhook
@@ -594,30 +594,30 @@ export class ReportUtils {
    * @returns
    */
 
-  public static async updateMessageReportStates(data: { guild: Guild; messageId: Snowflake; config: GuildConfig }) {
-    const { guild, messageId, config } = data;
+  public static async updateMessageReportStates(data: { guild: Guild; message_id: Snowflake; config: GuildConfig }) {
+    const { guild, message_id, config } = data;
 
     // Early return if webhook is missing
-    if (!config.messageReportsWebhook) return;
+    if (!config.message_reports_webhook) return;
 
     // Get all pending reports and references
     const pendingReports = await prisma.messageReport.findMany({
       where: {
-        messageId,
-        guildId: guild.id,
+        message_id,
+        guild_id: guild.id,
         status: 'Pending'
       }
     });
 
     const references = await prisma.messageReport.findMany({
       where: {
-        referenceId: messageId,
-        guildId: guild.id,
+        reference_id: message_id,
+        guild_id: guild.id,
         status: 'Pending'
       }
     });
 
-    const webhook = new WebhookClient({ url: config.messageReportsWebhook });
+    const webhook = new WebhookClient({ url: config.message_reports_webhook });
 
     // Process each report
     for (const report of pendingReports) {
@@ -667,13 +667,13 @@ export class ReportUtils {
 
       // Check if reference message still exists
       const channel = await guild.channels
-        .fetch(report.channelId)
+        .fetch(report.channel_id)
         .then(ch => ch as TextChannel)
         .catch(() => null);
 
       if (!channel) continue;
 
-      const referenceExists = await channel.messages.fetch(messageId).catch(() => null);
+      const referenceExists = await channel.messages.fetch(message_id).catch(() => null);
       if (referenceExists) continue;
 
       // Update embed and components

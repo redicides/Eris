@@ -46,15 +46,15 @@ export class RequestUtils {
    */
   public static async createMuteRequest(data: {
     config: GuildConfig;
-    guildId: Snowflake;
+    guild_id: Snowflake;
     target: GuildMember;
-    requestedBy: Snowflake;
+    requested_by: Snowflake;
     duration: number;
     reason: string;
   }): Promise<InteractionReplyData> {
-    const { config, guildId, target, requestedBy, duration, reason } = data;
+    const { config, guild_id, target, requested_by, duration, reason } = data;
 
-    const requestedAt = Date.now();
+    const requested_at = Date.now();
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -62,7 +62,7 @@ export class RequestUtils {
       .setThumbnail(target.user.displayAvatarURL())
       .setFields([
         { name: 'Target', value: userMentionWithId(target.id) },
-        { name: 'Requested By', value: userMentionWithId(requestedBy) },
+        { name: 'Requested By', value: userMentionWithId(requested_by) },
         { name: 'Duration', value: ms(duration, { long: true }) },
         { name: 'Reason', value: reason }
       ])
@@ -95,11 +95,11 @@ export class RequestUtils {
       userInfoButton
     );
 
-    const webhook = new WebhookClient({ url: config.muteRequestsWebhook! });
+    const webhook = new WebhookClient({ url: config.mute_requests_webhook! });
 
     const content =
-      config.muteRequestsPingRoles.length > 0
-        ? config.muteRequestsPingRoles.map(r => roleMention(r)).join(', ')
+      config.mute_requests_ping_roles.length > 0
+        ? config.mute_requests_ping_roles.map(r => roleMention(r)).join(', ')
         : undefined;
 
     const log = await webhook.send({
@@ -119,10 +119,10 @@ export class RequestUtils {
     await prisma.muteRequest.create({
       data: {
         id: log.id,
-        guildId,
-        targetId: target.id,
-        requestedBy,
-        requestedAt,
+        guild_id,
+        target_id: target.id,
+        requested_by,
+        requested_at,
         duration,
         reason
       }
@@ -148,15 +148,15 @@ export class RequestUtils {
 
   public static async createBanRequest(data: {
     config: GuildConfig;
-    guildId: Snowflake;
+    guild_id: Snowflake;
     target: User;
-    requestedBy: Snowflake;
+    requested_by: Snowflake;
     duration: number | null;
     reason: string;
   }) {
-    const { config, guildId, target, requestedBy, duration, reason } = data;
+    const { config, guild_id, target, requested_by, duration, reason } = data;
 
-    const requestedAt = Date.now();
+    const requested_at = Date.now();
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -164,7 +164,7 @@ export class RequestUtils {
       .setThumbnail(target.displayAvatarURL())
       .setFields([
         { name: 'Target', value: userMentionWithId(target.id) },
-        { name: 'Requested By', value: userMentionWithId(requestedBy) },
+        { name: 'Requested By', value: userMentionWithId(requested_by) },
         { name: 'Reason', value: reason }
       ])
       .setTimestamp();
@@ -200,11 +200,11 @@ export class RequestUtils {
       userInfoButton
     );
 
-    const webhook = new WebhookClient({ url: config.banRequestsWebhook! });
+    const webhook = new WebhookClient({ url: config.ban_requests_webhook! });
 
     const content =
-      config.banRequestsPingRoles.length > 0
-        ? config.banRequestsPingRoles.map(r => roleMention(r)).join(', ')
+      config.ban_requests_ping_roles.length > 0
+        ? config.ban_requests_ping_roles.map(r => roleMention(r)).join(', ')
         : undefined;
 
     const log = await webhook.send({
@@ -224,10 +224,10 @@ export class RequestUtils {
     await prisma.banRequest.create({
       data: {
         id: log.id,
-        guildId,
-        targetId: target.id,
-        requestedBy,
-        requestedAt,
+        guild_id,
+        target_id: target.id,
+        requested_by,
+        requested_at,
         duration,
         reason
       }
@@ -262,8 +262,8 @@ export class RequestUtils {
 
     const parsedReason = reason ? reason.replaceAll('`', '') : null;
 
-    const target = await client.users.fetch(request.targetId).catch(() => null);
-    const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
+    const target = await client.users.fetch(request.target_id).catch(() => null);
+    const targetMember = await interaction.guild!.members.fetch(request.target_id).catch(() => null);
 
     const embed = new EmbedBuilder(interaction.message!.embeds[0] as EmbedData)
       .setAuthor({ name: `Ban Request` })
@@ -271,8 +271,8 @@ export class RequestUtils {
       .setTimestamp();
 
     const content = `${action === 'deny' ? `${error} ` : ``}${userMention(
-      request.requestedBy
-    )}, your ban request with ID \`#${request.id}\` against ${userMention(request.targetId)} has been ${
+      request.requested_by
+    )}, your ban request with ID \`#${request.id}\` against ${userMention(request.target_id)} has been ${
       action === 'accept' ? 'accepted' : 'denied'
     } by ${userMention(interaction.user.id)}${parsedReason ? `: ${parsedReason}` : ''}`;
 
@@ -298,20 +298,20 @@ export class RequestUtils {
 
         let failed = false;
 
-        const createdAt = Date.now();
-        const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
+        const created_at = Date.now();
+        const expires_at = request.duration ? created_at + Number(request.duration) : null;
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
-          guildId: request.guildId,
-          targetId: request.targetId,
-          executorId: interaction.user.id,
+          guild_id: request.guild_id,
+          target_id: request.target_id,
+          executor_id: interaction.user.id,
           type: 'Ban',
           reason: request.reason,
-          createdAt,
-          expiresAt,
-          requestAuthorId: request.requestedBy,
-          requestId: request.id
+          created_at,
+          expires_at,
+          request_author_id: request.requested_by,
+          request_id: request.id
         });
 
         if (targetMember) {
@@ -341,17 +341,17 @@ export class RequestUtils {
           };
         }
 
-        if (expiresAt) {
+        if (expires_at) {
           await TaskManager.storeTask({
-            guildId: request.guildId,
-            targetId: request.targetId,
-            infractionId: infraction.id,
-            expiresAt,
+            guild_id: request.guild_id,
+            target_id: request.target_id,
+            infraction_id: infraction.id,
+            expires_at,
             type: 'Ban'
           });
         } else {
           await TaskManager.deleteTask({
-            targetId_guildId_type: { targetId: request.targetId, guildId: request.guildId, type: 'Ban' }
+            target_id_guild_id_type: { target_id: request.target_id, guild_id: request.guild_id, type: 'Ban' }
           });
         }
 
@@ -361,9 +361,9 @@ export class RequestUtils {
           where: { id: request.id },
           data: {
             status: 'Accepted',
-            resolvedBy: interaction.user.id,
-            resolvedAt: Date.now(),
-            infractionId: infraction.id
+            resolved_by: interaction.user.id,
+            resolved_at: Date.now(),
+            infraction_id: infraction.id
           }
         });
 
@@ -393,8 +393,8 @@ export class RequestUtils {
           where: { id: request.id },
           data: {
             status: 'Denied',
-            resolvedBy: interaction.user.id,
-            resolvedAt: Date.now()
+            resolved_by: interaction.user.id,
+            resolved_at: Date.now()
           }
         });
 
@@ -417,7 +417,7 @@ export class RequestUtils {
         await interaction.message?.delete().catch(() => null);
 
         return {
-          content: `Successfully denied the ban request for ${userMention(request.targetId)} - ID \`#${request.id}\``,
+          content: `Successfully denied the ban request for ${userMention(request.target_id)} - ID \`#${request.id}\``,
           temporary: true
         };
       }
@@ -446,7 +446,7 @@ export class RequestUtils {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const targetMember = await interaction.guild!.members.fetch(request.targetId).catch(() => null);
+    const targetMember = await interaction.guild!.members.fetch(request.target_id).catch(() => null);
     const parsedReason = reason ? reason.replaceAll('`', '') : null;
 
     const embed = new EmbedBuilder(interaction.message!.embeds[0] as EmbedData)
@@ -455,8 +455,8 @@ export class RequestUtils {
       .setTimestamp();
 
     const content = `${action === 'deny' ? `${error} ` : ``}${userMention(
-      request.requestedBy
-    )}, your mute request with ID \`#${request.id}\` against ${userMention(request.targetId)} has been ${
+      request.requested_by
+    )}, your mute request with ID \`#${request.id}\` against ${userMention(request.target_id)} has been ${
       action === 'accept' ? 'accepted' : 'denied'
     } by ${userMention(interaction.user.id)}${parsedReason ? `: ${parsedReason}` : ''}`;
 
@@ -494,27 +494,27 @@ export class RequestUtils {
           };
         }
 
-        const createdAt = Date.now();
-        const expiresAt = createdAt + Number(request.duration);
+        const created_at = Date.now();
+        const expires_at = created_at + Number(request.duration);
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
-          guildId: request.guildId,
-          targetId: request.targetId,
-          executorId: interaction.user.id,
+          guild_id: request.guild_id,
+          target_id: request.target_id,
+          executor_id: interaction.user.id,
           type: 'Mute',
           reason: request.reason,
-          createdAt,
-          expiresAt,
-          requestAuthorId: request.requestedBy,
-          requestId: request.id
+          created_at,
+          expires_at,
+          request_author_id: request.requested_by,
+          request_id: request.id
         });
 
         await TaskManager.storeTask({
-          guildId: request.guildId,
-          targetId: request.targetId,
-          infractionId: infraction.id,
-          expiresAt,
+          guild_id: request.guild_id,
+          target_id: request.target_id,
+          infraction_id: infraction.id,
+          expires_at,
           type: 'Mute'
         });
 
@@ -530,9 +530,9 @@ export class RequestUtils {
           where: { id: request.id },
           data: {
             status: 'Accepted',
-            resolvedBy: interaction.user.id,
-            resolvedAt: createdAt,
-            infractionId: infraction.id
+            resolved_by: interaction.user.id,
+            resolved_at: created_at,
+            infraction_id: infraction.id
           }
         });
 
@@ -562,8 +562,8 @@ export class RequestUtils {
           where: { id: request.id },
           data: {
             status: 'Denied',
-            resolvedBy: interaction.user.id,
-            resolvedAt: Date.now()
+            resolved_by: interaction.user.id,
+            resolved_at: Date.now()
           }
         });
 
@@ -586,7 +586,7 @@ export class RequestUtils {
         await interaction.message?.delete().catch(() => null);
 
         return {
-          content: `Successfully denied the mute request for ${userMention(request.targetId)} - ID \`#${request.id}\``,
+          content: `Successfully denied the mute request for ${userMention(request.target_id)} - ID \`#${request.id}\``,
           temporary: true
         };
       }
@@ -641,11 +641,11 @@ export class RequestUtils {
   }) {
     const { config, embed, userId, action, reason } = data;
 
-    if (!config.requestLoggingEnabled || !config.requestLoggingWebhook) {
+    if (!config.request_logging_enabled || !config.request_logging_webhook) {
       return;
     }
 
-    return new WebhookClient({ url: config.requestLoggingWebhook })
+    return new WebhookClient({ url: config.request_logging_webhook })
       .send({
         content: `${action} by ${userMentionWithId(userId)} - ${reason.replaceAll('`', '')}`,
         embeds: [embed],

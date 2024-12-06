@@ -16,11 +16,10 @@ import {
 import ms from 'ms';
 
 import { client, prisma } from '..';
-import { capitalize, isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
+import { capitalize, isEphemeralReply, parseDuration, uploadData } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import CommandManager from '@managers/commands/CommandManager';
 
 export default class Config extends Command {
   constructor() {
@@ -48,8 +47,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsEnabled' },
-                      { name: 'Message Report', value: 'messageReportsEnabled' }
+                      { name: 'User Report', value: 'user_reports_enabled' },
+                      { name: 'Message Report', value: 'message_reports_enabled' }
                     ]
                   }
                 ]
@@ -65,8 +64,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsNotifyStatus' },
-                      { name: 'Message Report', value: 'messageReportsNotifyStatus' }
+                      { name: 'User Report', value: 'user_reports_notify_status' },
+                      { name: 'Message Report', value: 'message_reports_notify_status' }
                     ]
                   }
                 ]
@@ -82,8 +81,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsRequireMember' },
-                      { name: 'Message Report', value: 'messageReportsRequireMember' }
+                      { name: 'User Report', value: 'user_reports_require_member' },
+                      { name: 'Message Report', value: 'message_reports_require_member' }
                     ]
                   }
                 ]
@@ -106,8 +105,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsWebhook' },
-                      { name: 'Message Report', value: 'messageReportsWebhook' }
+                      { name: 'User Report', value: 'user_reports_webhook' },
+                      { name: 'Message Report', value: 'message_reports_webhook' }
                     ]
                   }
                 ]
@@ -129,8 +128,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsImmuneRoles' },
-                      { name: 'Message Report', value: 'messageReportsImmuneRoles' }
+                      { name: 'User Report', value: 'user_reports_immune_roles' },
+                      { name: 'Message Report', value: 'message_reports_immune_roles' }
                     ]
                   }
                 ]
@@ -152,8 +151,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsImmuneRoles' },
-                      { name: 'Message Report', value: 'messageReportsImmuneRoles' }
+                      { name: 'User Report', value: 'user_reports_immune_roles' },
+                      { name: 'Message Report', value: 'message_reports_immune_roles' }
                     ]
                   }
                 ]
@@ -175,8 +174,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsPingRoles' },
-                      { name: 'Message Report', value: 'messageReportsPingRoles' }
+                      { name: 'User Report', value: 'user_reports_ping_roles' },
+                      { name: 'Message Report', value: 'message_reports_ping_roles' }
                     ]
                   }
                 ]
@@ -198,8 +197,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsPingRoles' },
-                      { name: 'Message Report', value: 'messageReportsPingRoles' }
+                      { name: 'User Report', value: 'user_reports_ping_roles' },
+                      { name: 'Message Report', value: 'message_reports_ping_roles' }
                     ]
                   }
                 ]
@@ -222,8 +221,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report', value: 'userReportsDisregardAfter' },
-                      { name: 'Message Report', value: 'messageReportsDisregardAfter' }
+                      { name: 'User Report', value: 'user_reports_disregard_after' },
+                      { name: 'Message Report', value: 'message_reports_disregard_after' }
                     ]
                   }
                 ]
@@ -239,10 +238,10 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'User Report Accept', value: 'userReportsRequireAcceptReason' },
-                      { name: 'User Report Deny', value: 'userReportsRequireDenyReason' },
-                      { name: 'Message Report Accept', value: 'messageReportsRequireAcceptReason' },
-                      { name: 'Message Report Deny', value: 'messageReportsRequireDenyReason' }
+                      { name: 'User Report Accept', value: 'user_reports_require_accept_reason' },
+                      { name: 'User Report Deny', value: 'user_reports_require_deny_reason' },
+                      { name: 'Message Report Accept', value: 'message_reports_require_accept_reason' },
+                      { name: 'Message Report Deny', value: 'message_reports_require_deny_reason' }
                     ]
                   }
                 ]
@@ -265,8 +264,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Mute Request', value: 'muteRequestsEnabled' },
-                      { name: 'Ban Request', value: 'banRequestsEnabled' }
+                      { name: 'Mute Request', value: 'mute_requests_enabled' },
+                      { name: 'Ban Request', value: 'ban_requests_enabled' }
                     ]
                   }
                 ]
@@ -289,8 +288,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Mute Request', value: 'muteRequestsWebhook' },
-                      { name: 'Ban Request', value: 'banRequestsWebhook' }
+                      { name: 'Mute Request', value: 'mute_requests_webhook' },
+                      { name: 'Ban Request', value: 'ban_requests_webhook' }
                     ]
                   }
                 ]
@@ -312,8 +311,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Mute Request', value: 'muteRequestsImmuneRoles' },
-                      { name: 'Ban Request', value: 'banRequestsImmuneRoles' }
+                      { name: 'Mute Request', value: 'mute_requests_immune_roles' },
+                      { name: 'Ban Request', value: 'ban_requests_immune_roles' }
                     ]
                   }
                 ]
@@ -335,8 +334,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Mute Request', value: 'muteRequestsImmuneRoles' },
-                      { name: 'Ban Request', value: 'banRequestsImmuneRoles' }
+                      { name: 'Mute Request', value: 'mute_requests_immune_roles' },
+                      { name: 'Ban Request', value: 'ban_requests_immune_roles' }
                     ]
                   }
                 ]
@@ -358,8 +357,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Mute Request', value: 'muteRequestsPingRoles' },
-                      { name: 'Ban Request', value: 'banRequestsPingRoles' }
+                      { name: 'Mute Request', value: 'mute_requests_ping_roles' },
+                      { name: 'Ban Request', value: 'ban_requests_ping_roles' }
                     ]
                   }
                 ]
@@ -381,8 +380,8 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Mute Request', value: 'muteRequestsPingRoles' },
-                      { name: 'Ban Request', value: 'banRequestsPingRoles' }
+                      { name: 'Mute Request', value: 'mute_requests_ping_roles' },
+                      { name: 'Ban Request', value: 'ban_requests_ping_roles' }
                     ]
                   }
                 ]
@@ -426,10 +425,10 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Infractions', value: 'infractionLoggingWebhook' },
-                      { name: 'Reports', value: 'reportLoggingWebhook' },
-                      { name: 'Requests', value: 'requestLoggingWebhook' },
-                      { name: 'Messages', value: 'messageLoggingWebhook' }
+                      { name: 'Infractions', value: 'infraction_logging_webhook' },
+                      { name: 'Reports', value: 'report_logging_webhook' },
+                      { name: 'Requests', value: 'request_logging_webhook' },
+                      { name: 'Messages', value: 'message_logging_webhook' }
                     ]
                   }
                 ]
@@ -445,10 +444,10 @@ export default class Config extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Infractions', value: 'infractionLoggingEnabled' },
-                      { name: 'Reports', value: 'reportLoggingEnabled' },
-                      { name: 'Requests', value: 'requestLoggingEnabled' },
-                      { name: 'Messages', value: 'messageLoggingEnabled' }
+                      { name: 'Infractions', value: 'infraction_logging_enabled' },
+                      { name: 'Reports', value: 'report_logging_enabled' },
+                      { name: 'Requests', value: 'request_logging_enabled' },
+                      { name: 'Messages', value: 'message_logging_enabled' }
                     ]
                   }
                 ]
@@ -470,7 +469,7 @@ export default class Config extends Command {
                     description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
+                    choices: [{ name: 'Messages', value: 'message_logging_ignored_channels' }]
                   }
                 ]
               },
@@ -491,7 +490,7 @@ export default class Config extends Command {
                     description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
+                    choices: [{ name: 'Messages', value: 'message_logging_ignored_channels' }]
                   }
                 ]
               },
@@ -505,7 +504,7 @@ export default class Config extends Command {
                     description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [{ name: 'Messages', value: 'messageLoggingIgnoredChannels' }]
+                    choices: [{ name: 'Messages', value: 'message_logging_ignored_channels' }]
                   }
                 ]
               }
@@ -523,7 +522,7 @@ export default class Config extends Command {
     const group = interaction.options.getSubcommandGroup() as ConfigSubcommandGroup;
     const subcommand = interaction.options.getSubcommand() as ConfigSubcommand;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     switch (group) {
       case ConfigSubcommandGroup.Reports:
@@ -624,7 +623,7 @@ export default class Config extends Command {
       });
 
       return {
-        content: `${type === 'messageReportsRequireMember' ? 'Message authors' : 'Users'} must ${
+        content: `${type === 'message_reports_require_member' ? 'Message authors' : 'Users'} must ${
           toggle ? 'now' : 'no longer'
         } be in the guild to submit a report.`
       };
@@ -649,7 +648,7 @@ export default class Config extends Command {
 
       return {
         content: `Report authors will ${toggle ? 'now' : 'no longer'} receive status notifications for ${
-          type === 'messageReportsNotifyStatus' ? 'message reports' : 'user reports'
+          type === 'message_reports_notify_status' ? 'message reports' : 'user reports'
         }.`
       };
     },
@@ -673,7 +672,7 @@ export default class Config extends Command {
 
       return {
         content: `Users can now ${toggle ? 'report' : 'no longer report'} ${
-          type === 'messageReportsEnabled' ? 'messages' : 'other users'
+          type === 'message_reports_enabled' ? 'messages' : 'other users'
         }.`
       };
     },
@@ -702,7 +701,7 @@ export default class Config extends Command {
         if (webhook.channelId === channel.id) {
           return {
             error: `The alert channel for ${
-              type === 'messageReportsWebhook' ? 'message reports' : 'user reports'
+              type === 'message_reports_webhook' ? 'message reports' : 'user reports'
             } is already set to ${channel.toString()}.`,
             temporary: true
           };
@@ -729,7 +728,7 @@ export default class Config extends Command {
 
         const newWebhook = await channel
           .createWebhook({
-            name: `${type === 'messageReportsWebhook' ? 'Message' : 'User'} Report Alerts`,
+            name: `${type === 'message_reports_webhook' ? 'Message' : 'User'} Report Alerts`,
             avatar: client.user!.displayAvatarURL()
           })
           .catch(() => {
@@ -751,7 +750,7 @@ export default class Config extends Command {
 
       return {
         content: `The alert channel for ${
-          type === 'messageReportsWebhook' ? 'message reports' : 'user reports'
+          type === 'message_reports_webhook' ? 'message reports' : 'user reports'
         } has been set to ${channel.toString()}.`
       };
     },
@@ -762,8 +761,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          userReportsImmuneRoles: true,
-          messageReportsImmuneRoles: true
+          user_reports_immune_roles: true,
+          message_reports_immune_roles: true
         }
       }))!;
 
@@ -773,7 +772,7 @@ export default class Config extends Command {
       if (config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is already in the immune roles list for ${
-            type === 'messageReportsImmuneRoles' ? 'message reports' : 'user reports'
+            type === 'message_reports_immune_roles' ? 'message reports' : 'user reports'
           }.`,
           temporary: true
         };
@@ -786,7 +785,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been added to the immune roles list for ${
-          type === 'messageReportsImmuneRoles' ? 'message reports' : 'user reports'
+          type === 'message_reports_immune_roles' ? 'message reports' : 'user reports'
         }.`
       };
     },
@@ -797,8 +796,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          userReportsImmuneRoles: true,
-          messageReportsImmuneRoles: true
+          user_reports_immune_roles: true,
+          message_reports_immune_roles: true
         }
       }))!;
 
@@ -808,7 +807,7 @@ export default class Config extends Command {
       if (!config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is not in the immune roles list for ${
-            type === 'messageReportsImmuneRoles' ? 'message reports' : 'user reports'
+            type === 'message_reports_immune_roles' ? 'message reports' : 'user reports'
           }.`,
           temporary: true
         };
@@ -821,7 +820,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been removed from the immune roles list for ${
-          type === 'messageReportsImmuneRoles' ? 'message reports' : 'user reports'
+          type === 'message_reports_immune_roles' ? 'message reports' : 'user reports'
         }.`
       };
     },
@@ -832,8 +831,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          userReportsPingRoles: true,
-          messageReportsPingRoles: true
+          user_reports_ping_roles: true,
+          message_reports_ping_roles: true
         }
       }))!;
 
@@ -843,7 +842,7 @@ export default class Config extends Command {
       if (config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is already in the ping roles list for ${
-            type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+            type === 'message_reports_ping_roles' ? 'message reports' : 'user reports'
           }.`,
           temporary: true
         };
@@ -856,7 +855,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been added to the ping roles list for ${
-          type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+          type === 'message_reports_ping_roles' ? 'message reports' : 'user reports'
         }.`
       };
     },
@@ -867,8 +866,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          userReportsPingRoles: true,
-          messageReportsPingRoles: true
+          user_reports_ping_roles: true,
+          message_reports_ping_roles: true
         }
       }))!;
 
@@ -878,7 +877,7 @@ export default class Config extends Command {
       if (!config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is not in the ping roles list for ${
-            type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+            type === 'message_reports_ping_roles' ? 'message reports' : 'user reports'
           }.`,
           temporary: true
         };
@@ -891,7 +890,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been removed from the ping roles list for ${
-          type === 'messageReportsPingRoles' ? 'message reports' : 'user reports'
+          type === 'message_reports_ping_roles' ? 'message reports' : 'user reports'
         }.`
       };
     },
@@ -926,7 +925,7 @@ export default class Config extends Command {
       if (config[type] === duration) {
         return {
           error: `The auto disregard duration for ${
-            type === 'messageReportsDisregardAfter' ? 'message reports' : 'user reports'
+            type === 'message_reports_disregard_after' ? 'message reports' : 'user reports'
           } is already set to **${ms(Math.floor(duration), {
             long: true
           })}**.`,
@@ -941,7 +940,7 @@ export default class Config extends Command {
 
       return {
         content: `The auto disregard duration for ${
-          type === 'messageReportsDisregardAfter' ? 'message reports' : 'user reports'
+          type === 'message_reports_disregard_after' ? 'message reports' : 'user reports'
         } has been set to **${ms(Math.floor(duration), {
           long: true
         })}**.`
@@ -997,7 +996,7 @@ export default class Config extends Command {
 
       return {
         content: `Moderators can now ${toggle ? 'submit' : 'no longer submit'} ${
-          type === 'muteRequestsEnabled' ? 'mute requests' : 'ban requests'
+          type === 'mute_requests_enabled' ? 'mute requests' : 'ban requests'
         }.`
       };
     },
@@ -1026,7 +1025,7 @@ export default class Config extends Command {
         if (webhook.channelId === channel.id) {
           return {
             error: `The alert channel for ${
-              type === 'muteRequestsWebhook' ? 'mute requests' : 'ban requests'
+              type === 'mute_requests_webhook' ? 'mute requests' : 'ban requests'
             } is already set to ${channel.toString()}.`,
             temporary: true
           };
@@ -1053,7 +1052,7 @@ export default class Config extends Command {
 
         const newWebhook = await channel
           .createWebhook({
-            name: `${type === 'muteRequestsWebhook' ? 'Mute' : 'Ban'} Request Alerts`,
+            name: `${type === 'mute_requests_webhook' ? 'Mute' : 'Ban'} Request Alerts`,
             avatar: client.user!.displayAvatarURL()
           })
           .catch(() => {
@@ -1075,7 +1074,7 @@ export default class Config extends Command {
 
       return {
         content: `The alert channel for ${
-          type === 'muteRequestsWebhook' ? 'mute requests' : 'ban requests'
+          type === 'mute_requests_webhook' ? 'mute requests' : 'ban requests'
         } has been set to ${channel.toString()}.`
       };
     },
@@ -1086,8 +1085,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          muteRequestsImmuneRoles: true,
-          banRequestsImmuneRoles: true
+          mute_requests_immune_roles: true,
+          ban_requests_immune_roles: true
         }
       }))!;
 
@@ -1097,7 +1096,7 @@ export default class Config extends Command {
       if (config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is already in the immune roles list for ${
-            type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+            type === 'mute_requests_immune_roles' ? 'mute requests' : 'ban requests'
           }.`,
           temporary: true
         };
@@ -1110,7 +1109,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been added to the immune roles list for ${
-          type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+          type === 'mute_requests_immune_roles' ? 'mute requests' : 'ban requests'
         }.`
       };
     },
@@ -1121,8 +1120,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          muteRequestsImmuneRoles: true,
-          banRequestsImmuneRoles: true
+          mute_requests_immune_roles: true,
+          ban_requests_immune_roles: true
         }
       }))!;
 
@@ -1132,7 +1131,7 @@ export default class Config extends Command {
       if (!config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is not in the immune roles list for ${
-            type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+            type === 'mute_requests_immune_roles' ? 'mute requests' : 'ban requests'
           }.`,
           temporary: true
         };
@@ -1145,7 +1144,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been removed from the immune roles list for ${
-          type === 'muteRequestsImmuneRoles' ? 'mute requests' : 'ban requests'
+          type === 'mute_requests_immune_roles' ? 'mute requests' : 'ban requests'
         }.`
       };
     },
@@ -1156,8 +1155,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          muteRequestsPingRoles: true,
-          banRequestsPingRoles: true
+          mute_requests_ping_roles: true,
+          ban_requests_ping_roles: true
         }
       }))!;
 
@@ -1167,7 +1166,7 @@ export default class Config extends Command {
       if (config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is already in the ping roles list for ${
-            type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+            type === 'mute_requests_ping_roles' ? 'mute requests' : 'ban requests'
           }.`,
           temporary: true
         };
@@ -1180,7 +1179,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been added to the ping roles list for ${
-          type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+          type === 'mute_requests_ping_roles' ? 'mute requests' : 'ban requests'
         }.`
       };
     },
@@ -1191,8 +1190,8 @@ export default class Config extends Command {
           id: interaction.guildId
         },
         select: {
-          muteRequestsPingRoles: true,
-          banRequestsPingRoles: true
+          mute_requests_ping_roles: true,
+          ban_requests_ping_roles: true
         }
       }))!;
 
@@ -1202,7 +1201,7 @@ export default class Config extends Command {
       if (!config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is not in the ping roles list for ${
-            type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+            type === 'mute_requests_ping_roles' ? 'mute requests' : 'ban requests'
           }.`,
           temporary: true
         };
@@ -1215,7 +1214,7 @@ export default class Config extends Command {
 
       return {
         content: `The role ${role.toString()} has been removed from the ping roles list for ${
-          type === 'muteRequestsPingRoles' ? 'mute requests' : 'ban requests'
+          type === 'mute_requests_ping_roles' ? 'mute requests' : 'ban requests'
         }.`
       };
     }
@@ -1326,7 +1325,7 @@ export default class Config extends Command {
       const channel = interaction.options.getChannel('channel', true) as TextChannel;
 
       const webhooks = await interaction.guild.fetchWebhooks();
-      const webhook = webhooks.find(webhook => webhook.url === config.notificationWebhook);
+      const webhook = webhooks.find(webhook => webhook.url === config.notification_webhook);
 
       if (
         !channel.permissionsFor(interaction.guild.members.me!).has(PermissionFlagsBits.ManageWebhooks) ||
@@ -1383,7 +1382,7 @@ export default class Config extends Command {
 
         await prisma.guild.update({
           where: { id: interaction.guildId },
-          data: { notificationWebhook: newWebhook.url }
+          data: { notification_webhook: newWebhook.url }
         });
       }
 
@@ -1395,7 +1394,7 @@ export default class Config extends Command {
     async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { messageLoggingIgnoredChannels: true }
+        select: { message_logging_ignored_channels: true }
       }))!;
 
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
@@ -1425,7 +1424,7 @@ export default class Config extends Command {
     async removeIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { messageLoggingIgnoredChannels: true }
+        select: { message_logging_ignored_channels: true }
       }))!;
 
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
@@ -1455,7 +1454,7 @@ export default class Config extends Command {
     async listIgnoredChannels(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { messageLoggingIgnoredChannels: true }
+        select: { message_logging_ignored_channels: true }
       }))!;
 
       const type = interaction.options.getString('log-type', true) as keyof typeof config;
@@ -1501,412 +1500,23 @@ export default class Config extends Command {
     }
   };
 
-  /**
-   * Collection of subcommands for the Interactions group.
-   */
-
-  public static Interactions = {
-    async setTimeToLive(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const type = interaction.options.getString('type', true) as keyof typeof config;
-      const rawDuration = interaction.options.getString('duration', true);
-
-      const duration = parseDuration(rawDuration);
-
-      if (!duration || isNaN(duration)) {
-        return {
-          error: 'Invalid duration. The valid format is `<number>[s/m]` (`<number> [second/minute]`).',
-          temporary: true
-        };
-      }
-
-      if (duration < 1000) {
-        return {
-          error: 'The duration must be at least 1 second.',
-          temporary: true
-        };
-      }
-
-      if (duration > 60000) {
-        return {
-          error: 'The duration must not exceed 1 minute.',
-          temporary: true
-        };
-      }
-
-      if (config[type] === duration) {
-        return {
-          error: `The time-to-live for this interaction type is already set to **${ms(Math.floor(duration), {
-            long: true
-          })}**.`,
-          temporary: true
-        };
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: { [type]: duration }
-      });
-
-      return {
-        content: `The time-to-live for the specified interaction type has been set to **${ms(Math.floor(duration), {
-          long: true
-        })}**.`
-      };
-    },
-
-    async createScope(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      let commandName = interaction.options.getString('command', true);
-      const includeChannel = interaction.options.getChannel('include-channel', false) as
-        | GuildTextBasedChannel
-        | CategoryChannel
-        | null;
-
-      const excludeChannel = interaction.options.getChannel('exclude-channel') as
-        | GuildTextBasedChannel
-        | CategoryChannel
-        | null;
-
-      const command =
-        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
-
-      if (!command || command.category === CommandCategory.Developer) {
-        return {
-          error: `The command \`${commandName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (config.ephemeralScopes.find(scope => scope.commandName === command.data.name)) {
-        return {
-          error: `An ephemeral scope for the command \`${command.data.name}\` already exists.`,
-          temporary: true
-        };
-      }
-
-      if (excludeChannel && includeChannel && excludeChannel.id === includeChannel.id) {
-        return {
-          error: 'The channel to exclude must be different from the channel to include.',
-          temporary: true
-        };
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          ephemeralScopes: {
-            push: {
-              commandName: command.data.name,
-              includedChannels: includeChannel ? [includeChannel.id] : [],
-              excludedChannels: excludeChannel ? [excludeChannel.id] : []
-            }
-          }
-        }
-      });
-
-      return {
-        content: `Successfully created the ephemeral scope for the command \`${command.data.name}\`.`
-      };
-    },
-
-    async deleteScope(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const scopeName = interaction.options.getString('scope', true);
-
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
-
-      if (!scope) {
-        return {
-          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          ephemeralScopes: {
-            set: config.ephemeralScopes.filter(s => s !== scope)
-          }
-        }
-      });
-
-      return {
-        content: `Successfully deleted the ephemeral scope for the command \`${scopeName}\`.`
-      };
-    },
-
-    async addIncludedChannel(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const scopeName = interaction.options.getString('scope', true);
-      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
-
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
-
-      if (!scope) {
-        return {
-          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (scope.includedChannels.includes(channel.id)) {
-        return {
-          error: `The ${
-            isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is already in the included channels list for the scope.`,
-          temporary: true
-        };
-      }
-
-      if (scope.excludedChannels.includes(channel.id)) {
-        return {
-          error: `The ${
-            isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is in the excluded channels list for the scope. Remove it from the excluded channels list first.`,
-          temporary: true
-        };
-      }
-
-      scope.includedChannels.push(channel.id);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
-        }
-      });
-
-      return {
-        content: `Successfully added the ${
-          isCategory(channel) ? 'channel' : 'category'
-        } ${channel} to the included channels list for the scope.`
-      };
-    },
-
-    async removeIncludedChannel(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const scopeName = interaction.options.getString('scope', true);
-      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
-
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
-
-      if (!scope) {
-        return {
-          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (!scope.includedChannels.includes(channel.id)) {
-        return {
-          error: `The ${
-            isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is not in the included channels list for the scope.`,
-          temporary: true
-        };
-      }
-
-      scope.includedChannels = scope.includedChannels.filter(c => c !== channel.id);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
-        }
-      });
-
-      return {
-        content: `Successfully removed the ${
-          isCategory(channel) ? 'category' : 'channel'
-        } ${channel} from the included channels list for the scope.`
-      };
-    },
-
-    async addExcludedChannel(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const scopeName = interaction.options.getString('scope', true);
-      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
-
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
-
-      if (!scope) {
-        return {
-          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (scope.excludedChannels.includes(channel.id)) {
-        return {
-          error: `The ${
-            isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is already in the excluded channels list for the scope.`,
-          temporary: true
-        };
-      }
-
-      if (scope.includedChannels.includes(channel.id)) {
-        return {
-          error: `The ${
-            isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is in the included channels list for the scope. Remove it from the included channels list first.`,
-          temporary: true
-        };
-      }
-
-      scope.excludedChannels.push(channel.id);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
-        }
-      });
-
-      return {
-        content: `Successfully added the ${
-          isCategory(channel) ? 'category' : 'channel'
-        } ${channel} to the excluded channels list for the scope.`
-      };
-    },
-
-    async removeExcludedChannel(
-      interaction: ChatInputCommandInteraction<'cached'>,
-      config: GuildConfig
-    ): Promise<InteractionReplyData> {
-      const scopeName = interaction.options.getString('scope', true);
-      const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
-
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
-
-      if (!scope) {
-        return {
-          error: `An ephemeral scope with the name \`${scopeName}\` does not exist.`,
-          temporary: true
-        };
-      }
-
-      if (!scope.excludedChannels.includes(channel.id)) {
-        return {
-          error: `The ${
-            isCategory(channel) ? 'category' : 'channel'
-          } ${channel} ${channel.toString()} is not in the excluded channels list for the scope.`,
-          temporary: true
-        };
-      }
-
-      scope.excludedChannels = scope.excludedChannels.filter(c => c !== channel.id);
-
-      await prisma.guild.update({
-        where: { id: interaction.guildId },
-        data: {
-          ephemeralScopes: [...config.ephemeralScopes, scope]
-        }
-      });
-
-      return {
-        content: `Successfully removed the ${
-          isCategory(channel) ? 'category' : 'channel'
-        } ${channel} from the excluded channels list for the scope.`
-      };
-    },
-
-    async list(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData> {
-      if (config.ephemeralScopes.length < 1) {
-        return {
-          content: 'There are no ephemeral scopes set up in this server.'
-        };
-      }
-
-      const map = await Promise.all(
-        config.ephemeralScopes.map(async scope => {
-          const includedChannels = await Promise.all(
-            scope.includedChannels.map(async id => {
-              const channel = await interaction.guild!.channels.fetch(id).catch(() => null);
-              return channel ? `#${channel.name} (${id})` : `<#${id}>`;
-            })
-          );
-
-          const excludedChannels = await Promise.all(
-            scope.excludedChannels.map(async id => {
-              const channel = await interaction.guild!.channels.fetch(id).catch(() => null);
-              return channel ? `#${channel.name} (${id})` : `<#${id}>`;
-            })
-          );
-
-          return `Command: ${scope.commandName}\n└── Included channels: ${includedChannels.join(
-            ', '
-          )}\n└── Excluded channels: ${excludedChannels.join(', ')}`;
-        })
-      );
-
-      const dataUrl = await uploadData(map.join('\n\n'), 'txt');
-      const urlButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open In Browser').setURL(dataUrl);
-      const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
-
-      const buffer = Buffer.from(map.join('\n\n'), 'utf-8');
-      const attachment = new AttachmentBuilder(buffer, { name: 'ephemeral-scopes.txt' });
-      const length = config.ephemeralScopes.length;
-
-      return {
-        content: `There ${length > 1 ? 'are' : 'is'} currently **${config.ephemeralScopes.length}** ${pluralize(
-          length,
-          'ephemeral scope'
-        )} configured in this server.`,
-        files: [attachment],
-        components: [actionRow]
-      };
-    },
-
-    async toggle(config: GuildConfig): Promise<InteractionReplyData> {
-      let toggle = true;
-
-      if (config.commandEphemeralReply) {
-        toggle = false;
-      }
-
-      await prisma.guild.update({
-        where: { id: config.id },
-        data: { commandEphemeralReply: toggle }
-      });
-
-      return {
-        content: `Command replies are now ${toggle ? 'ephemeral' : 'non-ephemeral'} by default.`
-      };
-    }
-  };
-
   public static _parseLogType(key: keyof GuildConfig): string {
     switch (key) {
-      case 'infractionLoggingEnabled':
-      case 'infractionLoggingWebhook':
+      case 'infraction_logging_enabled':
+      case 'infraction_logging_webhook':
         return 'infraction';
 
-      case 'messageLoggingEnabled':
-      case 'messageLoggingWebhook':
-      case 'messageLoggingIgnoredChannels':
+      case 'message_logging_enabled':
+      case 'message_logging_webhook':
+      case 'message_logging_ignored_channels':
         return 'message';
 
-      case 'reportLoggingEnabled':
-      case 'reportLoggingWebhook':
+      case 'report_logging_enabled':
+      case 'report_logging_webhook':
         return 'report';
 
-      case 'requestLoggingEnabled':
-      case 'requestLoggingWebhook':
+      case 'request_logging_enabled':
+      case 'request_logging_webhook':
         return 'request';
 
       default:

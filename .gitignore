@@ -30,3 +30,4 @@ undeploy.ts
 unregister.ts
 get-stats.ts
 get-ws-stats.ts
+migrate-db.ts

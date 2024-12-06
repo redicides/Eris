@@ -77,7 +77,7 @@ export default class Unmute extends Command {
 
     let mResult = true;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
@@ -99,17 +99,16 @@ export default class Unmute extends Command {
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: interaction.guild.id,
-      targetId: target.id,
-      executorId: interaction.user.id,
+      guild_id: interaction.guild.id,
+      target_id: target.id,
+      executor_id: interaction.user.id,
       type: 'Unmute',
       reason,
-      createdAt: Date.now(),
-      expiresAt: null
+      created_at: Date.now()
     });
 
     await TaskManager.deleteTask({
-      targetId_guildId_type: { targetId: target.id, guildId: interaction.guild.id, type: 'Mute' }
+      target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guild.id, type: 'Mute' }
     });
 
     await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });

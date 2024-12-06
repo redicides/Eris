@@ -28,15 +28,15 @@ export default class MessageDelete extends EventListener {
 
     await ReportUtils.updateMessageReportStates({
       guild: deletedMessage.guild,
-      messageId: deletedMessage.id,
+      message_id: deletedMessage.id,
       config
     });
 
-    if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) {
+    if (!config.message_logging_enabled || !config.message_logging_webhook) {
       return;
     }
 
-    if (channelIds.some(id => config.messageLoggingIgnoredChannels.includes(id))) {
+    if (channelIds.some(id => config.message_logging_ignored_channels.includes(id))) {
       return;
     }
 
@@ -50,11 +50,11 @@ export default class MessageDelete extends EventListener {
       return MessageDelete._attemptDiscordLog(deletedMessage, config);
     }
 
-    const { messageLoggingWebhook } = config;
+    const { message_logging_webhook } = config;
 
     let embeds: EmbedBuilder[] = [];
 
-    if (message.referenceId || deletedMessage.reference?.messageId) {
+    if (message.reference_id || deletedMessage.reference?.messageId) {
       const referenceMessage = await getReferenceMessage(message, deletedMessage);
 
       if (referenceMessage) {
@@ -65,12 +65,12 @@ export default class MessageDelete extends EventListener {
 
     const embed = await getMessageLogEmbed(
       {
-        guildId: message.guildId,
-        messageId: message.id,
-        authorId: message.authorId,
-        channelId: message.channelId,
-        stickerId: message.stickerId,
-        createdAt: new Date(Number(message.createdAt)),
+        guild_id: message.guild_id,
+        message_id: message.id,
+        author_id: message.author_id,
+        channel_id: message.channel_id,
+        sticker_id: message.sticker_id,
+        created_at: new Date(Number(message.channel_id)),
         content: message.content,
         attachments: message.attachments
       },
@@ -79,7 +79,7 @@ export default class MessageDelete extends EventListener {
 
     embeds.push(embed);
 
-    return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
+    return new WebhookClient({ url: message_logging_webhook! }).send({ embeds }).catch(() => null);
   }
 
   public static async _attemptDiscordLog(
@@ -90,20 +90,20 @@ export default class MessageDelete extends EventListener {
       return null;
     }
 
-    const { messageLoggingWebhook } = config;
+    const { message_logging_webhook } = config;
 
-    const stickerId = message.stickers?.first()?.id ?? null;
+    const sticker_id = message.stickers?.first()?.id ?? null;
 
     let embeds: EmbedBuilder[] = [];
 
     const embed = await getMessageLogEmbed(
       {
-        guildId: message.guildId,
-        messageId: message.id,
-        authorId: message.author.id,
-        channelId: message.channel.id,
-        stickerId,
-        createdAt: message.createdAt,
+        guild_id: message.guildId,
+        message_id: message.id,
+        author_id: message.author.id,
+        channel_id: message.channel.id,
+        sticker_id,
+        created_at: message.createdAt,
         content: message.content,
         attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
       },
@@ -115,16 +115,16 @@ export default class MessageDelete extends EventListener {
       const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId);
 
       if (reference) {
-        const stickerId = reference.stickers?.first()?.id ?? null;
+        const sticker_id = reference.stickers?.first()?.id ?? null;
 
         const embed = await getMessageLogEmbed(
           {
-            guildId: reference.guildId,
-            messageId: reference.id,
-            authorId: reference.author.id,
-            channelId: reference.channel.id,
-            stickerId,
-            createdAt: reference.createdAt,
+            guild_id: reference.guildId,
+            message_id: reference.id,
+            author_id: reference.author.id,
+            channel_id: reference.channel.id,
+            sticker_id,
+            created_at: reference.createdAt,
             content: reference.content,
             attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
           },
@@ -133,16 +133,16 @@ export default class MessageDelete extends EventListener {
 
         embeds.push(embed);
       } else if (dbReference) {
-        const stickerId = dbReference.stickerId;
+        const sticker_id = dbReference.sticker_id;
 
         const embed = await getMessageLogEmbed(
           {
-            guildId: dbReference.guildId,
-            messageId: dbReference.id,
-            authorId: dbReference.authorId,
-            channelId: dbReference.channelId,
-            stickerId,
-            createdAt: new Date(Number(dbReference.createdAt)),
+            guild_id: dbReference.guild_id,
+            message_id: dbReference.id,
+            author_id: dbReference.author_id,
+            channel_id: dbReference.channel_id,
+            sticker_id,
+            created_at: new Date(Number(dbReference.created_at)),
             content: dbReference.content,
             attachments: dbReference.attachments
           },
@@ -154,6 +154,6 @@ export default class MessageDelete extends EventListener {
     }
 
     embeds.push(embed);
-    return new WebhookClient({ url: messageLoggingWebhook! }).send({ embeds }).catch(() => null);
+    return new WebhookClient({ url: message_logging_webhook! }).send({ embeds }).catch(() => null);
   }
 }

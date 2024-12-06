@@ -66,18 +66,18 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
-                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
-                      { name: 'Lock Channels', value: PermissionEnum.LockChannels },
-                      { name: 'Unlock Channels', value: PermissionEnum.UnlockChannels },
-                      { name: 'Start Lockdown', value: PermissionEnum.StartLockdown },
-                      { name: 'End Lockdown', value: PermissionEnum.EndLockdown },
-                      { name: 'Override Lockdown Notifications', value: PermissionEnum.OverrideLockdownNotificatons }
+                      { name: 'Search_Infractions', value: PermissionEnum.Search_Infractions },
+                      { name: 'Manage_User_Reports', value: PermissionEnum.Manage_User_Reports },
+                      { name: 'Manage_Message_Reports', value: PermissionEnum.Manage_Message_Reports },
+                      { name: 'Manage_Mute_Requests', value: PermissionEnum.Manage_Mute_Requests },
+                      { name: 'Manage_Ban_Requests', value: PermissionEnum.Manage_Ban_Requests },
+                      { name: 'Delete_Infractions', value: PermissionEnum.Delete_Infractions },
+                      { name: 'Update_Infractions', value: PermissionEnum.Update_Infractions },
+                      { name: 'Lock_Channels', value: PermissionEnum.Lock_Channels },
+                      { name: 'Unlock_Channels', value: PermissionEnum.Unlock_Channels },
+                      { name: 'Start_Lockdown', value: PermissionEnum.Start_Lockdown },
+                      { name: 'End_Lockdown', value: PermissionEnum.End_Lockdown },
+                      { name: 'Override_Lockdown_Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
                     ]
                   }
                 ]
@@ -154,18 +154,18 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
-                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
-                      { name: 'Lock Channels', value: PermissionEnum.LockChannels },
-                      { name: 'Unlock Channels', value: PermissionEnum.UnlockChannels },
-                      { name: 'Start Lockdown', value: PermissionEnum.StartLockdown },
-                      { name: 'End Lockdown', value: PermissionEnum.EndLockdown },
-                      { name: 'Override Lockdown Notifications', value: PermissionEnum.OverrideLockdownNotificatons }
+                      { name: 'Search_Infractions', value: PermissionEnum.Search_Infractions },
+                      { name: 'Manage_User_Reports', value: PermissionEnum.Manage_User_Reports },
+                      { name: 'Manage_Message_Reports', value: PermissionEnum.Manage_Message_Reports },
+                      { name: 'Manage_Mute_Requests', value: PermissionEnum.Manage_Mute_Requests },
+                      { name: 'Manage_Ban_Requests', value: PermissionEnum.Manage_Ban_Requests },
+                      { name: 'Delete_Infractions', value: PermissionEnum.Delete_Infractions },
+                      { name: 'Update_Infractions', value: PermissionEnum.Update_Infractions },
+                      { name: 'Lock_Channels', value: PermissionEnum.Lock_Channels },
+                      { name: 'Unlock_Channels', value: PermissionEnum.Unlock_Channels },
+                      { name: 'Start_Lockdown', value: PermissionEnum.Start_Lockdown },
+                      { name: 'End_Lockdown', value: PermissionEnum.End_Lockdown },
+                      { name: 'Override_Lockdown_Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
                     ]
                   }
                 ]
@@ -188,18 +188,18 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.SearchInfractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.ManageUserReports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.ManageMessageReports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.ManageMuteRequests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.ManageBanRequests },
-                      { name: 'Delete Infractions', value: PermissionEnum.DeleteInfractions },
-                      { name: 'Update Infractions', value: PermissionEnum.UpdateInfractions },
-                      { name: 'Lock Channels', value: PermissionEnum.LockChannels },
-                      { name: 'Unlock Channels', value: PermissionEnum.UnlockChannels },
-                      { name: 'Start Lockdown', value: PermissionEnum.StartLockdown },
-                      { name: 'End Lockdown', value: PermissionEnum.EndLockdown },
-                      { name: `Override Lockdown Notifications`, value: PermissionEnum.OverrideLockdownNotificatons }
+                      { name: 'Search_Infractions', value: PermissionEnum.Search_Infractions },
+                      { name: 'Manage_User_Reports', value: PermissionEnum.Manage_User_Reports },
+                      { name: 'Manage_Message_Reports', value: PermissionEnum.Manage_Message_Reports },
+                      { name: 'Manage_Mute_Requests', value: PermissionEnum.Manage_Mute_Requests },
+                      { name: 'Manage_Ban_Requests', value: PermissionEnum.Manage_Ban_Requests },
+                      { name: 'Delete_Infractions', value: PermissionEnum.Delete_Infractions },
+                      { name: 'Update_Infractions', value: PermissionEnum.Update_Infractions },
+                      { name: 'Lock_Channels', value: PermissionEnum.Lock_Channels },
+                      { name: 'Unlock_Channels', value: PermissionEnum.Unlock_Channels },
+                      { name: 'Start_Lockdown', value: PermissionEnum.Start_Lockdown },
+                      { name: 'End_Lockdown', value: PermissionEnum.End_Lockdown },
+                      { name: 'Override_Lockdown_Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
                     ]
                   }
                 ]
@@ -388,7 +388,7 @@ export default class Settings extends Command {
                 ]
               },
               {
-                name: SettingsSubcommand.ListEphemeralScopes,
+                name: SettingsSubcommand.Listephemeral_scopes,
                 description: 'List all the ephemeral scopes.',
                 type: ApplicationCommandOptionType.Subcommand
               }
@@ -410,12 +410,12 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Warn', value: 'requireWarnReason' },
-                      { name: 'Mute', value: 'requireMuteReason' },
-                      { name: 'Kick', value: 'requireKickReason' },
-                      { name: 'Ban', value: 'requireBanReason' },
-                      { name: 'Unmute', value: 'requireUnmuteReason' },
-                      { name: 'Unban', value: 'requireUnbanReason' }
+                      { name: 'Warn', value: 'require_warn_reason' },
+                      { name: 'Mute', value: 'require_mute_reason' },
+                      { name: 'Kick', value: 'require_kick_reason' },
+                      { name: 'Ban', value: 'require_ban_reason' },
+                      { name: 'Unmute', value: 'require_unmute_reason' },
+                      { name: 'Unban', value: 'require_unban_reason' }
                     ]
                   }
                 ]
@@ -431,9 +431,9 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Warn', value: 'defaultWarnDuration' },
-                      { name: 'Mute', value: 'defaultMuteDuration' },
-                      { name: 'Ban', value: 'defaultBanDuration' }
+                      { name: 'Warn', value: 'default_warn_duration' },
+                      { name: 'Mute', value: 'default_mute_duration' },
+                      { name: 'Ban', value: 'default_ban_duration' }
                     ]
                   },
                   {
@@ -456,11 +456,11 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Warn', value: 'notifyWarnAction' },
-                      { name: 'Mute', value: 'notifyMuteAction' },
-                      { name: 'Kick', value: 'notifyKickAction' },
-                      { name: 'Ban', value: 'notifyBanAction' },
-                      { name: 'Unmute', value: 'notifyUnmuteAction' }
+                      { name: 'Warn', value: 'notify_warn_action' },
+                      { name: 'Mute', value: 'notify_mute_action' },
+                      { name: 'Kick', value: 'notify_kick_action' },
+                      { name: 'Ban', value: 'notify_ban_action' },
+                      { name: 'Unmute', value: 'notify_unmute_action' }
                     ]
                   }
                 ]
@@ -477,11 +477,11 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Warn', value: 'defaultAdditionalWarnInfo' },
-                      { name: 'Mute', value: 'defaultAdditionalMuteInfo' },
-                      { name: 'Unmute', value: 'defaultAdditionalUnmuteInfo' },
-                      { name: 'Kick', value: 'defaultAdditionalKickInfo' },
-                      { name: 'Ban', value: 'defaultAdditionalBanInfo' }
+                      { name: 'Warn', value: 'default_additional_warn_info' },
+                      { name: 'Mute', value: 'default_additional_mute_info' },
+                      { name: 'Unmute', value: 'default_additional_unmute_info' },
+                      { name: 'Kick', value: 'default_additional_kick_info' },
+                      { name: 'Ban', value: 'default_additional_ban_info' }
                     ]
                   },
                   {
@@ -601,7 +601,7 @@ export default class Settings extends Command {
     const group = interaction.options.getSubcommandGroup() as SettingsSubcommandGroup;
     const subcommand = interaction.options.getSubcommand() as SettingsSubcommand;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     switch (group) {
       case SettingsSubcommandGroup.Permissions:
@@ -647,8 +647,8 @@ export default class Settings extends Command {
               return Settings.Commands.addExcludedChannel(interaction, config);
             case SettingsSubcommand.RemoveExcludedChannel:
               return Settings.Commands.removeExcludedChannel(interaction, config);
-            case SettingsSubcommand.ListEphemeralScopes:
-              return Settings.Commands.listEphemeralScopes(interaction, config);
+            case SettingsSubcommand.Listephemeral_scopes:
+              return Settings.Commands.listephemeral_scopes(interaction, config);
           }
         }
 
@@ -715,7 +715,7 @@ export default class Settings extends Command {
       const role = interaction.options.getRole('role', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
-      if (config.permissions.find(permission => permission.name === name)) {
+      if (config.permission_nodes.find(permission => permission.name === name)) {
         return {
           error: `A permission node with that name already exists.`,
           temporary: true
@@ -725,7 +725,7 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: { push: { name, roles: [role.id], allow: [permission] } }
+          permission_nodes: { push: { name, roles: [role.id], allowed: [permission] } }
         }
       });
 
@@ -739,7 +739,7 @@ export default class Settings extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const name = interaction.options.getString('permission-node', true);
-      const permission = config.permissions.find(permission => permission.name === name);
+      const permission = config.permission_nodes.find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -751,8 +751,8 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: {
-            set: config.permissions.filter(permissions => permissions !== permission)
+          permission_nodes: {
+            set: config.permission_nodes.filter(permissions => permissions !== permission)
           }
         }
       });
@@ -769,7 +769,7 @@ export default class Settings extends Command {
       const name = interaction.options.getString('permission-node', true);
       const role = interaction.options.getRole('role', true);
 
-      const permission = config.permissions.find(permission => permission.name === name);
+      const permission = config.permission_nodes.find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -790,8 +790,8 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: {
-            set: config.permissions.map(p => (p.name === permission.name ? permission : p))
+          permission_nodes: {
+            set: config.permission_nodes.map(p => (p.name === permission.name ? permission : p))
           }
         }
       });
@@ -808,7 +808,7 @@ export default class Settings extends Command {
       const name = interaction.options.getString('permission-node', true);
       const role = interaction.options.getRole('role', true);
 
-      const permission = config.permissions.find(permission => permission.name === name);
+      const permission = config.permission_nodes.find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -829,8 +829,8 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: {
-            set: config.permissions.map(p => (p.name === permission.name ? permission : p))
+          permission_nodes: {
+            set: config.permission_nodes.map(p => (p.name === permission.name ? permission : p))
           }
         }
       });
@@ -847,7 +847,7 @@ export default class Settings extends Command {
       const name = interaction.options.getString('permission-node', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
-      const permissionNode = config.permissions.find(permission => permission.name === name);
+      const permissionNode = config.permission_nodes.find(permission => permission.name === name);
 
       if (!permissionNode) {
         return {
@@ -856,32 +856,26 @@ export default class Settings extends Command {
         };
       }
 
-      if (permissionNode.allow.includes(permission)) {
+      if (permissionNode.allowed.includes(permission)) {
         return {
-          error: `The permission \`${permission.replaceAll(
-            /([a-z])([A-Z])/g,
-            '$1 $2'
-          )}\` is already in the permission node.`,
+          error: `The permission \`${permission}\` is already allowed in the permission node.`,
           temporary: true
         };
       }
 
-      permissionNode.allow.push(permission);
+      permissionNode.allowed.push(permission);
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: {
-            set: config.permissions.map(p => (p.name === permissionNode.name ? permissionNode : p))
+          permission_nodes: {
+            set: config.permission_nodes.map(p => (p.name === permissionNode.name ? permissionNode : p))
           }
         }
       });
 
       return {
-        content: `Successfully added the permission \`${permission.replaceAll(
-          /([a-z])([A-Z])/g,
-          '$1 $2'
-        )}\` to the permission node.`
+        content: `Successfully added the permission \`${permission}\` to the permission node.`
       };
     },
 
@@ -892,7 +886,7 @@ export default class Settings extends Command {
       const name = interaction.options.getString('permission-node', true);
       const permission = interaction.options.getString('permission', true) as PermissionEnum;
 
-      const permissionNode = config.permissions.find(permission => permission.name === name);
+      const permissionNode = config.permission_nodes.find(permission => permission.name === name);
 
       if (!permissionNode) {
         return {
@@ -901,32 +895,26 @@ export default class Settings extends Command {
         };
       }
 
-      if (!permissionNode.allow.includes(permission)) {
+      if (!permissionNode.allowed.includes(permission)) {
         return {
-          error: `The permission \`${permission.replaceAll(
-            /([a-z])([A-Z])/g,
-            '$1 $2'
-          )}\` is not in the permission node.`,
+          error: `The permission \`${permission}\` is not in the permission node.`,
           temporary: true
         };
       }
 
-      permissionNode.allow = permissionNode.allow.filter(p => p !== permission);
+      permissionNode.allowed = permissionNode.allowed.filter(p => p !== permission);
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          permissions: {
-            set: config.permissions.map(p => (p.name === permissionNode.name ? permissionNode : p))
+          permission_nodes: {
+            set: config.permission_nodes.map(p => (p.name === permissionNode.name ? permissionNode : p))
           }
         }
       });
 
       return {
-        content: `Successfully removed the permission \`${permission.replaceAll(
-          /([a-z])([A-Z])/g,
-          '$1 $2'
-        )}\` from the permission node.`
+        content: `Successfully removed the permission \`${permission}\` from the permission node.`
       };
     },
 
@@ -934,7 +922,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      if (!config.permissions.length) {
+      if (!config.permission_nodes.length) {
         return {
           content: 'There are no permission nodes for this server.',
           temporary: true
@@ -943,7 +931,7 @@ export default class Settings extends Command {
 
       const map = (
         await Promise.all(
-          config.permissions.map(async permission => {
+          config.permission_nodes.map(async permission => {
             const roles = await Promise.all(
               permission.roles.map(async id => {
                 const role = await interaction.guild.roles.fetch(id).catch(() => null);
@@ -953,7 +941,7 @@ export default class Settings extends Command {
 
             return `Name: ${permission.name}\n└── Included Roles: ${
               roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
-            }\n└── Allowed Permissions: ${permission.allow.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
+            }\n└── Allowed Permissions: ${permission.allowed.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
           })
         )
       ).join('\n\n');
@@ -966,10 +954,9 @@ export default class Settings extends Command {
       const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton);
 
       return {
-        content: `There ${config.permissions.length > 1 ? 'are' : 'is'} **${config.permissions.length}** ${pluralize(
-          config.permissions.length,
-          'permission node'
-        )} for this server.`,
+        content: `There ${config.permission_nodes.length > 1 ? 'are' : 'is'} **${
+          config.permission_nodes.length
+        }** ${pluralize(config.permission_nodes.length, 'permission node')} for this server.`,
         files: [attachment],
         components: [actionRow]
       };
@@ -985,36 +972,36 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const commandName = interaction.options.getString('command', true);
+      const command_name = interaction.options.getString('command', true);
 
       let toggle = false;
 
-      const command = CommandManager.commands.get(commandName);
+      const command = CommandManager.commands.get(command_name);
 
       const shortcut =
-        (await prisma.moderationCommand.findUnique({
-          where: { name: commandName, guildId: interaction.guildId }
+        (await prisma.shortcut.findUnique({
+          where: { name: command_name, guild_id: interaction.guildId }
         })) ??
-        (await prisma.moderationCommand.findUnique({
-          where: { name: commandName.toLowerCase(), guildId: interaction.guildId }
+        (await prisma.shortcut.findUnique({
+          where: { name: command_name.toLowerCase(), guild_id: interaction.guildId }
         }));
 
       if (!command) {
         if (shortcut) {
           if (!shortcut.enabled) toggle = true;
 
-          await prisma.moderationCommand.update({
-            where: { name: commandName, guildId: interaction.guildId },
+          await prisma.shortcut.update({
+            where: { name: command_name, guild_id: interaction.guildId },
             data: { enabled: toggle }
           });
 
           return {
-            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${commandName}\`.`
+            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${command_name}\`.`
           };
         }
 
         return {
-          error: `The command \`${commandName}\` does not exist.`,
+          error: `The command \`${command_name}\` does not exist.`,
           temporary: true
         };
       }
@@ -1026,18 +1013,18 @@ export default class Settings extends Command {
         };
       }
 
-      let { commandDisabledList } = config;
+      let { command_disabled_list } = config;
 
-      if (commandDisabledList.includes(command.data.name)) {
-        commandDisabledList = commandDisabledList.filter(c => c !== command.data.name);
+      if (command_disabled_list.includes(command.data.name)) {
+        command_disabled_list = command_disabled_list.filter(c => c !== command.data.name);
         toggle = true;
       } else {
-        commandDisabledList.push(command.data.name);
+        command_disabled_list.push(command.data.name);
       }
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { commandDisabledList }
+        data: { command_disabled_list }
       });
 
       return {
@@ -1099,7 +1086,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const commandName = interaction.options.getString('command', true);
+      const command_name = interaction.options.getString('command', true);
       const includeChannel = interaction.options.getChannel('include-channel', false) as
         | GuildTextBasedChannel
         | CategoryChannel
@@ -1111,19 +1098,19 @@ export default class Settings extends Command {
         | null;
 
       const command =
-        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
+        CommandManager.commands.get(command_name) ?? CommandManager.commands.get(command_name.toLowerCase());
 
       const shortcut =
-        (await prisma.moderationCommand.findUnique({
-          where: { name: commandName, guildId: interaction.guildId }
+        (await prisma.shortcut.findUnique({
+          where: { name: command_name, guild_id: interaction.guildId }
         })) ??
-        (await prisma.moderationCommand.findUnique({
-          where: { name: commandName.toLowerCase(), guildId: interaction.guildId }
+        (await prisma.shortcut.findUnique({
+          where: { name: command_name.toLowerCase(), guild_id: interaction.guildId }
         }));
 
       if (!command && !shortcut) {
         return {
-          error: `The command \`${commandName}\` does not exist.`,
+          error: `The command \`${command_name}\` does not exist.`,
           temporary: true
         };
       }
@@ -1139,12 +1126,12 @@ export default class Settings extends Command {
 
       if (!scopeName) {
         return {
-          error: `The command \`${commandName}\` does not exist.`,
+          error: `The command \`${command_name}\` does not exist.`,
           temporary: true
         };
       }
 
-      if (config.ephemeralScopes.find(scope => scope.commandName === scopeName)) {
+      if (config.ephemeral_scopes.find(scope => scope.command_name === scopeName)) {
         return {
           error: `An ephemeral scope for the command \`${scopeName}\` already exists.`,
           temporary: true
@@ -1161,11 +1148,11 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: {
+          ephemeral_scopes: {
             push: {
-              commandName: scopeName,
-              includedChannels: includeChannel ? [includeChannel.id] : [],
-              excludedChannels: excludeChannel ? [excludeChannel.id] : []
+              command_name: scopeName,
+              included_channels: includeChannel ? [includeChannel.id] : [],
+              excluded_channels: excludeChannel ? [excludeChannel.id] : []
             }
           }
         }
@@ -1182,7 +1169,7 @@ export default class Settings extends Command {
     ): Promise<InteractionReplyData> {
       const scopeName = interaction.options.getString('scope', true);
 
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
 
       if (!scope) {
         return {
@@ -1194,8 +1181,8 @@ export default class Settings extends Command {
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: {
-            set: config.ephemeralScopes.filter(s => s !== scope)
+          ephemeral_scopes: {
+            set: config.ephemeral_scopes.filter(s => s !== scope)
           }
         }
       });
@@ -1212,7 +1199,7 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
 
       if (!scope) {
         return {
@@ -1221,7 +1208,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (scope.includedChannels.includes(channel.id)) {
+      if (scope.included_channels.includes(channel.id)) {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
@@ -1230,7 +1217,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (scope.excludedChannels.includes(channel.id)) {
+      if (scope.excluded_channels.includes(channel.id)) {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
@@ -1240,7 +1227,7 @@ export default class Settings extends Command {
       }
 
       if (channel instanceof TextChannel && channel.parentId) {
-        if (scope.includedChannels.includes(channel.parentId)) {
+        if (scope.included_channels.includes(channel.parentId)) {
           return {
             error: `You cannot add this channel to the scope because the parent category of the channel is already included.`,
             temporary: true
@@ -1248,13 +1235,13 @@ export default class Settings extends Command {
         }
       }
 
-      scope.includedChannels.push(channel.id);
+      scope.included_channels.push(channel.id);
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: {
-            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          ephemeral_scopes: {
+            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
           }
         }
       });
@@ -1273,7 +1260,7 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
 
       if (!scope) {
         return {
@@ -1282,7 +1269,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (!scope.includedChannels.includes(channel.id)) {
+      if (!scope.included_channels.includes(channel.id)) {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
@@ -1291,13 +1278,13 @@ export default class Settings extends Command {
         };
       }
 
-      scope.includedChannels = scope.includedChannels.filter(c => c !== channel.id);
+      scope.included_channels = scope.included_channels.filter(c => c !== channel.id);
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: {
-            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          ephemeral_scopes: {
+            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
           }
         }
       });
@@ -1316,7 +1303,7 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
 
       if (!scope) {
         return {
@@ -1325,7 +1312,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (scope.excludedChannels.includes(channel.id)) {
+      if (scope.excluded_channels.includes(channel.id)) {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
@@ -1334,7 +1321,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (scope.includedChannels.includes(channel.id)) {
+      if (scope.included_channels.includes(channel.id)) {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
@@ -1344,7 +1331,7 @@ export default class Settings extends Command {
       }
 
       if (channel instanceof TextChannel && channel.parentId) {
-        if (scope.includedChannels.includes(channel.parentId)) {
+        if (scope.included_channels.includes(channel.parentId)) {
           return {
             error: `You cannot add this channel to the scope because the parent category of the channel is already excluded.`,
             temporary: true
@@ -1352,13 +1339,13 @@ export default class Settings extends Command {
         }
       }
 
-      scope.excludedChannels.push(channel.id);
+      scope.excluded_channels.push(channel.id);
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: {
-            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          ephemeral_scopes: {
+            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
           }
         }
       });
@@ -1377,7 +1364,7 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeralScopes.find(scope => scope.commandName === scopeName);
+      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
 
       if (!scope) {
         return {
@@ -1386,7 +1373,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (!scope.excludedChannels.includes(channel.id)) {
+      if (!scope.excluded_channels.includes(channel.id)) {
         return {
           error: `The ${
             isCategory(channel) ? 'category' : 'channel'
@@ -1395,13 +1382,13 @@ export default class Settings extends Command {
         };
       }
 
-      scope.excludedChannels = scope.excludedChannels.filter(c => c !== channel.id);
+      scope.excluded_channels = scope.excluded_channels.filter(c => c !== channel.id);
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
-          ephemeralScopes: {
-            set: config.ephemeralScopes.map(s => (s.commandName === scope.commandName ? scope : s))
+          ephemeral_scopes: {
+            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
           }
         }
       });
@@ -1413,35 +1400,35 @@ export default class Settings extends Command {
       };
     },
 
-    async listEphemeralScopes(
+    async listephemeral_scopes(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      if (config.ephemeralScopes.length < 1) {
+      if (config.ephemeral_scopes.length < 1) {
         return {
           content: 'There are no ephemeral scopes set up in this server.'
         };
       }
 
       const map = await Promise.all(
-        config.ephemeralScopes.map(async scope => {
-          const includedChannels = await Promise.all(
-            scope.includedChannels.map(id => {
+        config.ephemeral_scopes.map(async scope => {
+          const included_channels = await Promise.all(
+            scope.included_channels.map(id => {
               const channel = interaction.guild!.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
 
-          const excludedChannels = await Promise.all(
-            scope.excludedChannels.map(id => {
+          const excluded_channels = await Promise.all(
+            scope.excluded_channels.map(id => {
               const channel = interaction.guild!.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
 
-          return `Command: ${scope.commandName}\n└── Included channels: ${includedChannels.join(
+          return `Command: ${scope.command_name}\n└── Included channels: ${included_channels.join(
             ', '
-          )}\n└── Excluded channels: ${excludedChannels.join(', ')}`;
+          )}\n└── Excluded channels: ${excluded_channels.join(', ')}`;
         })
       );
 
@@ -1451,10 +1438,10 @@ export default class Settings extends Command {
 
       const buffer = Buffer.from(map.join('\n\n'), 'utf-8');
       const attachment = new AttachmentBuilder(buffer, { name: 'ephemeral-scopes.txt' });
-      const length = config.ephemeralScopes.length;
+      const length = config.ephemeral_scopes.length;
 
       return {
-        content: `There ${length > 1 ? 'are' : 'is'} currently **${config.ephemeralScopes.length}** ${pluralize(
+        content: `There ${length > 1 ? 'are' : 'is'} currently **${config.ephemeral_scopes.length}** ${pluralize(
           length,
           'ephemeral scope'
         )} configured in this server.`,
@@ -1466,13 +1453,13 @@ export default class Settings extends Command {
     async toggleDefaultEphemeralReply(config: GuildConfig): Promise<InteractionReplyData> {
       let toggle = true;
 
-      if (config.commandEphemeralReply) {
+      if (config.command_ephemeral_reply) {
         toggle = false;
       }
 
       await prisma.guild.update({
         where: { id: config.id },
-        data: { commandEphemeralReply: toggle }
+        data: { command_ephemeral_reply: toggle }
       });
 
       return {
@@ -1573,7 +1560,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (type === 'defaultMuteDuration') {
+      if (type === 'default_mute_duration') {
         if (duration > ms('28d')) {
           return {
             error: 'The duration must not exceed 28 days for mute infractions.',
@@ -1633,13 +1620,13 @@ export default class Settings extends Command {
     async toggleNativeIntegration(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
       let toggle = true;
 
-      if (config.nativeModerationIntegration) {
+      if (config.native_moderation_integration) {
         toggle = false;
       }
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { nativeModerationIntegration: toggle }
+        data: { native_moderation_integration: toggle }
       });
 
       return {
@@ -1664,7 +1651,7 @@ export default class Settings extends Command {
         | VoiceChannel
         | ForumChannel;
 
-      if (config.lockdownChannels.includes(channel.id)) {
+      if (config.lockdown_channels.includes(channel.id)) {
         return {
           error: `The channel ${channel} is already in the lockdown list.`,
           temporary: true
@@ -1673,7 +1660,7 @@ export default class Settings extends Command {
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { lockdownChannels: { push: channel.id } }
+        data: { lockdown_channels: { push: channel.id } }
       });
 
       return {
@@ -1690,7 +1677,7 @@ export default class Settings extends Command {
         | VoiceChannel
         | ForumChannel;
 
-      if (!config.lockdownChannels.includes(channel.id)) {
+      if (!config.lockdown_channels.includes(channel.id)) {
         return {
           error: `The channel ${channel} is not in the lockdown list.`,
           temporary: true
@@ -1699,7 +1686,7 @@ export default class Settings extends Command {
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { lockdownChannels: { set: config.lockdownChannels.filter(c => c !== channel.id) } }
+        data: { lockdown_channels: { set: config.lockdown_channels.filter(c => c !== channel.id) } }
       });
 
       return {
@@ -1711,7 +1698,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      if (!config.lockdownChannels.length) {
+      if (!config.lockdown_channels.length) {
         return {
           error: 'There are no channels in the lockdown list.',
           temporary: true
@@ -1719,7 +1706,7 @@ export default class Settings extends Command {
       }
 
       const channels = await Promise.all(
-        config.lockdownChannels.map(id => {
+        config.lockdown_channels.map(id => {
           const channel = interaction.guild.channels.cache.get(id);
           return channel ? `#${channel.name} (${id})` : `<#${id}>`;
         })
@@ -1734,8 +1721,8 @@ export default class Settings extends Command {
 
       return {
         content: `There ${
-          config.lockdownChannels.length > 1
-            ? `are currently **${config.lockdownChannels.length}** channels`
+          config.lockdown_channels.length > 1
+            ? `are currently **${config.lockdown_channels.length}** channels`
             : `is currently **1** channel`
         } in the lockdown list.`,
         files: [attachment],
@@ -1758,7 +1745,7 @@ export default class Settings extends Command {
 
       const overrideBit = PermissionFlagsBits[override as keyof typeof PermissionFlagsBits];
 
-      if (config.lockdownOverrides & overrideBit) {
+      if (config.lockdown_overrides & overrideBit) {
         return {
           error: `This override is already in the deny list.`,
           temporary: true
@@ -1767,7 +1754,7 @@ export default class Settings extends Command {
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { lockdownOverrides: config.lockdownOverrides | overrideBit }
+        data: { lockdown_overrides: config.lockdown_overrides | overrideBit }
       });
 
       return {
@@ -1793,7 +1780,7 @@ export default class Settings extends Command {
 
       const overrideBit = PermissionFlagsBits[override as keyof typeof PermissionFlagsBits];
 
-      if ((config.lockdownOverrides & overrideBit) === 0n) {
+      if ((config.lockdown_overrides & overrideBit) === 0n) {
         return {
           error: `This override is not in the deny list.`,
           temporary: true
@@ -1802,7 +1789,7 @@ export default class Settings extends Command {
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { lockdownOverrides: config.lockdownOverrides ^ overrideBit }
+        data: { lockdown_overrides: config.lockdown_overrides ^ overrideBit }
       });
 
       return {
@@ -1815,7 +1802,7 @@ export default class Settings extends Command {
 
     async listOverrides(config: GuildConfig): Promise<InteractionReplyData> {
       const overrides = Object.entries(PermissionFlagsBits)
-        .filter(([_, bit]) => (config.lockdownOverrides & bit) === bit)
+        .filter(([_, bit]) => (config.lockdown_overrides & bit) === bit)
         .map(([name]) => name.replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`));
 
       if (!overrides.length) {
@@ -1844,13 +1831,13 @@ export default class Settings extends Command {
     async showExecutor(config: GuildConfig): Promise<InteractionReplyData> {
       let toggle = true;
 
-      if (config.lockdownDisplayExecutor) {
+      if (config.lockdown_display_executor) {
         toggle = false;
       }
 
       await prisma.guild.update({
         where: { id: config.id },
-        data: { lockdownDisplayExecutor: toggle }
+        data: { lockdown_display_executor: toggle }
       });
 
       return {
@@ -1863,13 +1850,13 @@ export default class Settings extends Command {
     async toggleNotifications(config: GuildConfig): Promise<InteractionReplyData> {
       let toggle = true;
 
-      if (config.lockdownNotify) {
+      if (config.lockdown_notify) {
         toggle = false;
       }
 
       await prisma.guild.update({
         where: { id: config.id },
-        data: { lockdownNotify: toggle }
+        data: { lockdown_notify: toggle }
       });
 
       return {
@@ -1882,13 +1869,13 @@ export default class Settings extends Command {
     async requireReason(config: GuildConfig): Promise<InteractionReplyData> {
       let toggle = true;
 
-      if (config.lockdownRequireReason) {
+      if (config.lockdown_require_reason) {
         toggle = false;
       }
 
       await prisma.guild.update({
         where: { id: config.id },
-        data: { lockdownRequireReason: toggle }
+        data: { lockdown_require_reason: toggle }
       });
 
       return {
@@ -1899,32 +1886,32 @@ export default class Settings extends Command {
 
   public static _parseAdditionalInfoType(key: keyof GuildConfig) {
     switch (key) {
-      case 'defaultAdditionalBanInfo':
+      case 'default_additional_ban_info':
         return 'ban';
-      case 'defaultAdditionalKickInfo':
+      case 'default_additional_kick_info':
         return 'kick';
-      case 'defaultAdditionalMuteInfo':
+      case 'default_additional_mute_info':
         return 'mute';
-      case 'defaultAdditionalWarnInfo':
+      case 'default_additional_warn_info':
         return 'warn';
-      case 'defaultAdditionalUnmuteInfo':
+      case 'default_additional_unmute_info':
         return 'unmute';
     }
   }
 
   public static _parseRequiredReasonType(key: keyof GuildConfig) {
     switch (key) {
-      case 'requireBanReason':
+      case 'require_ban_reason':
         return 'ban';
-      case 'requireKickReason':
+      case 'require_kick_reason':
         return 'kick';
-      case 'requireMuteReason':
+      case 'require_kick_reason':
         return 'mute';
-      case 'requireWarnReason':
+      case 'require_warn_reason':
         return 'warn';
-      case 'requireUnmuteReason':
+      case 'require_unmute_reason':
         return 'unmute';
-      case 'requireUnbanReason':
+      case 'require_unban_reason':
         return 'unban';
     }
   }
@@ -1951,7 +1938,7 @@ enum SettingsSubcommand {
   RemoveIncludedChannel = 'remove-included-channel',
   AddExcludedChannel = 'add-excluded-channel',
   RemoveExcludedChannel = 'remove-excluded-channel',
-  ListEphemeralScopes = 'list-ephemeral-scopes',
+  Listephemeral_scopes = 'list-ephemeral-scopes',
   CreateNode = 'create-node',
   DeleteNode = 'delete-node',
   AddRoleToNode = 'add-role-to-node',

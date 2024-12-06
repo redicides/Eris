@@ -4,7 +4,7 @@ import { MessageKeys } from '@utils/Keys';
 import { hasPermission } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
-import { capitalize, userMentionWithId } from '@utils/index';
+import { userMentionWithId } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
 import Component from '@managers/components/Component';
@@ -15,9 +15,9 @@ export default class MessageReportButtonsComponent extends Component {
   }
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
-    if (!hasPermission(interaction.member, config, 'ManageMessageReports')) {
+    if (!hasPermission(interaction.member, config, 'Manage_Message_Reports')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('ManageMessageReports', 'manage message reports'),
+        error: MessageKeys.Errors.MissingUserPermission('Manage_Message_Reports', 'manage message reports'),
         temporary: true
       };
     }
@@ -25,7 +25,7 @@ export default class MessageReportButtonsComponent extends Component {
     const report = await this.prisma.messageReport.findUnique({
       where: {
         id: interaction.message.id,
-        guildId: interaction.guildId
+        guild_id: interaction.guildId
       }
     });
 
@@ -40,21 +40,21 @@ export default class MessageReportButtonsComponent extends Component {
       };
     }
 
-    if (report.resolvedBy) {
+    if (report.resolved_by) {
       setTimeout(async () => {
         await interaction.message.delete().catch(() => null);
       }, 7500);
 
       return {
         error: `This report has already been resolved by ${userMentionWithId(
-          report.resolvedBy
+          report.resolved_by
         )}. I will attempt to delete the alert in **7 seconds**.`,
         temporary: true
       };
     }
 
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
-    const key = `messageReportsRequire${capitalize(action)}Reason` as keyof typeof config;
+    const key = `message_reports_require_${action}_reason` as keyof typeof config;
 
     if (action === 'disregard') {
       await this.prisma.messageReport.update({

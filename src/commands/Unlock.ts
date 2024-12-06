@@ -61,13 +61,13 @@ export default class Unlock extends Command {
     config: GuildConfig
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
-    const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify
-      : config.lockdownNotify;
+    const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.Override_Lockdown_Notificatons)
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify
+      : config.lockdown_notify;
 
-    if (!hasPermission(interaction.member, config, 'UnlockChannels')) {
+    if (!hasPermission(interaction.member, config, 'Unlock_Channels')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('UnlockChannels', 'unlock a channel'),
+        error: MessageKeys.Errors.MissingUserPermission('Unlock_Channels', 'unlock a channel'),
         temporary: true
       };
     }
@@ -96,7 +96,7 @@ export default class Unlock extends Command {
       if (
         !channel.permissionOverwrites.cache.some(override => {
           if (override.id === interaction.guildId) return false;
-          return override.allow.has(config.lockdownOverrides);
+          return override.allow.has(config.lockdown_overrides);
         })
       )
         return {
@@ -108,9 +108,9 @@ export default class Unlock extends Command {
     const lockAllowOverrides =
       (
         await this.prisma.channelLock.findUnique({
-          where: { id: channel.id, guildId: interaction.guildId }
+          where: { id: channel.id, guild_id: interaction.guildId }
         })
-      )?.allow ?? 0n;
+      )?.overwrites ?? 0n;
 
     const parsedChannelStr = channel === interaction.channel ? 'this channel' : `that channel`;
 
@@ -118,7 +118,7 @@ export default class Unlock extends Command {
     const everyoneOverrideDeny = everyoneOverride?.deny.bitfield ?? 0n;
     const everyoneOverrideAllow = everyoneOverride?.allow.bitfield ?? 0n;
 
-    const updatedDenyOverride = everyoneOverrideDeny - (everyoneOverrideDeny & config.lockdownOverrides);
+    const updatedDenyOverride = everyoneOverrideDeny - (everyoneOverrideDeny & config.lockdown_overrides);
     const updatedAllowOverride =
       everyoneOverrideAllow + (lockAllowOverrides - (everyoneOverrideAllow & lockAllowOverrides));
 
@@ -129,7 +129,7 @@ export default class Unlock extends Command {
       };
     }
 
-    if (!rawReason && config.lockdownRequireReason) {
+    if (!rawReason && config.lockdown_require_reason) {
       return {
         error: `A reason is required to unlock ${parsedChannelStr}.`,
         temporary: true
@@ -138,7 +138,7 @@ export default class Unlock extends Command {
 
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ config, interaction }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     if (lockAllowOverrides !== 0n) {
       await this.prisma.channelLock.delete({ where: { id: channel.id } });
@@ -161,7 +161,7 @@ export default class Unlock extends Command {
       .setColor(Colors.Green)
       .setTitle('Channel Unlocked')
       .setDescription(
-        `This channel has been unlocked${config.lockdownDisplayExecutor ? ` by ${interaction.user}` : ''}.`
+        `This channel has been unlocked${config.lockdown_display_executor ? ` by ${interaction.user}` : ''}.`
       )
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();

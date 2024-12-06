@@ -9,7 +9,6 @@ import {
   TextChannel,
   VoiceChannel
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
 
 import { MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
@@ -17,6 +16,7 @@ import { capitalize, elipsify, hasPermission, isEphemeralReply } from '@utils/in
 import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class Lock extends Command {
   constructor() {
@@ -60,13 +60,13 @@ export default class Lock extends Command {
     config: GuildConfig
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
-    const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify
-      : config.lockdownNotify;
+    const notifyChannel = hasPermission(interaction.member, config, 'Override_Lockdown_Notificatons')
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify
+      : config.lockdown_notify;
 
-    if (!hasPermission(interaction.member, config, 'LockChannels')) {
+    if (!hasPermission(interaction.member, config, 'Lock_Channels')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('LockChannels', 'lock a channel'),
+        error: MessageKeys.Errors.MissingUserPermission('Lock_Channels', 'lock a channel'),
         temporary: true
       };
     }
@@ -95,7 +95,7 @@ export default class Lock extends Command {
       if (
         !channel.permissionOverwrites.cache.some(override => {
           if (override.id === interaction.guildId) return false;
-          return override.allow.has(config.lockdownOverrides);
+          return override.allow.has(config.lockdown_overrides);
         })
       )
         return {
@@ -111,7 +111,7 @@ export default class Lock extends Command {
     const everyoneOverrideAllow = everyoneOverride?.allow.bitfield ?? 0n;
 
     const updatedOverride =
-      everyoneOverrideDeny + (config.lockdownOverrides - (everyoneOverrideDeny & config.lockdownOverrides));
+      everyoneOverrideDeny + (config.lockdown_overrides - (everyoneOverrideDeny & config.lockdown_overrides));
 
     if (updatedOverride === everyoneOverrideDeny) {
       return {
@@ -120,7 +120,7 @@ export default class Lock extends Command {
       };
     }
 
-    if (!rawReason && config.lockdownRequireReason) {
+    if (!rawReason && config.lockdown_require_reason) {
       return {
         error: `A reason is required to lock ${parsedChannelStr}.`,
         temporary: true
@@ -129,7 +129,7 @@ export default class Lock extends Command {
 
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     await channel.permissionOverwrites.set(
       [
@@ -142,17 +142,11 @@ export default class Lock extends Command {
       elipsify(`Locked by @${interaction.user.username} (${interaction.user.id}) - ${reason}`, 128)
     );
 
-    if ((everyoneOverrideAllow & config.lockdownOverrides) !== 0n) {
-      const lockData = {
+    if ((everyoneOverrideAllow & config.lockdown_overrides) !== 0n) {
+      await DatabaseManager.upsertChannelLockEntry({
         id: channel.id,
-        guildId: interaction.guildId,
-        allow: everyoneOverrideAllow & config.lockdownOverrides
-      };
-
-      await this.prisma.channelLock.upsert({
-        where: { id: channel.id, guildId: interaction.guildId },
-        create: lockData,
-        update: lockData
+        guild_id: interaction.guildId,
+        overwrites: everyoneOverrideAllow & config.lockdown_overrides
       });
     }
 
@@ -160,7 +154,9 @@ export default class Lock extends Command {
       .setAuthor({ name: this.client.user!.username, iconURL: this.client.user!.displayAvatarURL() })
       .setColor(INFRACTION_COLORS.Mute)
       .setTitle('Channel Locked')
-      .setDescription(`This channel has been locked${config.lockdownDisplayExecutor ? ` by ${interaction.user}` : ''}.`)
+      .setDescription(
+        `This channel has been locked${config.lockdown_display_executor ? ` by ${interaction.user}` : ''}.`
+      )
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();
 

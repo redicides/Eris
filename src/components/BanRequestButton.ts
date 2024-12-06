@@ -1,6 +1,6 @@
 import { ButtonInteraction, Colors, EmbedBuilder, EmbedData } from 'discord.js';
 
-import { capitalize, hasPermission, userMentionWithId } from '@utils/index';
+import { hasPermission, userMentionWithId } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
@@ -16,15 +16,15 @@ export default class BanRequestButtonComponent extends Component {
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig) {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
 
-    if (!hasPermission(interaction.member, config, 'ManageBanRequests')) {
+    if (!hasPermission(interaction.member, config, 'Manage_Ban_Requests')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('ManageBanRequests', 'manage ban requests'),
+        error: MessageKeys.Errors.MissingUserPermission('Manage_Ban_Requests', 'manage ban requests'),
         temporary: true
       };
     }
 
     const request = await this.prisma.banRequest.findUnique({
-      where: { id: interaction.message.id, guildId: interaction.guildId }
+      where: { id: interaction.message.id, guild_id: interaction.guildId }
     });
 
     if (!request) {
@@ -38,25 +38,25 @@ export default class BanRequestButtonComponent extends Component {
       };
     }
 
-    if (request.resolvedBy) {
+    if (request.resolved_by) {
       setTimeout(async () => {
         await interaction.message.delete().catch(() => null);
       }, 7500);
 
       return {
         error: `This report has already been resolved by ${userMentionWithId(
-          request.resolvedBy
+          request.resolved_by
         )}. I will attempt to delete the alert in **7 seconds**.`,
         temporary: true
       };
     }
 
-    const key = `banRequestsRequire${capitalize(action)}Reason` as keyof typeof config;
+    const key = `ban_requests_require_${action}_reason` as keyof typeof config;
 
     if (action === 'disregard') {
       await this.prisma.banRequest.update({
         where: { id: request.id },
-        data: { resolvedBy: interaction.user.id, resolvedAt: Date.now(), status: 'Disregarded' }
+        data: { resolved_by: interaction.user.id, resolved_at: Date.now(), status: 'Disregarded' }
       });
 
       const log = new EmbedBuilder(interaction.message.embeds[0] as EmbedData)

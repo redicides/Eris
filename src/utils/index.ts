@@ -25,7 +25,7 @@ import {
   MessageCreateOptions,
   APIMessage
 } from 'discord.js';
-import { PermissionEnum, Message, ModerationCommand } from '@prisma/client';
+import { PermissionEnum, Message, Shortcut } from '@prisma/client';
 
 import YAML from 'yaml';
 import fs from 'fs';
@@ -213,14 +213,14 @@ export function cropLines(str: string, maxLines: number): string {
 
 export async function formatMessageContentForShortLog(
   content: string | null,
-  stickerId: string | null,
+  sticker_id: string | null,
   url: string | null,
-  includeUrl: boolean = true
+  include_url: boolean = true
 ): Promise<string> {
-  let rawContent = url && includeUrl ? hyperlink('Jump to message', url) : '';
+  let rawContent = url && include_url ? hyperlink('Jump to message', url) : '';
 
-  if (stickerId) {
-    const sticker = await client.fetchSticker(stickerId);
+  if (sticker_id) {
+    const sticker = await client.fetchSticker(sticker_id);
 
     if (sticker.format !== StickerFormatType.Lottie) {
       rawContent += ` \`|\` ${hyperlink(`Sticker: ${sticker.name}`, sticker.url)}`;
@@ -237,7 +237,7 @@ export async function formatMessageContentForShortLog(
     if (content.length > 1024) {
       // Upload full content to hastebin if too long
       const hastebinUrl = await uploadData(content, 'txt');
-      return rawContent + `${url && includeUrl ? ` \`|\` ` : ''}${hyperlink('View full content', hastebinUrl)}`;
+      return rawContent + `${url && include_url ? ` \`|\` ` : ''}${hyperlink('View full content', hastebinUrl)}`;
     }
 
     // Calculate max content length considering the code block formatting
@@ -259,8 +259,8 @@ export async function formatMessageContentForShortLog(
  */
 export function hasPermission(member: GuildMember, config: GuildConfig, permission: PermissionEnum): boolean {
   return member.roles.cache.some(role => {
-    return config.permissions.some(perm => {
-      return perm.roles.includes(role.id) && perm.allow.includes(permission);
+    return config.permission_nodes.some(node => {
+      return node.roles.includes(role.id) && node.allowed.includes(permission);
     });
   });
 }
@@ -290,12 +290,10 @@ export function handleInteractionReply(
  * @returns unknown
  */
 
-export function handleInteractionErrorReply(data: {
-  interaction: ComponentInteraction | CommandInteraction;
-  error: string;
-}): unknown {
-  const { interaction, error } = data;
-
+export function handleInteractionErrorReply(
+  interaction: ComponentInteraction | CommandInteraction,
+  error: string
+): unknown {
   return handleInteractionReply(interaction, {
     embeds: [{ description: `${ConfigManager.global_config.emojis.error} ${error}`, color: Colors.NotQuiteBlack }],
     ephemeral: true
@@ -317,9 +315,9 @@ export function getInteractionTTL(
   options: InteractionReplyData
 ): number {
   if (interaction.isCommand()) {
-    return options.temporary ? config.commandTemporaryReplyTTL : config.commandErrorTTL;
+    return options.temporary ? config.command_temporary_reply_ttl : config.command_error_ttl;
   } else {
-    return options.temporary ? config.componentTemporaryReplyTTL : config.componentErrorTTL;
+    return options.temporary ? config.command_temporary_reply_ttl : config.component_error_ttl;
   }
 }
 
@@ -340,38 +338,36 @@ export function generateSnowflakeId(): string {
  * @returns Whether the reply should be ephemeral (boolean)
  */
 
-export function isEphemeralReply(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }): boolean {
-  const { interaction, config } = data;
-
-  const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
+export function isEphemeralReply(interaction: CommandInteraction<'cached'>, config: GuildConfig): boolean {
+  const scope = config.ephemeral_scopes.find(scope => scope.command_name === interaction.commandName);
   const channel = interaction.channel;
 
   // If no scope or channel, return default setting
-  if (!scope || !channel) return config.commandEphemeralReply;
+  if (!scope || !channel) return config.command_ephemeral_reply;
 
   const channelData: ChannelScopingParams = {
-    channelId: channel.id,
-    threadId: channel.parentId,
-    categoryId: null
+    channel_id: channel.id,
+    thread_id: channel.parentId,
+    category_id: null
   };
 
   // Update channel data if it's a thread
   if (channel.isThread() && channel.parent) {
-    channelData.categoryId = channel.parent.parentId;
-    channelData.threadId = channel.parentId;
+    channelData.category_id = channel.parent.parentId;
+    channelData.thread_id = channel.parentId;
   }
 
-  const channelIds = [channelData.channelId, channelData.threadId, channelData.categoryId].filter(id => id !== null);
+  const channelIds = [channelData.channel_id, channelData.thread_id, channelData.category_id].filter(id => id !== null);
 
   // If both lists are empty, return default setting
-  if (scope.excludedChannels.length === 0 && scope.includedChannels.length === 0) {
-    return config.commandEphemeralReply;
+  if (scope.excluded_channels.length === 0 && scope.included_channels.length === 0) {
+    return config.command_ephemeral_reply;
   }
 
   // If excluded channels is not empty, check for exclusion
-  if (scope.excludedChannels.length > 0) {
+  if (scope.excluded_channels.length > 0) {
     // If ANY of the channel IDs are in excluded channels, return false (non-ephemeral)
-    if (channelIds.some(id => scope.excludedChannels.includes(id))) {
+    if (channelIds.some(id => scope.excluded_channels.includes(id))) {
       return false;
     }
 
@@ -380,17 +376,17 @@ export function isEphemeralReply(data: { interaction: CommandInteraction<'cached
   }
 
   // If included channels is not empty, check for inclusion
-  if (scope.includedChannels.length > 0) {
+  if (scope.included_channels.length > 0) {
     // If ANY of the channel IDs are in included channels, return true (ephemeral)
-    if (channelIds.some(id => scope.includedChannels.includes(id))) {
+    if (channelIds.some(id => scope.included_channels.includes(id))) {
       return true;
     }
     // If no channel IDs are in included channels, return default setting
-    return config.commandEphemeralReply;
+    return config.command_ephemeral_reply;
   }
 
   // If no included or excluded channels are specified, return default
-  return config.commandEphemeralReply;
+  return config.command_ephemeral_reply;
 }
 
 /**
@@ -400,7 +396,7 @@ export function isEphemeralReply(data: { interaction: CommandInteraction<'cached
  * @returns The help menu fields
  */
 
-export function generateHelpMenuFields(userId: Snowflake, shortcuts: ModerationCommand[]): EmbedField[] {
+export function generateHelpMenuFields(user_id: Snowflake, shortcuts: Shortcut[]): EmbedField[] {
   const categories = Object.values(CommandCategory);
   const commandStore = CommandManager.commands;
 
@@ -427,7 +423,7 @@ export function generateHelpMenuFields(userId: Snowflake, shortcuts: ModerationC
       });
     }
 
-    if (category === CommandCategory.Developer && !ConfigManager.global_config.bot.developers.includes(userId))
+    if (category === CommandCategory.Developer && !ConfigManager.global_config.bot.developers.includes(user_id))
       return [];
     return fields;
   });
@@ -491,7 +487,7 @@ export function extractChannelIds(channel: GuildTextBasedChannel) {
  */
 
 export async function getMessageLogEmbed(data: MessageLog, reference: boolean): Promise<EmbedBuilder> {
-  const url = messageLink(data.channelId, data.messageId, data.guildId);
+  const url = messageLink(data.channel_id, data.message_id, data.guild_id);
 
   const embed = new EmbedBuilder()
     .setColor(reference ? Colors.NotQuiteBlack : Colors.Red)
@@ -499,18 +495,18 @@ export async function getMessageLogEmbed(data: MessageLog, reference: boolean): 
     .setFields([
       {
         name: 'Author',
-        value: userMentionWithId(data.authorId)
+        value: userMentionWithId(data.author_id)
       },
       {
         name: 'Channel',
-        value: channelMention(data.channelId)
+        value: channelMention(data.channel_id)
       },
       {
         name: reference ? 'Reference Content' : 'Message Content',
-        value: await formatMessageContentForShortLog(data.content, data.stickerId, url)
+        value: await formatMessageContentForShortLog(data.content, data.sticker_id, url)
       }
     ])
-    .setTimestamp(data.createdAt);
+    .setTimestamp(data.created_at);
 
   if (data.attachments?.length) {
     embed.addFields({
@@ -534,29 +530,26 @@ export async function getReferenceMessage(
   dbMessage: Message,
   discordMessage: DiscordMessage<true>
 ): Promise<MessageLog | null> {
-  const referenceMessage: Message | DiscordMessage | null =
-    (await DatabaseManager.getMessageEntry(dbMessage.referenceId!)) ??
+  // First try to get from DB, then fallback to Discord API
+  const reference =
+    (await DatabaseManager.getMessageEntry(dbMessage.reference_id!)) ??
     (await discordMessage.fetchReference().catch(() => null));
 
-  if (!referenceMessage) return null;
+  if (!reference) return null;
 
+  // Check if reference is Discord message or DB message
+  const isDiscordMessage = reference instanceof DiscordMessage;
+
+  // Build message log object using type-safe property access
   return {
-    guildId: discordMessage.guildId,
-    messageId: referenceMessage.id,
-    authorId:
-      (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
-    channelId: referenceMessage.channelId,
-    stickerId:
-      'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
-    createdAt:
-      referenceMessage instanceof DiscordMessage
-        ? referenceMessage.createdAt
-        : new Date(Number(referenceMessage.createdAt)),
-    content: referenceMessage.content,
-    attachments:
-      referenceMessage instanceof DiscordMessage
-        ? Array.from(referenceMessage.attachments.values()).map(attachment => attachment.url)
-        : referenceMessage.attachments
+    guild_id: discordMessage.guildId,
+    message_id: reference.id,
+    author_id: isDiscordMessage ? reference.author.id : reference.author_id,
+    channel_id: isDiscordMessage ? reference.channelId : reference.channel_id,
+    sticker_id: isDiscordMessage ? reference.stickers?.first()?.id ?? null : reference.sticker_id,
+    created_at: isDiscordMessage ? reference.createdAt : new Date(Number(reference.created_at)),
+    content: reference.content,
+    attachments: isDiscordMessage ? Array.from(reference.attachments.values()).map(a => a.url) : reference.attachments
   };
 }
 
@@ -674,17 +667,17 @@ export async function sendNotification(data: {
 }): Promise<APIMessage | null> {
   const { config, options } = data;
 
-  if (!config.notificationWebhook) {
+  if (!config.notification_webhook) {
     return null;
   }
 
-  return new WebhookClient({ url: config.notificationWebhook }).send(options).catch(() => null);
+  return new WebhookClient({ url: config.notification_webhook }).send(options).catch(() => null);
 }
 
 // Things that are used in this file only
 
 interface ChannelScopingParams {
-  channelId: Snowflake;
-  threadId: Snowflake | null;
-  categoryId: Snowflake | null;
+  channel_id: Snowflake;
+  thread_id: Snowflake | null;
+  category_id: Snowflake | null;
 }

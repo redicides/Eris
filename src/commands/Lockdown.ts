@@ -9,7 +9,6 @@ import {
   EmbedBuilder,
   channelMention
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
 
 import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
 import { elipsify, hasPermission, isEphemeralReply, pluralize, sleep } from '@/utils';
@@ -18,6 +17,7 @@ import { client, prisma } from '@/index';
 import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
+import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class Lockdown extends Command {
   constructor() {
@@ -83,19 +83,19 @@ export default class Lockdown extends Command {
     const subcommand = interaction.options.getSubcommand(true) as LockdownSubcommand;
 
     const rawReason = interaction.options.getString('reason', false);
-    const notifyChannels = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdownNotify
-      : config.lockdownNotify;
+    const notifyChannels = hasPermission(interaction.member, config, 'Override_Lockdown_Notificatons')
+      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify
+      : config.lockdown_notify;
 
     if (subcommand === LockdownSubcommand.Start) {
-      if (!hasPermission(interaction.member, config, PermissionEnum.StartLockdown)) {
+      if (!hasPermission(interaction.member, config, 'Start_Lockdown')) {
         return {
-          error: MessageKeys.Errors.MissingUserPermission('StartLockdown', 'start a lockdown'),
+          error: MessageKeys.Errors.MissingUserPermission('Start_Lockdown', 'start a lockdown'),
           temporary: true
         };
       }
 
-      if (!rawReason && config.lockdownRequireReason) {
+      if (!rawReason && config.lockdown_require_reason) {
         return {
           error: MessageKeys.Errors.ReasonRequired('start a lockdown'),
           temporary: true
@@ -107,19 +107,19 @@ export default class Lockdown extends Command {
       return Lockdown.startLockdown({
         config,
         interaction,
-        ephemeral: isEphemeralReply({ interaction, config }),
+        ephemeral: isEphemeralReply(interaction, config),
         reason,
         notifyChannels
       });
     } else {
-      if (!hasPermission(interaction.member, config, PermissionEnum.EndLockdown)) {
+      if (!hasPermission(interaction.member, config, 'End_Lockdown')) {
         return {
-          error: MessageKeys.Errors.MissingUserPermission('EndLockdown', 'end a lockdown'),
+          error: MessageKeys.Errors.MissingUserPermission('End_Lockdown', 'end a lockdown'),
           temporary: true
         };
       }
 
-      if (config.lockdownRequireReason && !rawReason) {
+      if (config.lockdown_require_reason && !rawReason) {
         return {
           error: MessageKeys.Errors.ReasonRequired('end a lockdown'),
           temporary: true
@@ -130,7 +130,7 @@ export default class Lockdown extends Command {
 
       return Lockdown.endLockdown({
         interaction,
-        ephemeral: isEphemeralReply({ interaction, config }),
+        ephemeral: isEphemeralReply(interaction, config),
         config,
         reason,
         notifyChannels
@@ -146,9 +146,9 @@ export default class Lockdown extends Command {
     notifyChannels: boolean;
   }): Promise<InteractionReplyData | null> {
     const { interaction, ephemeral, config, reason, notifyChannels } = data;
-    const { lockdownChannels, lockdownOverrides, lockdownDisplayExecutor } = config;
+    const { lockdown_channels, lockdown_overrides, lockdown_display_executor } = config;
 
-    if (!lockdownChannels.length) {
+    if (!lockdown_channels.length) {
       return {
         error: 'No channels have been set up for lockdown. You can add them using the `/settings lockdown` command.',
         temporary: true
@@ -162,7 +162,7 @@ export default class Lockdown extends Command {
 
     await interaction.reply({ content: `Starting lockdown...`, ephemeral });
 
-    for (const channelId of lockdownChannels) {
+    for (const channelId of lockdown_channels) {
       const channel = interaction.guild.channels.cache.get(channelId) as
         | TextChannel
         | VoiceChannel
@@ -183,7 +183,7 @@ export default class Lockdown extends Command {
         if (
           !channel.permissionOverwrites.cache.some(override => {
             if (override.id === interaction.guildId) return false;
-            return override.allow.has(lockdownOverrides);
+            return override.allow.has(lockdown_overrides);
           })
         ) {
           failedChannels.push(channelId);
@@ -195,7 +195,7 @@ export default class Lockdown extends Command {
       const everyoneOverrideDeny = everyoneOverride?.deny.bitfield ?? 0n;
       const everyoneOverrideAllow = everyoneOverride?.allow.bitfield ?? 0n;
 
-      const updatedOverride = everyoneOverrideDeny + (lockdownOverrides - (everyoneOverrideDeny & lockdownOverrides));
+      const updatedOverride = everyoneOverrideDeny + (lockdown_overrides - (everyoneOverrideDeny & lockdown_overrides));
 
       if (everyoneOverrideDeny === updatedOverride) {
         alreadyLockedChannels.push(channelId);
@@ -213,17 +213,11 @@ export default class Lockdown extends Command {
         elipsify(`Locked by @${interaction.user.username} (${interaction.user.id}) - ${reason}`, 128)
       );
 
-      if ((everyoneOverrideAllow & lockdownOverrides) !== 0n) {
-        const lockData = {
+      if ((everyoneOverrideAllow & lockdown_overrides) !== 0n) {
+        await DatabaseManager.upsertChannelLockEntry({
           id: channel.id,
-          guildId: interaction.guildId,
-          allow: everyoneOverrideAllow & lockdownOverrides
-        };
-
-        await prisma.channelLock.upsert({
-          where: { id: channel.id, guildId: interaction.guildId },
-          create: lockData,
-          update: lockData
+          guild_id: interaction.guildId,
+          overwrites: everyoneOverrideAllow & lockdown_overrides
         });
       }
 
@@ -252,15 +246,15 @@ export default class Lockdown extends Command {
       .setAuthor({ name: client.user!.username, iconURL: client.user!.displayAvatarURL() })
       .setTitle('Server Locked')
       .setDescription(
-        `This server has been put into lockdown${lockdownDisplayExecutor ? ` by ${interaction.user}` : ''}.`
+        `This server has been put into lockdown${lockdown_display_executor ? ` by ${interaction.user}` : ''}.`
       )
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();
 
     await interaction.channel?.send({ embeds: [embed] }).catch(() => {});
 
-    let content = `Successfully locked \`${lockedChannels.length}\` out of \`${lockdownChannels.length}\` ${pluralize(
-      lockdownChannels.length,
+    let content = `Successfully locked \`${lockedChannels.length}\` out of \`${lockdown_channels.length}\` ${pluralize(
+      lockdown_channels.length,
       'channel'
     )}.\n`;
 
@@ -288,9 +282,9 @@ export default class Lockdown extends Command {
     notifyChannels: boolean;
   }): Promise<InteractionReplyData | null> {
     const { interaction, ephemeral, config, reason, notifyChannels } = data;
-    const { lockdownChannels, lockdownOverrides, lockdownDisplayExecutor } = config;
+    const { lockdown_channels, lockdown_overrides, lockdown_display_executor } = config;
 
-    if (!lockdownChannels.length) {
+    if (!lockdown_channels.length) {
       return {
         error:
           'No channels have been set up for lockdown thus none can be unlocked with this command. You can add them using the `/settings lockdown` command.',
@@ -305,7 +299,7 @@ export default class Lockdown extends Command {
 
     await interaction.reply({ content: `Ending lockdown...`, ephemeral });
 
-    for (const channelId of lockdownChannels) {
+    for (const channelId of lockdown_channels) {
       const channel = interaction.guild.channels.cache.get(channelId) as
         | TextChannel
         | VoiceChannel
@@ -326,7 +320,7 @@ export default class Lockdown extends Command {
         if (
           !channel.permissionOverwrites.cache.some(override => {
             if (override.id === interaction.guildId) return false;
-            return override.allow.has(lockdownOverrides);
+            return override.allow.has(lockdown_overrides);
           })
         ) {
           failedChannels.push(channelId);
@@ -337,20 +331,20 @@ export default class Lockdown extends Command {
       const lockAllowOverrides =
         (
           await prisma.channelLock.findUnique({
-            where: { id: channel.id, guildId: interaction.guildId }
+            where: { id: channel.id, guild_id: interaction.guildId }
           })
-        )?.allow ?? 0n;
+        )?.overwrites ?? 0n;
 
       const everyoneOverride = channel.permissionOverwrites.cache.get(interaction.guildId);
       const everyoneOverrideDeny = everyoneOverride?.deny.bitfield ?? 0n;
       const everyoneOverrideAllow = everyoneOverride?.allow.bitfield ?? 0n;
 
-      const updatedDenyOverride = everyoneOverrideDeny - (everyoneOverrideDeny & lockdownOverrides);
+      const updatedDenyOverride = everyoneOverrideDeny - (everyoneOverrideDeny & lockdown_overrides);
       const newAllowOverride =
         everyoneOverrideAllow + (lockAllowOverrides - (everyoneOverrideAllow & lockAllowOverrides));
 
       if (lockAllowOverrides !== 0n) {
-        await prisma.channelLock.delete({ where: { id: channel.id, guildId: interaction.guildId } });
+        await prisma.channelLock.delete({ where: { id: channel.id, guild_id: interaction.guildId } });
       }
 
       if (updatedDenyOverride === everyoneOverrideDeny) {
@@ -400,7 +394,7 @@ export default class Lockdown extends Command {
       .setAuthor({ name: client.user!.username, iconURL: client.user!.displayAvatarURL() })
       .setTitle('Server Unlocked')
       .setDescription(
-        `This server has been taken out of lockdown${lockdownDisplayExecutor ? ` by ${interaction.user}` : ''}.`
+        `This server has been taken out of lockdown${lockdown_display_executor ? ` by ${interaction.user}` : ''}.`
       )
       .setFields([{ name: 'Reason', value: reason }])
       .setTimestamp();
@@ -408,8 +402,8 @@ export default class Lockdown extends Command {
     await interaction.channel?.send({ embeds: [embed] }).catch(() => {});
 
     let content = `Successfully unlocked \`${unlockedChannels.length}\` out of \`${
-      lockdownChannels.length
-    }\` ${pluralize(lockdownChannels.length, 'channel')}.\n`;
+      lockdown_channels.length
+    }\` ${pluralize(lockdown_channels.length, 'channel')}.\n`;
 
     if (map.unknown) content += `└── Channels I failed to fetch: ${map.unknown}\n`;
     if (map.failed) content += `└── Channels I failed to unlock: ${map.failed}\n`;

@@ -72,19 +72,19 @@ export default class Kick extends Command {
       };
     }
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     let kResult = true;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: interaction.guildId,
-      targetId: target.id,
-      executorId: interaction.user.id,
+      guild_id: interaction.guildId,
+      target_id: target.id,
+      executor_id: interaction.user.id,
       type: 'Kick',
       reason,
-      createdAt: Date.now()
+      created_at: Date.now()
     });
 
     await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });

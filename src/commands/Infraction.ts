@@ -103,7 +103,7 @@ export default class Infraction extends Command {
   ): Promise<InteractionReplyData> {
     const subcommand = interaction.options.getSubcommand() as InfracionSubcommand;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     switch (subcommand) {
       case InfracionSubcommand.Search: {
@@ -117,16 +117,16 @@ export default class Infraction extends Command {
           };
         }
 
-        if (!hasPermission(interaction.member, config, 'SearchInfractions')) {
+        if (!hasPermission(interaction.member, config, 'Search_Infractions')) {
           return {
-            error: MessageKeys.Errors.MissingUserPermission('SearchInfractions', 'search for infractions'),
+            error: MessageKeys.Errors.MissingUserPermission('Search_Infractions', 'search for infractions'),
             temporary: true
           };
         }
 
         return InfractionManager.searchInfractions({
-          guildId: interaction.guildId,
-          controllerId: interaction.user.id,
+          guild_id: interaction.guildId,
+          controller_id: interaction.user.id,
           target,
           filter,
           page: 1
@@ -135,7 +135,7 @@ export default class Infraction extends Command {
       case InfracionSubcommand.Info: {
         const infractionId = interaction.options.getString('id', true);
 
-        return InfractionManager.getInfractionInfo({ id: infractionId, guildId: interaction.guildId });
+        return InfractionManager.getInfractionInfo({ id: infractionId, guild_id: interaction.guildId });
       }
 
       case InfracionSubcommand.Delete: {
@@ -144,9 +144,9 @@ export default class Infraction extends Command {
         const undoPunishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
         const notifyReceiver = interaction.options.getBoolean('notify-receiver', false) ?? true;
 
-        if (!hasPermission(interaction.member, config, 'DeleteInfractions')) {
+        if (!hasPermission(interaction.member, config, 'Delete_Infractions')) {
           return {
-            error: MessageKeys.Errors.MissingUserPermission('DeleteInfractions', 'delete infractions'),
+            error: MessageKeys.Errors.MissingUserPermission('Delete_Infractions', 'delete infractions'),
             temporary: true
           };
         }

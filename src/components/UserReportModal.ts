@@ -19,15 +19,15 @@ export default class UserReportModalComponent extends Component {
     const reportId = interaction.customId.split('-')[3];
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
 
-    if (!hasPermission(interaction.member, config, 'ManageUserReports')) {
+    if (!hasPermission(interaction.member, config, 'Manage_User_Reports')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('ManageUserReports', 'manage user reports'),
+        error: MessageKeys.Errors.MissingUserPermission('Manage_User_Reports', 'manage user reports'),
         temporary: true
       };
     }
 
     const report = await this.prisma.userReport.findUnique({
-      where: { id: reportId, guildId: interaction.guildId }
+      where: { id: reportId, guild_id: interaction.guildId }
     });
 
     if (!report) {

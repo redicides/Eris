@@ -64,15 +64,14 @@ export default class InfractionManager {
    * Check if a user has an active mute.
    *
    * @param options.guildId The guild ID
-   * @param options.targetId The target user ID
+   * @param options.target_id The target user ID
    * @returns The active mute, if found
    */
 
-  static async getActiveMute(options: { guildId: Snowflake; targetId: Snowflake }): Promise<Infraction | null> {
+  static async getActiveMute(options: { guild_id: Snowflake; target_id: Snowflake }): Promise<Infraction | null> {
     return prisma.infraction.findFirst({
       where: {
-        guildId: options.guildId,
-        targetId: options.targetId,
+        ...options,
         type: 'Mute'
       }
     });
@@ -120,7 +119,7 @@ export default class InfractionManager {
         return { success: false, message: MessageKeys.Errors.CantMuteAdmin };
     }
 
-    const reasonKey = `require${action}Reason` as keyof typeof config;
+    const reasonKey = `require_${action.toLowerCase()}_reason` as keyof typeof config;
 
     if (config[reasonKey] && !reason) {
       return {
@@ -145,8 +144,8 @@ export default class InfractionManager {
   static async logInfraction(data: { config: GuildConfig; infraction: Infraction }): Promise<APIMessage | null> {
     const { config, infraction } = data;
 
-    if (!config.infractionLoggingEnabled || !config.infractionLoggingWebhook) return null;
-    const webhook = new WebhookClient({ url: config.infractionLoggingWebhook });
+    if (!config.infraction_logging_enabled || !config.infraction_logging_webhook) return null;
+    const webhook = new WebhookClient({ url: config.infraction_logging_webhook });
 
     const embed = new EmbedBuilder()
       .setAuthor({
@@ -154,25 +153,25 @@ export default class InfractionManager {
       })
       .setColor(INFRACTION_COLORS[infraction.type])
       .setFields([
-        { name: 'Executor', value: userMentionWithId(infraction.executorId) },
-        { name: 'Target', value: userMentionWithId(infraction.targetId) },
+        { name: 'Executor', value: userMentionWithId(infraction.executor_id) },
+        { name: 'Target', value: userMentionWithId(infraction.target_id) },
         { name: 'Reason', value: infraction.reason }
       ])
-      .setTimestamp(Number(infraction.createdAt));
+      .setTimestamp(Number(infraction.created_at));
 
-    if (infraction.expiresAt) {
+    if (infraction.expires_at) {
       embed.addFields({
         name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expiresAt)
+        value: InfractionManager.formatExpiration(infraction.expires_at)
       });
     }
 
-    if (infraction.requestAuthorId) {
-      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.requestAuthorId) });
+    if (infraction.request_author_id) {
+      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.request_author_id) });
     }
 
-    if (infraction.requestId) {
-      embed.setFooter({ text: `Request ID: #${infraction.requestId}` });
+    if (infraction.request_id) {
+      embed.setFooter({ text: `Request ID: #${infraction.request_id}` });
     }
 
     return webhook.send({ embeds: [embed] }).catch(() => null);
@@ -193,13 +192,13 @@ export default class InfractionManager {
     guild: Guild;
     target: GuildMember;
     infraction: Infraction;
-    additional?: string;
+    info?: string;
   }): Promise<Message | null> {
-    const { guild, target, infraction, config, additional } = data;
+    const { guild, target, infraction, config, info } = data;
 
-    const notificationKey = `notify${infraction.type}Action` as keyof typeof config;
-    const additionalInfoKey = `defaultAdditional${infraction.type}Info` as keyof typeof config;
-    const additionalInfo = additional ?? (config[additionalInfoKey] as string | null);
+    const notificationKey = `notify_${infraction.type.toLowerCase()}_action` as keyof typeof config;
+    const additionalInfoKey = `default_additional_${infraction.type.toLowerCase()}_info` as keyof typeof config;
+    const additionalInfo = info ?? (config[additionalInfoKey] as string | null);
 
     if (!config[notificationKey]) return null;
 
@@ -213,12 +212,12 @@ export default class InfractionManager {
       )
       .setFields([{ name: 'Reason', value: infraction.reason }])
       .setFooter({ text: `Infraction ID: ${infraction.id}` })
-      .setTimestamp(Number(infraction.createdAt));
+      .setTimestamp(Number(infraction.created_at));
 
-    if (infraction.expiresAt) {
+    if (infraction.expires_at) {
       embed.addFields({
         name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expiresAt)
+        value: InfractionManager.formatExpiration(infraction.expires_at)
       });
     }
 
@@ -303,16 +302,16 @@ export default class InfractionManager {
 
   public static getSuccessMessage(data: { target: GuildMember | User; infraction: Infraction }): string {
     const { target, infraction } = data;
-    const { type, id, expiresAt } = infraction;
+    const { type, id, expires_at } = infraction;
 
-    const relativeExpiration = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000), 'R')}` : '';
-    const expirationText = expiresAt ? `${time(Math.floor(Number(infraction.expiresAt) / 1000))}` : '';
+    const relativeExpiration = expires_at ? `${time(Math.floor(Number(infraction.expires_at) / 1000), 'R')}` : '';
+    const expiration = expires_at ? `${time(Math.floor(Number(infraction.expires_at) / 1000))}` : '';
 
     const message: Record<Infraction['type'], string> = {
-      Warn: `Successfully added a warning for ${target}${expiresAt ? ` that will expire ${relativeExpiration}` : ''}`,
+      Warn: `Successfully added a warning for ${target}${expires_at ? ` that will expire ${relativeExpiration}` : ''}`,
       Mute: `Successfully set ${target} on a timeout that will end ${relativeExpiration}`,
       Kick: `Successfully kicked ${target}`,
-      Ban: `Successfully banned ${target}${expiresAt ? ` until ${expirationText}` : ''}`,
+      Ban: `Successfully banned ${target}${expires_at ? ` until ${expiration}` : ''}`,
       Unmute: `Successfully unmuted ${target}`,
       Unban: `Successfully unbanned ${target}`
     };
@@ -342,34 +341,34 @@ export default class InfractionManager {
    */
 
   public static async searchInfractions(data: {
-    guildId: Snowflake;
-    controllerId: Snowflake;
+    guild_id: Snowflake;
+    controller_id: Snowflake;
     target: User;
     filter: InfractionFlag | null;
     page: number;
   }): Promise<InteractionReplyOptions> {
-    const { guildId, controllerId, target, filter, page } = data;
+    const { guild_id, controller_id, target, filter, page } = data;
 
     const skipMultiplier = page - 1;
 
     const infractionCount = await prisma.infraction.count({
       where: {
-        guildId,
-        targetId: target.id,
+        guild_id,
+        target_id: target.id,
         flag: filter ?? undefined
       }
     });
 
     const infractions = await prisma.infraction.findMany({
       where: {
-        guildId,
-        targetId: target.id,
+        guild_id,
+        target_id: target.id,
         flag: filter ?? undefined
       },
       skip: skipMultiplier * INFRACTIONS_PER_PAGE,
       take: INFRACTIONS_PER_PAGE,
       orderBy: {
-        createdAt: 'desc'
+        created_at: 'desc'
       }
     });
 
@@ -397,7 +396,7 @@ export default class InfractionManager {
       const paginationActionRow = InfractionManager._getPaginationButtons({
         page,
         totalPages,
-        controllerId
+        controller_id
       });
 
       components.push(paginationActionRow);
@@ -413,10 +412,10 @@ export default class InfractionManager {
    * @returns Infraction details.
    */
 
-  public static async getInfractionInfo(data: { id: string; guildId: Snowflake }): Promise<InteractionReplyData> {
-    const { id, guildId } = data;
+  public static async getInfractionInfo(data: { id: string; guild_id: Snowflake }): Promise<InteractionReplyData> {
+    const { id, guild_id } = data;
 
-    const infraction = await InfractionManager.getInfraction({ id, guildId });
+    const infraction = await InfractionManager.getInfraction({ id, guild_id });
 
     if (!infraction) {
       return {
@@ -429,25 +428,25 @@ export default class InfractionManager {
       .setAuthor({ name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} - ID #${infraction.id}` })
       .setColor(InfractionManager.mapActionToColor({ infraction }))
       .setFields([
-        { name: 'Executor', value: userMentionWithId(infraction.executorId) },
-        { name: 'Target', value: userMentionWithId(infraction.targetId) },
+        { name: 'Executor', value: userMentionWithId(infraction.executor_id) },
+        { name: 'Target', value: userMentionWithId(infraction.target_id) },
         { name: 'Reason', value: infraction.reason }
       ])
-      .setTimestamp(Number(infraction.createdAt));
+      .setTimestamp(Number(infraction.created_at));
 
-    if (infraction.expiresAt) {
+    if (infraction.expires_at) {
       embed.addFields({
         name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expiresAt)
+        value: InfractionManager.formatExpiration(infraction.expires_at)
       });
     }
 
-    if (infraction.requestAuthorId) {
-      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.requestAuthorId) });
+    if (infraction.request_author_id) {
+      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.request_author_id) });
     }
 
-    if (infraction.requestId) {
-      embed.setFooter({ text: `Request ID: #${infraction.requestId}` });
+    if (infraction.request_id) {
+      embed.setFooter({ text: `Request ID: #${infraction.request_author_id}` });
     }
 
     return { embeds: [embed], ephemeral: true };
@@ -477,7 +476,7 @@ export default class InfractionManager {
   }): Promise<InteractionReplyData> {
     const { guild, config, executor, infractionId, undoPunishment, notifyReceiver, reason } = data;
 
-    const infraction = await InfractionManager.getInfraction({ id: infractionId, guildId: guild.id });
+    const infraction = await InfractionManager.getInfraction({ id: infractionId, guild_id: guild.id });
 
     if (!infraction) {
       return {
@@ -486,7 +485,7 @@ export default class InfractionManager {
       };
     }
 
-    const target = await guild.members.fetch(infraction.targetId).catch(() => null);
+    const target = await guild.members.fetch(infraction.target_id).catch(() => null);
 
     let failedUndo = false;
 
@@ -500,7 +499,7 @@ export default class InfractionManager {
           if (!target) {
             return {
               error: `I cannot undo the mute for ${userMention(
-                infraction.targetId
+                infraction.target_id
               )} as they are no longer in the server.`,
               temporary: true
             };
@@ -533,22 +532,22 @@ export default class InfractionManager {
           if (!banPermission) {
             return {
               error: `I cannot undo the ban for ${userMention(
-                infraction.targetId
+                infraction.target_id
               )} as I do not have the \`Ban Members\` permission.`,
               temporary: true
             };
           }
 
-          if (!(await guild.bans.fetch(infraction.targetId).catch(() => null))) {
+          if (!(await guild.bans.fetch(infraction.target_id).catch(() => null))) {
             return {
-              error: `I cannot undo the ban for ${userMention(infraction.targetId)} as they are not banned.`,
+              error: `I cannot undo the ban for ${userMention(infraction.target_id)} as they are not banned.`,
               temporary: true
             };
           }
 
           await guild.members
             .unban(
-              infraction.targetId,
+              infraction.target_id,
               `Infraction ${infraction.id} deleted by @${executor.user.username} (${executor.id})`
             )
             .catch(() => {
@@ -561,23 +560,23 @@ export default class InfractionManager {
 
       const newInfraction = await InfractionManager.storeInfraction({
         id: InfractionManager.generateInfractionId(),
-        guildId: guild.id,
+        guild_id: guild.id,
         type: infraction.type === 'Mute' ? 'Unmute' : 'Unban',
-        targetId: infraction.targetId,
-        executorId: executor.id,
+        target_id: infraction.target_id,
+        executor_id: executor.id,
         reason: `Original infraction \`#${infraction.id}\` deleted by @${executor.user.username} (${executor.id}).`,
-        expiresAt: null,
-        createdAt: Date.now()
+        expires_at: null,
+        created_at: Date.now()
       });
 
       InfractionManager.logInfraction({ config, infraction: newInfraction });
     }
 
-    await InfractionManager.deleteInfraction({ id: infractionId, guildId: guild.id }).catch(() => null);
+    await InfractionManager.deleteInfraction({ id: infractionId, guild_id: guild.id }).catch(() => null);
     await TaskManager.deleteTask({
-      targetId_guildId_type: {
-        targetId: infraction.targetId,
-        guildId: guild.id,
+      target_id_guild_id_type: {
+        target_id: infraction.target_id,
+        guild_id: guild.id,
         type: infraction.type === 'Mute' ? 'Mute' : 'Ban'
       }
     });
@@ -592,7 +591,7 @@ export default class InfractionManager {
           {
             name: 'Infraction Details',
             value: `ID: \`#n${infraction.id}\n\`Type: \`${infraction.type}\`\nDate: ${time(
-              Math.floor(Number(infraction.createdAt)) / 1000
+              Math.floor(Number(infraction.created_at)) / 1000
             )}`
           }
         ])
@@ -603,7 +602,7 @@ export default class InfractionManager {
 
     return {
       content: `${infraction.type} with ID \`#${infractionId}\` for ${userMention(
-        infraction.targetId
+        infraction.target_id
       )} has been deleted${
         undoPunishment && (infraction.type === 'Mute' || infraction.type === 'Ban')
           ? failedUndo
@@ -636,13 +635,13 @@ export default class InfractionManager {
     let fields: EmbedField[] = [];
 
     for (const infraction of infractions) {
-      const executor = await client.users.fetch(infraction.executorId).catch(() => null);
+      const executor = await client.users.fetch(infraction.executor_id).catch(() => null);
 
       fields.push({
         name: `${infraction.type} #${infraction.id}, by ${
           executor ? `@${executor.username} (${executor.id})` : 'an unknown user'
         }`,
-        value: `${elipsify(infraction.reason, 256)} - ${time(Math.floor(Number(infraction.createdAt) / 1000))}`,
+        value: `${elipsify(infraction.reason, 256)} - ${time(Math.floor(Number(infraction.created_at) / 1000))}`,
         inline: false
       });
     }
@@ -659,8 +658,8 @@ export default class InfractionManager {
    * @returns The pagination buttons
    */
 
-  private static _getPaginationButtons(data: { page: number; totalPages: number; controllerId: Snowflake }) {
-    const { page, totalPages, controllerId } = data;
+  private static _getPaginationButtons(data: { page: number; totalPages: number; controller_id: Snowflake }) {
+    const { page, totalPages, controller_id } = data;
 
     const isFirstPage = page === 1;
     const isLastPage = page === totalPages;
@@ -672,26 +671,26 @@ export default class InfractionManager {
 
     const nextButton = new ButtonBuilder()
       .setLabel('→')
-      .setCustomId(`infraction-search-next-${controllerId}`)
+      .setCustomId(`infraction-search-next-${controller_id}`)
       .setDisabled(isLastPage)
       .setStyle(ButtonStyle.Primary);
 
     const previousButton = new ButtonBuilder()
       .setLabel('←')
-      .setCustomId(`infraction-search-back-${controllerId}`)
+      .setCustomId(`infraction-search-back-${controller_id}`)
       .setDisabled(isFirstPage)
       .setStyle(ButtonStyle.Primary);
 
     if (totalPages > 2) {
       const firstPageButton = new ButtonBuilder()
         .setLabel('«')
-        .setCustomId(`infraction-search-first-${controllerId}`)
+        .setCustomId(`infraction-search-first-${controller_id}`)
         .setDisabled(isFirstPage)
         .setStyle(ButtonStyle.Primary);
 
       const lastPageButton = new ButtonBuilder()
         .setLabel('»')
-        .setCustomId(`infraction-search-last-${controllerId}`)
+        .setCustomId(`infraction-search-last-${controller_id}`)
         .setDisabled(isLastPage)
         .setStyle(ButtonStyle.Primary);
 

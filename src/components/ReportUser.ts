@@ -11,21 +11,21 @@ export default class ReportUserComponent extends Component {
   }
 
   async execute(interaction: ModalSubmitInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData> {
-    if (!config.userReportsEnabled) {
+    if (!config.user_reports_enabled) {
       return {
         error: 'User reports are disabled in this server.',
         temporary: true
       };
     }
 
-    if (config.userReportsBlacklist.includes(interaction.user.id)) {
+    if (config.user_reports_blacklist.includes(interaction.user.id)) {
       return {
         error: 'You are blacklisted from submitting user reports in this server.',
         temporary: true
       };
     }
 
-    if (!config.userReportsWebhook) {
+    if (!config.user_reports_webhook) {
       return {
         error: 'User reports are not configured in this server.',
         temporary: true
@@ -44,7 +44,7 @@ export default class ReportUserComponent extends Component {
       };
     }
 
-    if (!targetMember && config.userReportsRequireMember) {
+    if (!targetMember && config.user_reports_require_member) {
       return {
         error: 'You cannot report this user because they are not a member of this server.',
         temporary: true
@@ -52,7 +52,7 @@ export default class ReportUserComponent extends Component {
     }
 
     if (targetMember) {
-      if (targetMember.roles.cache.some(role => config.userReportsImmuneRoles.includes(role.id))) {
+      if (targetMember.roles.cache.some(role => config.user_reports_immune_roles.includes(role.id))) {
         return {
           error: 'You cannot report this user.',
           temporary: true

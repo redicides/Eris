@@ -85,7 +85,7 @@ export default class Mute extends Command {
 
     let duration = parseDuration(rawDuration);
 
-    if (Number.isNaN(duration) && config.defaultMuteDuration === 0n) {
+    if (Number.isNaN(duration) && config.default_mute_duration === 0n) {
       return {
         error: MessageKeys.Errors.InvalidDuration(false),
         temporary: true
@@ -106,12 +106,12 @@ export default class Mute extends Command {
       };
     }
 
-    let expiresAt: number | null;
+    let expires_at: number | null;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     let mResult = true;
-    if (!duration) duration = Number(config.defaultMuteDuration);
+    if (!duration) duration = Number(config.default_mute_duration);
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
@@ -130,30 +130,30 @@ export default class Mute extends Command {
       };
     }
 
-    const createdAt = Date.now();
+    const created_at = Date.now();
 
     if (duration) {
-      expiresAt = createdAt + duration;
+      expires_at = created_at + duration;
     } else {
-      expiresAt = createdAt + Number(config.defaultMuteDuration);
+      expires_at = created_at + Number(config.default_mute_duration);
     }
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: interaction.guildId,
-      targetId: target.id,
-      executorId: interaction.user.id,
+      guild_id: interaction.guildId,
+      target_id: target.id,
+      executor_id: interaction.user.id,
       type: 'Mute',
-      createdAt,
-      expiresAt,
+      created_at,
+      expires_at,
       reason
     });
 
     await TaskManager.storeTask({
-      guildId: interaction.guildId,
-      targetId: target.id,
-      infractionId: infraction.id,
-      expiresAt,
+      guild_id: interaction.guildId,
+      target_id: target.id,
+      infraction_id: infraction.id,
+      expires_at,
       type: 'Mute'
     });
 

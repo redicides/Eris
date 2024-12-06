@@ -13,14 +13,14 @@ export default class TaskManager {
    * @returns The task that was stored
    */
   public static async storeTask(data: {
-    guildId: Snowflake;
-    targetId: Snowflake;
-    infractionId: string;
-    expiresAt: bigint | number;
+    guild_id: Snowflake;
+    target_id: Snowflake;
+    infraction_id: string;
+    expires_at: bigint | number;
     type: TaskType;
   }): Promise<Task> {
     return prisma.task.upsert({
-      where: { targetId_guildId_type: { guildId: data.guildId, targetId: data.targetId, type: data.type } },
+      where: { target_id_guild_id_type: { guild_id: data.guild_id, target_id: data.target_id, type: data.type } },
       update: data,
       create: {
         id: generateSnowflakeId(),

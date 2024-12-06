@@ -235,7 +235,7 @@ export default class ShortcutManager extends Command {
     config: GuildConfig
   ): Promise<InteractionReplyData> {
     const subcommand = interaction.options.getSubcommand() as ShortcutSubcommand;
-    const ephemeral = interaction.channel ? isEphemeralReply({ interaction, config }) : true;
+    const ephemeral = interaction.channel ? isEphemeralReply(interaction, config) : true;
 
     await interaction.deferReply({ ephemeral });
 
@@ -274,7 +274,7 @@ export default class ShortcutManager extends Command {
     const rawMsgDeleteTime = interaction.options.getString('message-delete-time', false);
     const additionalInfo = interaction.options.getString('additional-info', false);
 
-    const shortcutCount = await prisma.moderationCommand.count({ where: { guildId: interaction.guildId } });
+    const shortcutCount = await prisma.shortcut.count({ where: { guild_id: interaction.guildId } });
 
     if (shortcutCount >= 50) {
       return {
@@ -376,16 +376,16 @@ export default class ShortcutManager extends Command {
       };
     }
 
-    await prisma.moderationCommand.create({
+    await prisma.shortcut.create({
       data: {
         name,
         description,
-        guildId: interaction.guildId,
+        guild_id: interaction.guildId,
         action,
         duration,
         reason,
-        additionalInfo,
-        messageDeleteTime
+        additional_info: additionalInfo,
+        message_delete_time: messageDeleteTime
       }
     });
 
@@ -399,8 +399,8 @@ export default class ShortcutManager extends Command {
   ): Promise<InteractionReplyData> {
     const name = interaction.options.getString('shortcut', true);
 
-    const shortcut = await prisma.moderationCommand.findUnique({
-      where: { name, guildId: interaction.guildId }
+    const shortcut = await prisma.shortcut.findUnique({
+      where: { name, guild_id: interaction.guildId }
     });
 
     if (!shortcut) {
@@ -424,15 +424,15 @@ export default class ShortcutManager extends Command {
       }
     }
 
-    await prisma.moderationCommand.delete({ where: { name, guildId: interaction.guildId } });
+    await prisma.shortcut.delete({ where: { name, guild_id: interaction.guildId } });
 
     return {
       content: `Successfully deleted shortcut command \`${name}\`.`
     };
   }
 
-  private static async listShortcutCommands(guildId: Snowflake): Promise<InteractionReplyData> {
-    const shortcuts = await prisma.moderationCommand.findMany({ where: { guildId } });
+  private static async listShortcutCommands(guild_id: Snowflake): Promise<InteractionReplyData> {
+    const shortcuts = await prisma.shortcut.findMany({ where: { guild_id } });
 
     if (!shortcuts.length) {
       return {
@@ -447,12 +447,12 @@ export default class ShortcutManager extends Command {
         content += `\n└── Duration: ${ms(Number(shortcut.duration), { long: true })}`;
       }
 
-      if (shortcut.additionalInfo) {
-        content += `\n└── Additional Info: ${shortcut.additionalInfo}`;
+      if (shortcut.additional_info) {
+        content += `\n└── Additional Info: ${shortcut.additional_info}`;
       }
 
-      if (shortcut.messageDeleteTime) {
-        content += `\n└── Message Delete Time: ${ms(Number(shortcut.messageDeleteTime), { long: true })}`;
+      if (shortcut.message_delete_time) {
+        content += `\n└── Message Delete Time: ${ms(Number(shortcut.message_delete_time), { long: true })}`;
       }
 
       return content;
@@ -481,8 +481,8 @@ export default class ShortcutManager extends Command {
     const name = interaction.options.getString('shortcut', true);
     const newAction = interaction.options.getString('new-action', true) as InfractionType;
 
-    const shortcut = await prisma.moderationCommand.findUnique({
-      where: { name, guildId: interaction.guildId }
+    const shortcut = await prisma.shortcut.findUnique({
+      where: { name, guild_id: interaction.guildId }
     });
 
     if (!shortcut) {
@@ -507,7 +507,7 @@ export default class ShortcutManager extends Command {
       content += `\n\\- Note: The duration has been removed as it is no longer applicable for the new action.`;
     }
 
-    await prisma.moderationCommand.update({ where: { name }, data });
+    await prisma.shortcut.update({ where: { name }, data });
 
     return { content };
   }
@@ -516,8 +516,8 @@ export default class ShortcutManager extends Command {
     const name = interaction.options.getString('shortcut', true);
     const rawDuration = interaction.options.getString('new-duration', true);
 
-    const shortcut = await prisma.moderationCommand.findUnique({
-      where: { name, guildId: interaction.guildId }
+    const shortcut = await prisma.shortcut.findUnique({
+      where: { name, guild_id: interaction.guildId }
     });
 
     if (!shortcut) {
@@ -538,7 +538,7 @@ export default class ShortcutManager extends Command {
       (rawDuration.toLowerCase() === '0' || DurationKeys.Permanent.includes(rawDuration.toLowerCase())) &&
       shortcut.action !== 'Mute'
     ) {
-      await prisma.moderationCommand.update({ where: { name }, data: { duration: null } });
+      await prisma.shortcut.update({ where: { name }, data: { duration: null } });
 
       return {
         content: `Successfully removed the duration of shortcut command \`${name}\`.`
@@ -582,7 +582,7 @@ export default class ShortcutManager extends Command {
       };
     }
 
-    await prisma.moderationCommand.update({ where: { name }, data: { duration } });
+    await prisma.shortcut.update({ where: { name }, data: { duration } });
 
     return {
       content: `Successfully set the duration of shortcut command \`${name}\` to ${ms(duration, { long: true })}.`
@@ -593,8 +593,8 @@ export default class ShortcutManager extends Command {
     const name = interaction.options.getString('shortcut', true);
     const newReason = interaction.options.getString('new-reason', true);
 
-    const shortcut = await prisma.moderationCommand.findUnique({
-      where: { name, guildId: interaction.guildId }
+    const shortcut = await prisma.shortcut.findUnique({
+      where: { name, guild_id: interaction.guildId }
     });
 
     if (!shortcut) {
@@ -611,7 +611,7 @@ export default class ShortcutManager extends Command {
       };
     }
 
-    await prisma.moderationCommand.update({ where: { name }, data: { reason: newReason } });
+    await prisma.shortcut.update({ where: { name }, data: { reason: newReason } });
 
     return {
       content: `Successfully updated the reason of shortcut command \`${name}\`.`
@@ -624,8 +624,8 @@ export default class ShortcutManager extends Command {
     const name = interaction.options.getString('shortcut', true);
     const newAdditionalInfo = interaction.options.getString('new-additional-info', true);
 
-    const shortcut = await prisma.moderationCommand.findUnique({
-      where: { name, guildId: interaction.guildId }
+    const shortcut = await prisma.shortcut.findUnique({
+      where: { name, guild_id: interaction.guildId }
     });
 
     if (!shortcut) {
@@ -635,14 +635,14 @@ export default class ShortcutManager extends Command {
       };
     }
 
-    if (newAdditionalInfo === shortcut.additionalInfo) {
+    if (newAdditionalInfo === shortcut.additional_info) {
       return {
         error: 'The new additional information must be different from the current additional information.',
         temporary: true
       };
     }
 
-    await prisma.moderationCommand.update({ where: { name }, data: { additionalInfo: newAdditionalInfo } });
+    await prisma.shortcut.update({ where: { name }, data: { additional_info: newAdditionalInfo } });
 
     return {
       content: `Successfully updated the additional information of shortcut command \`${name}\`.`

@@ -41,318 +41,296 @@ enum RequestStatus {
 }
 
 enum PermissionEnum {
-  SearchInfractions
-  ManageMessageReports
-  ManageUserReports
-  ManageMuteRequests
-  ManageBanRequests
-  DeleteInfractions
-  UpdateInfractions
-  LockChannels
-  UnlockChannels
-  StartLockdown
-  EndLockdown
-  OverrideLockdownNotificatons
+  Search_Infractions
+  Manage_Message_Reports
+  Manage_User_Reports
+  Manage_Mute_Requests
+  Manage_Ban_Requests
+  Delete_Infractions
+  Update_Infractions
+  Lock_Channels
+  Unlock_Channels
+  Start_Lockdown
+  End_Lockdown
+  Override_Lockdown_Notificatons
 }
 
 model Guild {
   id String @id @map("_id")
 
-  notificationWebhook String?
+  notification_webhook String?
 
   // Command settings
-
-  commandDisabledList      String[]
-  commandErrorTTL          Int      @default(7500)
-  commandTemporaryReplyTTL Int      @default(5000)
-  commandEphemeralReply    Boolean  @default(true)
+  command_disabled_list       String[]
+  command_error_ttl           Int      @default(7500)
+  command_temporary_reply_ttl Int      @default(5000)
+  command_ephemeral_reply     Boolean  @default(true)
 
   // Component settings
-
-  componentErrorTTL          Int @default(5000)
-  componentTemporaryReplyTTL Int @default(5000)
+  component_error_ttl           Int @default(5000)
+  component_temporary_reply_ttl Int @default(5000)
 
   // Report settings
+  message_reports_enabled               Boolean  @default(false)
+  message_reports_webhook               String?
+  message_reports_immune_roles          String[]
+  message_reports_ping_roles            String[]
+  message_reports_blacklist             String[]
+  message_reports_require_member        Boolean  @default(true)
+  message_reports_disregard_after       BigInt   @default(2592000000)
+  message_reports_notify_status         Boolean  @default(true)
+  message_reports_require_accept_reason Boolean  @default(false)
+  message_reports_require_deny_reason   Boolean  @default(true)
 
-  messageReportsEnabled             Boolean  @default(false)
-  messageReportsWebhook             String?
-  messageReportsImmuneRoles         String[]
-  messageReportsPingRoles           String[]
-  messageReportsBlacklist           String[]
-  messageReportsRequireMember       Boolean  @default(true)
-  messageReportsDisregardAfter      BigInt   @default(2592000000)
-  messageReportsNotifyStatus        Boolean  @default(true)
-  messageReportsRequireAcceptReason Boolean  @default(false)
-  messageReportsRequireDenyReason   Boolean  @default(true)
+  user_reports_enabled               Boolean  @default(false)
+  user_reports_webhook               String?
+  user_reports_immune_roles          String[]
+  user_reports_ping_roles            String[]
+  user_reports_blacklist             String[]
+  user_reports_require_member        Boolean  @default(true)
+  user_reports_disregard_after       BigInt   @default(2592000000)
+  user_reports_notify_status         Boolean  @default(true)
+  user_reports_require_accept_reason Boolean  @default(false)
+  user_reports_require_deny_reason   Boolean  @default(true)
 
-  userReportsEnabled             Boolean  @default(false)
-  userReportsWebhook             String?
-  userReportsImmuneRoles         String[]
-  userReportsPingRoles           String[]
-  userReportsBlacklist           String[]
-  userReportsRequireMember       Boolean  @default(true)
-  userReportsDisregardAfter      BigInt   @default(2592000000)
-  userReportsNotifyStatus        Boolean  @default(true)
-  userReportsRequireAcceptReason Boolean  @default(false)
-  userReportsRequireDenyReason   Boolean  @default(true)
-
-  reportLoggingEnabled Boolean @default(true)
-  reportLoggingWebhook String?
+  report_logging_enabled Boolean @default(true)
+  report_logging_webhook String?
 
   // Request settings
+  ban_requests_enabled               Boolean  @default(false)
+  ban_requests_webhook               String?
+  ban_requests_immune_roles          String[]
+  ban_requests_ping_roles            String[]
+  ban_requests_require_accept_reason Boolean  @default(false)
+  ban_requests_require_deny_reason   Boolean  @default(true)
 
-  banRequestsEnabled             Boolean  @default(false)
-  banRequestsWebhook             String?
-  banRequestsImmuneRoles         String[]
-  banRequestsPingRoles           String[]
-  banRequestsRequireAcceptReason Boolean  @default(false)
-  banRequestsRequireDenyReason   Boolean  @default(true)
+  mute_requests_enabled               Boolean  @default(false)
+  mute_requests_webhook               String?
+  mute_requests_immune_roles          String[]
+  mute_requests_ping_roles            String[]
+  mute_requests_require_accept_reason Boolean  @default(false)
+  mute_requests_require_deny_reason   Boolean  @default(true)
 
-  muteRequestsEnabled             Boolean  @default(false)
-  muteRequestsWebhook             String?
-  muteRequestsImmuneRoles         String[]
-  muteRequestsPingRoles           String[]
-  muteRequestsRequireAcceptReason Boolean  @default(false)
-  muteRequestsRequireDenyReason   Boolean  @default(true)
-
-  requestLoggingEnabled Boolean @default(true)
-  requestLoggingWebhook String?
+  request_logging_enabled Boolean @default(true)
+  request_logging_webhook String?
 
   // Infraction settings
+  require_warn_reason   Boolean @default(true)
+  require_mute_reason   Boolean @default(true)
+  require_kick_reason   Boolean @default(true)
+  require_ban_reason    Boolean @default(true)
+  require_unmute_reason Boolean @default(false)
+  require_unban_reason  Boolean @default(false)
 
-  requireWarnReason   Boolean @default(true)
-  requireMuteReason   Boolean @default(true)
-  requireKickReason   Boolean @default(true)
-  requireBanReason    Boolean @default(true)
-  requireUnmuteReason Boolean @default(false)
-  requireUnbanReason  Boolean @default(false)
+  notify_warn_action   Boolean @default(true)
+  notify_mute_action   Boolean @default(true)
+  notify_kick_action   Boolean @default(true)
+  notify_ban_action    Boolean @default(true)
+  notify_unmute_action Boolean @default(true)
 
-  notifyWarnAction   Boolean @default(true)
-  notifyMuteAction   Boolean @default(true)
-  notifyKickAction   Boolean @default(true)
-  notifyBanAction    Boolean @default(true)
-  notifyUnmuteAction Boolean @default(true)
+  default_warn_duration BigInt @default(0)
+  default_mute_duration BigInt @default(0)
+  default_ban_duration  BigInt @default(0)
 
-  defaultWarnDuration BigInt @default(0)
-  defaultMuteDuration BigInt @default(0)
-  defaultBanDuration  BigInt @default(0)
+  default_additional_warn_info   String?
+  default_additional_mute_info   String?
+  default_additional_kick_info   String?
+  default_additional_ban_info    String?
+  default_additional_unmute_info String?
 
-  defaultAdditionalWarnInfo   String?
-  defaultAdditionalMuteInfo   String?
-  defaultAdditionalKickInfo   String?
-  defaultAdditionalBanInfo    String?
-  defaultAdditionalUnmuteInfo String?
+  native_moderation_integration Boolean @default(true)
 
-  nativeModerationIntegration Boolean @default(true)
-
-  infractionLoggingEnabled Boolean @default(true)
-  infractionLoggingWebhook String?
+  infraction_logging_enabled Boolean @default(true)
+  infraction_logging_webhook String?
 
   // Message logging settings
-
-  messageLoggingEnabled         Boolean  @default(true)
-  messageLoggingWebhook         String?
-  messageLoggingIgnoredChannels String[]
+  message_logging_enabled          Boolean  @default(true)
+  message_logging_webhook          String?
+  message_logging_ignored_channels String[]
 
   // Lockdown settings
+  lockdown_channels         String[]
+  lockdown_notify           Boolean  @default(true)
+  lockdown_require_reason   Boolean  @default(true)
+  lockdown_display_executor Boolean  @default(false)
+  lockdown_overrides        BigInt   @default(377957124160)
 
-  lockdownChannels        String[]
-  lockdownNotify          Boolean  @default(true)
-  lockdownRequireReason   Boolean  @default(true)
-  lockdownDisplayExecutor Boolean  @default(false)
-  lockdownOverrides       BigInt   @default(377957124160) // SendMessages + CreatePublicThreads + CreatePrivateThreads + SendMessagesInThreads + AddReactions
+  // JSON objects that use composite types
 
-  // Permissions
-
-  permissions Permission[]
-
-  // Ephemeral scopes
-
-  ephemeralScopes EphemeralScope[]
+  permission_nodes PermissionNode[]
+  ephemeral_scopes EphemeralScope[]
 
   // Relations
-
-  moderationCommands ModerationCommand[]
-  infractions        Infraction[]
-  channelLocks       ChannelLock[]
-  messageReports     MessageReport[]
-  userReports        UserReport[]
-  banRequests        BanRequest[]
-  muteRequests       MuteRequest[]
-  messages           Message[]
-  tasks              Task[]
+  moderation_commands Shortcut[]
+  infractions         Infraction[]
+  channel_locks       ChannelLock[]
+  message_reports     MessageReport[]
+  user_reports        UserReport[]
+  ban_requests        BanRequest[]
+  mute_requests       MuteRequest[]
+  messages            Message[]
+  tasks               Task[]
 }
 
 model Infraction {
-  id         String          @id @map("_id")
-  guildId    String
-  targetId   String
-  executorId String
-  type       InfractionType  @default(Warn)
-  reason     String
-  createdAt  BigInt
-  expiresAt  BigInt?
-  flag       InfractionFlag?
+  id          String          @id @map("_id")
+  guild_id    String
+  target_id   String
+  executor_id String
+  type        InfractionType  @default(Warn)
+  reason      String
+  created_at  BigInt
+  expires_at  BigInt?
+  flag        InfractionFlag?
 
-  // These are only set if the infraction was created as a result of a moderation request
-  requestId       String?
-  requestAuthorId String?
+  request_id        String?
+  request_author_id String?
 
   task  Task?
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id           String   @id @map("_id")
-  guildId      String
-  targetId     String
-  infractionId String   @unique
-  type         TaskType
-  expiresAt    BigInt
+  id            String   @id @map("_id")
+  guild_id      String
+  target_id     String
+  infraction_id String   @unique
+  type          TaskType
+  expires_at    BigInt
 
-  infraction Infraction? @relation(fields: [infractionId], references: [id], onDelete: Cascade)
-  guild      Guild       @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  infraction Infraction? @relation(fields: [infraction_id], references: [id], onDelete: Cascade)
+  guild      Guild       @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 
-  @@unique([targetId, guildId, type])
+  @@unique([target_id, guild_id, type])
 }
 
 model MessageReport {
-  // ID of the log
-  id          String  @id @map("_id")
-  guildId     String
-  messageId   String
-  referenceId String?
-  messageUrl  String
-  channelId   String
-  authorId    String
-  content     String?
+  id           String  @id @map("_id")
+  guild_id     String
+  message_id   String
+  reference_id String?
+  message_url  String
+  channel_id   String
+  author_id    String
+  content      String?
 
-  reportedAt   BigInt
-  reportedBy   String
-  reportReason String
+  reported_at   BigInt
+  reported_by   String
+  report_reason String
 
   status ReportStatus @default(Pending)
 
-  resolvedAt BigInt?
-  resolvedBy String?
+  resolved_at BigInt?
+  resolved_by String?
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
 model UserReport {
-  // ID of the log
-  id       String @id @map("_id")
-  guildId  String
-  targetId String
+  id        String @id @map("_id")
+  guild_id  String
+  target_id String
 
-  reportedAt   BigInt
-  reportedBy   String
-  reportReason String
+  reported_at   BigInt
+  reported_by   String
+  report_reason String
 
   status ReportStatus @default(Pending)
 
-  resolvedAt BigInt?
-  resolvedBy String?
+  resolved_at BigInt?
+  resolved_by String?
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
 model BanRequest {
-  // ID of the log
-  id           String  @id @map("_id")
-  guildId      String
-  targetId     String
-  // ID of the infraction that was created
-  infractionId String?
+  id            String  @id @map("_id")
+  guild_id      String
+  target_id     String
+  infraction_id String?
 
   status RequestStatus @default(Pending)
 
-  resolvedAt BigInt?
-  resolvedBy String?
+  resolved_at BigInt?
+  resolved_by String?
 
-  requestedAt BigInt
-  requestedBy String
+  requested_at BigInt
+  requested_by String
 
   duration BigInt?
   reason   String
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
 model MuteRequest {
-  // ID of the log
-  id           String  @id @map("_id")
-  guildId      String
-  targetId     String
-  // ID of the infraction that was created
-  infractionId String?
+  id            String  @id @map("_id")
+  guild_id      String
+  target_id     String
+  infraction_id String?
 
   status RequestStatus @default(Pending)
 
-  resolvedAt BigInt?
-  resolvedBy String?
+  resolved_at BigInt?
+  resolved_by String?
 
-  requestedAt BigInt
-  requestedBy String
+  requested_at BigInt
+  requested_by String
 
   duration Int
   reason   String
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
 model Message {
-  id                    String   @id @map("_id")
-  guildId               String
-  authorId              String
-  channelId             String
-  stickerId             String?
-  // ID of the message this message is replying to
-  referenceId           String?
-  createdAt             BigInt
-  content               String?
-  attachments           String[]
-  deleted               Boolean  @default(false)
+  id           String   @id @map("_id")
+  guild_id     String
+  author_id    String
+  channel_id   String
+  sticker_id   String?
+  reference_id String?
+  created_at   BigInt
+  content      String?
+  attachments  String[]
+  deleted      Boolean  @default(false)
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
 model ChannelLock {
-  id      String @id @map("_id")
-  guildId String
-  allow   BigInt
+  id         String @id @map("_id")
+  guild_id   String
+  overwrites BigInt
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
-model ModerationCommand {
+model Shortcut {
   enabled Boolean @default(true)
 
-  // Surface level details
-  guildId     String
+  guild_id    String
   name        String @id @map("_id")
   description String
 
-  // Case details
   action   InfractionType
   reason   String
   duration BigInt?
 
-  // Other details
-  additionalInfo    String?
-  messageDeleteTime Int?
+  additional_info     String?
+  message_delete_time Int?
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
-type Permission {
-  name  String
-  roles String[]
-  allow PermissionEnum[]
+type PermissionNode {
+  name    String
+  roles   String[]
+  allowed PermissionEnum[]
 }
 
 type EphemeralScope {
-  commandName      String
-  includedChannels String[]
-  excludedChannels String[]
+  command_name      String
+  included_channels String[]
+  excluded_channels String[]
 }

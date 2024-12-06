@@ -129,27 +129,30 @@ export default class Ban extends Command {
     const deleteMessageSeconds = Math.floor(ms(rawDeleteMessages ?? '0s') / 1000);
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    let expiresAt: number | null = null;
+    let expires_at: number | null = null;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    const createdAt = Date.now();
+    const created_at = Date.now();
 
     if (duration) {
-      expiresAt = createdAt + duration;
-    } else if (!DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.defaultBanDuration !== 0n) {
-      expiresAt = createdAt + Number(config.defaultBanDuration);
+      expires_at = created_at + duration;
+    } else if (
+      !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') &&
+      config.default_ban_duration !== 0n
+    ) {
+      expires_at = created_at + Number(config.default_ban_duration);
     }
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: interaction.guildId,
-      targetId: target.id,
-      executorId: interaction.user.id,
+      guild_id: interaction.guildId,
+      target_id: target.id,
+      executor_id: interaction.user.id,
       type: 'Ban',
       reason,
-      createdAt,
-      expiresAt
+      created_at,
+      expires_at
     });
 
     let bResult = true;
@@ -178,17 +181,17 @@ export default class Ban extends Command {
       };
     }
 
-    if (expiresAt) {
+    if (expires_at) {
       await TaskManager.storeTask({
-        guildId: interaction.guildId,
-        targetId: target.id,
-        infractionId: infraction.id,
-        expiresAt,
+        guild_id: interaction.guildId,
+        target_id: target.id,
+        infraction_id: infraction.id,
+        expires_at,
         type: 'Ban'
       });
     } else {
       await TaskManager.deleteTask({
-        targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
+        target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
       });
     }
 

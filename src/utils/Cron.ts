@@ -83,12 +83,12 @@ export class CronUtils {
       await prisma.infraction.deleteMany({
         where: {
           type: 'Warn',
-          AND: [{ expiresAt: { not: null } }, { expiresAt: { lte: Date.now() } }]
+          AND: [{ expires_at: { not: null } }, { expires_at: { lte: Date.now() } }]
         }
       });
 
       const dbGuilds = await prisma.guild.findMany({
-        select: { id: true, notifyUnmuteAction: true, tasks: { where: { expiresAt: { lte: Date.now() } } } }
+        select: { id: true, notify_unmute_action: true, tasks: { where: { expires_at: { lte: Date.now() } } } }
       });
 
       for (const dbGuild of dbGuilds) {
@@ -97,8 +97,8 @@ export class CronUtils {
         if (!discordGuild) {
           await prisma.task.deleteMany({
             where: {
-              guildId: dbGuild.id,
-              expiresAt: { lte: Date.now() }
+              guild_id: dbGuild.id,
+              expires_at: { lte: Date.now() }
             }
           });
 
@@ -112,9 +112,9 @@ export class CronUtils {
         if (!banPermissions) {
           await prisma.task.deleteMany({
             where: {
-              guildId: discordGuild.id,
+              guild_id: discordGuild.id,
               type: 'Ban',
-              expiresAt: { lte: Date.now() }
+              expires_at: { lte: Date.now() }
             }
           });
 
@@ -123,21 +123,21 @@ export class CronUtils {
 
         for (const task of dbGuild.tasks) {
           if (task.type === 'Ban') {
-            await discordGuild.members.unban(task.targetId).catch(() => null);
+            await discordGuild.members.unban(task.target_id).catch(() => null);
           } else {
-            const member = await discordGuild.members.fetch(task.targetId).catch(() => null);
+            const member = await discordGuild.members.fetch(task.target_id).catch(() => null);
 
             if (member) {
               if (
                 member.communicationDisabledUntil &&
-                +member.communicationDisabledUntil > Number(task.expiresAt) + 10000
+                +member.communicationDisabledUntil > Number(task.expires_at) + 10000
               ) {
                 await prisma.task.update({
                   where: {
                     id: task.id
                   },
                   data: {
-                    expiresAt: +member.communicationDisabledUntil
+                    expires_at: +member.communicationDisabledUntil
                   }
                 });
 
@@ -151,7 +151,7 @@ export class CronUtils {
                 .setFields([{ name: 'Reason', value: 'Mute expired based on duration.' }])
                 .setTimestamp();
 
-              if (dbGuild.notifyUnmuteAction) await member.send({ embeds: [embed] }).catch(() => {});
+              if (dbGuild.notify_unmute_action) await member.send({ embeds: [embed] }).catch(() => {});
             }
           }
 
@@ -159,12 +159,12 @@ export class CronUtils {
 
           const infraction = await InfractionManager.storeInfraction({
             id: InfractionManager.generateInfractionId(),
-            guildId: discordGuild.id,
-            targetId: task.targetId,
-            executorId: client.user!.id,
+            guild_id: discordGuild.id,
+            target_id: task.target_id,
+            executor_id: client.user!.id,
             type: task.type === 'Ban' ? 'Unban' : 'Unmute',
             reason: `${task.type} expired based on duration.`,
-            createdAt: Date.now()
+            created_at: Date.now()
           });
 
           await InfractionManager.logInfraction({ config, infraction });
@@ -181,35 +181,35 @@ export class CronUtils {
     return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, runners.reports, true, async () => {
       const messageReports = await prisma.messageReport.findMany({
         where: {
-          reportedAt: { lte: Date.now() },
+          reported_at: { lte: Date.now() },
           status: 'Pending'
         }
       });
 
       const userReports = await prisma.userReport.findMany({
         where: {
-          reportedAt: { lte: Date.now() },
+          reported_at: { lte: Date.now() },
           status: 'Pending'
         }
       });
 
       for (const report of messageReports) {
-        const config = await DatabaseManager.getGuildEntry(report.guildId);
+        const config = await DatabaseManager.getGuildEntry(report.guild_id);
 
-        if (report.reportedAt + config.messageReportsDisregardAfter > Date.now()) {
+        if (report.reported_at + config.message_reports_disregard_after > Date.now()) {
           continue;
         }
 
         await prisma.messageReport.update({
           where: { id: report.id },
-          data: { status: 'Disregarded', resolvedAt: Date.now(), resolvedBy: client.user!.id }
+          data: { status: 'Disregarded', resolved_at: Date.now(), resolved_by: client.user!.id }
         });
 
-        if (!config.messageReportsWebhook) {
+        if (!config.message_reports_webhook) {
           continue;
         }
 
-        const webhook = new WebhookClient({ url: config.messageReportsWebhook });
+        const webhook = new WebhookClient({ url: config.message_reports_webhook });
         const log = await webhook.fetchMessage(report.id).catch(() => null);
 
         if (!log) {
@@ -251,29 +251,29 @@ export class CronUtils {
           embed: embed,
           userId: client.user!.id,
           action: 'Disregarded',
-          reason: `Report automatically disregarded after **${ms(Number(config.messageReportsDisregardAfter), {
+          reason: `Report automatically disregarded after **${ms(Number(config.message_reports_disregard_after), {
             long: true
           })}**.`
         });
       }
 
       for (const report of userReports) {
-        const config = await DatabaseManager.getGuildEntry(report.guildId);
+        const config = await DatabaseManager.getGuildEntry(report.guild_id);
 
-        if (report.reportedAt + config.userReportsDisregardAfter > Date.now()) {
+        if (report.reported_at + config.user_reports_disregard_after > Date.now()) {
           continue;
         }
 
         await prisma.userReport.update({
           where: { id: report.id },
-          data: { status: 'Disregarded', resolvedAt: Date.now(), resolvedBy: client.user!.id }
+          data: { status: 'Disregarded', resolved_at: Date.now(), resolved_by: client.user!.id }
         });
 
-        if (!config.userReportsWebhook) {
+        if (!config.user_reports_webhook) {
           continue;
         }
 
-        const webhook = new WebhookClient({ url: config.userReportsWebhook });
+        const webhook = new WebhookClient({ url: config.user_reports_webhook });
         const log = await webhook.fetchMessage(report.id).catch(() => null);
 
         if (!log) {
@@ -301,7 +301,7 @@ export class CronUtils {
           embed: embed,
           userId: client.user!.id,
           action: 'Disregarded',
-          reason: `Report automatically disregarded after **${ms(Number(config.userReportsDisregardAfter), {
+          reason: `Report automatically disregarded after **${ms(Number(config.user_reports_disregard_after), {
             long: true
           })}**.`
         });
@@ -327,7 +327,7 @@ export class CronUtils {
 
       const { count } = await prisma.message.deleteMany({
         where: {
-          createdAt: { lte: createdAtThreshold }
+          created_at: { lte: createdAtThreshold }
         }
       });
 

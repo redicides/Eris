@@ -204,6 +204,24 @@ export default class DatabaseManager {
   }
 
   /**
+   * Upsert a channel lock entry in the database.
+   *
+   * @param id The ID of the channel to lock
+   * @param guild_id The ID of the guild the channel belongs to
+   * @param overwrites The permission overwrites to apply
+   */
+
+  public static async upsertChannelLockEntry(data: { id: Snowflake; guild_id: Snowflake; overwrites: bigint }) {
+    const { id, guild_id, overwrites } = data;
+
+    return prisma.channelLock.upsert({
+      where: { id, guild_id },
+      create: { id, guild_id, overwrites },
+      update: { overwrites }
+    });
+  }
+
+  /**
    * Starts cleanup operations for the database.
    */
 
@@ -231,19 +249,19 @@ export default class DatabaseManager {
    */
 
   private static serializeMessageEntry(message: DiscordMessage<true>): Message {
-    const stickerId = message.stickers?.first()?.id ?? null;
-    const referenceId = message.reference?.messageId ?? null;
+    const sticker_id = message.stickers?.first()?.id ?? null;
+    const reference_id = message.reference?.messageId ?? null;
 
     return {
       id: message.id,
-      guildId: message.guild.id,
-      authorId: message.author.id,
-      channelId: message.channel.id,
-      stickerId,
-      referenceId,
+      guild_id: message.guild.id,
+      author_id: message.author.id,
+      channel_id: message.channel.id,
+      sticker_id,
+      reference_id,
       content: message.content,
       attachments: message.attachments.map(attachment => attachment.url),
-      createdAt: BigInt(message.createdAt.getTime()),
+      created_at: BigInt(message.createdAt.getTime()),
       deleted: false
     };
   }

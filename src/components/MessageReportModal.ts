@@ -19,15 +19,15 @@ export default class MessageReportModalComponent extends Component {
     const reportId = interaction.customId.split('-')[3];
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
 
-    if (!hasPermission(interaction.member, config, 'ManageMessageReports')) {
+    if (!hasPermission(interaction.member, config, 'Manage_Message_Reports')) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('ManageMessageReports', 'manage message reports'),
+        error: MessageKeys.Errors.MissingUserPermission('Manage_Message_Reports', 'manage message reports'),
         temporary: true
       };
     }
 
     const report = await this.prisma.messageReport.findUnique({
-      where: { id: reportId, guildId: interaction.guildId }
+      where: { id: reportId, guild_id: interaction.guildId }
     });
 
     if (!report) {

@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, Collection, GuildMember, Snowflake, User } from 'discord.js';
-import { ModerationCommand } from '@prisma/client';
+import { Shortcut } from '@prisma/client';
 
 import path from 'path';
 import fs from 'fs';
@@ -120,7 +120,7 @@ export default class CommandManager {
   static async handleCustomModerationCommand(
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig,
-    command: ModerationCommand,
+    command: Shortcut,
     ephemeral: boolean
   ): Promise<InteractionReplyData> {
     if (!command.enabled) {
@@ -130,7 +130,7 @@ export default class CommandManager {
       };
     }
 
-    const { action, reason, duration, messageDeleteTime } = command;
+    const { action, reason, duration, message_delete_time } = command;
 
     if (action !== 'Warn') {
       const requiredPermissions = SHORTCUT_PERMISSIONS[action];
@@ -185,34 +185,34 @@ export default class CommandManager {
 
     await interaction.deferReply({ ephemeral });
 
-    const createdAt = Date.now();
-    const expiresAt = duration ? createdAt + Number(duration) : null;
+    const created_at = Date.now();
+    const expires_at = duration ? created_at + Number(duration) : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: interaction.guildId,
-      targetId: target.id,
-      executorId: interaction.user.id,
+      guild_id: interaction.guildId,
+      target_id: target.id,
+      executor_id: interaction.user.id,
       type: action,
       reason,
-      createdAt,
-      expiresAt
+      created_at,
+      expires_at
     });
 
-    if (expiresAt && (action === 'Mute' || action === 'Ban')) {
+    if (expires_at && (action === 'Mute' || action === 'Ban')) {
       await TaskManager.storeTask({
-        guildId: interaction.guildId,
-        targetId: target.id,
-        infractionId: infraction.id,
+        guild_id: interaction.guildId,
+        target_id: target.id,
+        infraction_id: infraction.id,
         type: action,
-        expiresAt
+        expires_at
       });
     } else {
       // Delete ban task if the action is a permanent ban or an unban
 
       if (action === 'Ban' || action === 'Unban') {
         await TaskManager.deleteTask({
-          targetId_guildId_type: { targetId: target.id, guildId: interaction.guildId, type: 'Ban' }
+          target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guildId, type: 'Ban' }
         });
       }
 
@@ -220,7 +220,7 @@ export default class CommandManager {
 
       if (action === 'Unmute') {
         await TaskManager.deleteTask({
-          targetId_guildId_type: { targetId: target.id, guildId: interaction.guildId, type: 'Mute' }
+          target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guildId, type: 'Mute' }
         });
       }
     }
@@ -231,13 +231,13 @@ export default class CommandManager {
         guild: interaction.guild,
         target,
         infraction,
-        additional: command.additionalInfo ?? undefined
+        info: command.additional_info ?? undefined
       });
     }
 
-    let punishmentFailed = false;
-
     if (action !== 'Warn') {
+      let punishmentFailed = false;
+
       await InfractionManager.resolvePunishment({
         guild: interaction.guild,
         executor: interaction.member!,
@@ -245,11 +245,12 @@ export default class CommandManager {
         action,
         reason,
         duration: duration ? Number(duration) : null,
-        deleteMessages: messageDeleteTime ?? undefined
+        deleteMessages: message_delete_time ?? undefined
       }).catch(() => (punishmentFailed = true));
 
       if (punishmentFailed) {
         await InfractionManager.deleteInfraction({ id: infraction.id });
+
         return {
           error: MessageKeys.Errors.PunishmentFailed(action, target),
           temporary: true

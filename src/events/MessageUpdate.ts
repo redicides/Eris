@@ -43,7 +43,7 @@ export default class MessageUpdate extends EventListener {
     const config = await DatabaseManager.getGuildEntry(message.guild.id);
     const channelIds = extractChannelIds(message.channel);
 
-    if (channelIds.some(id => config.messageLoggingIgnoredChannels.includes(id))) {
+    if (channelIds.some(id => config.message_logging_ignored_channels.includes(id))) {
       return;
     }
 
@@ -68,11 +68,11 @@ export default class MessageUpdate extends EventListener {
     newContent: string,
     config: GuildConfig
   ) {
-    if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) return;
+    if (!config.message_logging_enabled || !config.message_logging_webhook) return;
 
     const embeds: EmbedBuilder[] = [];
 
-    if (dbMessage.referenceId || discordMessage.reference?.messageId) {
+    if (dbMessage.reference_id || discordMessage.reference?.messageId) {
       const referenceMessage = await getReferenceMessage(dbMessage, discordMessage);
 
       if (referenceMessage) {
@@ -82,8 +82,8 @@ export default class MessageUpdate extends EventListener {
     }
 
     const embed = await MessageUpdate._buildLogEmbed({
-      authorId: dbMessage.authorId,
-      channelId: dbMessage.channelId,
+      authorId: dbMessage.author_id,
+      channelId: dbMessage.channel_id,
       oldContent,
       newContent,
       messageUrl: discordMessage.url,
@@ -92,7 +92,7 @@ export default class MessageUpdate extends EventListener {
 
     embeds.push(embed);
 
-    return new WebhookClient({ url: config.messageLoggingWebhook }).send({ embeds }).catch(() => null);
+    return new WebhookClient({ url: config.message_logging_webhook }).send({ embeds }).catch(() => null);
   }
 
   public static async _attemptDiscordLog(
@@ -100,7 +100,7 @@ export default class MessageUpdate extends EventListener {
     oldMessage: PartialMessage | DiscordMessage,
     config: GuildConfig
   ) {
-    if (!config.messageLoggingEnabled || !config.messageLoggingWebhook) return;
+    if (!config.message_logging_enabled || !config.message_logging_webhook) return;
 
     const embeds: EmbedBuilder[] = [];
 
@@ -109,16 +109,16 @@ export default class MessageUpdate extends EventListener {
       const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId);
 
       if (reference) {
-        const stickerId = reference.stickers?.first()?.id ?? null;
+        const sticker_id = reference.stickers?.first()?.id ?? null;
 
         const embed = await getMessageLogEmbed(
           {
-            guildId: reference.guildId,
-            messageId: reference.id,
-            authorId: reference.author.id,
-            channelId: reference.channel.id,
-            stickerId,
-            createdAt: reference.createdAt,
+            guild_id: reference.guildId,
+            message_id: reference.id,
+            author_id: reference.author.id,
+            channel_id: reference.channel.id,
+            sticker_id,
+            created_at: reference.createdAt,
             content: reference.content,
             attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
           },
@@ -127,16 +127,16 @@ export default class MessageUpdate extends EventListener {
 
         embeds.push(embed);
       } else if (dbReference) {
-        const stickerId = dbReference.stickerId;
+        const sticker_id = dbReference.sticker_id;
 
         const embed = await getMessageLogEmbed(
           {
-            guildId: dbReference.guildId,
-            messageId: dbReference.id,
-            authorId: dbReference.authorId,
-            channelId: dbReference.channelId,
-            stickerId,
-            createdAt: new Date(Number(dbReference.createdAt)),
+            guild_id: dbReference.guild_id,
+            message_id: dbReference.id,
+            author_id: dbReference.author_id,
+            channel_id: dbReference.channel_id,
+            sticker_id,
+            created_at: new Date(Number(dbReference.created_at)),
             content: dbReference.content,
             attachments: dbReference.attachments
           },
@@ -158,7 +158,7 @@ export default class MessageUpdate extends EventListener {
 
     embeds.push(embed);
 
-    return new WebhookClient({ url: config.messageLoggingWebhook }).send({ embeds: [embed] }).catch(() => null);
+    return new WebhookClient({ url: config.message_logging_webhook }).send({ embeds: [embed] }).catch(() => null);
   }
 
   private static async _buildLogEmbed(data: {

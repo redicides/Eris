@@ -80,21 +80,21 @@ export default class Unban extends Command {
       };
     }
 
-    const createdAt = Date.now();
+    const created_at = Date.now();
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+    await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
     let uResult = true;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
-      guildId: interaction.guildId,
-      targetId: target.id,
-      executorId: interaction.user.id,
+      guild_id: interaction.guildId,
+      target_id: target.id,
+      executor_id: interaction.user.id,
       type: 'Unban',
       reason,
-      createdAt
+      created_at
     });
 
     await InfractionManager.resolvePunishment({
@@ -117,7 +117,7 @@ export default class Unban extends Command {
     }
 
     await TaskManager.deleteTask({
-      targetId_guildId_type: { guildId: interaction.guildId, targetId: target.id, type: 'Ban' }
+      target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
     });
 
     await InfractionManager.logInfraction({ config, infraction });

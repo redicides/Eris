@@ -94,14 +94,14 @@ export default class Request extends Command {
 
     switch (subcommand) {
       case RequestSubcommand.Mute: {
-        if (!config.muteRequestsEnabled) {
+        if (!config.mute_requests_enabled) {
           return {
             error: 'Mute requests are not enabled in this server.',
             temporary: true
           };
         }
 
-        if (!config.muteRequestsWebhook) {
+        if (!config.mute_requests_webhook) {
           return {
             error: 'Mute requests are not configured in this server.',
             temporary: true
@@ -119,7 +119,7 @@ export default class Request extends Command {
           };
         }
 
-        if (config.muteRequestsImmuneRoles.some(role => target.roles.cache.has(role))) {
+        if (config.mute_requests_immune_roles.some(role => target.roles.cache.has(role))) {
           return {
             error: 'The provided target is immune to mute requests.',
             temporary: true
@@ -167,9 +167,9 @@ export default class Request extends Command {
 
         const exists = await this.prisma.muteRequest.findFirst({
           where: {
-            guildId: interaction.guild.id,
-            targetId: target.id,
-            requestedBy: interaction.user.id,
+            guild_id: interaction.guild.id,
+            target_id: target.id,
+            requested_by: interaction.user.id,
             status: 'Pending'
           }
         });
@@ -181,12 +181,12 @@ export default class Request extends Command {
           };
         }
 
-        await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+        await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
         return RequestUtils.createMuteRequest({
           config,
-          guildId: interaction.guild.id,
-          requestedBy: interaction.user.id,
+          guild_id: interaction.guild.id,
+          requested_by: interaction.user.id,
           target,
           duration,
           reason
@@ -194,14 +194,14 @@ export default class Request extends Command {
       }
 
       case RequestSubcommand.Ban: {
-        if (!config.banRequestsEnabled) {
+        if (!config.ban_requests_enabled) {
           return {
             error: 'Ban requests are not enabled in this server.',
             temporary: true
           };
         }
 
-        if (!config.banRequestsWebhook) {
+        if (!config.ban_requests_webhook) {
           return {
             error: 'Ban requests are not configured in this server.',
             temporary: true
@@ -220,7 +220,7 @@ export default class Request extends Command {
         }
 
         if (
-          config.banRequestsImmuneRoles.some(role =>
+          config.ban_requests_immune_roles.some(role =>
             interaction.guild.members.cache.get(target.id)?.roles.cache.has(role)
           )
         ) {
@@ -280,9 +280,9 @@ export default class Request extends Command {
 
         const exists = await this.prisma.banRequest.findFirst({
           where: {
-            guildId: interaction.guild.id,
-            targetId: target.id,
-            requestedBy: interaction.user.id,
+            guild_id: interaction.guild.id,
+            target_id: target.id,
+            requested_by: interaction.user.id,
             status: 'Pending'
           }
         });
@@ -294,12 +294,12 @@ export default class Request extends Command {
           };
         }
 
-        await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
+        await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
         return RequestUtils.createBanRequest({
           config,
-          guildId: interaction.guild.id,
-          requestedBy: interaction.user.id,
+          guild_id: interaction.guild.id,
+          requested_by: interaction.user.id,
           target,
           duration,
           reason
