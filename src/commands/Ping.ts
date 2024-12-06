@@ -1,7 +1,7 @@
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { isEphemeral } from '@utils/index';
+import { isEphemeralReply } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
@@ -21,7 +21,7 @@ export default class Ping extends Command {
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig
   ): Promise<InteractionReplyData> {
-    const ephemeral = isEphemeral({ interaction, config });
+    const ephemeral = isEphemeralReply({ interaction, config });
 
     const start = performance.now();
     await interaction.deferReply({ ephemeral });

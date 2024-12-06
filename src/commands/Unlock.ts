@@ -13,7 +13,7 @@ import {
 import { PermissionEnum } from '@prisma/client';
 
 import { MessageKeys } from '@utils/Keys';
-import { elipsify, hasPermission } from '@utils/index';
+import { elipsify, hasPermission, isEphemeralReply } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
@@ -58,12 +58,11 @@ export default class Unlock extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? (interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify)
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdownNotify
       : config.lockdownNotify;
 
     if (!hasPermission(interaction.member, config, 'UnlockChannels')) {
@@ -139,7 +138,7 @@ export default class Unlock extends Command {
 
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ config, interaction }) });
 
     if (lockAllowOverrides !== 0n) {
       await this.prisma.channelLock.delete({ where: { id: channel.id } });

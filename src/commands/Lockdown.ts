@@ -12,7 +12,7 @@ import {
 import { PermissionEnum } from '@prisma/client';
 
 import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
-import { elipsify, hasPermission, pluralize, sleep } from '@/utils';
+import { elipsify, hasPermission, isEphemeralReply, pluralize, sleep } from '@/utils';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { client, prisma } from '@/index';
 import { MessageKeys } from '@utils/Keys';
@@ -78,14 +78,13 @@ export default class Lockdown extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData | null> {
     const subcommand = interaction.options.getSubcommand(true) as LockdownSubcommand;
 
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannels = hasPermission(interaction.member, config, PermissionEnum.OverrideLockdownNotificatons)
-      ? (interaction.options.getBoolean('notify-channels', false) ?? config.lockdownNotify)
+      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdownNotify
       : config.lockdownNotify;
 
     if (subcommand === LockdownSubcommand.Start) {
@@ -108,7 +107,7 @@ export default class Lockdown extends Command {
       return Lockdown.startLockdown({
         config,
         interaction,
-        ephemeral,
+        ephemeral: isEphemeralReply({ interaction, config }),
         reason,
         notifyChannels
       });
@@ -131,7 +130,7 @@ export default class Lockdown extends Command {
 
       return Lockdown.endLockdown({
         interaction,
-        ephemeral,
+        ephemeral: isEphemeralReply({ interaction, config }),
         config,
         reason,
         notifyChannels

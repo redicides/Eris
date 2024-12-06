@@ -9,7 +9,7 @@ import ms from 'ms';
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { MAX_DURATION_STR } from '@utils/Constants';
-import { parseDuration } from '@utils/index';
+import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MessageKeys, DurationKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -69,8 +69,7 @@ export default class Ban extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const member = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
@@ -132,7 +131,7 @@ export default class Ban extends Command {
 
     let expiresAt: number | null = null;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     const createdAt = Date.now();
 

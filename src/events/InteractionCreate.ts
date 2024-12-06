@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import { ModerationCommand } from '@prisma/client';
 
-import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral } from '@utils/index';
+import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeralReply } from '@utils/index';
 import { prisma, Sentry } from '@/index';
 import { MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
@@ -126,10 +126,10 @@ export default class InteractionCreate extends EventListener {
   ): Promise<void> {
     let options: InteractionReplyData | null;
 
-    const ephemeral = interaction.isCommand() ? isEphemeral({ interaction, config }) : true;
+    const ephemeral = interaction.isCommand() ? isEphemeralReply({ interaction, config }) : true;
 
     if (interaction.isCommand()) {
-      options = await (data as Command).execute(interaction as CommandInteraction<'cached'>, config, ephemeral);
+      options = await (data as Command).execute(interaction as CommandInteraction<'cached'>, config);
     } else {
       options = await (data as Component).execute(interaction, config);
     }
@@ -191,7 +191,7 @@ export default class InteractionCreate extends EventListener {
     config: GuildConfig,
     command: ModerationCommand
   ) {
-    const ephemeral = isEphemeral({ interaction, config });
+    const ephemeral = isEphemeralReply({ interaction, config });
     const options = await CommandManager.handleCustomModerationCommand(interaction, config, command, ephemeral);
 
     const ttl = getInteractionTTL(interaction, config, options);

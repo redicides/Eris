@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits
 } from 'discord.js';
 
+import { isEphemeralReply } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
@@ -44,8 +45,7 @@ export default class Unban extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getUser('target');
     const rawReason = interaction.options.getString('reason', false);
@@ -83,7 +83,7 @@ export default class Unban extends Command {
     const createdAt = Date.now();
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     let uResult = true;
 

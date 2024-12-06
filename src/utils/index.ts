@@ -340,7 +340,7 @@ export function generateSnowflakeId(): string {
  * @returns Whether the reply should be ephemeral (boolean)
  */
 
-export function isEphemeral(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }): boolean {
+export function isEphemeralReply(data: { interaction: CommandInteraction<'cached'>; config: GuildConfig }): boolean {
   const { interaction, config } = data;
 
   const scope = config.ephemeralScopes.find(scope => scope.commandName === interaction.commandName);
@@ -547,7 +547,7 @@ export async function getReferenceMessage(
       (referenceMessage instanceof DiscordMessage ? referenceMessage.author.id : referenceMessage.authorId) ?? null,
     channelId: referenceMessage.channelId,
     stickerId:
-      'stickerId' in referenceMessage ? referenceMessage.stickerId : (referenceMessage.stickers?.first()?.id ?? null),
+      'stickerId' in referenceMessage ? referenceMessage.stickerId : referenceMessage.stickers?.first()?.id ?? null,
     createdAt:
       referenceMessage instanceof DiscordMessage
         ? referenceMessage.createdAt

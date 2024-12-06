@@ -7,6 +7,7 @@ import {
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
+import { isEphemeralReply } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
@@ -43,8 +44,7 @@ export default class Kick extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawReason = interaction.options.getString('reason', false);
@@ -72,7 +72,7 @@ export default class Kick extends Command {
       };
     }
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     let kResult = true;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;

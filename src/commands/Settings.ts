@@ -22,7 +22,7 @@ import { prisma } from '..';
 import { isCategory } from './Config';
 import { MAX_DURATION_STR } from '@utils/Constants';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { parseDuration, pluralize, uploadData } from '@utils/index';
+import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
@@ -596,13 +596,12 @@ export default class Settings extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const group = interaction.options.getSubcommandGroup() as SettingsSubcommandGroup;
     const subcommand = interaction.options.getSubcommand() as SettingsSubcommand;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     switch (group) {
       case SettingsSubcommandGroup.Permissions:

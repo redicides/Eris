@@ -90,8 +90,7 @@ export default abstract class Command {
    */
   abstract execute(
     interaction: CommandInteraction,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Awaitable<InteractionReplyData | null>;
 }
 

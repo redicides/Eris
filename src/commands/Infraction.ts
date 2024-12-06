@@ -7,7 +7,7 @@ import {
 import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { hasPermission } from '@utils/index';
+import { hasPermission, isEphemeralReply } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -99,12 +99,11 @@ export default class Infraction extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const subcommand = interaction.options.getSubcommand() as InfracionSubcommand;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     switch (subcommand) {
       case InfracionSubcommand.Search: {

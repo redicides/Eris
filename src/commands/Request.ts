@@ -8,7 +8,7 @@ import {
 import ms from 'ms';
 
 import { MessageKeys } from '@utils/Keys';
-import { parseDuration } from '@utils/index';
+import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MAX_DURATION_STR } from '@utils/Constants';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
@@ -88,8 +88,7 @@ export default class Request extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData | null> {
     const subcommand = interaction.options.getSubcommand() as RequestSubcommand;
 
@@ -182,7 +181,7 @@ export default class Request extends Command {
           };
         }
 
-        await interaction.deferReply({ ephemeral });
+        await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
         return RequestUtils.createMuteRequest({
           config,
@@ -295,7 +294,7 @@ export default class Request extends Command {
           };
         }
 
-        await interaction.deferReply({ ephemeral });
+        await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
         return RequestUtils.createBanRequest({
           config,

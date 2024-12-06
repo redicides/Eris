@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits
 } from 'discord.js';
 
+import { isEphemeralReply } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
@@ -44,8 +45,7 @@ export default class Unmute extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawReason = interaction.options.getString('reason', false);
@@ -77,7 +77,7 @@ export default class Unmute extends Command {
 
     let mResult = true;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,

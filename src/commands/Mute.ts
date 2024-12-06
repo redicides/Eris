@@ -7,7 +7,7 @@ import {
 import ms from 'ms';
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
-import { parseDuration } from '@utils/index';
+import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -53,8 +53,7 @@ export default class Mute extends Command {
 
   async execute(
     interaction: ChatInputCommandInteraction<'cached'>,
-    config: GuildConfig,
-    ephemeral: boolean
+    config: GuildConfig
   ): Promise<InteractionReplyData> {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
@@ -109,7 +108,7 @@ export default class Mute extends Command {
 
     let expiresAt: number | null;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: isEphemeralReply({ interaction, config }) });
 
     let mResult = true;
     if (!duration) duration = Number(config.defaultMuteDuration);
