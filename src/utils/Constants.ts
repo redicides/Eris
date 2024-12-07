@@ -23,7 +23,8 @@ export const CLIENT_INTENTS = [
   GatewayIntentBits.MessageContent,
   GatewayIntentBits.DirectMessages,
   GatewayIntentBits.GuildModeration,
-  GatewayIntentBits.GuildWebhooks
+  GatewayIntentBits.GuildWebhooks,
+  GatewayIntentBits.GuildVoiceStates
 ];
 
 /**
