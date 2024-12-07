@@ -9,7 +9,7 @@ If you're looking at this repository, I'll assume that you want to self-host thi
 ## Prerequisites
 
 > [!NOTE]
-> Setting up a MongoDB database that is compatible with Charmie can be challenging! To help, a detailed guide has been published [`here`](/guides/DATABASE-SETUP.md).
+> Setting up a MongoDB database that is compatible with Charmie can be challenging! To help, a detailed guide has been published [`here`](/documentation/Database-setup.md).
 
 - JavaScript Runtime ([NodeJS](https://nodejs.org/) or [Bun](https://bun.sh/))
 - MongoDB Database (to store data on)
