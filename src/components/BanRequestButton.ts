@@ -44,7 +44,7 @@ export default class BanRequestButtonComponent extends Component {
       }, 7500);
 
       return {
-        error: `This report has already been resolved by ${userMentionWithId(
+        error: `This request has already been resolved by ${userMentionWithId(
           request.resolved_by
         )}. I will attempt to delete the alert in **7 seconds**.`,
         temporary: true

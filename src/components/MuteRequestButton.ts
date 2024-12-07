@@ -44,9 +44,11 @@ export default class MuteRequestButton extends Component {
       }, 7500);
 
       return {
-        error: `This report has already been resolved by ${userMentionWithId(
-          request.resolved_by
-        )}. I will attempt to delete the alert in **7 seconds**.`,
+        error: `This request has already been ${
+          request.status === 'AutoResolved'
+            ? 'automatically resolved due to a ban'
+            : `resolved by ${userMentionWithId(request.resolved_by)}`
+        }. I will attempt to delete the alert in **7 seconds**.`,
         temporary: true
       };
     }

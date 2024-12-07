@@ -46,9 +46,11 @@ export default class MessageReportButtonsComponent extends Component {
       }, 7500);
 
       return {
-        error: `This report has already been resolved by ${userMentionWithId(
-          report.resolved_by
-        )}. I will attempt to delete the alert in **7 seconds**.`,
+        error: `This report has already been ${
+          report.status === 'AutoResolved'
+            ? 'automatically resolved due to a ban'
+            : `resolved by ${userMentionWithId(report.resolved_by)}`
+        }. I will attempt to delete the alert in **7 seconds**.`,
         temporary: true
       };
     }
