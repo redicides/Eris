@@ -939,9 +939,9 @@ export default class Settings extends Command {
               })
             );
 
-            return `Name: ${permission.name}\n└── Included Roles: ${
+            return `Name: ${permission.name}\n└ Included Roles: ${
               roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
-            }\n└── Allowed Permissions: ${permission.allowed.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
+            }\n└ Allowed Permissions: ${permission.allowed.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
           })
         )
       ).join('\n\n');
@@ -1426,9 +1426,9 @@ export default class Settings extends Command {
             })
           );
 
-          return `Command: ${scope.command_name}\n└── Included channels: ${included_channels.join(
+          return `Command: ${scope.command_name}\n└ Included channels: ${included_channels.join(
             ', '
-          )}\n└── Excluded channels: ${excluded_channels.join(', ')}`;
+          )}\n└ Excluded channels: ${excluded_channels.join(', ')}`;
         })
       );
 

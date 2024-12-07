@@ -441,18 +441,18 @@ export default class ShortcutManager extends Command {
     }
 
     const map = shortcuts.map(shortcut => {
-      let content = `Name: \`${shortcut.name}\`\n└── Description: ${shortcut.description}\n└── Action: ${shortcut.action}\n└── Reason: ${shortcut.reason}`;
+      let content = `Name: \`${shortcut.name}\`\n└ Description: ${shortcut.description}\n└ Action: ${shortcut.action}\n└ Reason: ${shortcut.reason}`;
 
       if (shortcut.duration) {
-        content += `\n└── Duration: ${ms(Number(shortcut.duration), { long: true })}`;
+        content += `\n└ Duration: ${ms(Number(shortcut.duration), { long: true })}`;
       }
 
       if (shortcut.additional_info) {
-        content += `\n└── Additional Info: ${shortcut.additional_info}`;
+        content += `\n└ Additional Info: ${shortcut.additional_info}`;
       }
 
       if (shortcut.message_delete_time) {
-        content += `\n└── Message Delete Time: ${ms(Number(shortcut.message_delete_time), { long: true })}`;
+        content += `\n└ Message Delete Time: ${ms(Number(shortcut.message_delete_time), { long: true })}`;
       }
 
       return content;

@@ -258,9 +258,9 @@ export default class Lockdown extends Command {
       'channel'
     )}.\n`;
 
-    if (map.unknown) content += `└── Channels I failed to fetch: ${map.unknown}\n`;
-    if (map.failed) content += `└── Channels I failed to lock: ${map.failed}\n`;
-    if (map.alreadyLocked) content += `└── Channels that were already locked: ${map.alreadyLocked}\n`;
+    if (map.unknown) content += `└ Channels I failed to fetch: ${map.unknown}\n`;
+    if (map.failed) content += `└ Channels I failed to lock: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `└ Channels that were already locked: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
@@ -405,9 +405,9 @@ export default class Lockdown extends Command {
       lockdown_channels.length
     }\` ${pluralize(lockdown_channels.length, 'channel')}.\n`;
 
-    if (map.unknown) content += `└── Channels I failed to fetch: ${map.unknown}\n`;
-    if (map.failed) content += `└── Channels I failed to unlock: ${map.failed}\n`;
-    if (map.alreadyLocked) content += `└── Channels that were already unlocked: ${map.alreadyLocked}\n`;
+    if (map.unknown) content += `└ Channels I failed to fetch: ${map.unknown}\n`;
+    if (map.failed) content += `└ Channels I failed to unlock: ${map.failed}\n`;
+    if (map.alreadyLocked) content += `└ Channels that were already unlocked: ${map.alreadyLocked}\n`;
 
     await interaction
       .followUp({
