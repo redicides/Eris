@@ -428,7 +428,8 @@ export default class Config extends Command {
                       { name: 'Infractions', value: 'infraction_logging_webhook' },
                       { name: 'Reports', value: 'report_logging_webhook' },
                       { name: 'Requests', value: 'request_logging_webhook' },
-                      { name: 'Messages', value: 'message_logging_webhook' }
+                      { name: 'Messages', value: 'message_logging_webhook' },
+                      { name: 'Threads', value: 'thread_logging_webhook' }
                     ]
                   }
                 ]
@@ -447,7 +448,8 @@ export default class Config extends Command {
                       { name: 'Infractions', value: 'infraction_logging_enabled' },
                       { name: 'Reports', value: 'report_logging_enabled' },
                       { name: 'Requests', value: 'request_logging_enabled' },
-                      { name: 'Messages', value: 'message_logging_enabled' }
+                      { name: 'Messages', value: 'message_logging_enabled' },
+                      { name: 'Threads', value: 'thread_logging_enabled' }
                     ]
                   }
                 ]
@@ -469,7 +471,10 @@ export default class Config extends Command {
                     description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [{ name: 'Messages', value: 'message_logging_ignored_channels' }]
+                    choices: [
+                      { name: 'Messages', value: 'message_logging_ignored_channels' },
+                      { name: 'Threads', value: 'thread_logging_ignored_channels' }
+                    ]
                   }
                 ]
               },
@@ -490,7 +495,10 @@ export default class Config extends Command {
                     description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [{ name: 'Messages', value: 'message_logging_ignored_channels' }]
+                    choices: [
+                      { name: 'Messages', value: 'message_logging_ignored_channels' },
+                      { name: 'Threads', value: 'thread_logging_ignored_channels' }
+                    ]
                   }
                 ]
               },
@@ -504,7 +512,10 @@ export default class Config extends Command {
                     description: 'The log type.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [{ name: 'Messages', value: 'message_logging_ignored_channels' }]
+                    choices: [
+                      { name: 'Messages', value: 'message_logging_ignored_channels' },
+                      { name: 'Threads', value: 'thread_logging_ignored_channels' }
+                    ]
                   }
                 ]
               }
@@ -1510,6 +1521,11 @@ export default class Config extends Command {
       case 'message_logging_webhook':
       case 'message_logging_ignored_channels':
         return 'message';
+
+      case 'thread_logging_enabled':
+      case 'thread_logging_webhook':
+      case 'thread_logging_ignored_channels':
+        return 'thread';
 
       case 'report_logging_enabled':
       case 'report_logging_webhook':

@@ -148,6 +148,12 @@ model Guild {
   message_logging_webhook          String?
   message_logging_ignored_channels String[]
 
+  // Thread logging settings
+
+  thread_logging_enabled          Boolean  @default(true)
+  thread_logging_webhook          String?
+  thread_logging_ignored_channels String[]
+
   // Lockdown settings
   lockdown_channels         String[]
   lockdown_notify           Boolean  @default(true)

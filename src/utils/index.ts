@@ -30,10 +30,11 @@ import { PermissionEnum, Message, Shortcut } from '@prisma/client';
 import YAML from 'yaml';
 import fs from 'fs';
 import ms from 'ms';
+import _ from 'lodash';
 
 import { client } from '..';
 import { EMPTY_MESSAGE_CONTENT, LOG_ENTRY_DATE_FORMAT } from './Constants';
-import { GuildConfig, InteractionReplyData, MessageLog } from './Types';
+import { GuildConfig, InteractionReplyData, MessageLog, ObjectDiff } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
 import { CommandCategory } from '@managers/commands/Command';
 
@@ -672,6 +673,37 @@ export async function sendNotification(data: {
   }
 
   return new WebhookClient({ url: config.notification_webhook }).send(options).catch(() => null);
+}
+
+/**
+ * Compares two objects and returns the differences between them
+ *
+ * @param oldObject - The old state of the object
+ * @param newObject - The new state of the object
+ * @returns The differences between the two states of the object
+ * @throws Error - If either of the arguments is not an object
+ */
+export function getObjectDiff(oldObject: any, newObject: any): ObjectDiff {
+  const paramsAreObjects = typeof oldObject === 'object' && typeof newObject === 'object';
+  const paramsAreNotNull = oldObject !== null && newObject !== null;
+
+  if (!paramsAreObjects || !paramsAreNotNull) {
+    throw new Error('Both parameters must be non-null objects');
+  }
+
+  const differences: ObjectDiff = {};
+  const keys = Object.keys(oldObject);
+
+  for (const key of keys) {
+    if (!_.isEqual(oldObject[key], newObject[key])) {
+      differences[key] = {
+        old: oldObject[key],
+        new: newObject[key]
+      };
+    }
+  }
+
+  return differences;
 }
 
 // Things that are used in this file only
