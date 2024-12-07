@@ -1,6 +1,6 @@
 import { APIMessage, Colors, EmbedBuilder, Events, ThreadChannel, WebhookClient } from 'discord.js';
 
-import { channelMentionWithId, getObjectDiff, userMentionWithId } from '@utils/index';
+import { channelMentionWithId, getObjectDiff, userMentionWithId, capitalize} from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
@@ -33,7 +33,7 @@ export default class ThreadUpdate extends EventListener {
     const changes: string[] = [];
 
     for (const [prop, diff] of Object.entries(difference)) {
-      changes.push(`> ${prop}\n> \`${diff.old}\` → \`${diff.new}\`\n`);
+      changes.push(`${capitalize(prop)}\n └── \`${diff.old}\` → \`${diff.new}\`\n`);
     }
 
     if (!changes.length) return null;
