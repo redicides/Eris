@@ -67,11 +67,25 @@ export default class Evaluate extends Command {
 
   async execute(interaction: ChatInputCommandInteraction): Promise<InteractionReplyData> {
     const context = Evaluate.getExecutionContext(interaction);
-    const { ephemeral } = context;
 
-    await interaction.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral: context.ephemeral });
 
-    return Evaluate.processResult(interaction, await Evaluate.executeCode(context), context);
+    let rawOutput;
+    let error = false;
+    const start = performance.now();
+
+    try {
+      rawOutput = await eval(context.async ? `(async() => { ${context.code} })()` : context.code);
+    } catch (e) {
+      rawOutput = e;
+      error = true;
+    }
+
+    const timeTaken = performance.now() - start;
+    const type = typeof rawOutput;
+    const output = typeof rawOutput === 'string' ? rawOutput : util.inspect(rawOutput, { depth: context.depth });
+
+    return Evaluate.processResult(interaction, { type, timeTaken, output, error }, context);
   }
 
   private static getExecutionContext(interaction: ChatInputCommandInteraction) {
@@ -82,25 +96,6 @@ export default class Evaluate extends Command {
       dm: interaction.options.getBoolean('dm') ?? false,
       ephemeral: interaction.options.getBoolean('ephemeral') ?? false
     };
-  }
-
-  private static async executeCode(context: ExecutionContext) {
-    let output;
-    let error = false;
-    const start = performance.now();
-
-    try {
-      output = await eval(context.async ? `(async() => { ${context.code} })()` : context.code);
-    } catch (e) {
-      output = e;
-      error = true;
-    }
-
-    const timeTaken = performance.now() - start;
-    const type = typeof output;
-    const formattedOutput = typeof output === 'string' ? output : util.inspect(output, { depth: context.depth });
-
-    return { output: formattedOutput, type, timeTaken, error };
   }
 
   private static async processResult(
