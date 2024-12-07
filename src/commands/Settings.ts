@@ -388,7 +388,7 @@ export default class Settings extends Command {
                 ]
               },
               {
-                name: SettingsSubcommand.Listephemeral_scopes,
+                name: SettingsSubcommand.ListEphemeralScopes,
                 description: 'List all the ephemeral scopes.',
                 type: ApplicationCommandOptionType.Subcommand
               }
@@ -400,8 +400,8 @@ export default class Settings extends Command {
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
               {
-                name: SettingsSubcommand.RequireReason,
-                description: 'Require a reason for issuing an infraction.',
+                name: SettingsSubcommand.ForceReason,
+                description: 'Force a reason when issuing an infraction.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
@@ -583,8 +583,8 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand
               },
               {
-                name: SettingsSubcommand.RequireReason,
-                description: 'Require a reason for initiating locks/unlocks.',
+                name: SettingsSubcommand.ForceReason,
+                description: 'Force a reason for locking & unlocking.',
                 type: ApplicationCommandOptionType.Subcommand
               }
             ]
@@ -647,8 +647,8 @@ export default class Settings extends Command {
               return Settings.Commands.addExcludedChannel(interaction, config);
             case SettingsSubcommand.RemoveExcludedChannel:
               return Settings.Commands.removeExcludedChannel(interaction, config);
-            case SettingsSubcommand.Listephemeral_scopes:
-              return Settings.Commands.listephemeral_scopes(interaction, config);
+            case SettingsSubcommand.ListEphemeralScopes:
+              return Settings.Commands.listEphemeralScopes(interaction, config);
           }
         }
 
@@ -657,7 +657,7 @@ export default class Settings extends Command {
       case SettingsSubcommandGroup.Infractions:
         {
           switch (subcommand) {
-            case SettingsSubcommand.RequireReason:
+            case SettingsSubcommand.ForceReason:
               return Settings.Infractions.requireReason(interaction, config);
             case SettingsSubcommand.SetDefaultDuration:
               return Settings.Infractions.setDefaultDuration(interaction, config);
@@ -690,7 +690,7 @@ export default class Settings extends Command {
             return Settings.Lockdown.toggleNotifications(config);
           case SettingsSubcommand.DisplayExecutor:
             return Settings.Lockdown.showExecutor(config);
-          case SettingsSubcommand.RequireReason:
+          case SettingsSubcommand.ForceReason:
             return Settings.Lockdown.requireReason(config);
         }
       }
@@ -1400,7 +1400,7 @@ export default class Settings extends Command {
       };
     },
 
-    async listephemeral_scopes(
+    async listEphemeralScopes(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
@@ -1927,7 +1927,7 @@ enum SettingsSubcommandGroup {
 enum SettingsSubcommand {
   Toggle = 'toggle',
   ToggleDefaultEphemeralReply = 'toggle-default-ephemeral-reply',
-  RequireReason = 'require-reason',
+  ForceReason = 'force-reason',
   SetDefaultDuration = 'set-default-duration',
   ToggleNotifications = 'toggle-notifications',
   ToggleNativeIntegration = 'toggle-native-integration',
@@ -1938,7 +1938,7 @@ enum SettingsSubcommand {
   RemoveIncludedChannel = 'remove-included-channel',
   AddExcludedChannel = 'add-excluded-channel',
   RemoveExcludedChannel = 'remove-excluded-channel',
-  Listephemeral_scopes = 'list-ephemeral-scopes',
+  ListEphemeralScopes = 'list-ephemeral-scopes',
   CreateNode = 'create-node',
   DeleteNode = 'delete-node',
   AddRoleToNode = 'add-role-to-node',

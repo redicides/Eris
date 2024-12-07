@@ -71,8 +71,8 @@ export default class Config extends Command {
                 ]
               },
               {
-                name: ConfigSubcommand.RequireMember,
-                description: 'Require members for reports.',
+                name: ConfigSubcommand.ForceMember,
+                description: 'Force report targets to be in the guild.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
@@ -228,8 +228,8 @@ export default class Config extends Command {
                 ]
               },
               {
-                name: ConfigSubcommand.RequireReviewReason,
-                description: 'Require a reason for managing reports.',
+                name: ConfigSubcommand.ForceReviewReason,
+                description: 'Force reviewers to submit a reason when managing reports.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
@@ -532,8 +532,8 @@ export default class Config extends Command {
               return Config.Reports.toggleReport(interaction, config);
             case ConfigSubcommand.ToggleNotifications:
               return Config.Reports.toggleNotifications(interaction, config);
-            case ConfigSubcommand.RequireMember:
-              return Config.Reports.requireMember(interaction, config);
+            case ConfigSubcommand.ForceMember:
+              return Config.Reports.forceMember(interaction, config);
             case ConfigSubcommand.SetAlertChannel:
               return Config.Reports.setAlertChannel(interaction, config);
             case ConfigSubcommand.AddImmuneRole:
@@ -546,8 +546,8 @@ export default class Config extends Command {
               return Config.Reports.removePingRole(interaction);
             case ConfigSubcommand.SetAutoDisregard:
               return Config.Reports.setAutoDisregard(interaction, config);
-            case ConfigSubcommand.RequireReviewReason:
-              return Config.Reports.requireReviewReason(interaction, config);
+            case ConfigSubcommand.ForceReviewReason:
+              return Config.Reports.forceReviewReason(interaction, config);
           }
         }
 
@@ -605,7 +605,7 @@ export default class Config extends Command {
    */
 
   public static Reports = {
-    async requireMember(
+    async forceMember(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
@@ -947,7 +947,7 @@ export default class Config extends Command {
       };
     },
 
-    async requireReviewReason(
+    async forceReviewReason(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
@@ -1534,7 +1534,6 @@ enum ConfigSubcommandGroup {
 enum ConfigSubcommand {
   Toggle = 'toggle',
   ToggleNotifications = 'toggle-notifications',
-  ToggleNativeIntegration = 'toggle-native-integration',
   TimeToLive = 'time-to-live',
   SetAlertChannel = 'set-alert-channel',
   AddImmuneRole = 'add-immune-role',
@@ -1542,29 +1541,12 @@ enum ConfigSubcommand {
   RemoveImmuneRole = 'remove-immune-role',
   RemovePingRole = 'remove-ping-role',
   SetAutoDisregard = 'set-auto-disregard',
-  RequireMember = 'require-member',
-  RequireReviewReason = 'require-review-reason',
-  RequireReason = 'require-reason',
-  SetDefaultDuration = 'set-default-duration',
+  ForceMember = 'force-member',
+  ForceReviewReason = 'force-review-reason',
   SetLogChannel = 'set-channel',
-  CreateNode = 'create-node',
-  DeleteNode = 'delete-node',
-  ListNodes = 'list',
-  AddRoleToNode = 'add-role-to-node',
-  RemoveRoleFromNode = 'remove-role-from-node',
-  GrantPermission = 'grant',
-  RevokePermission = 'revoke',
-  CreateScope = 'create-ephemeral-scope',
-  DeleteScope = 'delete-ephemeral-scope',
-  AddIncludedChannel = 'add-included-channel',
-  RemoveIncludedChannel = 'remove-included-channel',
-  AddExcludedChannel = 'add-excluded-channel',
-  RemoveExcludedChannel = 'remove-excluded-channel',
-  List = 'list-ephemeral-scopes',
   AddIgnoredChannel = 'add-ignored-channel',
   RemoveIgnoredChannel = 'remove-ignored-channel',
   ListIgnoredChannels = 'list-ignored-channels',
-  ToggleDefaultEphemeralReply = 'toggle-default-ephemeral-reply',
   SetNotificationChannel = 'set-notification-channel'
 }
 
