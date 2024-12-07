@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { SHORTCUT_PERMISSIONS } from '@utils/Constants';
+import { SHORTCUT_PERMISSION_FLAGS } from '@utils/Constants';
 import { MessageKeys } from '@utils/Keys';
 import { pluralize } from '@utils/index';
 import { client } from '@/index';
@@ -133,13 +133,14 @@ export default class CommandManager {
     const { action, reason, duration, message_delete_time } = command;
 
     if (action !== 'Warn') {
-      const requiredPermissions = SHORTCUT_PERMISSIONS[action];
+      const permissions = SHORTCUT_PERMISSION_FLAGS[action];
+
       if (
-        !interaction.appPermissions.has(requiredPermissions) ||
-        !interaction.channel?.permissionsFor(interaction.guild.members.me!).has(requiredPermissions)
+        !interaction.appPermissions.has(permissions) ||
+        !interaction.channel?.permissionsFor(interaction.guild.members.me!).has(permissions)
       ) {
         return {
-          error: MessageKeys.Errors.MissingPermissions(requiredPermissions.bitfield),
+          error: MessageKeys.Errors.MissingPermissions(permissions),
           temporary: true
         };
       }
