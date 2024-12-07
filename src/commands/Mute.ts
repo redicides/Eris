@@ -149,16 +149,17 @@ export default class Mute extends Command {
       reason
     });
 
-    await TaskManager.storeTask({
-      guild_id: interaction.guildId,
-      target_id: target.id,
-      infraction_id: infraction.id,
-      expires_at,
-      type: 'Mute'
-    });
-
-    await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
-    await InfractionManager.logInfraction({ config, infraction });
+    await Promise.all([
+      TaskManager.storeTask({
+        guild_id: interaction.guildId,
+        target_id: target.id,
+        infraction_id: infraction.id,
+        expires_at,
+        type: 'Mute'
+      }),
+      InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
+      InfractionManager.logInfraction({ config, infraction })
+    ]);
 
     return {
       embeds: [

@@ -7,7 +7,7 @@ import {
   time,
   TimestampStyles
 } from 'discord.js';
-import { cpus, uptime, type CpuInfo } from 'os';
+import { cpus, type CpuInfo } from 'os';
 
 import ms from 'ms';
 
@@ -39,27 +39,36 @@ export default class Statistics extends Command {
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
     const ephemeral = interaction.options.getBoolean('ephemeral') ?? true;
+
+    await interaction.deferReply({ ephemeral });
+
     /**
      * We query a guild from the database to get a very rough estimate of the database latency.
      */
-
-    await interaction.deferReply({ ephemeral });
 
     const queryStart = performance.now();
     await this.prisma.guild.findUnique({ where: { id: interaction.guildId } });
     const queryPing = performance.now() - queryStart;
 
-    // Count "important" entries on the database
+    const counts = {
+      guilds: 0,
+      infractions: 0,
+      messages: 0
+    };
 
-    const guilds = await this.prisma.guild.count();
-    const infractions = await this.prisma.infraction.count();
-    const messages = await this.prisma.message.count();
+    // Concurrently count "important" entries on the database
+
+    await Promise.all([
+      this.prisma.guild.count().then(count => (counts.guilds = count)),
+      this.prisma.infraction.count().then(count => (counts.infractions = count)),
+      this.prisma.message.count().then(count => (counts.messages = count))
+    ]);
 
     const currentDate = Math.round(Date.now() / 1000);
 
     const embed = new EmbedBuilder()
       .setColor(Colors.NotQuiteBlack)
-      .setAuthor({ name: 'Statistics', iconURL: this.client.user!.displayAvatarURL() })
+      .setAuthor({ name: 'Statistics Report', iconURL: this.client.user!.displayAvatarURL() })
       .setThumbnail(this.client.user!.displayAvatarURL())
       .setFields([
         {
@@ -72,13 +81,13 @@ export default class Statistics extends Command {
         },
         {
           name: 'Database',
-          value: `\\- Guild Entries: \`${guilds}\`\n\\- Infraction Entries: \`${infractions}\`\n\\- Message Entries: \`${messages}\`\n\\- Heartbeat: \`${queryPing.toFixed(
-            2
-          )}ms\``
+          value: `\\- Guild Entries: \`${counts.guilds}\`\n\\- Infraction Entries: \`${
+            counts.infractions
+          }\`\n\\- Message Entries: \`${counts.messages}\`\n\\- Heartbeat: \`${queryPing.toFixed(2)}ms\``
         },
         {
           name: 'Process',
-          value: `\\- Uptime: \`${ms(uptime(), { long: true })}\`\n\\- CPU Usage: \`${cpus()
+          value: `\\- CPU Usage: \`${cpus()
             .map(Statistics._formatCpuInfo.bind(null))
             .join(' | ')}\`\n\\- RSS Memory: \`${Math.floor(
             process.memoryUsage.rss() / 1024 / 1024

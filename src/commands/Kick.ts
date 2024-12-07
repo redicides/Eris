@@ -74,7 +74,6 @@ export default class Kick extends Command {
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    let kResult = true;
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
     const infraction = await InfractionManager.storeInfraction({
@@ -89,6 +88,8 @@ export default class Kick extends Command {
 
     await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
 
+    let failed = false;
+
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
       executor: interaction.member,
@@ -97,11 +98,12 @@ export default class Kick extends Command {
       reason,
       duration: null
     }).catch(() => {
-      kResult = false;
+      failed = true;
     });
 
-    if (!kResult) {
+    if (failed) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
+
       return {
         error: MessageKeys.Errors.PunishmentFailed('Kick', target),
         temporary: true

@@ -199,32 +199,6 @@ export default class CommandManager {
       expires_at
     });
 
-    if (expires_at && (action === 'Mute' || action === 'Ban')) {
-      await TaskManager.storeTask({
-        guild_id: interaction.guildId,
-        target_id: target.id,
-        infraction_id: infraction.id,
-        type: action,
-        expires_at
-      });
-    } else {
-      // Delete ban task if the action is a permanent ban or an unban
-
-      if (action === 'Ban' || action === 'Unban') {
-        await TaskManager.deleteTask({
-          target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guildId, type: 'Ban' }
-        });
-      }
-
-      // Delete mute task if the action is an unmute
-
-      if (action === 'Unmute') {
-        await TaskManager.deleteTask({
-          target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guildId, type: 'Mute' }
-        });
-      }
-    }
-
     if (target instanceof GuildMember) {
       await InfractionManager.sendNotificationDM({
         config,
@@ -258,7 +232,33 @@ export default class CommandManager {
       }
     }
 
-    await InfractionManager.logInfraction({ config, infraction });
+    const promises: any[] = [InfractionManager.logInfraction({ config, infraction })];
+
+    if (expires_at && ['Mute', 'Ban'].includes(action)) {
+      promises.push(
+        TaskManager.storeTask({
+          guild_id: interaction.guildId,
+          target_id: target.id,
+          infraction_id: infraction.id,
+          type: action as 'Mute' | 'Ban',
+          expires_at
+        })
+      );
+    } else if (['Ban', 'Unban', 'Unmute'].includes(action)) {
+      const taskType = action === 'Unmute' ? 'Mute' : 'Ban';
+
+      promises.push(
+        TaskManager.deleteTask({
+          target_id_guild_id_type: {
+            target_id: target.id,
+            guild_id: interaction.guildId,
+            type: taskType
+          }
+        })
+      );
+    }
+
+    await Promise.all(promises);
 
     return {
       embeds: [

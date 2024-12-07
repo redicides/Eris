@@ -155,7 +155,7 @@ export default class Ban extends Command {
       expires_at
     });
 
-    let bResult = true;
+    let failed = false;
 
     if (member) {
       await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target: member, infraction });
@@ -170,32 +170,39 @@ export default class Ban extends Command {
       duration: null,
       deleteMessages: deleteMessageSeconds
     }).catch(() => {
-      bResult = false;
+      failed = true;
     });
 
-    if (!bResult) {
+    if (failed) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
+
       return {
         error: MessageKeys.Errors.PunishmentFailed('Ban', target),
         temporary: true
       };
     }
 
+    const promises: any[] = [InfractionManager.logInfraction({ config, infraction })];
+
     if (expires_at) {
-      await TaskManager.storeTask({
-        guild_id: interaction.guildId,
-        target_id: target.id,
-        infraction_id: infraction.id,
-        expires_at,
-        type: 'Ban'
-      });
+      promises.push(
+        TaskManager.storeTask({
+          guild_id: interaction.guildId,
+          target_id: target.id,
+          infraction_id: infraction.id,
+          expires_at,
+          type: 'Ban'
+        })
+      );
     } else {
-      await TaskManager.deleteTask({
-        target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
-      });
+      promises.push(
+        TaskManager.deleteTask({
+          target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
+        })
+      );
     }
 
-    await InfractionManager.logInfraction({ config, infraction });
+    await Promise.all(promises);
 
     return {
       embeds: [

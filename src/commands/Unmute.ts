@@ -75,9 +75,9 @@ export default class Unmute extends Command {
 
     const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
 
-    let mResult = true;
-
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
+
+    let failed = false;
 
     await InfractionManager.resolvePunishment({
       guild: interaction.guild,
@@ -87,12 +87,12 @@ export default class Unmute extends Command {
       reason,
       duration: null
     }).catch(() => {
-      mResult = false;
+      failed = true;
     });
 
-    if (!mResult) {
+    if (failed) {
       return {
-        error: `Failed to unmute ${target}.`,
+        error: MessageKeys.Errors.PunishmentFailed('Unmute', target),
         temporary: true
       };
     }
@@ -107,12 +107,13 @@ export default class Unmute extends Command {
       created_at: Date.now()
     });
 
-    await TaskManager.deleteTask({
-      target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guild.id, type: 'Mute' }
-    });
-
-    await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
-    await InfractionManager.logInfraction({ config, infraction });
+    await Promise.all([
+      TaskManager.deleteTask({
+        target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guild.id, type: 'Mute' }
+      }),
+      InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
+      InfractionManager.logInfraction({ config, infraction })
+    ]);
 
     return {
       embeds: [

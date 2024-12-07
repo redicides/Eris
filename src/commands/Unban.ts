@@ -110,17 +110,19 @@ export default class Unban extends Command {
 
     if (!uResult) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
+
       return {
         error: MessageKeys.Errors.PunishmentFailed('Unban', target),
         temporary: true
       };
     }
 
-    await TaskManager.deleteTask({
-      target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
-    });
-
-    await InfractionManager.logInfraction({ config, infraction });
+    await Promise.all([
+      TaskManager.deleteTask({
+        target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
+      }),
+      InfractionManager.logInfraction({ config, infraction })
+    ]);
 
     return {
       embeds: [
