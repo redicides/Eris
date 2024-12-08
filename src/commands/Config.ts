@@ -1312,7 +1312,7 @@ export default class Config extends Command {
 
         const newWebhook = await channel
           .createWebhook({
-            name: `Charmie`,
+            name: `${capitalize(Config._parseLogType(type))} Logs`,
             avatar: client.user!.displayAvatarURL()
           })
           .catch(() => {
@@ -1382,7 +1382,7 @@ export default class Config extends Command {
 
         const newWebhook = await channel
           .createWebhook({
-            name: `Charmie`,
+            name: `Notifications`,
             avatar: client.user!.displayAvatarURL()
           })
           .catch(() => {
