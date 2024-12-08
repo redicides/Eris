@@ -154,18 +154,18 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Search_Infractions', value: PermissionEnum.Search_Infractions },
-                      { name: 'Manage_User_Reports', value: PermissionEnum.Manage_User_Reports },
-                      { name: 'Manage_Message_Reports', value: PermissionEnum.Manage_Message_Reports },
-                      { name: 'Manage_Mute_Requests', value: PermissionEnum.Manage_Mute_Requests },
-                      { name: 'Manage_Ban_Requests', value: PermissionEnum.Manage_Ban_Requests },
-                      { name: 'Delete_Infractions', value: PermissionEnum.Delete_Infractions },
-                      { name: 'Update_Infractions', value: PermissionEnum.Update_Infractions },
-                      { name: 'Lock_Channels', value: PermissionEnum.Lock_Channels },
-                      { name: 'Unlock_Channels', value: PermissionEnum.Unlock_Channels },
-                      { name: 'Start_Lockdown', value: PermissionEnum.Start_Lockdown },
-                      { name: 'End_Lockdown', value: PermissionEnum.End_Lockdown },
-                      { name: 'Override_Lockdown_Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
+                      { name: 'Search Infractions', value: PermissionEnum.Search_Infractions },
+                      { name: 'Manage User Reports', value: PermissionEnum.Manage_User_Reports },
+                      { name: 'Manage Message Reports', value: PermissionEnum.Manage_Message_Reports },
+                      { name: 'Manage Mute Requests', value: PermissionEnum.Manage_Mute_Requests },
+                      { name: 'Manage Ban Requests', value: PermissionEnum.Manage_Ban_Requests },
+                      { name: 'Delete Infractions', value: PermissionEnum.Delete_Infractions },
+                      { name: 'Update Infractions', value: PermissionEnum.Update_Infractions },
+                      { name: 'Lock Channels', value: PermissionEnum.Lock_Channels },
+                      { name: 'Unlock Channels', value: PermissionEnum.Unlock_Channels },
+                      { name: 'Start Lockdown', value: PermissionEnum.Start_Lockdown },
+                      { name: 'End Lockdown', value: PermissionEnum.End_Lockdown },
+                      { name: 'Override Lockdown Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
                     ]
                   }
                 ]
@@ -188,18 +188,18 @@ export default class Settings extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Search_Infractions', value: PermissionEnum.Search_Infractions },
-                      { name: 'Manage_User_Reports', value: PermissionEnum.Manage_User_Reports },
-                      { name: 'Manage_Message_Reports', value: PermissionEnum.Manage_Message_Reports },
-                      { name: 'Manage_Mute_Requests', value: PermissionEnum.Manage_Mute_Requests },
-                      { name: 'Manage_Ban_Requests', value: PermissionEnum.Manage_Ban_Requests },
-                      { name: 'Delete_Infractions', value: PermissionEnum.Delete_Infractions },
-                      { name: 'Update_Infractions', value: PermissionEnum.Update_Infractions },
-                      { name: 'Lock_Channels', value: PermissionEnum.Lock_Channels },
-                      { name: 'Unlock_Channels', value: PermissionEnum.Unlock_Channels },
-                      { name: 'Start_Lockdown', value: PermissionEnum.Start_Lockdown },
-                      { name: 'End_Lockdown', value: PermissionEnum.End_Lockdown },
-                      { name: 'Override_Lockdown_Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
+                      { name: 'Search Infractions', value: PermissionEnum.Search_Infractions },
+                      { name: 'Manage User Reports', value: PermissionEnum.Manage_User_Reports },
+                      { name: 'Manage Message Reports', value: PermissionEnum.Manage_Message_Reports },
+                      { name: 'Manage Mute Requests', value: PermissionEnum.Manage_Mute_Requests },
+                      { name: 'Manage Ban Requests', value: PermissionEnum.Manage_Ban_Requests },
+                      { name: 'Delete Infractions', value: PermissionEnum.Delete_Infractions },
+                      { name: 'Update Infractions', value: PermissionEnum.Update_Infractions },
+                      { name: 'Lock Channels', value: PermissionEnum.Lock_Channels },
+                      { name: 'Unlock Channels', value: PermissionEnum.Unlock_Channels },
+                      { name: 'Start Lockdown', value: PermissionEnum.Start_Lockdown },
+                      { name: 'End Lockdown', value: PermissionEnum.End_Lockdown },
+                      { name: 'Override Lockdown Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
                     ]
                   }
                 ]
@@ -858,7 +858,7 @@ export default class Settings extends Command {
 
       if (permissionNode.allowed.includes(permission)) {
         return {
-          error: `The permission \`${permission}\` is already allowed in the permission node.`,
+          error: `The permission \`${permission.replaceAll('_', ' ')}\` is already allowed in the permission node.`,
           temporary: true
         };
       }
@@ -875,7 +875,7 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `Successfully added the permission \`${permission}\` to the permission node.`
+        content: `Successfully added the permission \`${permission.replaceAll('_', ' ')}\` to the permission node.`
       };
     },
 
@@ -897,7 +897,7 @@ export default class Settings extends Command {
 
       if (!permissionNode.allowed.includes(permission)) {
         return {
-          error: `The permission \`${permission}\` is not in the permission node.`,
+          error: `The permission \`${permission.replaceAll('_', ' ')}\` is not in the permission node.`,
           temporary: true
         };
       }
@@ -914,7 +914,7 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `Successfully removed the permission \`${permission}\` from the permission node.`
+        content: `Successfully removed the permission \`${permission.replaceAll('_', ' ')}\` from the permission node.`
       };
     },
 
@@ -931,17 +931,17 @@ export default class Settings extends Command {
 
       const map = (
         await Promise.all(
-          config.permission_nodes.map(async permission => {
+          config.permission_nodes.map(async node => {
             const roles = await Promise.all(
-              permission.roles.map(async id => {
+              node.roles.map(async id => {
                 const role = await interaction.guild.roles.fetch(id).catch(() => null);
                 return role ? role : { id: id, name: 'Unknown Role' };
               })
             );
 
-            return `Name: ${permission.name}\n└ Included Roles: ${
+            return `Name: ${node.name}\n└ Included Roles: ${
               roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
-            }\n└ Allowed Permissions: ${permission.allowed.join(', ').replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`;
+            }\n└ Allowed Permissions: ${node.allowed.join(', ').replaceAll('_', ' ')}\n`;
           })
         )
       ).join('\n\n');

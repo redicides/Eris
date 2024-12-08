@@ -86,7 +86,66 @@ export default class Infraction extends Command {
               },
               {
                 name: 'notify-receiver',
-                description: 'Toggle if the receiver should be notified of the deletion.',
+                description: 'Toggle if the receiver should be notified of the deletion. False by default.',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+              }
+            ]
+          },
+          {
+            name: InfracionSubcommand.EditReason,
+            description: 'Edit the reason of an infraction.',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'id',
+                description: 'The infraction ID.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+              },
+              {
+                name: 'reason',
+                description: 'The new reason for the infraction.',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+                max_length: 1024
+              },
+              {
+                name: 'notify-receiver',
+                description: 'Toggle if the receiver should be notified of the change. False by default.',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+              }
+            ]
+          },
+          {
+            name: InfracionSubcommand.EditDuration,
+            description: 'Edit the duration of an infraction.',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'id',
+                description: 'The infraction ID.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+              },
+              {
+                name: 'duration',
+                description: 'The new duration for the infraction.',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+                autocomplete: true
+              },
+              {
+                name: 'reason',
+                description: 'The reason for editing the duration.',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+                max_length: 1024
+              },
+              {
+                name: 'notify-receiver',
+                description: 'Toggle if the receiver should be notified of the change. False by default.',
                 type: ApplicationCommandOptionType.Boolean,
                 required: false
               }
@@ -139,10 +198,10 @@ export default class Infraction extends Command {
       }
 
       case InfracionSubcommand.Delete: {
-        const infractionId = interaction.options.getString('id', true);
+        const infraction_id = interaction.options.getString('id', true);
         const reason = interaction.options.getString('reason', true);
-        const undoPunishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
-        const notifyReceiver = interaction.options.getBoolean('notify-receiver', false) ?? true;
+        const undo_punishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
+        const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
 
         if (!hasPermission(interaction.member, config, 'Delete_Infractions')) {
           return {
@@ -155,10 +214,57 @@ export default class Infraction extends Command {
           guild: interaction.guild,
           config,
           executor: interaction.member,
-          infractionId,
-          undoPunishment,
-          notifyReceiver,
+          infraction_id,
+          undo_punishment,
+          notify_receiver,
           reason
+        });
+      }
+      case InfracionSubcommand.EditReason: {
+        const infraction_id = interaction.options.getString('id', true);
+        const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
+        const new_reason = interaction.options.getString('reason', true);
+
+        if (!hasPermission(interaction.member, config, 'Update_Infractions')) {
+          return {
+            error: MessageKeys.Errors.MissingUserPermission('Update_Infractions', 'update the reason of an infraction'),
+            temporary: true
+          };
+        }
+
+        return InfractionManager.editInfractionReason({
+          infraction_id,
+          new_reason,
+          notify_receiver,
+          config,
+          guild: interaction.guild,
+          executor: interaction.member
+        });
+      }
+      case InfracionSubcommand.EditDuration: {
+        const infraction_id = interaction.options.getString('id', true);
+        const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
+        const raw_duration = interaction.options.getString('duration', true);
+        const edit_reason = interaction.options.getString('reason', true);
+
+        if (!hasPermission(interaction.member, config, 'Update_Infractions')) {
+          return {
+            error: MessageKeys.Errors.MissingUserPermission(
+              'Update_Infractions',
+              'update the duration of an infraction'
+            ),
+            temporary: true
+          };
+        }
+
+        return InfractionManager.editInfractionDuration({
+          infraction_id,
+          raw_duration,
+          edit_reason,
+          notify_receiver,
+          guild: interaction.guild,
+          executor: interaction.member,
+          config
         });
       }
     }
@@ -168,5 +274,7 @@ export default class Infraction extends Command {
 enum InfracionSubcommand {
   Search = 'search',
   Info = 'info',
-  Delete = 'delete'
+  Delete = 'delete',
+  EditReason = 'edit-reason',
+  EditDuration = 'edit-duration'
 }
