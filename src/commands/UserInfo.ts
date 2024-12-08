@@ -34,7 +34,7 @@ export default class UserInfo extends Command {
                 name: 'target',
                 description: 'The user to get information about.',
                 type: ApplicationCommandOptionType.User,
-                required: false
+                required: true
               }
             ]
           }
@@ -44,8 +44,8 @@ export default class UserInfo extends Command {
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    const user = interaction.options.getUser('target') ?? interaction.user;
     const member = interaction.options.getMember('target');
+    const user = member?.user ?? interaction.options.getUser('target', true);
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
