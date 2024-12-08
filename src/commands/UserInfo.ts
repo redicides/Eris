@@ -45,7 +45,7 @@ export default class UserInfo extends Command {
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
     const user = interaction.options.getUser('target') ?? interaction.user;
-    const member = interaction.options.getMember('user') ?? interaction.member;
+    const member = interaction.options.getMember('target');
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
