@@ -15,8 +15,7 @@ import {
   ActionRowBuilder,
   EmbedField,
   userMention,
-  PermissionFlagsBits,
-  AttachmentBuilder
+  PermissionFlagsBits
 } from 'discord.js';
 import { Infraction, InfractionFlag, InfractionType, Prisma } from '@prisma/client';
 
@@ -857,18 +856,26 @@ export default class InfractionManager {
     const infractionData = InfractionManager._parseInfractionData(infraction);
 
     const dataUrl = await uploadData(infractionData, 'txt');
-    const button = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open In Browser').setURL(dataUrl);
+    const button = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Infraction Data').setURL(dataUrl);
     const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(button);
 
-    const buffer = Buffer.from(infractionData, 'utf-8');
-    const file = new AttachmentBuilder(buffer, { name: `infraction-data.txt` });
-
-    const content = `${infraction.type} with ID \`#${infraction.id}\` for ${userMention(
-      infraction.target_id
-    )} has been deleted by ${userMention(executor.id)}: ${reason}`;
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: `${infraction.type} #${infraction.id} Deleted` })
+      .setColor(Colors.Red)
+      .setFields([
+        {
+          name: 'Executor',
+          value: userMentionWithId(executor.id)
+        },
+        {
+          name: 'Reason',
+          value: reason
+        }
+      ])
+      .setTimestamp();
 
     return new WebhookClient({ url: config.infraction_logging_webhook })
-      .send({ content, files: [file], components: [actionRow], allowedMentions: { parse: [] } })
+      .send({ embeds: [embed], components: [actionRow] })
       .catch(() => null);
   }
 
@@ -980,7 +987,7 @@ export default class InfractionManager {
       ? new Date(Number(infraction.expires_at)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT)
       : 'Never';
 
-    let infractionData = `ID: ${infraction.id} (${infraction.type})\n └── Target: ${infraction.target_id}\n └── Reason: ${infraction.reason}\n └── Created On: ${isoDate}\n └── Expires: ${isoExpiration}`;
+    let infractionData = `${infraction.type} #${infraction.id}\n └── Target: ${infraction.target_id}\n └── Reason: ${infraction.reason}\n └── Created On: ${isoDate}\n └── Expires: ${isoExpiration}`;
 
     if (infraction.request_id) {
       infractionData += `\n └── Request ID: ${infraction.request_id}`;
