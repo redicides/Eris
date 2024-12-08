@@ -57,6 +57,22 @@ enum PermissionEnum {
   Override_Lockdown_Notificatons
 }
 
+enum AutomodType {
+  Filter
+  Invite
+  Link
+  Mention
+  Antispam
+}
+
+enum AntispamType {
+  Characters
+  Emojis
+  Mentions
+  Attachments
+  Capitalization
+}
+
 model Guild {
   id String @id @map("_id")
 
@@ -176,6 +192,7 @@ model Guild {
 
   // Relations
   moderation_commands Shortcut[]
+  automod_rules       Automod[]
   infractions         Infraction[]
   channel_locks       ChannelLock[]
   message_reports     MessageReport[]
@@ -335,6 +352,39 @@ model Shortcut {
   message_delete_time Int?
 
   guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
+}
+
+model Automod {
+  name    String  @id @map("_id")
+  enabled Boolean @default(true)
+
+  type     AutomodType
+  antispam AntispamType?
+
+  guild_id        String
+  immune_channels String[]
+  immune_roles    String[]
+
+  // Case details
+
+  punishment InfractionType?
+  duration   BigInt          @default(0)
+  reason     String
+  info       String?
+
+  details AutomodDetails
+
+  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
+}
+
+// Composite types
+
+type AutomodDetails {
+  threshold Int      @default(0)
+  whitelist String[]
+  content   String[]
+
+  user_ids String[]
 }
 
 type PermissionNode {
