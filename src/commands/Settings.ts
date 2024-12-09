@@ -1496,7 +1496,7 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `Successfully ${info ? 'set' : 'reset'} the information for \`${Settings._parseAdditionalInfoType(
+        content: `Successfully ${info ? 'set' : 'reset'} the information for \`${Settings._parseInfractionKeys(
           type
         )}\` infractions.`
       };
@@ -1520,9 +1520,9 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `A reason is ${
-          toggle ? 'now' : 'no longer'
-        } required for issuing \`${Settings._parseRequiredReasonType(type)}\` infractions.`
+        content: `A reason is ${toggle ? 'now' : 'no longer'} required for issuing \`${Settings._parseInfractionKeys(
+          type
+        )}\` infractions.`
       };
     },
 
@@ -1544,7 +1544,7 @@ export default class Settings extends Command {
 
       if (config[type] === duration) {
         return {
-          error: `The default duration for \`${Settings._parseRequiredReasonType(
+          error: `The default duration for \`${Settings._parseInfractionKeys(
             type
           )}\` infractions is already set to **${ms(Math.floor(duration), {
             long: true
@@ -1584,9 +1584,7 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `The default duration for the \`${Settings._parseRequiredReasonType(
-          type
-        )}\` infraction type has been ${
+        content: `The default duration for the \`${Settings._parseInfractionKeys(type)}\` infraction type has been ${
           rawDuration.toLowerCase() === 'none'
             ? 'reset'
             : `set to **${ms(Math.floor(duration), {
@@ -1613,7 +1611,7 @@ export default class Settings extends Command {
       return {
         content: `Users will ${
           toggle ? 'now' : 'no longer'
-        } receive DM notifications for \`${Settings._parseRequiredReasonType(type)}\` infractions.`
+        } receive DM notifications for \`${Settings._parseInfractionKeys(type)}\` infractions.`
       };
     },
 
@@ -1884,32 +1882,30 @@ export default class Settings extends Command {
     }
   };
 
-  public static _parseAdditionalInfoType(key: keyof GuildConfig) {
+  public static _parseInfractionKeys(key: keyof GuildConfig) {
     switch (key) {
       case 'default_additional_ban_info':
+      case 'require_ban_reason':
+      case 'default_ban_duration':
+      case 'notify_ban_action':
         return 'ban';
       case 'default_additional_kick_info':
+      case 'require_kick_reason':
+      case 'notify_kick_action':
         return 'kick';
       case 'default_additional_mute_info':
+      case 'require_mute_reason':
+      case 'default_mute_duration':
+      case 'notify_mute_action':
         return 'mute';
       case 'default_additional_warn_info':
+      case 'require_warn_reason':
+      case 'default_warn_duration':
+      case 'notify_warn_action':
         return 'warn';
       case 'default_additional_unmute_info':
-        return 'unmute';
-    }
-  }
-
-  public static _parseRequiredReasonType(key: keyof GuildConfig) {
-    switch (key) {
-      case 'require_ban_reason':
-        return 'ban';
-      case 'require_kick_reason':
-        return 'kick';
-      case 'require_kick_reason':
-        return 'mute';
-      case 'require_warn_reason':
-        return 'warn';
       case 'require_unmute_reason':
+      case 'notify_unmute_action':
         return 'unmute';
       case 'require_unban_reason':
         return 'unban';
