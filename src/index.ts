@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { Client } from 'discord.js';
 import { PrismaClient } from '@prisma/client';
 import { createPrismaRedisCache } from 'prisma-redis-middleware';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import * as SentryClient from '@sentry/node';
 
@@ -122,7 +123,13 @@ async function main() {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
     profilesSampleRate: 1,
-    tracesSampleRate: 1
+    tracesSampleRate: 1,
+    integrations: [
+      Sentry.consoleIntegration(),
+      Sentry.prismaIntegration(),
+      Sentry.nodeContextIntegration(),
+      nodeProfilingIntegration()
+    ]
   });
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
