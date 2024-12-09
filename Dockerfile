@@ -1,5 +1,5 @@
 # Base image
-FROM oven/bun:latest AS base
+FROM node:latest AS base
 WORKDIR /charmie
 
 # Environment variables
@@ -16,14 +16,14 @@ ENV SENTRY_DSN=$SENTRY_DSN
 # Install dependencies
 FROM base AS install
 COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
+RUN npm install --no-package-lock --verbose
 
 # Build the project and generate Prisma client
 FROM base AS build
 COPY . .
 COPY --from=install /charmie/node_modules ./node_modules
-RUN bunx prisma generate
-RUN bun compile
+RUN npx prisma generate
+RUN npm run compile
 
 # Release image
 FROM base AS release
@@ -33,4 +33,4 @@ COPY --from=build /charmie/dist ./dist
 COPY --from=build /charmie/src ./src
 
 USER daemon
-ENTRYPOINT [ "bun", "start" ]
+ENTRYPOINT [ "node", "dist/index.js" ]
