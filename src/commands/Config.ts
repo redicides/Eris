@@ -29,7 +29,7 @@ export default class Config extends Command {
         name: 'config',
         description: 'Configure features for this server.',
         type: ApplicationCommandType.ChatInput,
-        defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
+        // defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
         options: [
           {
             name: ConfigSubcommandGroup.Reports,
