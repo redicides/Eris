@@ -27,7 +27,7 @@ RUN npm run compile
 
 # Release image
 FROM base AS release
-COPY --from=install /charmie/node_modules ./node_modules
+COPY --from=build /charmie/node_modules ./node_modules
 COPY --from=install /charmie/package.json ./package.json
 COPY --from=build /charmie/dist ./dist
 COPY --from=build /charmie/src ./src
