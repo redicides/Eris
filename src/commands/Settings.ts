@@ -34,7 +34,7 @@ export default class Settings extends Command {
       data: {
         name: 'settings',
         description: 'View or change the server settings.',
-        defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
+        // defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
         type: ApplicationCommandType.ChatInput,
         options: [
           {
