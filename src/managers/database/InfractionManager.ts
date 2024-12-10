@@ -860,7 +860,7 @@ export default class InfractionManager {
     const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(button);
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.type} #${infraction.id} Deleted` })
+      .setAuthor({ name: `${infraction.type} Deleted - ID #${infraction.id}` })
       .setColor(Colors.Red)
       .setFields([
         {
@@ -905,7 +905,7 @@ export default class InfractionManager {
     const oldExpiration = InfractionManager.formatExpiration(infraction.expires_at);
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.type} #${infraction.id} Updated` })
+      .setAuthor({ name: `${infraction.type} Updated - ID #${infraction.id}` })
       .setColor(Colors.Blue)
       .setFields([
         {
@@ -951,7 +951,7 @@ export default class InfractionManager {
     if (!config.infraction_logging_enabled || !config.infraction_logging_webhook) return null;
 
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `${infraction.type} #${infraction.id} Updated` })
+      .setAuthor({ name: `${infraction.type} Updated - ID #${infraction.id}` })
       .setColor(Colors.Blue)
       .setFields([
         {
