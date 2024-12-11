@@ -19,7 +19,7 @@ Check out the example files, [`config.example.yml`](/config.example.yml) and [`.
 Rename `config.example.yml` to `charmie.cfg.yml` and `.env.example` to `.env`. Fill in the values and done, easy peasy.
 
 > [!NOTE]
-> ❗ Don't mess with the default values for `tasks` and `reports` runners. A minutely interval is recommended.
+> ❗ Don't mess with the default values for `tasks` and `reports` runners inside the .yml file. A minutely interval is recommended.
 
 ## Step-By-Step Guide
 
