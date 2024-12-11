@@ -2,17 +2,6 @@
 FROM node:latest AS base
 WORKDIR /charmie
 
-# Environment variables
-ARG BOT_TOKEN
-ARG BOT_ID
-ARG DATABASE_URL
-ARG SENTRY_DSN
-
-ENV BOT_TOKEN=$BOT_TOKEN
-ENV BOT_ID=$BOT_ID
-ENV DATABASE_URL=$DATABASE_URL
-ENV SENTRY_DSN=$SENTRY_DSN
-
 # Install dependencies
 FROM base AS install
 COPY package.json bun.lockb ./
