@@ -2,6 +2,11 @@
 
 Sup Docker enthusiast. Ready to get Charmie up and running in a container because you wanna take the cool approach? Nice, let's get to it.
 
+## Prerequisites
+
+- MongoDB Database
+- Sentry Project (for error logging)
+
 ## Configuration & Environment Variables
 
 Charmie's got a few tricks up its sleeve with some specific environment settings. You'll need two magical files: `.env` and `charmie.cfg.yml`. A little cron knowledge will help you out here, as we're using the awesome [cron npm package](https://www.npmjs.com/package/cron) to automate some tasks.
