@@ -61,4 +61,4 @@ After completing all previous steps, run the bot:
 
 Successfully running? Congratulations. Not running? Well, good luck figuring out why.
 
-Pro Tip: Use Docker because it'll become your new best friend.
+Pro Tip: Host this thing [`containerized`](/documentation/Containerized.md), because it'll likely end up saving you a few headaches.

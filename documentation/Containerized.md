@@ -11,7 +11,8 @@ Sup Docker enthusiast. Ready to get Charmie up and running in a container becaus
 
 Charmie's got a few tricks up its sleeve with some specific environment settings. Just like with standalone hosting, you'll need two magical files: `.env` and `charmie.cfg.yml`. A little cron knowledge will help you out here, as we're using the [cron npm package](https://www.npmjs.com/package/cron) to automate some tasks.
 
-First things first, grab those example files [`config.example.yml`](/config.example.yml) and [`.env.example`](/.env.example). Pro tip: rename them to `charmie.cfg.yml` and `.env` respectively. Fill in the values and done, easy peasy.
+First things first, grab those example files [`config.example.yml`](/config.example.yml) and [`.env.example`](/.env.example), for the required values.  
+Rename `config.example.yml` to `charmie.cfg.yml` and `.env.example` to `.env`. Fill in the values and done, easy peasy.
 
 > [!NOTE]
 > ❗ Don't mess with the default values for `tasks` and `reports` runners inside the .yml file. A minutely interval is recommended.

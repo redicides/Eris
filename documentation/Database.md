@@ -1,12 +1,10 @@
-# Database Setup
+# Database Setup for Charmie
 
-Charmie uses MongoDB as its database provider. Setting up MongoDB can be challenging without using a Docker container, especially when specific requirements for Prisma are involved. This guide will help you configure MongoDB efficiently for your project.
+Setting up MongoDB for Charmie isn't rocket science, but it does require some careful steps. Don't worry - I'll guide you through the process.
 
-### docker-compose.yml
+### Docker Compose Configuration
 
-To assist you with setting up your database, I've provided the `docker-compose.yml` configuration that I personally use. While this configuration is not perfect, it currently works as expected.
-
-This configuration uses port `27017` on your host, so ensure no other processes are running on that port.
+Here's a `docker-compose.yml` configuration that works like a charm (get it, haha). Just make sure port `27017` is free before you start.
 
 ```yml
 services:
@@ -32,49 +30,47 @@ volumes:
     driver: local
 ```
 
-You'll need to replace 3 values with ones of your choice:
+You'll need to replace these three values:
 
 1. `<root username>`
 2. `<root password>`
 3. `<initial database name>`
 
-## Setup
+## Setup Guide
 
-This guide provides setup instructions for a Unix-like environment, specifically tailored for Ubuntu 24 LTS. It is important to follow each of the steps carefully.
+This guide is meant for a Unix-like environment, specifically Ubuntu 24 LTS. Take your time and follow along.
 
-### Step 1. Confirming Docker Installation
+### Step 1. Checking Docker Installation
 
-Before you attempt to run the database, it's essential to make sure that both `docker` and `docker-compose` are installed on your machine. There are various methods to install them, so feel free to choose the one that works best for you.
+Let's make sure Docker is ready to go:
 
-Once installed, you can verify the installation by running the following commands:
+- `sudo docker -v` (Docker version check)
+- `sudo docker-compose -v` (Docker Compose version check)
 
-- `sudo docker -v` to check the Docker version.
-- `sudo docker-compose -v` to check the Docker Compose version.
+### Step 2. File Organization
 
-### Step 2. File Setup
+Create a new folder (`.mongodb` works great) to keep your `docker-compose.yml` and related files tidy.
 
-Create a new folder where you will store the `docker-compose.yml` file and other necessary files for the setup. This will help keep your project organized and ensure that all the required files are in a single location. I recommend using `.momgodb` as the folder name.
+### Step 3. Keyfile Creation
 
-### Step 3. Keyfile
+MongoDB needs a keyFile for authentication because we apparently live in the victorian era. Here's how to generate it:
 
-MongoDB requires a keyFile for authentication. Generating this keyFile is straightforward. Follow the steps below to create it, ensuring it is in the same directory where your `docker-compose.yml` file is located:
-
-1. Run the command to generate the keyFile:
+1. Generate keyFile:
    ```bash
    openssl rand -base64 756 > keyFile
    ```
-2. Set the correct permissions for the keyFile:
+2. Set permissions:
    ```bash
    chmod 400 keyFile
    ```
-3. Change the ownership of the keyFile to the correct user and group:
+3. Change ownership:
    ```bash
    sudo chown 999:999 keyFile
    ```
 
 ### Step 4. Starting the Container
 
-After completing all the previous steps, you can now start the Docker container by running:
+Fire up the Docker container using this simple command:
 
 ```bash
 sudo docker-compose up -d
@@ -82,20 +78,20 @@ sudo docker-compose up -d
 
 ### Step 5. Initializing the Replica Set
 
-Prisma requires a MongoDB replica set to support nested writes. About 15 seconds after starting the container, run the following command to initialize the replica set:
+Prisma requires a MongoDB replica set. 15 seconds after starting the container, run:
 
 ```bash
 docker exec charmie-mongodb mongosh --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]})' --username <root username> --password <root password>
 ```
 
-Be sure to replace `<root username>` & `<root password>` with the values you filled in the `docker-compose.yml` file.
+Just replace `<root username>` & `<root password>` with your chosen values.
 
-That's it! If you've carefully followed each of the steps, your MongoDB database container should now be up and running without any issues. If something went wrong during the setup, you'll need to troubleshoot the problem and identify where things went off track. This may involve checking logs, verifying configurations, or re-evaluating any steps that might have been missed.
+### Database URL Setup
 
-### Database URL
-
-You can use this template to generate the `DATABASE_URL` variable used in the `.env` file:
+Here's a template for the `DATABASE_URL` in your `.env`:
 
 ```bash
-mongodb://<root user>:<root username>@localhost:27017/<initial database name>?authSource=admin&directConnection=true&replicaSet=rs0
+mongodb://<root user>:<root password>@localhost:27017/<initial database name>?authSource=admin&directConnection=true&replicaSet=rs0
 ```
+
+Take it step by step, and you'll be up and running in no time. If something goes wrong, take a deep breath and carefully retrace your steps.
