@@ -20,6 +20,7 @@ COPY --from=build /charmie/node_modules ./node_modules
 COPY --from=install /charmie/package.json ./package.json
 COPY --from=build /charmie/dist ./dist
 COPY --from=build /charmie/src ./src
+COPY --from=build /charmie/prisma ./prisma
 
 USER daemon
 ENTRYPOINT [ "npm", "run", "start-prod" ]

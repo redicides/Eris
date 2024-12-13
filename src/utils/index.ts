@@ -728,6 +728,10 @@ export async function checkEnvironmentVariables(): Promise<void> {
     throw new Error('The environment variable SENTRY_DSN is not defined.');
   }
 
+  if (!process.env.DATABASE_URL) {
+    throw new Error('The environment variable DATABASE_URL is not defined. It is required to run prisma migrations');
+  }
+
   if (!process.env.POSTGRES_USER) {
     throw new Error('The environment variable POSTGRES_USER is not defined.');
   }
