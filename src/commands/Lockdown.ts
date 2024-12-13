@@ -84,7 +84,7 @@ export default class Lockdown extends Command {
 
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannels = hasPermission(interaction.member, config, 'Override_Lockdown_Notificatons')
-      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify
+      ? (interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify)
       : config.lockdown_notify;
 
     if (subcommand === LockdownSubcommand.Start) {

@@ -88,10 +88,7 @@ export default abstract class Command {
    * @param config The guild configuration for the guild where the interaction was created.
    * @param ephemeral Whether the reply should be ephemeral.
    */
-  abstract execute(
-    interaction: CommandInteraction,
-    config: GuildConfig
-  ): Awaitable<InteractionReplyData | null>;
+  abstract execute(interaction: CommandInteraction, config: GuildConfig): Awaitable<InteractionReplyData | null>;
 }
 
 interface CommandOptions {
