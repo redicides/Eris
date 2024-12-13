@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -43,23 +43,8 @@ enum RequestStatus {
   Denied
 }
 
-enum PermissionEnum {
-  Search_Infractions
-  Manage_Message_Reports
-  Manage_User_Reports
-  Manage_Mute_Requests
-  Manage_Ban_Requests
-  Delete_Infractions
-  Update_Infractions
-  Lock_Channels
-  Unlock_Channels
-  Start_Lockdown
-  End_Lockdown
-  Override_Lockdown_Notificatons
-}
-
 model Guild {
-  id String @id @map("_id")
+  id String @id
 
   notification_webhook String?
 
@@ -170,10 +155,10 @@ model Guild {
   lockdown_display_executor Boolean  @default(false)
   lockdown_overrides        BigInt   @default(377957124160)
 
-  // JSON objects that use composite types
+  // JSON objects
 
-  permission_nodes PermissionNode[]
-  ephemeral_scopes EphemeralScope[]
+  permission_nodes Json[]
+  ephemeral_scopes Json[]
 
   // Relations
   moderation_commands Shortcut[]
@@ -188,7 +173,7 @@ model Guild {
 }
 
 model Infraction {
-  id          String          @id @map("_id")
+  id          String          @id
   guild_id    String
   target_id   String
   executor_id String
@@ -206,7 +191,7 @@ model Infraction {
 }
 
 model Task {
-  id            String   @id @map("_id")
+  id            String   @id
   guild_id      String
   target_id     String
   infraction_id String   @unique
@@ -220,7 +205,7 @@ model Task {
 }
 
 model MessageReport {
-  id           String  @id @map("_id")
+  id           String  @id
   guild_id     String
   message_id   String
   reference_id String?
@@ -242,7 +227,7 @@ model MessageReport {
 }
 
 model UserReport {
-  id        String @id @map("_id")
+  id        String @id
   guild_id  String
   target_id String
 
@@ -259,7 +244,7 @@ model UserReport {
 }
 
 model BanRequest {
-  id            String  @id @map("_id")
+  id            String  @id
   guild_id      String
   target_id     String
   infraction_id String?
@@ -279,7 +264,7 @@ model BanRequest {
 }
 
 model MuteRequest {
-  id            String  @id @map("_id")
+  id            String  @id
   guild_id      String
   target_id     String
   infraction_id String?
@@ -299,7 +284,7 @@ model MuteRequest {
 }
 
 model Message {
-  id           String   @id @map("_id")
+  id           String   @id
   guild_id     String
   author_id    String
   channel_id   String
@@ -314,7 +299,7 @@ model Message {
 }
 
 model ChannelLock {
-  id         String @id @map("_id")
+  id         String @id
   guild_id   String
   overwrites BigInt
 
@@ -325,7 +310,7 @@ model Shortcut {
   enabled Boolean @default(true)
 
   guild_id    String
-  name        String @id @map("_id")
+  name        String @id
   description String
 
   action   InfractionType
@@ -336,16 +321,4 @@ model Shortcut {
   message_delete_time Int?
 
   guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
-}
-
-type PermissionNode {
-  name    String
-  roles   String[]
-  allowed PermissionEnum[]
-}
-
-type EphemeralScope {
-  command_name      String
-  included_channels String[]
-  excluded_channels String[]
 }

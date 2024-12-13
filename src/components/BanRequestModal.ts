@@ -4,6 +4,7 @@ import { MessageKeys } from '@utils/Keys';
 import { hasPermission } from '@utils/index';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
+import { UserPermission } from '@utils/Enums';
 
 import Component from '@managers/components/Component';
 
@@ -16,9 +17,9 @@ export default class BanRequestModalComponent extends Component {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
     const requestId = interaction.customId.split('-')[3];
 
-    if (!hasPermission(interaction.member, config, 'Manage_Ban_Requests')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageBanRequests)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_Ban_Requests', 'manage ban requests'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageBanRequests, 'manage ban requests'),
         temporary: true
       };
     }

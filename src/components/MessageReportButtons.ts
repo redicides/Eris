@@ -2,6 +2,7 @@ import { ButtonInteraction, EmbedBuilder, EmbedData } from 'discord.js';
 
 import { MessageKeys } from '@utils/Keys';
 import { hasPermission } from '@utils/index';
+import { UserPermission } from '@utils/Enums';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
 import { userMentionWithId } from '@utils/index';
@@ -15,9 +16,9 @@ export default class MessageReportButtonsComponent extends Component {
   }
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
-    if (!hasPermission(interaction.member, config, 'Manage_Message_Reports')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageMessageReports)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_Message_Reports', 'manage message reports'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageMessageReports, 'manage message reports'),
         temporary: true
       };
     }

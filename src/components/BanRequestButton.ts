@@ -2,6 +2,7 @@ import { ButtonInteraction, Colors, EmbedBuilder, EmbedData } from 'discord.js';
 
 import { hasPermission, userMentionWithId } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { UserPermission } from '@utils/Enums';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
@@ -16,9 +17,9 @@ export default class BanRequestButtonComponent extends Component {
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig) {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
 
-    if (!hasPermission(interaction.member, config, 'Manage_Ban_Requests')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageBanRequests)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_Ban_Requests', 'manage ban requests'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageBanRequests, 'manage ban requests'),
         temporary: true
       };
     }

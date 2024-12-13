@@ -15,6 +15,7 @@ import { elipsify, hasPermission, isEphemeralReply, pluralize, sleep } from '@/u
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { client, prisma } from '@/index';
 import { MessageKeys } from '@utils/Keys';
+import { UserPermission } from '@utils/Enums';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import DatabaseManager from '@managers/database/DatabaseManager';
@@ -83,14 +84,14 @@ export default class Lockdown extends Command {
     const subcommand = interaction.options.getSubcommand(true) as LockdownSubcommand;
 
     const rawReason = interaction.options.getString('reason', false);
-    const notifyChannels = hasPermission(interaction.member, config, 'Override_Lockdown_Notificatons')
-      ? (interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify)
+    const notifyChannels = hasPermission(interaction.member, config, UserPermission.OverrideLockdownNotificatons)
+      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify
       : config.lockdown_notify;
 
     if (subcommand === LockdownSubcommand.Start) {
-      if (!hasPermission(interaction.member, config, 'Start_Lockdown')) {
+      if (!hasPermission(interaction.member, config, UserPermission.StartLockdown)) {
         return {
-          error: MessageKeys.Errors.MissingUserPermission('Start_Lockdown', 'start a lockdown'),
+          error: MessageKeys.Errors.MissingUserPermission(UserPermission.StartLockdown, 'start a lockdown'),
           temporary: true
         };
       }
@@ -112,9 +113,9 @@ export default class Lockdown extends Command {
         notifyChannels
       });
     } else {
-      if (!hasPermission(interaction.member, config, 'End_Lockdown')) {
+      if (!hasPermission(interaction.member, config, UserPermission.EndLockdown)) {
         return {
-          error: MessageKeys.Errors.MissingUserPermission('End_Lockdown', 'end a lockdown'),
+          error: MessageKeys.Errors.MissingUserPermission(UserPermission.EndLockdown, 'end a lockdown'),
           temporary: true
         };
       }

@@ -4,6 +4,7 @@ import { hasPermission, userMentionWithId } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { RequestUtils } from '@utils/Requests';
+import { UserPermission } from '@utils/Enums';
 import { MessageKeys } from '@utils/Keys';
 
 import Component from '@managers/components/Component';
@@ -16,9 +17,9 @@ export default class MuteRequestButton extends Component {
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny' | 'disregard';
 
-    if (!hasPermission(interaction.member, config, 'Manage_Mute_Requests')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageMuteRequests)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_Mute_Requests', 'manage mute requests'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageMuteRequests, 'manage mute requests'),
         temporary: true
       };
     }

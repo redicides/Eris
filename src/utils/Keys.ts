@@ -1,5 +1,7 @@
 import { GuildMember, PermissionsBitField, User } from 'discord.js';
-import { InfractionType, PermissionEnum } from '@prisma/client';
+import { InfractionType } from '@prisma/client';
+
+import { UserPermission } from './Enums';
 
 export const MessageKeys = {
   Errors: {
@@ -33,8 +35,8 @@ export const MessageKeys = {
         .replaceAll(/[a-z][A-Z]/g, m => `${m[0]} ${m[1]}`)}\`.`;
     },
 
-    MissingUserPermission(permission: PermissionEnum, action: string) {
-      return `You must have the \`${permission.replaceAll('_', ' ')}\` permission to ${action}.`;
+    MissingUserPermission(permission: UserPermission, action: string) {
+      return `You must have the \`${permission.replaceAll(/([A-Z])/g, ' $1')}\` permission to ${action}.`;
     },
 
     PunishmentFailed(action: Exclude<InfractionType, 'Warn'>, target: User | GuildMember) {

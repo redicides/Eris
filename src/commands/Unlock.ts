@@ -10,9 +10,9 @@ import {
   TextChannel,
   VoiceChannel
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
 
 import { MessageKeys } from '@utils/Keys';
+import { UserPermission } from '@utils/Enums';
 import { elipsify, hasPermission, isEphemeralReply } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
@@ -61,13 +61,13 @@ export default class Unlock extends Command {
     config: GuildConfig
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
-    const notifyChannel = hasPermission(interaction.member, config, PermissionEnum.Override_Lockdown_Notificatons)
-      ? (interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify)
+    const notifyChannel = hasPermission(interaction.member, config, UserPermission.OverrideLockdownNotificatons)
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify
       : config.lockdown_notify;
 
-    if (!hasPermission(interaction.member, config, 'Unlock_Channels')) {
+    if (!hasPermission(interaction.member, config, UserPermission.UnlockChannels)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Unlock_Channels', 'unlock a channel'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.UnlockChannels, 'unlock a channel'),
         temporary: true
       };
     }

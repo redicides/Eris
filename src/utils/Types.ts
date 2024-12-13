@@ -1,5 +1,6 @@
 import { InteractionReplyOptions, Snowflake } from 'discord.js';
 import { Prisma } from '@prisma/client';
+import { UserPermission } from './Enums';
 
 export type InteractionReplyData = InteractionReplyOptions &
   Partial<Record<'temporary', boolean>> &
@@ -20,6 +21,18 @@ export type MessageLog = {
   created_at: Date;
   content: string | null;
   attachments?: string[];
+};
+
+export type EphemeralScope = {
+  command_name: string;
+  included_channels: string[];
+  excluded_channels: string[];
+};
+
+export type PermissionNode = {
+  name: string;
+  roles: string[];
+  allowed: UserPermission[];
 };
 
 export type ObjectDiff = Record<string | number | symbol, ObjectPropDiff>;

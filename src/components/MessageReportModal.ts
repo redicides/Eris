@@ -2,6 +2,7 @@ import { ModalSubmitInteraction } from 'discord.js';
 
 import { MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { ReportUtils } from '@utils/Reports';
 
@@ -19,9 +20,9 @@ export default class MessageReportModalComponent extends Component {
     const reportId = interaction.customId.split('-')[3];
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
 
-    if (!hasPermission(interaction.member, config, 'Manage_Message_Reports')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageMessageReports)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_Message_Reports', 'manage message reports'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageMessageReports, 'manage message reports'),
         temporary: true
       };
     }

@@ -14,14 +14,14 @@ import {
   TextChannel,
   VoiceChannel
 } from 'discord.js';
-import { PermissionEnum } from '@prisma/client';
 
 import ms from 'ms';
 
 import { prisma } from '..';
 import { isCategory } from './Config';
 import { MaxDurationStr } from '@utils/Constants';
-import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { UserPermission } from '@utils/Enums';
+import { EphemeralScope, GuildConfig, InteractionReplyData, PermissionNode } from '@utils/Types';
 import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -674,16 +674,16 @@ export default class Settings extends Command {
     ): Promise<InteractionReplyData> {
       const name = interaction.options.getString('name', true);
       const role = interaction.options.getRole('role', true);
-      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+      const permission = interaction.options.getString('permission', true) as UserPermission;
 
-      if (config.permission_nodes.find(permission => permission.name === name)) {
+      if ((config.permission_nodes as PermissionNode[]).find(permission => permission.name === name)) {
         return {
           error: `A permission node with that name already exists.`,
           temporary: true
         };
       }
 
-      if (!PermissionEnum.hasOwnProperty(permission)) {
+      if (!UserPermission.hasOwnProperty(permission)) {
         return {
           error: `The provided permission (\`${permission.replaceAll('_', ' ')}\`) is invalid.`,
           temporary: true
@@ -707,7 +707,7 @@ export default class Settings extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const name = interaction.options.getString('permission-node', true);
-      const permission = config.permission_nodes.find(permission => permission.name === name);
+      const permission = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -720,7 +720,7 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           permission_nodes: {
-            set: config.permission_nodes.filter(permissions => permissions !== permission)
+            set: (config.permission_nodes as PermissionNode[]).filter(permissions => permissions !== permission)
           }
         }
       });
@@ -737,7 +737,7 @@ export default class Settings extends Command {
       const name = interaction.options.getString('permission-node', true);
       const role = interaction.options.getRole('role', true);
 
-      const permission = config.permission_nodes.find(permission => permission.name === name);
+      const permission = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -759,7 +759,7 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           permission_nodes: {
-            set: config.permission_nodes.map(p => (p.name === permission.name ? permission : p))
+            set: (config.permission_nodes as PermissionNode[]).map(p => (p.name === permission.name ? permission : p))
           }
         }
       });
@@ -776,7 +776,7 @@ export default class Settings extends Command {
       const name = interaction.options.getString('permission-node', true);
       const role = interaction.options.getRole('role', true);
 
-      const permission = config.permission_nodes.find(permission => permission.name === name);
+      const permission = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
 
       if (!permission) {
         return {
@@ -798,7 +798,7 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           permission_nodes: {
-            set: config.permission_nodes.map(p => (p.name === permission.name ? permission : p))
+            set: (config.permission_nodes as PermissionNode[]).map(p => (p.name === permission.name ? permission : p))
           }
         }
       });
@@ -813,9 +813,9 @@ export default class Settings extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const name = interaction.options.getString('permission-node', true);
-      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+      const permission = interaction.options.getString('permission', true) as UserPermission;
 
-      const permissionNode = config.permission_nodes.find(permission => permission.name === name);
+      const permissionNode = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
 
       if (!permissionNode) {
         return {
@@ -824,7 +824,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (!PermissionEnum.hasOwnProperty(permission)) {
+      if (!UserPermission.hasOwnProperty(permission)) {
         return {
           error: `The provided permission (\`${permission.replaceAll('_', ' ')}\`) is invalid.`,
           temporary: true
@@ -844,7 +844,9 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           permission_nodes: {
-            set: config.permission_nodes.map(p => (p.name === permissionNode.name ? permissionNode : p))
+            set: (config.permission_nodes as PermissionNode[]).map(p =>
+              p.name === permissionNode.name ? permissionNode : p
+            )
           }
         }
       });
@@ -859,9 +861,9 @@ export default class Settings extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const name = interaction.options.getString('permission-node', true);
-      const permission = interaction.options.getString('permission', true) as PermissionEnum;
+      const permission = interaction.options.getString('permission', true) as UserPermission;
 
-      const permissionNode = config.permission_nodes.find(permission => permission.name === name);
+      const permissionNode = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
 
       if (!permissionNode) {
         return {
@@ -870,7 +872,7 @@ export default class Settings extends Command {
         };
       }
 
-      if (!PermissionEnum.hasOwnProperty(permission)) {
+      if (!UserPermission.hasOwnProperty(permission)) {
         return {
           error: `The provided permission (\`${permission.replaceAll('_', ' ')}\`) is invalid.`,
           temporary: true
@@ -890,7 +892,9 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           permission_nodes: {
-            set: config.permission_nodes.map(p => (p.name === permissionNode.name ? permissionNode : p))
+            set: (config.permission_nodes as PermissionNode[]).map(p =>
+              p.name === permissionNode.name ? permissionNode : p
+            )
           }
         }
       });
@@ -913,7 +917,7 @@ export default class Settings extends Command {
 
       const map = (
         await Promise.all(
-          config.permission_nodes.map(async node => {
+          (config.permission_nodes as PermissionNode[]).map(async node => {
             const roles = await Promise.all(
               node.roles.map(async id => {
                 const role = await interaction.guild.roles.fetch(id).catch(() => null);
@@ -1113,7 +1117,11 @@ export default class Settings extends Command {
         };
       }
 
-      if (config.ephemeral_scopes.find(scope => scope.command_name === scopeName)) {
+      if (
+        (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).find(
+          scope => scope.command_name === scopeName
+        )
+      ) {
         return {
           error: `An ephemeral scope for the command \`${scopeName}\` already exists.`,
           temporary: true
@@ -1151,7 +1159,9 @@ export default class Settings extends Command {
     ): Promise<InteractionReplyData> {
       const scopeName = interaction.options.getString('scope', true);
 
-      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
+      const scope = (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).find(
+        scope => scope.command_name === scopeName
+      );
 
       if (!scope) {
         return {
@@ -1164,7 +1174,7 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           ephemeral_scopes: {
-            set: config.ephemeral_scopes.filter(s => s !== scope)
+            set: (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).filter(s => s !== scope)
           }
         }
       });
@@ -1181,7 +1191,9 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
+      const scope = (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).find(
+        scope => scope.command_name === scopeName
+      );
 
       if (!scope) {
         return {
@@ -1223,7 +1235,9 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           ephemeral_scopes: {
-            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
+            set: (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).map(s =>
+              s.command_name === scope.command_name ? scope : s
+            )
           }
         }
       });
@@ -1242,7 +1256,9 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
+      const scope = (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).find(
+        scope => scope.command_name === scopeName
+      );
 
       if (!scope) {
         return {
@@ -1266,7 +1282,9 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           ephemeral_scopes: {
-            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
+            set: (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).map(s =>
+              s.command_name === scope.command_name ? scope : s
+            )
           }
         }
       });
@@ -1285,7 +1303,9 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
+      const scope = (config.ephemeral_scopes as EphemeralScope[] as EphemeralScope[]).find(
+        scope => scope.command_name === scopeName
+      );
 
       if (!scope) {
         return {
@@ -1327,7 +1347,9 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           ephemeral_scopes: {
-            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
+            set: (config.ephemeral_scopes as EphemeralScope[]).map(s =>
+              s.command_name === scope.command_name ? scope : s
+            )
           }
         }
       });
@@ -1346,7 +1368,7 @@ export default class Settings extends Command {
       const scopeName = interaction.options.getString('scope', true);
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
 
-      const scope = config.ephemeral_scopes.find(scope => scope.command_name === scopeName);
+      const scope = (config.ephemeral_scopes as EphemeralScope[]).find(scope => scope.command_name === scopeName);
 
       if (!scope) {
         return {
@@ -1370,7 +1392,9 @@ export default class Settings extends Command {
         where: { id: interaction.guildId },
         data: {
           ephemeral_scopes: {
-            set: config.ephemeral_scopes.map(s => (s.command_name === scope.command_name ? scope : s))
+            set: (config.ephemeral_scopes as EphemeralScope[]).map(s =>
+              s.command_name === scope.command_name ? scope : s
+            )
           }
         }
       });
@@ -1386,14 +1410,14 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      if (config.ephemeral_scopes.length < 1) {
+      if ((config.ephemeral_scopes as EphemeralScope[]).length < 1) {
         return {
           content: 'There are no ephemeral scopes set up in this server.'
         };
       }
 
       const map = await Promise.all(
-        config.ephemeral_scopes.map(async scope => {
+        (config.ephemeral_scopes as EphemeralScope[]).map(async scope => {
           const included_channels = await Promise.all(
             scope.included_channels.map(id => {
               const channel = interaction.guild!.channels.cache.get(id);
@@ -1420,13 +1444,12 @@ export default class Settings extends Command {
 
       const buffer = Buffer.from(map.join('\n\n'), 'utf-8');
       const attachment = new AttachmentBuilder(buffer, { name: 'ephemeral-scopes.txt' });
-      const length = config.ephemeral_scopes.length;
+      const length = (config.ephemeral_scopes as EphemeralScope[]).length;
 
       return {
-        content: `There ${length > 1 ? 'are' : 'is'} currently **${config.ephemeral_scopes.length}** ${pluralize(
-          length,
-          'ephemeral scope'
-        )} configured in this server.`,
+        content: `There ${length > 1 ? 'are' : 'is'} currently **${
+          (config.ephemeral_scopes as EphemeralScope[]).length
+        }** ${pluralize(length, 'ephemeral scope')} configured in this server.`,
         files: [attachment],
         components: [actionRow]
       };

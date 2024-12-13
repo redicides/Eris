@@ -1,6 +1,7 @@
 import { ButtonInteraction } from 'discord.js';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 
@@ -16,9 +17,9 @@ export default class InfractionSearchComponent extends Component {
     const targetId = interaction.customId.split('-')[2];
     const target = await this.client.users.fetch(targetId).catch(() => null);
 
-    if (!hasPermission(interaction.member, config, 'Search_Infractions')) {
+    if (!hasPermission(interaction.member, config, UserPermission.SearchInfractions)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Search_Infractions', 'search infractions'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.SearchInfractions, 'search infractions'),
         temporary: true
       };
     }

@@ -8,6 +8,7 @@ import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { hasPermission, isEphemeralReply } from '@utils/index';
+import { UserPermission } from '@utils/Enums';
 import { MessageKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -176,9 +177,9 @@ export default class Infraction extends Command {
           };
         }
 
-        if (!hasPermission(interaction.member, config, 'Search_Infractions')) {
+        if (!hasPermission(interaction.member, config, UserPermission.SearchInfractions)) {
           return {
-            error: MessageKeys.Errors.MissingUserPermission('Search_Infractions', 'search for infractions'),
+            error: MessageKeys.Errors.MissingUserPermission(UserPermission.SearchInfractions, 'search for infractions'),
             temporary: true
           };
         }
@@ -203,9 +204,9 @@ export default class Infraction extends Command {
         const undo_punishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
         const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
 
-        if (!hasPermission(interaction.member, config, 'Delete_Infractions')) {
+        if (!hasPermission(interaction.member, config, UserPermission.DeleteInfractions)) {
           return {
-            error: MessageKeys.Errors.MissingUserPermission('Delete_Infractions', 'delete infractions'),
+            error: MessageKeys.Errors.MissingUserPermission(UserPermission.DeleteInfractions, 'delete infractions'),
             temporary: true
           };
         }
@@ -225,9 +226,12 @@ export default class Infraction extends Command {
         const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
         const new_reason = interaction.options.getString('reason', true);
 
-        if (!hasPermission(interaction.member, config, 'Update_Infractions')) {
+        if (!hasPermission(interaction.member, config, UserPermission.UpdateInfractions)) {
           return {
-            error: MessageKeys.Errors.MissingUserPermission('Update_Infractions', 'update the reason of an infraction'),
+            error: MessageKeys.Errors.MissingUserPermission(
+              UserPermission.UpdateInfractions,
+              'update the reason of an infraction'
+            ),
             temporary: true
           };
         }
@@ -247,10 +251,10 @@ export default class Infraction extends Command {
         const raw_duration = interaction.options.getString('duration', true);
         const edit_reason = interaction.options.getString('reason', true);
 
-        if (!hasPermission(interaction.member, config, 'Update_Infractions')) {
+        if (!hasPermission(interaction.member, config, UserPermission.UpdateInfractions)) {
           return {
             error: MessageKeys.Errors.MissingUserPermission(
-              'Update_Infractions',
+              UserPermission.UpdateInfractions,
               'update the duration of an infraction'
             ),
             temporary: true

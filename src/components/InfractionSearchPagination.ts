@@ -2,6 +2,7 @@ import { ButtonComponent, ButtonInteraction } from 'discord.js';
 import { InfractionFlag } from '@prisma/client';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
+import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { client } from '..';
 
@@ -24,7 +25,7 @@ export default class InfractionSearchPaginationComponent extends Component {
       };
     }
 
-    if (!hasPermission(interaction.member, config, 'Search_Infractions')) {
+    if (!hasPermission(interaction.member, config, UserPermission.SearchInfractions)) {
       return {
         error: "You no longer have permission to search this user's infractions.",
         temporary: true

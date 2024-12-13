@@ -1,6 +1,7 @@
 import { ModalSubmitInteraction } from 'discord.js';
 
 import { RequestUtils } from '@utils/Requests';
+import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
@@ -16,9 +17,9 @@ export default class MuteRequestModalComponent extends Component {
     const action = interaction.customId.split('-')[2] as 'accept' | 'deny';
     const requestId = interaction.customId.split('-')[3];
 
-    if (!hasPermission(interaction.member, config, 'Manage_Mute_Requests')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageMuteRequests)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_Mute_Requests', 'manage mute requests'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageMuteRequests, 'manage mute requests'),
         temporary: true
       };
     }

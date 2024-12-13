@@ -6,12 +6,13 @@ import {
   Events,
   Interaction
 } from 'discord.js';
-import { PermissionEnum, Shortcut } from '@prisma/client';
+import { Shortcut } from '@prisma/client';
 
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeralReply } from '@utils/index';
 import { prisma, Sentry } from '@/index';
 import { MessageKeys } from '@utils/Keys';
-import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
+import { UserPermission } from '@utils/Enums';
+import { EphemeralScope, GuildConfig, InteractionReplyData, PermissionNode, Result } from '@utils/Types';
 import { CommonDurations, DurationUnits, LockdownOverrides } from '@utils/Constants';
 
 import CommandManager from '@managers/commands/CommandManager';
@@ -316,7 +317,8 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'permission-node': {
-        const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId)).permission_nodes;
+        const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId))
+          .permission_nodes as PermissionNode[];
 
         const permissions = rawPermissions
           .filter(permission => {
@@ -328,10 +330,9 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'permission': {
-        const permissions = Object.values(PermissionEnum)
+        const permissions = Object.values(UserPermission)
           .filter(permission => {
-            const parsedName = permission.replaceAll(/_/g, ' ');
-            return parsedName.toLowerCase().includes(lowercaseValue) || parsedName.includes(value);
+            return permission.toLowerCase().includes(lowercaseValue) || permission.includes(value);
           })
           .sort((a, b) => a.localeCompare(b));
 
@@ -341,7 +342,8 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'scope': {
-        const rawScopes = (await DatabaseManager.getGuildEntry(interaction.guildId)).ephemeral_scopes;
+        const rawScopes = (await DatabaseManager.getGuildEntry(interaction.guildId))
+          .ephemeral_scopes as EphemeralScope[];
 
         const scopes = rawScopes
           .filter(scope => {

@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 
 import { MessageKeys } from '@utils/Keys';
+import { UserPermission } from '@utils/Enums';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { capitalize, elipsify, hasPermission, isEphemeralReply } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
@@ -60,13 +61,13 @@ export default class Lock extends Command {
     config: GuildConfig
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
-    const notifyChannel = hasPermission(interaction.member, config, 'Override_Lockdown_Notificatons')
-      ? (interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify)
+    const notifyChannel = hasPermission(interaction.member, config, UserPermission.OverrideLockdownNotificatons)
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify
       : config.lockdown_notify;
 
-    if (!hasPermission(interaction.member, config, 'Lock_Channels')) {
+    if (!hasPermission(interaction.member, config, UserPermission.LockChannels)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Lock_Channels', 'lock a channel'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.LockChannels, 'lock a channel'),
         temporary: true
       };
     }

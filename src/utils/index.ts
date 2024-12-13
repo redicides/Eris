@@ -25,7 +25,8 @@ import {
   MessageCreateOptions,
   APIMessage
 } from 'discord.js';
-import { PermissionEnum, Message, Shortcut } from '@prisma/client';
+
+import { Message, Shortcut } from '@prisma/client';
 
 import YAML from 'yaml';
 import fs from 'fs';
@@ -33,8 +34,9 @@ import ms from 'ms';
 import _ from 'lodash';
 
 import { client } from '..';
+import { UserPermission } from './Enums';
 import { EmptyMessageContent, LogDateFormat } from './Constants';
-import { GuildConfig, InteractionReplyData, MessageLog, ObjectDiff } from './Types';
+import { EphemeralScope, GuildConfig, InteractionReplyData, MessageLog, ObjectDiff, PermissionNode } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
 import { CommandCategory } from '@managers/commands/Command';
 
@@ -258,9 +260,9 @@ export async function formatMessageContentForShortLog(
  * @param config The guild config
  * @param permission The permission to check for
  */
-export function hasPermission(member: GuildMember, config: GuildConfig, permission: PermissionEnum): boolean {
+export function hasPermission(member: GuildMember, config: GuildConfig, permission: UserPermission): boolean {
   return member.roles.cache.some(role => {
-    return config.permission_nodes.some(node => {
+    return (config.permission_nodes as PermissionNode[]).some(node => {
       return node.roles.includes(role.id) && node.allowed.includes(permission);
     });
   });
@@ -340,7 +342,9 @@ export function generateSnowflakeId(): string {
  */
 
 export function isEphemeralReply(interaction: CommandInteraction<'cached'>, config: GuildConfig): boolean {
-  const scope = config.ephemeral_scopes.find(scope => scope.command_name === interaction.commandName);
+  const scope = (config.ephemeral_scopes as EphemeralScope[]).find(
+    scope => scope.command_name === interaction.commandName
+  );
   const channel = interaction.channel;
 
   // If no scope or channel, return default setting
@@ -547,7 +551,7 @@ export async function getReferenceMessage(
     message_id: reference.id,
     author_id: isDiscordMessage ? reference.author.id : reference.author_id,
     channel_id: isDiscordMessage ? reference.channelId : reference.channel_id,
-    sticker_id: isDiscordMessage ? (reference.stickers?.first()?.id ?? null) : reference.sticker_id,
+    sticker_id: isDiscordMessage ? reference.stickers?.first()?.id ?? null : reference.sticker_id,
     created_at: isDiscordMessage ? reference.createdAt : new Date(Number(reference.created_at)),
     content: reference.content,
     attachments: isDiscordMessage ? Array.from(reference.attachments.values()).map(a => a.url) : reference.attachments

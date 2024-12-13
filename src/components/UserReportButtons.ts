@@ -4,6 +4,7 @@ import { MessageKeys } from '@utils/Keys';
 import { hasPermission } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
+import { UserPermission } from '@utils/Enums';
 import { userMentionWithId } from '@utils/index';
 import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
 
@@ -15,9 +16,9 @@ export default class UserReportButtonsComponent extends Component {
   }
 
   async execute(interaction: ButtonInteraction<'cached'>, config: GuildConfig): Promise<InteractionReplyData | null> {
-    if (!hasPermission(interaction.member, config, 'Manage_User_Reports')) {
+    if (!hasPermission(interaction.member, config, UserPermission.ManageUserReports)) {
       return {
-        error: MessageKeys.Errors.MissingUserPermission('Manage_User_Reports', 'manage user reports'),
+        error: MessageKeys.Errors.MissingUserPermission(UserPermission.ManageUserReports, 'manage user reports'),
         temporary: true
       };
     }
