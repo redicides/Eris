@@ -22,4 +22,4 @@ COPY --from=build /charmie/dist ./dist
 COPY --from=build /charmie/src ./src
 
 USER daemon
-ENTRYPOINT [ "node", "dist/index.js" ]
+ENTRYPOINT [ "npm", "run", "start-prod" ]
