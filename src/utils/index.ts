@@ -710,6 +710,55 @@ export function getObjectDiff(oldObject: any, newObject: any): ObjectDiff {
   return differences;
 }
 
+/**
+ * Check if the environment variables are defined.
+ * @throws Error - If any of the required environment variables are not defined
+ */
+
+export async function checkEnvironmentVariables(): Promise<void> {
+  if (!process.env.BOT_TOKEN) {
+    throw new Error('The environment variable BOT_TOKEN is not defined.');
+  }
+
+  if (!process.env.BOT_ID) {
+    throw new Error('The environment variable BOT_ID is not defined.');
+  }
+
+  if (!process.env.SENTRY_DSN) {
+    throw new Error('The environment variable SENTRY_DSN is not defined.');
+  }
+
+  if (!process.env.POSTGRES_USER) {
+    throw new Error('The environment variable POSTGRES_USER is not defined.');
+  }
+
+  if (!process.env.POSTGRES_PASSWORD) {
+    throw new Error('The environment variable POSTGRES_PASSWORD is not defined.');
+  }
+
+  if (!process.env.POSTGRES_DB) {
+    throw new Error('The environment variable POSTGRES_DB is not defined.');
+  }
+
+  if (!process.env.POSTGRES_HOST) {
+    throw new Error('The environment variable POSTGRES_HOST is not defined.');
+  }
+
+  if (!process.env.POSTGRES_PORT) {
+    throw new Error('The environment variable POSTGRES_PORT is not defined.');
+  }
+}
+
+/**
+ * Construct the Prisma URL from the environment variables.
+ *
+ * @returns The constructed Prisma URL
+ */
+
+export function constructDatabaseUrl(): string {
+  return `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`;
+}
+
 // Things that are used in this file only
 
 interface ChannelScopingParams {

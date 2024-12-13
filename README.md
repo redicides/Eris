@@ -4,10 +4,8 @@ A Discord bot focused on providing strong moderation solutions while maintaining
 
 # Self-Hosting
 
-If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's an "easy" process.
-Now, you have 2 options, [`standalone`](/documentation/Standalone.md) or [`containerized`](/documentation/Containerized.md). Look at the respective guides, and pick which works best for you.
-
-Pro tip: Always pick Docker.
+If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's an easy process thanks to docker & docker-compose.
+More details can be found in [`the self hosting guide`](/documentation/Self-Hosting.md).
 
 # Licensing
 

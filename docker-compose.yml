@@ -1,0 +1,39 @@
+networks:
+  charmie:
+    driver: bridge
+
+services:
+  bot:
+    container_name: bot-charmie
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    networks:
+      - charmie
+    volumes:
+      - ./charmie.cfg.yml:/charmie/charmie.cfg.yml
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    container_name: postgresql-charmie
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER: ${POSTGRES_USER}
+      - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgresql-charmie:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - charmie
+
+
+volumes:
+  postgresql-charmie:
+    driver: local

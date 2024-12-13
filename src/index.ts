@@ -7,7 +7,7 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import * as SentryClient from '@sentry/node';
 
-import { sleep } from '@utils/index';
+import { checkEnvironmentVariables, constructDatabaseUrl, sleep } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
 import { ClientCacheOptions, ClientIntents, ClientPartials, ClientSweeperOptions, ExitEvents } from '@utils/Constants';
@@ -81,21 +81,11 @@ export const Sentry = SentryClient;
 export const prisma = new PrismaClient();
 
 async function main() {
-  if (!process.env.BOT_TOKEN) {
-    throw new Error('The environment variable BOT_TOKEN is not defined.');
-  }
+  // Check environment variables & construct prisma database URL
 
-  if (!process.env.BOT_ID) {
-    throw new Error('The environment variable BOT_ID is not defined.');
-  }
+  await checkEnvironmentVariables();
 
-  if (!process.env.SENTRY_DSN) {
-    throw new Error('The environment variable SENTRY_DSN is not defined.');
-  }
-
-  if (!process.env.DATABASE_URL) {
-    throw new Error('The environment variable DATABASE_URL is not defined.');
-  }
+  process.env.DATABASE_URL = constructDatabaseUrl();
 
   // Cache global config
 
