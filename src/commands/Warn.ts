@@ -9,7 +9,7 @@ import ms from 'ms';
 
 import { MessageKeys, DurationKeys } from '@utils/Keys';
 import { isEphemeralReply, parseDuration } from '@utils/index';
-import { MAX_DURATION_STR } from '@utils/Constants';
+import { MaxDurationStr } from '@utils/Constants';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -100,7 +100,7 @@ export default class Warn extends Command {
         };
       }
 
-      if (duration > ms(MAX_DURATION_STR)) {
+      if (duration > ms(MaxDurationStr)) {
         return {
           error: MessageKeys.Errors.DurationTooLong('5 years'),
           temporary: true

@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { SHORTCUT_PERMISSION_FLAGS } from '@utils/Constants';
+import { ShortcutPermissionFlags } from '@utils/Constants';
 import { MessageKeys } from '@utils/Keys';
 import { pluralize } from '@utils/index';
 import { client } from '@/index';
@@ -133,7 +133,7 @@ export default class CommandManager {
     const { action, reason, duration, message_delete_time } = command;
 
     if (action !== 'Warn') {
-      const permissions = SHORTCUT_PERMISSION_FLAGS[action];
+      const permissions = ShortcutPermissionFlags[action];
 
       if (
         !interaction.appPermissions.has(permissions) ||

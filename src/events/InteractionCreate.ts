@@ -12,7 +12,7 @@ import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeral
 import { prisma, Sentry } from '@/index';
 import { MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
-import { COMMON_DURATIONS, DURATION_UNITS, LOCKDOWN_OVERRIDES } from '@utils/Constants';
+import { CommonDurations, DurationUnits, LockdownOverrides } from '@utils/Constants';
 
 import CommandManager from '@managers/commands/CommandManager';
 import EventListener from '@managers/events/EventListener';
@@ -245,14 +245,14 @@ export default class InteractionCreate extends EventListener {
 
     switch (option.name) {
       case 'duration': {
-        if (!value) return interaction.respond(COMMON_DURATIONS);
+        if (!value) return interaction.respond(CommonDurations);
 
         const [numStr, unit = ''] = lowercaseValue.split(' ');
         const num = parseInt(numStr, 10);
 
         if (isNaN(num) || num < 1 || num > 1000) return interaction.respond([]);
 
-        const matchingUnits = DURATION_UNITS.filter(un => un.startsWith(unit.replace(/s$/, '')));
+        const matchingUnits = DurationUnits.filter(un => un.startsWith(unit.replace(/s$/, '')));
 
         return interaction.respond(
           matchingUnits.map(un => ({
@@ -342,7 +342,7 @@ export default class InteractionCreate extends EventListener {
       }
 
       case 'override': {
-        const filteredOverrides = LOCKDOWN_OVERRIDES.filter(override =>
+        const filteredOverrides = LockdownOverrides.filter(override =>
           override.name.toLowerCase().includes(lowercaseValue)
         )
           .sort((a, b) => a.name.localeCompare(b.name))

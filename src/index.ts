@@ -10,13 +10,7 @@ import * as SentryClient from '@sentry/node';
 import { sleep } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import {
-  CLIENT_CACHE_OPTIONS,
-  CLIENT_INTENTS,
-  CLIENT_PARTIALS,
-  CLIENT_SWEEPER_OPTIONS,
-  EXIT_EVENTS
-} from '@utils/Constants';
+import { ClientCacheOptions, ClientIntents, ClientPartials, ClientSweeperOptions, ExitEvents } from '@utils/Constants';
 
 import EventListenerManager from '@managers/events/EventListenerManager';
 import CommandManager from '@managers/commands/CommandManager';
@@ -35,38 +29,39 @@ export const client = new Client({
    * The following privileged intents are required for the bot to work:
    *
    * 1. Server Members Intent - For handling guild member events
-   * 2. Message Content Intent - For handling auto-moderation and enhanced message logging
+   * 2. Message Content Intent - For enhanced message logging
    *
    * If these intents have not been granted the client will not log in
    * @see https://discord.com/developers/docs/topics/gateway#gateway-intents
    */
 
-  intents: CLIENT_INTENTS,
+  intents: ClientIntents,
 
   /**
    * Partial types.
    */
 
-  partials: CLIENT_PARTIALS,
+  partials: ClientPartials,
 
   /**
    * Cache settings for the client.
    *
-   * A message cache of 100 or above is recommended.
+   * A message cache of 1000 or above is recommended.
    */
 
-  makeCache: CLIENT_CACHE_OPTIONS,
+  makeCache: ClientCacheOptions,
 
   /**
    * Sweepers for the cache.
    *
    * guildMembers - Sweeps the guild member cache but excludes the client
+   * messages - Sweeps the message cache
    *
    * Warning: These cache settings do lead in higher memory usage
-   *          If you do not have appropriate available memory please lower these numbers
+   *          If you do not have appropriate available memory you need to adjust these number accordingly
    */
 
-  sweepers: CLIENT_SWEEPER_OPTIONS,
+  sweepers: ClientSweeperOptions,
 
   allowedMentions: {
     parse: []
@@ -205,7 +200,7 @@ process.on('message', async message => {
   }
 });
 
-EXIT_EVENTS.forEach(event => {
+ExitEvents.forEach(event => {
   process.on(event, async () => {
     await DatabaseManager.startCleanupOperations(event);
     process.exit(0);

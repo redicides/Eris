@@ -20,7 +20,7 @@ import ms from 'ms';
 
 import { prisma } from '..';
 import { isCategory } from './Config';
-import { MAX_DURATION_STR } from '@utils/Constants';
+import { MaxDurationStr } from '@utils/Constants';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
 
@@ -1569,7 +1569,7 @@ export default class Settings extends Command {
         }
       }
 
-      if (duration > ms(MAX_DURATION_STR)) {
+      if (duration > ms(MaxDurationStr)) {
         return {
           error: 'The duration must not exceed 5 years.',
           temporary: true

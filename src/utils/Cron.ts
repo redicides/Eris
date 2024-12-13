@@ -11,7 +11,7 @@ import {
 
 import ms from 'ms';
 
-import { CRON_SLUGS, DEFAULT_TIMEZONE, LOG_ENTRY_DATE_FORMAT } from '@utils/Constants';
+import { CronSlugs, DefaultTimezone, LogDateFormat } from '@utils/Constants';
 import { ReportUtils } from '@utils/Reports';
 import { client, prisma, Sentry } from '@/index';
 import { pluralize } from '.';
@@ -37,7 +37,7 @@ export class CronUtils {
    * - Logs each tick of the cron job
    *
    * @param monitorSlug - The slug of the monitor
-   * @param cronTime - The cron time string (timezone: {@link DEFAULT_TIMEZONE})
+   * @param cronTime - The cron time string (timezone: {@link DefaultTimezone})
    * @param silent - Whether to suppress logs
    * @param onTick - The function to run on each tick
    */
@@ -52,7 +52,7 @@ export class CronUtils {
     cronJobWithCheckIn
       .from({
         cronTime,
-        timeZone: DEFAULT_TIMEZONE,
+        timeZone: DefaultTimezone,
         onTick: async () => {
           if (!silent)
             Logger.log(monitorSlug, 'Running cron job...', {
@@ -178,7 +178,7 @@ export class CronUtils {
    */
 
   public static startReportDisregardRunner(): void {
-    return CronUtils.startJob(CRON_SLUGS.ReportDisregardRunner, runners.reports, true, async () => {
+    return CronUtils.startJob(CronSlugs.ReportDisregardRunner, runners.reports, true, async () => {
       const messageReports = await prisma.messageReport.findMany({
         where: {
           reported_at: { lte: Date.now() },
@@ -314,14 +314,14 @@ export class CronUtils {
    */
 
   public static startMessageRunners(): void {
-    CronUtils.startJob(CRON_SLUGS.MessageInsertRunner, messages.insert, false, async () => {
+    CronUtils.startJob(CronSlugs.MessageInsertRunner, messages.insert, false, async () => {
       await DatabaseManager.storeMessageEntries();
     });
 
-    CronUtils.startJob(CRON_SLUGS.MessageDeleteRunner, messages.delete, false, async () => {
+    CronUtils.startJob(CronSlugs.MessageDeleteRunner, messages.delete, false, async () => {
       const createdAtThreshold = Date.now() - messages.ttl;
       const duration = ms(messages.ttl, { long: true });
-      const createdAtStr = new Date(createdAtThreshold).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
+      const createdAtStr = new Date(createdAtThreshold).toLocaleString(undefined, LogDateFormat);
 
       Logger.info(`Deleting messages created before ${createdAtStr} (olrder than ${duration})...`);
 

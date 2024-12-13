@@ -33,7 +33,7 @@ import ms from 'ms';
 import _ from 'lodash';
 
 import { client } from '..';
-import { EMPTY_MESSAGE_CONTENT, LOG_ENTRY_DATE_FORMAT } from './Constants';
+import { EmptyMessageContent, LogDateFormat } from './Constants';
 import { GuildConfig, InteractionReplyData, MessageLog, ObjectDiff } from './Types';
 import { ComponentInteraction } from '@managers/components/Component';
 import { CommandCategory } from '@managers/commands/Command';
@@ -246,7 +246,7 @@ export async function formatMessageContentForShortLog(
     // Truncate the content if it's too long
     content = elipsify(content, maxContentLength);
   } else {
-    content = EMPTY_MESSAGE_CONTENT;
+    content = EmptyMessageContent;
   }
 
   return rawContent + codeBlock(content);
@@ -570,7 +570,7 @@ export async function formatMessageBulkDeleteLogEntry(data: {
   authorId: Snowflake;
   messageContent: string | null;
 }) {
-  const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
+  const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LogDateFormat);
   const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
 
   let content: string | undefined;
@@ -589,7 +589,7 @@ export async function formatMessageBulkDeleteLogEntry(data: {
     }
   }
 
-  content ??= data.messageContent ?? EMPTY_MESSAGE_CONTENT;
+  content ??= data.messageContent ?? EmptyMessageContent;
   return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
 }
 

@@ -17,7 +17,7 @@ import { prisma } from '..';
 import { DurationKeys, MessageKeys } from '@utils/Keys';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
-import { MAX_DURATION_STR, SHORTCUT_PERMISSION_FLAGS } from '@utils/Constants';
+import { MaxDurationStr, ShortcutPermissionFlags } from '@utils/Constants';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import CommandManager from '@managers/commands/CommandManager';
@@ -337,7 +337,7 @@ export default class ShortcutManager extends Command {
         };
       }
 
-      if (duration > ms(MAX_DURATION_STR)) {
+      if (duration > ms(MaxDurationStr)) {
         return {
           error: MessageKeys.Errors.DurationTooLong('5 years'),
           temporary: true
@@ -357,7 +357,7 @@ export default class ShortcutManager extends Command {
         name,
         description,
         type: ApplicationCommandType.ChatInput,
-        defaultMemberPermissions: SHORTCUT_PERMISSION_FLAGS[action],
+        defaultMemberPermissions: ShortcutPermissionFlags[action],
         options: [
           {
             name: action === 'Ban' || action === 'Unban' ? 'user' : 'member',
@@ -561,7 +561,7 @@ export default class ShortcutManager extends Command {
       };
     }
 
-    if (duration > ms(MAX_DURATION_STR) && shortcut.action !== 'Mute') {
+    if (duration > ms(MaxDurationStr) && shortcut.action !== 'Mute') {
       return {
         error: MessageKeys.Errors.DurationTooLong('5 years'),
         temporary: true

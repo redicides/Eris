@@ -20,7 +20,7 @@ import {
   userMentionWithId
 } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
-import { EMPTY_MESSAGE_CONTENT } from '@utils/Constants';
+import { EmptyMessageContent } from '@utils/Constants';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
@@ -150,7 +150,7 @@ export default class MessageUpdate extends EventListener {
     const embed = await MessageUpdate._buildLogEmbed({
       authorId: message.author.id,
       channelId: message.channel.id,
-      oldContent: oldMessage.content ?? EMPTY_MESSAGE_CONTENT,
+      oldContent: oldMessage.content ?? EmptyMessageContent,
       newContent: message.content,
       messageUrl: message.url,
       attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)

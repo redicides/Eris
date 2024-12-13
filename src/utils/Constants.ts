@@ -8,7 +8,7 @@ import { GatewayIntentBits, GuildMember, Options, Partials, PermissionFlagsBits,
  * The gateway intent bits for the client.
  */
 
-export const CLIENT_INTENTS = [
+export const ClientIntents = [
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildMembers,
   GatewayIntentBits.GuildMessages,
@@ -23,7 +23,7 @@ export const CLIENT_INTENTS = [
  * The partials for the client.
  */
 
-export const CLIENT_PARTIALS = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message];
+export const ClientPartials = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message];
 
 /**
  * The cache options for the client.
@@ -31,7 +31,7 @@ export const CLIENT_PARTIALS = [Partials.Channel, Partials.User, Partials.GuildM
  * Channel messages are cached with a limit of 1000 messages, which may lead to significant memory usage.
  */
 
-export const CLIENT_CACHE_OPTIONS = Options.cacheWithLimits({
+export const ClientCacheOptions = Options.cacheWithLimits({
   ...Options.DefaultMakeCacheSettings,
   GuildMessageManager: 1000, // Channel messages
   BaseGuildEmojiManager: 0, // Guild emojis
@@ -56,7 +56,7 @@ export const CLIENT_CACHE_OPTIONS = Options.cacheWithLimits({
  * The bot is not excluded from the messages sweeper.
  */
 
-export const CLIENT_SWEEPER_OPTIONS = {
+export const ClientSweeperOptions = {
   ...Options.DefaultSweeperSettings,
   guildMembers: {
     interval: 1800,
@@ -77,18 +77,18 @@ export const CLIENT_SWEEPER_OPTIONS = {
 // Miscellaneous
 // ————————————————————————————————————————————————————————————————————————————————
 
-export const DEFAULT_TIMEZONE = 'GMT';
+export const DefaultTimezone = 'GMT';
 
-export const CRON_SLUGS = {
+export const CronSlugs = {
   TaskRunner: 'TASK_RUNNER',
   ReportDisregardRunner: 'REPORT_DISREGARD_RUNNER',
   MessageInsertRunner: 'MESSAGE_INSERT_RUNNER',
   MessageDeleteRunner: 'MESSAGE_DELETE_RUNNER'
 };
 
-export const EMPTY_MESSAGE_CONTENT = 'Unknown message content.';
+export const EmptyMessageContent = 'No message content available.';
 
-export const COMMON_DURATIONS = [
+export const CommonDurations = [
   { name: '1 minute', value: '1 minute' },
   { name: '5 minutes', value: '5 minutes' },
   { name: '15 minutes', value: '15 minutes' },
@@ -107,10 +107,10 @@ export const COMMON_DURATIONS = [
   { name: '1 month', value: '30 days' }
 ];
 
-export const DURATION_UNITS = ['second', 'minute', 'hour', 'day', 'week'];
-export const MAX_DURATION_STR = '1826 days';
+export const DurationUnits = ['second', 'minute', 'hour', 'day', 'week'];
+export const MaxDurationStr = '1826 days';
 
-export const EXIT_EVENTS = [
+export const ExitEvents = [
   'SIGHUP',
   'SIGINT',
   'SIGQUIT',
@@ -125,20 +125,20 @@ export const EXIT_EVENTS = [
   'SIGTERM'
 ];
 
-export const LOG_ENTRY_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+export const LogDateFormat: Intl.DateTimeFormatOptions = {
   month: '2-digit',
   day: '2-digit',
   year: 'numeric',
   hour: '2-digit',
   minute: '2-digit',
   second: '2-digit',
-  timeZone: DEFAULT_TIMEZONE,
+  timeZone: DefaultTimezone,
   hour12: false
 };
 
-export const COMMON_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
+export const CommonCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
 
-export const LOCKDOWN_OVERRIDES = [
+export const LockdownOverrides = [
   { name: 'Add Reactions', value: 'AddReactions' },
   { name: 'Attach Files', value: 'AttachFiles' },
   { name: 'Connect', value: 'Connect' },
@@ -165,7 +165,7 @@ export const LOCKDOWN_OVERRIDES = [
   { name: 'View Channel', value: 'ViewChannel' }
 ];
 
-export const SHORTCUT_PERMISSION_FLAGS = {
+export const ShortcutPermissionFlags = {
   Warn: PermissionFlagsBits.ModerateMembers,
   Mute: PermissionFlagsBits.ModerateMembers,
   Unmute: PermissionFlagsBits.ModerateMembers,

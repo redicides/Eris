@@ -3,7 +3,7 @@ import { Message } from '@prisma/client';
 
 import { prisma } from '@/index';
 import { GuildConfig } from '@utils/Types';
-import { EMPTY_MESSAGE_CONTENT } from '@utils/Constants';
+import { EmptyMessageContent } from '@utils/Constants';
 
 import Logger, { AnsiColor } from '@utils/Logger';
 
@@ -152,7 +152,7 @@ export default class DatabaseManager {
     const message = DatabaseManager._messageQueue.get(id);
 
     if (message) {
-      const oldContent = message.content ?? EMPTY_MESSAGE_CONTENT;
+      const oldContent = message.content ?? EmptyMessageContent;
       message.content = newContent;
 
       return oldContent;
@@ -167,7 +167,7 @@ export default class DatabaseManager {
       })
       .catch(() => null);
 
-    return oldMessage?.content ?? EMPTY_MESSAGE_CONTENT;
+    return oldMessage?.content ?? EmptyMessageContent;
   }
 
   /**

@@ -34,7 +34,7 @@ import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
 
 import TaskManager from './TaskManager';
 import ms from 'ms';
-import { LOG_ENTRY_DATE_FORMAT } from '@/utils/Constants';
+import { LogDateFormat } from '@/utils/Constants';
 
 export default class InfractionManager {
   /**
@@ -982,9 +982,9 @@ export default class InfractionManager {
   }
 
   private static _parseInfractionData(infraction: Infraction): string {
-    const isoDate = new Date(Number(infraction.created_at)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT);
+    const isoDate = new Date(Number(infraction.created_at)).toLocaleString(undefined, LogDateFormat);
     const isoExpiration = infraction.expires_at
-      ? new Date(Number(infraction.expires_at)).toLocaleString(undefined, LOG_ENTRY_DATE_FORMAT)
+      ? new Date(Number(infraction.expires_at)).toLocaleString(undefined, LogDateFormat)
       : 'Never';
 
     let infractionData = `${infraction.type} #${infraction.id}\n └── Target: ${infraction.target_id}\n └── Reason: ${infraction.reason}\n └── Created On: ${isoDate}\n └── Expires: ${isoExpiration}`;

@@ -222,7 +222,7 @@ export default class Lockdown extends Command {
       }
 
       if (channel.id !== interaction.channelId && channel.isTextBased() && notifyChannels) {
-        await channel.send({ content: `This channel has been locked due to a server wide lockdown.` });
+        await channel.send({ content: `This channel has been locked due to a server wide lockdown.` }).catch(() => {});
       }
 
       lockedChannels.push(channelId);
@@ -365,7 +365,9 @@ export default class Lockdown extends Command {
       );
 
       if (channel.id !== interaction.channelId && channel.isTextBased() && notifyChannels) {
-        await channel.send({ content: `This channel has been unlocked due to the server wide lockdown ending.` });
+        await channel
+          .send({ content: `This channel has been unlocked due to the server wide lockdown ending.` })
+          .catch(() => {});
       }
 
       unlockedChannels.push(channelId);

@@ -7,7 +7,7 @@ import {
 
 import { MessageKeys } from '@utils/Keys';
 import { hierarchyCheck } from '@utils/index';
-import { COMMON_CHARACTERS } from '@utils/Constants';
+import { CommonCharacters } from '@utils/Constants';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 
@@ -179,7 +179,7 @@ export default class Nickname extends Command {
         let code = '';
 
         for (let i = 0; i !== 8; ++i) {
-          code += COMMON_CHARACTERS[Math.floor(Math.random() * COMMON_CHARACTERS.length)];
+          code += CommonCharacters[Math.floor(Math.random() * CommonCharacters.length)];
         }
 
         const set = await target
