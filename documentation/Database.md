@@ -8,8 +8,8 @@ Here's a `docker-compose.yml` configuration that works like a charm (get it, hah
 
 ```yml
 services:
-  charmie-mongodb:
-    container_name: charmie-mongodb
+  database:
+    container_name: charmie-database
     image: mongo:latest
     user: mongodb
     environment:
@@ -17,7 +17,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: <root password>
       MONGO_INITDB_DATABASE: <initial database name>
     volumes:
-      - charmie-mongodb_data:/data/db
+      - database:/data/db
       - ./keyFile:/data/mongodb/keyFile:ro
     command: ['--replSet', 'rs0', '--bind_ip_all', '--keyFile', '/data/mongodb/keyFile']
     ports:
@@ -25,8 +25,8 @@ services:
     restart: unless-stopped
 
 volumes:
-  charmie-mongodb_data:
-    name: charmie-mongodb_data
+  database:
+    name: charmie-database
     driver: local
 ```
 
