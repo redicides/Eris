@@ -65,20 +65,7 @@ export default class Settings extends Command {
                     description: 'The first permission to add to the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [
-                      { name: 'Search_Infractions', value: PermissionEnum.Search_Infractions },
-                      { name: 'Manage_User_Reports', value: PermissionEnum.Manage_User_Reports },
-                      { name: 'Manage_Message_Reports', value: PermissionEnum.Manage_Message_Reports },
-                      { name: 'Manage_Mute_Requests', value: PermissionEnum.Manage_Mute_Requests },
-                      { name: 'Manage_Ban_Requests', value: PermissionEnum.Manage_Ban_Requests },
-                      { name: 'Delete_Infractions', value: PermissionEnum.Delete_Infractions },
-                      { name: 'Update_Infractions', value: PermissionEnum.Update_Infractions },
-                      { name: 'Lock_Channels', value: PermissionEnum.Lock_Channels },
-                      { name: 'Unlock_Channels', value: PermissionEnum.Unlock_Channels },
-                      { name: 'Start_Lockdown', value: PermissionEnum.Start_Lockdown },
-                      { name: 'End_Lockdown', value: PermissionEnum.End_Lockdown },
-                      { name: 'Override_Lockdown_Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
-                    ]
+                    autocomplete: true
                   }
                 ]
               },
@@ -153,20 +140,7 @@ export default class Settings extends Command {
                     description: 'The permission.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.Search_Infractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.Manage_User_Reports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.Manage_Message_Reports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.Manage_Mute_Requests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.Manage_Ban_Requests },
-                      { name: 'Delete Infractions', value: PermissionEnum.Delete_Infractions },
-                      { name: 'Update Infractions', value: PermissionEnum.Update_Infractions },
-                      { name: 'Lock Channels', value: PermissionEnum.Lock_Channels },
-                      { name: 'Unlock Channels', value: PermissionEnum.Unlock_Channels },
-                      { name: 'Start Lockdown', value: PermissionEnum.Start_Lockdown },
-                      { name: 'End Lockdown', value: PermissionEnum.End_Lockdown },
-                      { name: 'Override Lockdown Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
-                    ]
+                    autocomplete: true
                   }
                 ]
               },
@@ -187,20 +161,7 @@ export default class Settings extends Command {
                     description: 'The permission to revoke.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
-                    choices: [
-                      { name: 'Search Infractions', value: PermissionEnum.Search_Infractions },
-                      { name: 'Manage User Reports', value: PermissionEnum.Manage_User_Reports },
-                      { name: 'Manage Message Reports', value: PermissionEnum.Manage_Message_Reports },
-                      { name: 'Manage Mute Requests', value: PermissionEnum.Manage_Mute_Requests },
-                      { name: 'Manage Ban Requests', value: PermissionEnum.Manage_Ban_Requests },
-                      { name: 'Delete Infractions', value: PermissionEnum.Delete_Infractions },
-                      { name: 'Update Infractions', value: PermissionEnum.Update_Infractions },
-                      { name: 'Lock Channels', value: PermissionEnum.Lock_Channels },
-                      { name: 'Unlock Channels', value: PermissionEnum.Unlock_Channels },
-                      { name: 'Start Lockdown', value: PermissionEnum.Start_Lockdown },
-                      { name: 'End Lockdown', value: PermissionEnum.End_Lockdown },
-                      { name: 'Override Lockdown Notifications', value: PermissionEnum.Override_Lockdown_Notificatons }
-                    ]
+                    autocomplete: true
                   }
                 ]
               },
@@ -722,6 +683,13 @@ export default class Settings extends Command {
         };
       }
 
+      if (!PermissionEnum.hasOwnProperty(permission)) {
+        return {
+          error: `The provided permission (\`${permission.replaceAll('_', ' ')}\`) is invalid.`,
+          temporary: true
+        };
+      }
+
       await prisma.guild.update({
         where: { id: interaction.guildId },
         data: {
@@ -856,6 +824,13 @@ export default class Settings extends Command {
         };
       }
 
+      if (!PermissionEnum.hasOwnProperty(permission)) {
+        return {
+          error: `The provided permission (\`${permission.replaceAll('_', ' ')}\`) is invalid.`,
+          temporary: true
+        };
+      }
+
       if (permissionNode.allowed.includes(permission)) {
         return {
           error: `The permission \`${permission.replaceAll('_', ' ')}\` is already allowed in the permission node.`,
@@ -891,6 +866,13 @@ export default class Settings extends Command {
       if (!permissionNode) {
         return {
           error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (!PermissionEnum.hasOwnProperty(permission)) {
+        return {
+          error: `The provided permission (\`${permission.replaceAll('_', ' ')}\`) is invalid.`,
           temporary: true
         };
       }

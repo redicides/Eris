@@ -6,7 +6,7 @@ import {
   Events,
   Interaction
 } from 'discord.js';
-import { Shortcut } from '@prisma/client';
+import { PermissionEnum, Shortcut } from '@prisma/client';
 
 import { capitalize, getInteractionTTL, handleInteractionErrorReply, isEphemeralReply } from '@utils/index';
 import { prisma, Sentry } from '@/index';
@@ -325,6 +325,19 @@ export default class InteractionCreate extends EventListener {
           .sort((a, b) => a.name.localeCompare(b.name));
 
         return interaction.respond(permissions.map(permission => ({ name: permission.name, value: permission.name })));
+      }
+
+      case 'permission': {
+        const permissions = Object.values(PermissionEnum)
+          .filter(permission => {
+            const parsedName = permission.replaceAll(/_/g, ' ');
+            return parsedName.toLowerCase().includes(lowercaseValue) || parsedName.includes(value);
+          })
+          .sort((a, b) => a.localeCompare(b));
+
+        return interaction.respond(
+          permissions.map(permission => ({ name: capitalize(permission.replaceAll('_', ' ')), value: permission }))
+        );
       }
 
       case 'scope': {
