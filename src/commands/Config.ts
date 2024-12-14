@@ -700,7 +700,15 @@ export default class Config extends Command {
       const channel = interaction.options.getChannel('channel', true) as TextChannel;
       const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
-      const webhooks = await interaction.guild.fetchWebhooks();
+      const webhooks = await interaction.guild.fetchWebhooks().catch(() => null);
+
+      if (!webhooks) {
+        return {
+          error: 'Failed to fetch webhooks.',
+          temporary: true
+        };
+      }
+
       const webhook = webhooks.find(webhook => webhook.url === config[type]);
 
       if (
@@ -1024,7 +1032,15 @@ export default class Config extends Command {
       const channel = interaction.options.getChannel('channel', true) as TextChannel;
       const type = interaction.options.getString('request-type', true) as keyof typeof config;
 
-      const webhooks = await interaction.guild.fetchWebhooks();
+      const webhooks = await interaction.guild.fetchWebhooks().catch(() => null);
+
+      if (!webhooks) {
+        return {
+          error: 'Failed to fetch webhooks.',
+          temporary: true
+        };
+      }
+
       const webhook = webhooks.find(webhook => webhook.url === config[type]);
 
       if (
@@ -1270,7 +1286,15 @@ export default class Config extends Command {
       const channel = interaction.options.getChannel('channel', true) as TextChannel;
       const type = interaction.options.getString('log-type', true) as keyof typeof config;
 
-      const webhooks = await interaction.guild.fetchWebhooks();
+      const webhooks = await interaction.guild.fetchWebhooks().catch(() => null);
+
+      if (!webhooks) {
+        return {
+          error: 'Failed to fetch webhooks.',
+          temporary: true
+        };
+      }
+
       const webhook = webhooks.find(webhook => webhook.url === config[type]);
 
       if (
@@ -1346,7 +1370,15 @@ export default class Config extends Command {
     async setNotificationChannel(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
       const channel = interaction.options.getChannel('channel', true) as TextChannel;
 
-      const webhooks = await interaction.guild.fetchWebhooks();
+      const webhooks = await interaction.guild.fetchWebhooks().catch(() => null);
+
+      if (!webhooks) {
+        return {
+          error: 'Failed to fetch webhooks.',
+          temporary: true
+        };
+      }
+
       const webhook = webhooks.find(webhook => webhook.url === config.notification_webhook);
 
       if (
