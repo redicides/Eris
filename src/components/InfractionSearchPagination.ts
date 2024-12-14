@@ -95,8 +95,8 @@ export default class InfractionSearchPaginationComponent extends Component {
     }
 
     return InfractionManager.searchInfractions({
-      guild_id: interaction.guildId,
-      controller_id: interaction.user.id,
+      guildId: interaction.guildId,
+      controllerId: interaction.user.id,
       target,
       page,
       filter

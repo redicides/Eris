@@ -249,16 +249,16 @@ export default class DatabaseManager {
    */
 
   private static serializeMessageEntry(message: DiscordMessage<true>): Message {
-    const sticker_id = message.stickers?.first()?.id ?? null;
-    const reference_id = message.reference?.messageId ?? null;
+    const stickerId = message.stickers?.first()?.id ?? null;
+    const referenceId = message.reference?.messageId ?? null;
 
     return {
       id: message.id,
       guild_id: message.guild.id,
       author_id: message.author.id,
       channel_id: message.channel.id,
-      sticker_id,
-      reference_id,
+      sticker_id: stickerId,
+      reference_id: referenceId,
       content: message.content,
       attachments: message.attachments.map(attachment => attachment.url),
       created_at: BigInt(message.createdAt.getTime()),

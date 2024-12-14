@@ -958,18 +958,19 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const command_name = interaction.options.getString('command', true);
+      const commandName = interaction.options.getString('command', true);
 
       let toggle = false;
 
-      const command = CommandManager.commands.get(command_name);
+      const command =
+        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
 
       const shortcut =
         (await prisma.shortcut.findUnique({
-          where: { name: command_name, guild_id: interaction.guildId }
+          where: { name: commandName, guild_id: interaction.guildId }
         })) ??
         (await prisma.shortcut.findUnique({
-          where: { name: command_name.toLowerCase(), guild_id: interaction.guildId }
+          where: { name: commandName.toLowerCase(), guild_id: interaction.guildId }
         }));
 
       if (!command) {
@@ -977,17 +978,17 @@ export default class Settings extends Command {
           if (!shortcut.enabled) toggle = true;
 
           await prisma.shortcut.update({
-            where: { name: command_name, guild_id: interaction.guildId },
+            where: { name: commandName, guild_id: interaction.guildId },
             data: { enabled: toggle }
           });
 
           return {
-            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${command_name}\`.`
+            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${commandName}\`.`
           };
         }
 
         return {
-          error: `The command \`${command_name}\` does not exist.`,
+          error: `The command \`${commandName}\` does not exist.`,
           temporary: true
         };
       }
@@ -1072,7 +1073,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const command_name = interaction.options.getString('command', true);
+      const commandName = interaction.options.getString('command', true);
       const includeChannel = interaction.options.getChannel('include-channel', false) as
         | GuildTextBasedChannel
         | CategoryChannel
@@ -1084,19 +1085,19 @@ export default class Settings extends Command {
         | null;
 
       const command =
-        CommandManager.commands.get(command_name) ?? CommandManager.commands.get(command_name.toLowerCase());
+        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
 
       const shortcut =
         (await prisma.shortcut.findUnique({
-          where: { name: command_name, guild_id: interaction.guildId }
+          where: { name: commandName, guild_id: interaction.guildId }
         })) ??
         (await prisma.shortcut.findUnique({
-          where: { name: command_name.toLowerCase(), guild_id: interaction.guildId }
+          where: { name: commandName.toLowerCase(), guild_id: interaction.guildId }
         }));
 
       if (!command && !shortcut) {
         return {
-          error: `The command \`${command_name}\` does not exist.`,
+          error: `The command \`${commandName}\` does not exist.`,
           temporary: true
         };
       }
@@ -1112,7 +1113,7 @@ export default class Settings extends Command {
 
       if (!scopeName) {
         return {
-          error: `The command \`${command_name}\` does not exist.`,
+          error: `The command \`${commandName}\` does not exist.`,
           temporary: true
         };
       }
@@ -1140,7 +1141,7 @@ export default class Settings extends Command {
         data: {
           ephemeral_scopes: {
             push: {
-              command_name: scopeName,
+              commandName: scopeName,
               included_channels: includeChannel ? [includeChannel.id] : [],
               excluded_channels: excludeChannel ? [excludeChannel.id] : []
             }
@@ -1418,23 +1419,23 @@ export default class Settings extends Command {
 
       const map = await Promise.all(
         (config.ephemeral_scopes as EphemeralScope[]).map(async scope => {
-          const included_channels = await Promise.all(
+          const includedChannels = await Promise.all(
             scope.included_channels.map(id => {
-              const channel = interaction.guild!.channels.cache.get(id);
+              const channel = interaction.guild.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
 
-          const excluded_channels = await Promise.all(
+          const excludedChannels = await Promise.all(
             scope.excluded_channels.map(id => {
-              const channel = interaction.guild!.channels.cache.get(id);
+              const channel = interaction.guild.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
 
-          return `Command: ${scope.command_name}\n└ Included channels: ${included_channels.join(
+          return `Command: ${scope.command_name}\n└ Included channels: ${includedChannels.join(
             ', '
-          )}\n└ Excluded channels: ${excluded_channels.join(', ')}`;
+          )}\n└ Excluded channels: ${excludedChannels.join(', ')}`;
         })
       );
 

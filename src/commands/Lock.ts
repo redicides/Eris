@@ -14,7 +14,7 @@ import { MessageKeys } from '@utils/Keys';
 import { UserPermission } from '@utils/Enums';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { capitalize, elipsify, hasPermission, isEphemeralReply } from '@utils/index';
-import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason, InfractionColors } from '@managers/database/InfractionManager';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
 import DatabaseManager from '@managers/database/DatabaseManager';
@@ -128,7 +128,7 @@ export default class Lock extends Command {
       };
     }
 
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+    const reason = rawReason ?? DefaultInfractionReason;
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
@@ -153,7 +153,7 @@ export default class Lock extends Command {
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: this.client.user!.username, iconURL: this.client.user!.displayAvatarURL() })
-      .setColor(INFRACTION_COLORS.Mute)
+      .setColor(InfractionColors.Mute)
       .setTitle('Channel Locked')
       .setDescription(
         `This channel has been locked${config.lockdown_display_executor ? ` by ${interaction.user}` : ''}.`

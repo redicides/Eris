@@ -10,7 +10,7 @@ import { MessageKeys } from '@utils/Keys';
 import { isEphemeralReply } from '@utils/index';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 export default class Kick extends Command {
   constructor() {
@@ -74,7 +74,7 @@ export default class Kick extends Command {
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+    const reason = rawReason ?? DefaultInfractionReason;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
@@ -88,20 +88,15 @@ export default class Kick extends Command {
 
     await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
 
-    let failed = false;
-
-    await InfractionManager.resolvePunishment({
+    const kick = await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member,
       target,
-      action: 'Kick',
+      executor: interaction.member,
       reason,
-      duration: null
-    }).catch(() => {
-      failed = true;
+      action: 'Kick'
     });
 
-    if (failed) {
+    if (!kick.success) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
 
       return {

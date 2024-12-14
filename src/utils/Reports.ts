@@ -26,7 +26,7 @@ import { MessageReport, UserReport } from '@prisma/client';
 import { client, prisma } from '@/index';
 import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, cropLines, formatMessageContentForShortLog, userMentionWithId } from './index';
-import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 export class ReportUtils {
   /**
@@ -363,7 +363,7 @@ export class ReportUtils {
           embed: log,
           userId: interaction.user.id,
           action: 'Accepted',
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         return {
@@ -396,7 +396,7 @@ export class ReportUtils {
           embed: log,
           userId: interaction.user.id,
           action: 'Denied',
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         return {
@@ -473,7 +473,7 @@ export class ReportUtils {
           embed: log,
           userId: interaction.user.id,
           action: 'Accepted',
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         return {
@@ -506,7 +506,7 @@ export class ReportUtils {
           embed: log,
           userId: interaction.user.id,
           action: 'Denied',
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         return {

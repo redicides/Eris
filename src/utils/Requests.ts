@@ -25,7 +25,7 @@ import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, sendNotification, userMentionWithId } from '.';
 import { client, prisma } from '..';
 
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 import ConfigManager from '@managers/config/ConfigManager';
 
@@ -54,7 +54,7 @@ export class RequestUtils {
   }): Promise<InteractionReplyData> {
     const { config, guild_id, target, requested_by, duration, reason } = data;
 
-    const requested_at = Date.now();
+    const requestedAt = Date.now();
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -122,7 +122,7 @@ export class RequestUtils {
         guild_id,
         target_id: target.id,
         requested_by,
-        requested_at,
+        requested_at: requestedAt,
         duration,
         reason
       }
@@ -156,7 +156,7 @@ export class RequestUtils {
   }) {
     const { config, guild_id, target, requested_by, duration, reason } = data;
 
-    const requested_at = Date.now();
+    const requestedAt = Date.now();
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -227,7 +227,7 @@ export class RequestUtils {
         guild_id,
         target_id: target.id,
         requested_by,
-        requested_at,
+        requested_at: requestedAt,
         duration,
         reason
       }
@@ -296,10 +296,8 @@ export class RequestUtils {
           };
         }
 
-        let failed = false;
-
-        const created_at = Date.now();
-        const expires_at = request.duration ? created_at + Number(request.duration) : null;
+        const createdAt = Date.now();
+        const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
@@ -308,8 +306,8 @@ export class RequestUtils {
           executor_id: interaction.user.id,
           type: 'Ban',
           reason: request.reason,
-          created_at,
-          expires_at,
+          created_at: createdAt,
+          expires_at: expiresAt,
           request_author_id: request.requested_by,
           request_id: request.id
         });
@@ -323,16 +321,15 @@ export class RequestUtils {
           });
         }
 
-        await InfractionManager.resolvePunishment({
+        const ban = await InfractionManager.resolvePunishment({
           guild: interaction.guild,
+          target,
           executor: interaction.member!,
           action: 'Ban',
-          reason: request.reason,
-          target: target,
-          duration: null
-        }).catch(() => (failed = true));
+          reason: request.reason
+        });
 
-        if (failed) {
+        if (!ban.success) {
           await InfractionManager.deleteInfraction({ id: infraction.id });
 
           return {
@@ -341,12 +338,12 @@ export class RequestUtils {
           };
         }
 
-        if (expires_at) {
+        if (expiresAt) {
           await TaskManager.storeTask({
             guild_id: request.guild_id,
             target_id: request.target_id,
             infraction_id: infraction.id,
-            expires_at,
+            expires_at: expiresAt,
             type: 'Ban'
           });
         } else {
@@ -372,7 +369,7 @@ export class RequestUtils {
           embed,
           action: 'Accepted',
           userId: interaction.user.id,
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         await sendNotification({
@@ -403,7 +400,7 @@ export class RequestUtils {
           embed,
           action: 'Denied',
           userId: interaction.user.id,
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         await sendNotification({
@@ -476,26 +473,24 @@ export class RequestUtils {
           };
         }
 
-        let failed = false;
-
-        await InfractionManager.resolvePunishment({
+        const mute = await InfractionManager.resolvePunishment({
           guild: interaction.guild,
           target: targetMember,
           executor: interaction.member!,
           action: 'Mute',
           reason: request.reason,
           duration: request.duration
-        }).catch(() => (failed = true));
+        });
 
-        if (failed) {
+        if (!mute.success) {
           return {
             error: 'Failed to mute the target member.',
             temporary: true
           };
         }
 
-        const created_at = Date.now();
-        const expires_at = created_at + Number(request.duration);
+        const createdAt = Date.now();
+        const expiresAt = createdAt + Number(request.duration);
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
@@ -504,8 +499,8 @@ export class RequestUtils {
           executor_id: interaction.user.id,
           type: 'Mute',
           reason: request.reason,
-          created_at,
-          expires_at,
+          created_at: createdAt,
+          expires_at: expiresAt,
           request_author_id: request.requested_by,
           request_id: request.id
         });
@@ -514,7 +509,7 @@ export class RequestUtils {
           guild_id: request.guild_id,
           target_id: request.target_id,
           infraction_id: infraction.id,
-          expires_at,
+          expires_at: expiresAt,
           type: 'Mute'
         });
 
@@ -531,7 +526,7 @@ export class RequestUtils {
           data: {
             status: 'Accepted',
             resolved_by: interaction.user.id,
-            resolved_at: created_at,
+            resolved_at: createdAt,
             infraction_id: infraction.id
           }
         });
@@ -541,7 +536,7 @@ export class RequestUtils {
           embed,
           action: 'Accepted',
           userId: interaction.user.id,
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         await sendNotification({
@@ -572,7 +567,7 @@ export class RequestUtils {
           embed,
           action: 'Denied',
           userId: interaction.user.id,
-          reason: reason ?? DEFAULT_INFRACTION_REASON
+          reason: reason ?? DefaultInfractionReason
         });
 
         await sendNotification({

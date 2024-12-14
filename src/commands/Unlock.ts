@@ -14,7 +14,7 @@ import {
 import { MessageKeys } from '@utils/Keys';
 import { UserPermission } from '@utils/Enums';
 import { elipsify, hasPermission, isEphemeralReply } from '@utils/index';
-import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
@@ -136,7 +136,7 @@ export default class Unlock extends Command {
       };
     }
 
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+    const reason = rawReason ?? DefaultInfractionReason;
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 

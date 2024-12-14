@@ -13,7 +13,7 @@ import { MaxDurationStr } from '@utils/Constants';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 export default class Warn extends Command {
   constructor() {
@@ -58,7 +58,7 @@ export default class Warn extends Command {
     const target = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
     const rawReason = interaction.options.getString('reason', false);
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+    const reason = rawReason ?? DefaultInfractionReason;
 
     if (!target) {
       return {
@@ -108,20 +108,14 @@ export default class Warn extends Command {
       }
     }
 
-    let expires_at: number | null = null;
-
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    const created_at = Date.now();
-
-    if (duration) {
-      expires_at = created_at + duration;
-    } else if (
-      !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') &&
-      config.default_warn_duration !== 0n
-    ) {
-      expires_at = created_at + Number(config.default_warn_duration);
-    }
+    const createdAt = Date.now();
+    const expiresAt = duration
+      ? createdAt + duration
+      : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_warn_duration !== 0n
+      ? createdAt + Number(config.default_warn_duration)
+      : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
@@ -130,8 +124,8 @@ export default class Warn extends Command {
       executor_id: interaction.user.id,
       type: 'Warn',
       reason,
-      created_at,
-      expires_at
+      created_at: createdAt,
+      expires_at: expiresAt
     });
 
     await Promise.all([

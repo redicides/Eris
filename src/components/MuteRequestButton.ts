@@ -2,7 +2,7 @@ import { ButtonInteraction, Colors, EmbedBuilder, EmbedData } from 'discord.js';
 
 import { hasPermission, userMentionWithId } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
-import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import { RequestUtils } from '@utils/Requests';
 import { UserPermission } from '@utils/Enums';
 import { MessageKeys } from '@utils/Keys';
@@ -73,7 +73,7 @@ export default class MuteRequestButton extends Component {
         embed: log,
         userId: interaction.user.id,
         action: 'Disregarded',
-        reason: DEFAULT_INFRACTION_REASON
+        reason: DefaultInfractionReason
       });
 
       await interaction.message.delete().catch(() => null);

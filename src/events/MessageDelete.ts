@@ -92,7 +92,7 @@ export default class MessageDelete extends EventListener {
 
     const { message_logging_webhook } = config;
 
-    const sticker_id = message.stickers?.first()?.id ?? null;
+    const stickerId = message.stickers?.first()?.id ?? null;
 
     let embeds: EmbedBuilder[] = [];
 
@@ -102,7 +102,7 @@ export default class MessageDelete extends EventListener {
         message_id: message.id,
         author_id: message.author.id,
         channel_id: message.channel.id,
-        sticker_id,
+        sticker_id: stickerId,
         created_at: message.createdAt,
         content: message.content,
         attachments: Array.from(message.attachments.values()).map(attachment => attachment.url)
@@ -115,7 +115,7 @@ export default class MessageDelete extends EventListener {
       const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId);
 
       if (reference) {
-        const sticker_id = reference.stickers?.first()?.id ?? null;
+        const stickerId = reference.stickers?.first()?.id ?? null;
 
         const embed = await getMessageLogEmbed(
           {
@@ -123,7 +123,7 @@ export default class MessageDelete extends EventListener {
             message_id: reference.id,
             author_id: reference.author.id,
             channel_id: reference.channel.id,
-            sticker_id,
+            sticker_id: stickerId,
             created_at: reference.createdAt,
             content: reference.content,
             attachments: Array.from(reference.attachments.values()).map(attachment => attachment.url)
@@ -133,7 +133,7 @@ export default class MessageDelete extends EventListener {
 
         embeds.push(embed);
       } else if (dbReference) {
-        const sticker_id = dbReference.sticker_id;
+        const stickerId = dbReference.sticker_id;
 
         const embed = await getMessageLogEmbed(
           {
@@ -141,7 +141,7 @@ export default class MessageDelete extends EventListener {
             message_id: dbReference.id,
             author_id: dbReference.author_id,
             channel_id: dbReference.channel_id,
-            sticker_id,
+            sticker_id: stickerId,
             created_at: new Date(Number(dbReference.created_at)),
             content: dbReference.content,
             attachments: dbReference.attachments

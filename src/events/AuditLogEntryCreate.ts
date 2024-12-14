@@ -5,7 +5,7 @@ import { elipsify } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
 import EventListener from '@managers/events/EventListener';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
 export default class AuditLogEntryCreate extends EventListener {
@@ -20,7 +20,7 @@ export default class AuditLogEntryCreate extends EventListener {
     if (!executor || executor.id === this.client.user!.id) return;
     if (!(target instanceof User) && !(target instanceof GuildMember)) return;
 
-    const reason = elipsify(rawReason ?? DEFAULT_INFRACTION_REASON, 1024);
+    const reason = elipsify(rawReason ?? DefaultInfractionReason, 1024);
 
     let action: InfractionType | undefined;
 
@@ -54,7 +54,7 @@ export default class AuditLogEntryCreate extends EventListener {
             if (mute.new) {
               if (!config.native_moderation_integration) return;
 
-              const expires_at = Date.parse(mute.new as string);
+              const expiresAt = Date.parse(mute.new as string);
               action = InfractionType.Mute;
 
               const infraction = await InfractionManager.storeInfraction({
@@ -64,7 +64,7 @@ export default class AuditLogEntryCreate extends EventListener {
                 executor_id: executor.id,
                 type: action,
                 reason,
-                expires_at,
+                expires_at: expiresAt,
                 created_at: Date.now(),
                 flag: InfractionFlag.Native
               });
@@ -74,7 +74,7 @@ export default class AuditLogEntryCreate extends EventListener {
                 target_id: target.id,
                 infraction_id: infraction.id,
                 type: 'Mute',
-                expires_at
+                expires_at: expiresAt
               });
 
               await InfractionManager.logInfraction({ config, infraction });

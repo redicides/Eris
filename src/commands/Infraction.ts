@@ -185,8 +185,8 @@ export default class Infraction extends Command {
         }
 
         return InfractionManager.searchInfractions({
-          guild_id: interaction.guildId,
-          controller_id: interaction.user.id,
+          guildId: interaction.guildId,
+          controllerId: interaction.user.id,
           target,
           filter,
           page: 1
@@ -199,10 +199,10 @@ export default class Infraction extends Command {
       }
 
       case InfracionSubcommand.Delete: {
-        const infraction_id = interaction.options.getString('id', true);
+        const infractionId = interaction.options.getString('id', true);
         const reason = interaction.options.getString('reason', true);
-        const undo_punishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
-        const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
+        const undoPunishment = interaction.options.getBoolean('undo-punishment', false) ?? false;
+        const notifyReceiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
 
         if (!hasPermission(interaction.member, config, UserPermission.DeleteInfractions)) {
           return {
@@ -212,19 +212,19 @@ export default class Infraction extends Command {
         }
 
         return InfractionManager.deleteReceivedInfraction({
+          infractionId,
           guild: interaction.guild,
           config,
           executor: interaction.member,
-          infraction_id,
-          undo_punishment,
-          notify_receiver,
+          undoPunishment,
+          notifyReceiver,
           reason
         });
       }
       case InfracionSubcommand.EditReason: {
-        const infraction_id = interaction.options.getString('id', true);
-        const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
-        const new_reason = interaction.options.getString('reason', true);
+        const infractionId = interaction.options.getString('id', true);
+        const notifyReceiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
+        const newReason = interaction.options.getString('reason', true);
 
         if (!hasPermission(interaction.member, config, UserPermission.UpdateInfractions)) {
           return {
@@ -237,19 +237,19 @@ export default class Infraction extends Command {
         }
 
         return InfractionManager.editInfractionReason({
-          infraction_id,
-          new_reason,
-          notify_receiver,
+          id: infractionId,
+          newReason,
+          notifyReceiver,
           config,
           guild: interaction.guild,
           executor: interaction.member
         });
       }
       case InfracionSubcommand.EditDuration: {
-        const infraction_id = interaction.options.getString('id', true);
-        const notify_receiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
-        const raw_duration = interaction.options.getString('duration', true);
-        const edit_reason = interaction.options.getString('reason', true);
+        const id = interaction.options.getString('id', true);
+        const notifyReceiver = interaction.options.getBoolean('notify-receiver', false) ?? false;
+        const rawDuration = interaction.options.getString('duration', true);
+        const editReason = interaction.options.getString('reason', true);
 
         if (!hasPermission(interaction.member, config, UserPermission.UpdateInfractions)) {
           return {
@@ -262,10 +262,10 @@ export default class Infraction extends Command {
         }
 
         return InfractionManager.editInfractionDuration({
-          infraction_id,
-          raw_duration,
-          edit_reason,
-          notify_receiver,
+          id,
+          rawDuration,
+          editReason,
+          notifyReceiver,
           guild: interaction.guild,
           executor: interaction.member,
           config

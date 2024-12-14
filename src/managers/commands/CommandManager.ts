@@ -186,8 +186,8 @@ export default class CommandManager {
 
     await interaction.deferReply({ ephemeral });
 
-    const created_at = Date.now();
-    const expires_at = duration ? created_at + Number(duration) : null;
+    const createdAt = Date.now();
+    const expiresAt = duration ? createdAt + Number(duration) : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
@@ -196,8 +196,8 @@ export default class CommandManager {
       executor_id: interaction.user.id,
       type: action,
       reason,
-      created_at,
-      expires_at
+      created_at: createdAt,
+      expires_at: expiresAt
     });
 
     if (target instanceof GuildMember) {
@@ -211,19 +211,17 @@ export default class CommandManager {
     }
 
     if (action !== 'Warn') {
-      let punishmentFailed = false;
-
-      await InfractionManager.resolvePunishment({
+      const punishment = await InfractionManager.resolvePunishment({
         guild: interaction.guild,
-        executor: interaction.member!,
         target,
+        executor: interaction.member,
         action,
         reason,
         duration: duration ? Number(duration) : null,
         deleteMessages: message_delete_time ?? undefined
-      }).catch(() => (punishmentFailed = true));
+      });
 
-      if (punishmentFailed) {
+      if (!punishment.success) {
         await InfractionManager.deleteInfraction({ id: infraction.id });
 
         return {
@@ -235,14 +233,14 @@ export default class CommandManager {
 
     const promises: any[] = [InfractionManager.logInfraction({ config, infraction })];
 
-    if (expires_at && ['Mute', 'Ban'].includes(action)) {
+    if (expiresAt && ['Mute', 'Ban'].includes(action)) {
       promises.push(
         TaskManager.storeTask({
           guild_id: interaction.guildId,
           target_id: target.id,
           infraction_id: infraction.id,
           type: action as 'Mute' | 'Ban',
-          expires_at
+          expires_at: expiresAt
         })
       );
     } else if (['Ban', 'Unban', 'Unmute'].includes(action)) {

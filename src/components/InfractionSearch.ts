@@ -32,8 +32,8 @@ export default class InfractionSearchComponent extends Component {
     }
 
     return InfractionManager.searchInfractions({
-      guild_id: interaction.guildId,
-      controller_id: interaction.user.id,
+      guildId: interaction.guildId,
+      controllerId: interaction.user.id,
       target,
       filter: null,
       page: 1

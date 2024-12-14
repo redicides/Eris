@@ -1,7 +1,7 @@
 import { ButtonInteraction, Colors, EmbedBuilder, EmbedData } from 'discord.js';
 
 import { hasPermission, userMentionWithId } from '@utils/index';
-import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import { UserPermission } from '@utils/Enums';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
@@ -71,7 +71,7 @@ export default class BanRequestButtonComponent extends Component {
         embed: log,
         userId: interaction.user.id,
         action: 'Disregarded',
-        reason: DEFAULT_INFRACTION_REASON
+        reason: DefaultInfractionReason
       });
 
       await interaction.message.delete().catch(() => null);
@@ -91,7 +91,7 @@ export default class BanRequestButtonComponent extends Component {
         config,
         request,
         action,
-        reason: DEFAULT_INFRACTION_REASON
+        reason: DefaultInfractionReason
       });
     }
   }

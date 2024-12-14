@@ -6,7 +6,7 @@ import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
 import { UserPermission } from '@utils/Enums';
 import { userMentionWithId } from '@utils/index';
-import { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 import Component from '@managers/components/Component';
 
@@ -78,7 +78,7 @@ export default class UserReportButtonsComponent extends Component {
         config,
         userId: interaction.user.id,
         action: 'Disregarded',
-        reason: DEFAULT_INFRACTION_REASON,
+        reason: DefaultInfractionReason,
         embed: log
       });
 

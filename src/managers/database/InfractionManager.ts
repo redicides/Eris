@@ -31,10 +31,10 @@ import {
   userMentionWithId
 } from '@utils/index';
 import { GuildConfig, InteractionReplyData, Result } from '@utils/Types';
+import { LogDateFormat } from '@utils/Constants';
 
 import TaskManager from './TaskManager';
 import ms from 'ms';
-import { LogDateFormat } from '@/utils/Constants';
 
 export default class InfractionManager {
   /**
@@ -79,10 +79,11 @@ export default class InfractionManager {
    * @returns The active mute, if found
    */
 
-  static async getActiveMute(options: { guild_id: Snowflake; target_id: Snowflake }): Promise<Infraction | null> {
+  static async getActiveMute(options: { guildId: Snowflake; targetId: Snowflake }): Promise<Infraction | null> {
     return prisma.infraction.findFirst({
       where: {
-        ...options,
+        guild_id: options.guildId,
+        target_id: options.targetId,
         type: 'Mute'
       }
     });
@@ -162,7 +163,7 @@ export default class InfractionManager {
       .setAuthor({
         name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} - ID #${infraction.id}`
       })
-      .setColor(INFRACTION_COLORS[infraction.type])
+      .setColor(InfractionColors[infraction.type])
       .setFields([
         { name: 'Executor', value: userMentionWithId(infraction.executor_id) },
         { name: 'Target', value: userMentionWithId(infraction.target_id) },
@@ -215,7 +216,7 @@ export default class InfractionManager {
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
-      .setColor(INFRACTION_COLORS[infraction.type])
+      .setColor(InfractionColors[infraction.type])
       .setTitle(
         `You've been ${InfractionManager._getPastTense(infraction.type)} ${InfractionManager._getPreposition(
           infraction.type
@@ -245,48 +246,54 @@ export default class InfractionManager {
   /**
    * Resolve a punishment action.
    *
-   * @param data.guild The guild where the action is taking place
-   * @param data.executor The executor of the action
-   * @param data.target The target user
-   * @param data.action The type of action
-   * @param data.reason The reason for the action
-   * @param data.duration The duration of the action
-   * @param data.deleteMessages The number of messages to delete upon ban
-   * @returns The resolved punishment
+   * @param data The punishment data
+   * @returns The result of the action
    */
 
-  public static async resolvePunishment(data: {
-    guild: Guild;
-    executor: GuildMember;
-    target: GuildMember | User;
-    action: Exclude<InfractionType, 'Warn'>;
-    reason: string;
-    duration: number | null;
-    deleteMessages?: number;
-  }) {
-    const { guild, executor, target, action, duration, reason } = data;
+  public static async resolvePunishment<T extends Exclude<InfractionType, 'Warn'>>(
+    data: PunishmentData<T>
+  ): Promise<Result> {
+    const { guild, executor, target, action, reason } = data;
 
-    switch (action) {
-      case 'Mute':
-        return (target as GuildMember).timeout(
-          duration,
-          InfractionManager._formatAuditLogReason(executor, action, reason)
-        );
+    try {
+      switch (action) {
+        case 'Mute':
+          await (target as GuildMember).timeout(
+            (data as PunishmentData<'Mute'>).duration,
+            InfractionManager._formatAuditLogReason(executor, action, reason)
+          );
+          break;
 
-      case 'Kick':
-        return guild.members.kick(target.id, InfractionManager._formatAuditLogReason(executor, action, reason));
+        case 'Kick':
+          await guild.members.kick(target.id, InfractionManager._formatAuditLogReason(executor, action, reason));
+          break;
 
-      case 'Ban':
-        return guild.members.ban(target.id, {
-          reason: InfractionManager._formatAuditLogReason(executor, action, reason),
-          deleteMessageSeconds: data.deleteMessages
-        });
+        case 'Ban':
+          await guild.members.ban(target.id, {
+            reason: InfractionManager._formatAuditLogReason(executor, action, reason),
+            deleteMessageSeconds: (data as PunishmentData<'Ban'>).deleteMessages
+          });
+          break;
 
-      case 'Unban':
-        return guild.members.unban(target.id, InfractionManager._formatAuditLogReason(executor, action, reason));
+        case 'Unban':
+          await guild.members.unban(target.id, InfractionManager._formatAuditLogReason(executor, action, reason));
+          break;
 
-      case 'Unmute':
-        return (target as GuildMember).timeout(null, InfractionManager._formatAuditLogReason(executor, action, reason));
+        case 'Unmute':
+          await (target as GuildMember).timeout(
+            null,
+            InfractionManager._formatAuditLogReason(executor, action, reason)
+          );
+          (target as GuildMember).guild.id;
+          break;
+      }
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to ${action.toLowerCase()} ${target}: ${(error as Error).message}`
+      };
     }
   }
 
@@ -338,7 +345,7 @@ export default class InfractionManager {
    */
 
   public static mapActionToColor(data: { infraction: Infraction }): number {
-    return INFRACTION_COLORS[data.infraction.type];
+    return InfractionColors[data.infraction.type];
   }
 
   /**
@@ -352,19 +359,19 @@ export default class InfractionManager {
    */
 
   public static async searchInfractions(data: {
-    guild_id: Snowflake;
-    controller_id: Snowflake;
+    guildId: Snowflake;
+    controllerId: Snowflake;
     target: User;
     filter: InfractionFlag | null;
     page: number;
   }): Promise<InteractionReplyOptions> {
-    const { guild_id, controller_id, target, filter, page } = data;
+    const { guildId, controllerId, target, filter, page } = data;
 
     const skipMultiplier = page - 1;
 
     const infractionCount = await prisma.infraction.count({
       where: {
-        guild_id,
+        guild_id: guildId,
         target_id: target.id,
         flag: filter ?? undefined
       }
@@ -372,12 +379,12 @@ export default class InfractionManager {
 
     const infractions = await prisma.infraction.findMany({
       where: {
-        guild_id,
+        guild_id: guildId,
         target_id: target.id,
         flag: filter ?? undefined
       },
-      skip: skipMultiplier * INFRACTIONS_PER_PAGE,
-      take: INFRACTIONS_PER_PAGE,
+      skip: skipMultiplier * InfractionsPerPage,
+      take: InfractionsPerPage,
       orderBy: {
         created_at: 'desc'
       }
@@ -402,13 +409,9 @@ export default class InfractionManager {
 
     const components: ActionRowBuilder<ButtonBuilder>[] = [];
 
-    if (infractionCount > INFRACTIONS_PER_PAGE) {
-      const totalPages = Math.ceil(infractionCount / INFRACTIONS_PER_PAGE);
-      const paginationActionRow = InfractionManager._getPaginationButtons({
-        page,
-        totalPages,
-        controller_id
-      });
+    if (infractionCount > InfractionsPerPage) {
+      const totalPages = Math.ceil(infractionCount / InfractionsPerPage);
+      const paginationActionRow = InfractionManager._getPaginationButtons(page, totalPages, controllerId);
 
       components.push(paginationActionRow);
     }
@@ -480,18 +483,18 @@ export default class InfractionManager {
     guild: Guild;
     config: GuildConfig;
     executor: GuildMember;
-    infraction_id: Snowflake;
-    undo_punishment: boolean;
-    notify_receiver: boolean;
+    infractionId: Snowflake;
+    undoPunishment: boolean;
+    notifyReceiver: boolean;
     reason: string;
   }): Promise<InteractionReplyData> {
-    const { guild, config, executor, infraction_id, undo_punishment, notify_receiver, reason } = data;
+    const { guild, config, executor, infractionId, undoPunishment, notifyReceiver, reason } = data;
 
-    const infraction = await InfractionManager.getInfraction({ id: infraction_id, guild_id: guild.id });
+    const infraction = await InfractionManager.getInfraction({ id: infractionId, guild_id: guild.id });
 
     if (!infraction) {
       return {
-        error: MessageKeys.Errors.InfractionNotFound(infraction_id),
+        error: MessageKeys.Errors.InfractionNotFound(infractionId),
         temporary: true
       };
     }
@@ -500,7 +503,7 @@ export default class InfractionManager {
 
     let failedUndo = false;
 
-    if (undo_punishment && (infraction.type === 'Mute' || infraction.type === 'Ban')) {
+    if (undoPunishment && (infraction.type === 'Mute' || infraction.type === 'Ban')) {
       const permissions = guild.members.me!.permissions;
       const mutePermission = permissions.has('ModerateMembers');
       const banPermission = permissions.has('BanMembers');
@@ -583,7 +586,7 @@ export default class InfractionManager {
       InfractionManager.logInfraction({ config, infraction: newInfraction });
     }
 
-    await InfractionManager.deleteInfraction({ id: infraction_id, guild_id: guild.id }).catch(() => null);
+    await InfractionManager.deleteInfraction({ id: infractionId, guild_id: guild.id }).catch(() => null);
     await TaskManager.deleteTask({
       target_id_guild_id_type: {
         target_id: infraction.target_id,
@@ -592,7 +595,7 @@ export default class InfractionManager {
       }
     });
 
-    if (notify_receiver && target) {
+    if (notifyReceiver && target) {
       const embed = new EmbedBuilder()
         .setColor(Colors.Green)
         .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
@@ -607,10 +610,10 @@ export default class InfractionManager {
     await InfractionManager.logInfractionDeletion({ infraction, executor, reason, config });
 
     return {
-      content: `${infraction.type} with ID \`#${infraction_id}\` for ${userMention(
+      content: `${infraction.type} with ID \`#${infractionId}\` for ${userMention(
         infraction.target_id
       )} has been deleted${
-        undo_punishment && (infraction.type === 'Mute' || infraction.type === 'Ban')
+        undoPunishment && (infraction.type === 'Mute' || infraction.type === 'Ban')
           ? failedUndo
             ? ` but I was unable to ${infraction.type === 'Mute' ? 'unmute the member' : 'unban the user'}`
             : ` and the ${
@@ -632,25 +635,25 @@ export default class InfractionManager {
    */
 
   public static async editInfractionReason(data: {
-    infraction_id: Snowflake;
-    new_reason: string;
-    notify_receiver: boolean;
+    id: Snowflake;
+    newReason: string;
+    notifyReceiver: boolean;
     guild: Guild;
     executor: GuildMember;
     config: GuildConfig;
   }): Promise<InteractionReplyData> {
-    const { infraction_id, new_reason, notify_receiver, executor, config, guild } = data;
+    const { id, newReason, notifyReceiver, executor, config, guild } = data;
 
-    const infraction = await InfractionManager.getInfraction({ id: infraction_id, guild_id: guild.id });
+    const infraction = await InfractionManager.getInfraction({ id, guild_id: guild.id });
 
     if (!infraction) {
       return {
-        error: MessageKeys.Errors.InfractionNotFound(infraction_id),
+        error: MessageKeys.Errors.InfractionNotFound(id),
         temporary: true
       };
     }
 
-    if (infraction.reason === new_reason) {
+    if (infraction.reason === newReason) {
       return {
         error: 'The new cannot be the same as the old reason.',
         temporary: true
@@ -658,11 +661,11 @@ export default class InfractionManager {
     }
 
     await prisma.infraction.update({
-      where: { id: infraction_id },
-      data: { reason: new_reason }
+      where: { id },
+      data: { reason: newReason }
     });
 
-    if (notify_receiver) {
+    if (notifyReceiver) {
       const target = await guild.members.fetch(infraction.target_id).catch(() => null);
 
       if (target) {
@@ -672,7 +675,7 @@ export default class InfractionManager {
           .setTitle(`${infraction.type} Reason Updated`)
           .setFields([
             { name: 'Old Reason', value: elipsify(infraction.reason, 256) },
-            { name: 'New Reason', value: elipsify(new_reason, 256) }
+            { name: 'New Reason', value: elipsify(newReason, 256) }
           ])
           .setFooter({ text: `Infraction ID: ${infraction.id}` })
           .setTimestamp();
@@ -681,10 +684,12 @@ export default class InfractionManager {
       }
     }
 
-    await InfractionManager.logInfractionReasonEdit({ infraction, executor, new_reason, config });
+    await InfractionManager.logInfractionReasonEdit({ infraction, executor, newReason, config });
 
     return {
-      content: `Successfully updated the reason of ${infraction.type.toLowerCase()} infraction with ID \`#${infraction_id}\`.`
+      content: `Successfully updated the reason of ${infraction.type.toLowerCase()} infraction with ID \`#${
+        infraction.id
+      }\`.`
     };
   }
 
@@ -700,22 +705,22 @@ export default class InfractionManager {
    */
 
   public static async editInfractionDuration(data: {
-    infraction_id: Snowflake;
-    raw_duration: string;
-    edit_reason: string;
-    notify_receiver: boolean;
+    id: Snowflake;
+    rawDuration: string;
+    editReason: string;
+    notifyReceiver: boolean;
     guild: Guild;
     executor: GuildMember;
     config: GuildConfig;
   }): Promise<InteractionReplyData> {
-    const { infraction_id, raw_duration, edit_reason, notify_receiver, guild, executor, config } = data;
-    const current_date = Date.now();
+    const { id, rawDuration, editReason, notifyReceiver, guild, executor, config } = data;
 
-    const infraction = await InfractionManager.getInfraction({ id: infraction_id, guild_id: guild.id });
+    const currentDate = Date.now();
+    const infraction = await InfractionManager.getInfraction({ id, guild_id: guild.id });
 
     if (!infraction) {
       return {
-        error: MessageKeys.Errors.InfractionNotFound(infraction_id),
+        error: MessageKeys.Errors.InfractionNotFound(id),
         temporary: true
       };
     }
@@ -727,15 +732,15 @@ export default class InfractionManager {
       };
     }
 
-    if (infraction.expires_at !== null && infraction.expires_at < current_date) {
+    if (infraction.expires_at !== null && infraction.expires_at < currentDate) {
       return {
-        error: `The infraction with ID \`${infraction_id}\` has already expired.`,
+        error: `The infraction with ID \`${id}\` has already expired.`,
         temporary: true
       };
     }
 
-    const target_member = await guild.members.fetch(infraction.target_id).catch(() => null);
-    const duration = DurationKeys.Permanent.includes(raw_duration.toLowerCase()) ? 0 : parseDuration(raw_duration);
+    const targetMember = await guild.members.fetch(infraction.target_id).catch(() => null);
+    const duration = DurationKeys.Permanent.includes(rawDuration.toLowerCase()) ? 0 : parseDuration(rawDuration);
 
     if (Number.isNaN(duration) || (duration !== 0 && duration < 1000)) {
       return {
@@ -759,35 +764,35 @@ export default class InfractionManager {
         };
       }
 
-      if (!target_member || !hierarchyCheck(guild.members.me!, target_member)) {
+      if (!targetMember || !hierarchyCheck(guild.members.me!, targetMember)) {
         return {
-          error: !target_member
+          error: !targetMember
             ? 'I cannot edit the duration of the mute as the target member is no longer in the server.'
             : 'I cannot edit the duration of the mute as the target member has higher or equal roles than me.',
           temporary: true
         };
       }
 
-      await target_member.timeout(
+      await targetMember.timeout(
         duration,
-        `Infraction ${infraction.id} edited by @${executor.user.username} (${executor.id}) - ${edit_reason}`
+        `Infraction ${infraction.id} edited by @${executor.user.username} (${executor.id}) - ${editReason}`
       );
     }
 
-    const new_expiration = duration ? current_date + duration : null;
+    const newExpiration = duration ? currentDate + duration : null;
 
     await prisma.infraction.update({
-      where: { id: infraction_id },
-      data: { expires_at: new_expiration }
+      where: { id },
+      data: { expires_at: newExpiration }
     });
 
     if (infraction.type !== 'Warn') {
-      if (new_expiration) {
+      if (newExpiration) {
         await TaskManager.storeTask({
           guild_id: guild.id,
           target_id: infraction.target_id,
           infraction_id: infraction.id,
-          expires_at: new_expiration,
+          expires_at: newExpiration,
           type: infraction.type
         });
       } else {
@@ -801,33 +806,35 @@ export default class InfractionManager {
       }
     }
 
-    if (target_member && notify_receiver) {
+    if (targetMember && notifyReceiver) {
       const embed = new EmbedBuilder()
         .setColor(Colors.Blue)
         .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
         .setTitle(`${infraction.type} Duration Updated`)
         .setFields([
-          { name: 'New Expiration', value: InfractionManager.formatExpiration(new_expiration) },
-          { name: 'Moderator Reason', value: edit_reason }
+          { name: 'New Expiration', value: InfractionManager.formatExpiration(newExpiration) },
+          { name: 'Moderator Reason', value: editReason }
         ])
         .setFooter({ text: `Infraction ID: ${infraction.id}` })
         .setTimestamp();
 
-      await target_member.send({ embeds: [embed] }).catch(() => null);
+      await targetMember.send({ embeds: [embed] }).catch(() => null);
     }
 
     await InfractionManager.logInfractionDurationEdit({
       infraction,
       executor,
-      new_expiration,
-      edit_reason,
+      newExpiration,
+      editReason,
       config
     });
 
     return {
-      content: `Successfully updated the duration of ${infraction.type.toLowerCase()} infraction with ID \`#${infraction_id}\`. ${
-        new_expiration
-          ? `It will now expire on ${InfractionManager.formatExpiration(new_expiration)}`
+      content: `Successfully updated the duration of ${infraction.type.toLowerCase()} infraction with ID \`#${
+        infraction.id
+      }\`. ${
+        newExpiration
+          ? `It will now expire on ${InfractionManager.formatExpiration(newExpiration)}`
           : 'It is now permanent'
       }.`
     };
@@ -893,15 +900,15 @@ export default class InfractionManager {
   public static async logInfractionDurationEdit(data: {
     infraction: Infraction;
     executor: GuildMember;
-    new_expiration: number | bigint | null;
-    edit_reason: string;
+    newExpiration: number | bigint | null;
+    editReason: string;
     config: GuildConfig;
   }) {
-    const { infraction, executor, new_expiration, edit_reason, config } = data;
+    const { infraction, executor, newExpiration, editReason, config } = data;
 
     if (!config.infraction_logging_enabled || !config.infraction_logging_webhook) return null;
 
-    const expiration = InfractionManager.formatExpiration(new_expiration);
+    const expiration = InfractionManager.formatExpiration(newExpiration);
     const oldExpiration = InfractionManager.formatExpiration(infraction.expires_at);
 
     const embed = new EmbedBuilder()
@@ -914,7 +921,7 @@ export default class InfractionManager {
         },
         {
           name: 'Reason',
-          value: edit_reason
+          value: editReason
         },
         {
           name: 'Expiration (Before)',
@@ -943,10 +950,10 @@ export default class InfractionManager {
   public static async logInfractionReasonEdit(data: {
     infraction: Infraction;
     executor: GuildMember;
-    new_reason: string;
+    newReason: string;
     config: GuildConfig;
   }): Promise<APIMessage | null> {
-    const { infraction, executor, new_reason, config } = data;
+    const { infraction, executor, newReason, config } = data;
 
     if (!config.infraction_logging_enabled || !config.infraction_logging_webhook) return null;
 
@@ -964,7 +971,7 @@ export default class InfractionManager {
         },
         {
           name: 'Reason (After)',
-          value: new_reason
+          value: newReason
         }
       ])
       .setTimestamp();
@@ -1034,9 +1041,7 @@ export default class InfractionManager {
    * @returns The pagination buttons
    */
 
-  private static _getPaginationButtons(data: { page: number; totalPages: number; controller_id: Snowflake }) {
-    const { page, totalPages, controller_id } = data;
-
+  private static _getPaginationButtons(page: number, totalPages: number, controllerId: Snowflake) {
     const isFirstPage = page === 1;
     const isLastPage = page === totalPages;
 
@@ -1047,26 +1052,26 @@ export default class InfractionManager {
 
     const nextButton = new ButtonBuilder()
       .setLabel('→')
-      .setCustomId(`infraction-search-next-${controller_id}`)
+      .setCustomId(`infraction-search-next-${controllerId}`)
       .setDisabled(isLastPage)
       .setStyle(ButtonStyle.Primary);
 
     const previousButton = new ButtonBuilder()
       .setLabel('←')
-      .setCustomId(`infraction-search-back-${controller_id}`)
+      .setCustomId(`infraction-search-back-${controllerId}`)
       .setDisabled(isFirstPage)
       .setStyle(ButtonStyle.Primary);
 
     if (totalPages > 2) {
       const firstPageButton = new ButtonBuilder()
         .setLabel('«')
-        .setCustomId(`infraction-search-first-${controller_id}`)
+        .setCustomId(`infraction-search-first-${controllerId}`)
         .setDisabled(isFirstPage)
         .setStyle(ButtonStyle.Primary);
 
       const lastPageButton = new ButtonBuilder()
         .setLabel('»')
-        .setCustomId(`infraction-search-last-${controller_id}`)
+        .setCustomId(`infraction-search-last-${controllerId}`)
         .setDisabled(isLastPage)
         .setStyle(ButtonStyle.Primary);
 
@@ -1120,22 +1125,22 @@ export default class InfractionManager {
    */
 
   private static _getPastTense(type: InfractionType): string {
-    return PAST_TENSE_INFRACTIONS[type.toLowerCase() as keyof typeof PAST_TENSE_INFRACTIONS];
+    return PastTenseInfractions[type as keyof typeof PastTenseInfractions];
   }
 }
 
-export const INFRACTIONS_PER_PAGE = 5;
+export const InfractionsPerPage = 5;
 
-export const PAST_TENSE_INFRACTIONS = {
-  ban: 'banned',
-  kick: 'kicked',
-  mute: 'muted',
-  warn: 'warned',
-  unban: 'unbanned',
-  unmute: 'unmuted'
+export const PastTenseInfractions = {
+  Ban: 'banned',
+  Kick: 'kicked',
+  Mute: 'muted',
+  Warn: 'warned',
+  Unban: 'unbanned',
+  Unmute: 'unmuted'
 };
 
-export const INFRACTION_COLORS = {
+export const InfractionColors = {
   Warn: Colors.Yellow,
   Mute: 0xef975c,
   Kick: Colors.Orange,
@@ -1144,4 +1149,12 @@ export const INFRACTION_COLORS = {
   Unban: Colors.Green
 };
 
-export const DEFAULT_INFRACTION_REASON = 'No reason provided.';
+export const DefaultInfractionReason = 'No reason provided.';
+
+type PunishmentData<T extends Exclude<InfractionType, 'Warn'>> = {
+  guild: Guild;
+  executor: GuildMember;
+  target: T extends 'Mute' | 'Unmute' ? GuildMember : User | GuildMember;
+  action: T;
+  reason: string;
+} & (T extends 'Mute' ? { duration: number | null } : T extends 'Ban' ? { deleteMessages?: number } : {});

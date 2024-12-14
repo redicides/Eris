@@ -10,7 +10,7 @@ import {
   channelMention
 } from 'discord.js';
 
-import { DEFAULT_INFRACTION_REASON, INFRACTION_COLORS } from '@managers/database/InfractionManager';
+import { DefaultInfractionReason, InfractionColors } from '@managers/database/InfractionManager';
 import { elipsify, hasPermission, isEphemeralReply, pluralize, sleep } from '@/utils';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { client, prisma } from '@/index';
@@ -103,7 +103,7 @@ export default class Lockdown extends Command {
         };
       }
 
-      const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+      const reason = rawReason ?? DefaultInfractionReason;
 
       return Lockdown.startLockdown({
         config,
@@ -127,7 +127,7 @@ export default class Lockdown extends Command {
         };
       }
 
-      const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+      const reason = rawReason ?? DefaultInfractionReason;
 
       return Lockdown.endLockdown({
         interaction,
@@ -243,7 +243,7 @@ export default class Lockdown extends Command {
 
     const map = Lockdown._parseChannelMap({ unknownChannels, failedChannels, alreadyLockedChannels });
     const embed = new EmbedBuilder()
-      .setColor(INFRACTION_COLORS.Mute)
+      .setColor(InfractionColors.Mute)
       .setAuthor({ name: client.user!.username, iconURL: client.user!.displayAvatarURL() })
       .setTitle('Server Locked')
       .setDescription(
@@ -393,7 +393,7 @@ export default class Lockdown extends Command {
     });
 
     const embed = new EmbedBuilder()
-      .setColor(INFRACTION_COLORS.Unmute)
+      .setColor(InfractionColors.Unmute)
       .setAuthor({ name: client.user!.username, iconURL: client.user!.displayAvatarURL() })
       .setTitle('Server Unlocked')
       .setDescription(

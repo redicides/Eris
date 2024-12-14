@@ -18,7 +18,7 @@ import { pluralize } from '.';
 
 import Logger, { AnsiColor } from '@utils/Logger';
 import ConfigManager from '@managers/config/ConfigManager';
-import InfractionManager, { INFRACTION_COLORS } from '@managers/database/InfractionManager';
+import InfractionManager, { InfractionColors } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
@@ -146,7 +146,7 @@ export class CronUtils {
 
               const embed = new EmbedBuilder()
                 .setAuthor({ name: discordGuild.name, iconURL: discordGuild.iconURL() ?? undefined })
-                .setColor(INFRACTION_COLORS.Unmute)
+                .setColor(InfractionColors.Unmute)
                 .setTitle(`You've been unmuted in ${discordGuild.name}`)
                 .setFields([{ name: 'Reason', value: 'Mute expired based on duration.' }])
                 .setTimestamp();

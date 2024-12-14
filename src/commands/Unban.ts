@@ -10,7 +10,7 @@ import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
 export default class Unban extends Command {
@@ -80,12 +80,10 @@ export default class Unban extends Command {
       };
     }
 
-    const created_at = Date.now();
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+    const createdAt = Date.now();
+    const reason = rawReason ?? DefaultInfractionReason;
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
-
-    let uResult = true;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
@@ -94,21 +92,18 @@ export default class Unban extends Command {
       executor_id: interaction.user.id,
       type: 'Unban',
       reason,
-      created_at
+      created_at: createdAt
     });
 
-    await InfractionManager.resolvePunishment({
+    const unban = await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member,
       target,
-      reason,
+      executor: interaction.member,
       action: 'Unban',
-      duration: null
-    }).catch(() => {
-      uResult = false;
+      reason
     });
 
-    if (!uResult) {
+    if (!unban.success) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
 
       return {

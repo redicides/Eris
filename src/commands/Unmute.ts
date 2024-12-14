@@ -10,7 +10,7 @@ import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
 export default class Unmute extends Command {
@@ -73,24 +73,19 @@ export default class Unmute extends Command {
       };
     }
 
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
+    const reason = rawReason ?? DefaultInfractionReason;
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    let failed = false;
-
-    await InfractionManager.resolvePunishment({
+    const unmute = await InfractionManager.resolvePunishment({
       guild: interaction.guild,
       target,
       executor: interaction.member,
-      action: 'Mute',
-      reason,
-      duration: null
-    }).catch(() => {
-      failed = true;
+      action: 'Unmute',
+      reason
     });
 
-    if (failed) {
+    if (!unmute.success) {
       return {
         error: MessageKeys.Errors.PunishmentFailed('Unmute', target),
         temporary: true

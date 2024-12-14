@@ -13,7 +13,7 @@ import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MessageKeys, DurationKeys } from '@utils/Keys';
 
 import Command, { CommandCategory } from '@managers/commands/Command';
-import InfractionManager, { DEFAULT_INFRACTION_REASON } from '@managers/database/InfractionManager';
+import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
 export default class Ban extends Command {
@@ -127,22 +127,16 @@ export default class Ban extends Command {
     }
 
     const deleteMessageSeconds = Math.floor(ms(rawDeleteMessages ?? '0s') / 1000);
-    const reason = rawReason ?? DEFAULT_INFRACTION_REASON;
-
-    let expires_at: number | null = null;
+    const reason = rawReason ?? DefaultInfractionReason;
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    const created_at = Date.now();
-
-    if (duration) {
-      expires_at = created_at + duration;
-    } else if (
-      !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') &&
-      config.default_ban_duration !== 0n
-    ) {
-      expires_at = created_at + Number(config.default_ban_duration);
-    }
+    const createdAt = Date.now();
+    const expiresAt = duration
+      ? createdAt + duration
+      : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_ban_duration !== 0n
+      ? createdAt + Number(config.default_ban_duration)
+      : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
@@ -151,29 +145,24 @@ export default class Ban extends Command {
       executor_id: interaction.user.id,
       type: 'Ban',
       reason,
-      created_at,
-      expires_at
+      created_at: createdAt,
+      expires_at: expiresAt
     });
-
-    let failed = false;
 
     if (member) {
       await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target: member, infraction });
     }
 
-    await InfractionManager.resolvePunishment({
+    const ban = await InfractionManager.resolvePunishment({
       guild: interaction.guild,
-      executor: interaction.member,
       target,
+      executor: interaction.member,
       action: 'Ban',
       reason,
-      duration: null,
       deleteMessages: deleteMessageSeconds
-    }).catch(() => {
-      failed = true;
     });
 
-    if (failed) {
+    if (!ban.success) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
 
       return {
@@ -184,13 +173,13 @@ export default class Ban extends Command {
 
     const promises: any[] = [InfractionManager.logInfraction({ config, infraction })];
 
-    if (expires_at) {
+    if (expiresAt) {
       promises.push(
         TaskManager.storeTask({
           guild_id: interaction.guildId,
           target_id: target.id,
           infraction_id: infraction.id,
-          expires_at,
+          expires_at: expiresAt,
           type: 'Ban'
         })
       );
