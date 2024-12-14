@@ -1,17 +1,17 @@
 networks:
-  charmie:
+  ch_bridge:
     driver: bridge
 
 services:
   bot:
-    container_name: bot
+    container_name: ch_bot
     build: 
       context: .
       dockerfile: Dockerfile
     env_file:
       - .env
     networks:
-      - charmie
+      - ch_bridge
     volumes:
       - ./charmie.cfg.yml:/charmie/charmie.cfg.yml
     depends_on:
@@ -19,7 +19,7 @@ services:
         condition: service_healthy
 
   database:
-    container_name: psql
+    container_name: ch_psql
     image: postgres:latest
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -28,10 +28,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB} 
     volumes:
-      - psql:/var/lib/postgresql/data
+      - ch_psql:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - charmie
+      - ch_bridge
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -39,5 +39,5 @@ services:
       retries: 5
 
 volumes:
-  psql:
+  ch_psql:
     driver: local
