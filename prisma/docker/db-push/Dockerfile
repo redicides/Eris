@@ -8,7 +8,7 @@ WORKDIR /db/deploy
 RUN npm install prisma @prisma/client --no-package-lock --verbose
 
 # Copy the Prisma schema
-COPY ../../prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma/schema.prisma ./prisma/schema.prisma
 
 # Set the database URL (at runtime)
 ENV DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
