@@ -1,7 +1,7 @@
 # This service is purely used to make sure the database service matches the prisma schema upon the first ever deployment.
 # It has no other use.
 
-FROM node:latest
+FROM node:22.12
 WORKDIR /db/deploy
 
 # Install prisma and @prisma/client

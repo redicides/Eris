@@ -1,5 +1,5 @@
 # Base image
-FROM node:latest AS base
+FROM node:22.12 AS base
 WORKDIR /charmie
 
 # Install dependencies

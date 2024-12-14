@@ -1,7 +1,7 @@
 # This service is used to migrate database data to a newer format in case of schema changes.
 # It has no other use.
 
-FROM node:latest
+FROM node:22.12
 WORKDIR /db/migrate
 
 # Install prisma and @prisma/client
