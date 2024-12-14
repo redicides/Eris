@@ -4,10 +4,8 @@ Once you have a working instance of Charmie, it's important to understand how to
 
 ## Docker Commands
 
-These are a few useful commands that will perform certain actions. I recommend you get familiar with them.
-
 > [!NOTE]
-> All of the mentioned commands in this file must be ran in Charmie's **root directory**, aka where the `.env` and `charmie.cfg.yml` files are.
+> All of the commands mentioned in this file must be ran in Charmie's **root directory**, aka where the `.env` and `charmie.cfg.yml` files are. They are rather useful and I recommend you get familiar with them.
 
 ### Running All Services
 
@@ -95,7 +93,7 @@ sudo docker stop bot-charmie
 2. Run the migration command
 
 ```bash
-npx prisma db push
+npx prisma migrate deploy
 ```
 
 ### Pushing Schema Changes
