@@ -28,7 +28,7 @@ Now it's time to bring Charmie to life, and you need to run 2 simple commands to
 1. Start all services using docker compose
 
 ```bash
-sudo docker compose up -d -p ""
+sudo docker compose -p "" up -d
 ```
 
 2. Push the prisma schema to the database
