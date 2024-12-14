@@ -73,7 +73,7 @@ sudo docker compose build
 4. Re-run the bot
 
 ```bash
-sudo docker compose -p "" up -d
+sudo docker compose restart
 ```
 
 ## Database Updates
