@@ -33,7 +33,7 @@ export default class ThreadUpdate extends EventListener {
     const changes: string[] = [];
 
     for (const [prop, diff] of Object.entries(difference)) {
-      changes.push(`${capitalize(prop)}\n └ \`${diff.old}\` → \`${diff.new}\`\n`);
+      changes.push(`${capitalize(prop)}\n └ \`${diff.old}\` → \`${diff.new}\``);
     }
 
     if (!changes.length) return null;
