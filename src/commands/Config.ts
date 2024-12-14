@@ -1287,7 +1287,7 @@ export default class Config extends Command {
         if (webhook.channelId === channel.id) {
           return {
             error: `The log channel for ${Config._parseLogType(type).replaceAll(
-              'voices',
+              'voice',
               'voice related event'
             )}s is already set to ${channel.toString()}.`,
             temporary: true
@@ -1337,7 +1337,7 @@ export default class Config extends Command {
 
       return {
         content: `The log channel for ${Config._parseLogType(type).replaceAll(
-          'voices',
+          'voice',
           'voice related event'
         )}s has been set to ${channel.toString()}.`
       };
