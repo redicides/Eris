@@ -27,11 +27,26 @@ sudo docker compose down
 sudo docker compose stop
 ```
 
+### Re-starting All Services
+
+```bash
+sudo docker compose restart
+```
+
 ### Re-building All Services
 
 ```bash
 sudo docker compose build
 ```
+
+### Viewing Service Logs
+
+```bash
+sudo docker logs <container-id/name>
+```
+
+> [!TIP]
+> Use `sudo docker ps` to get a list of all running containers, along with their names and IDs.
 
 ## Bot Updates
 

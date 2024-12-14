@@ -15,23 +15,32 @@ First things first, grab those example files ([`config.example.yml`](/config.exa
 
 Fill in the variables with values of your choice, except for the `POSTGRES_HOST` which should have a value of **database**. This is required as we're deploying using docker, and we're utilizing docker networks so that containers don't need to access `localhost`.
 
-> [!NOTE]
+> [!CAUTION]
 > ❗ Don't mess with the default values for `tasks` and `reports` runners inside the global configuration (.yml) file. A minutely interval is recommended.
 
 ## Run This Bot
 
+> [!NOTE]
+> The following steps apply to a Linux, and Mac OS environment. Sorry Windows users, but you'll have to figure this out on your own.
+
 Now it's time to bring Charmie to life, and you need to run 2 simple commands to do that:
 
-1. Push the prisma schema to the database
+1. Start all services using docker compose
+
+```bash
+sudo docker compose up -d
+```
+
+2. Push the prisma schema to the database
 
 ```bash
 npx prisma db push
 ```
 
-2. Start all services using docker compose
+3. Restart all services
 
 ```bash
-sudo docker compose up -d
+sudo docker compose restart
 ```
 
 If you did everything correctly, you should now have a running (and working) instance of Charmie!
