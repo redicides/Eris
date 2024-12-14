@@ -20,27 +20,18 @@ You can fill in the variables with values of your choice, except for the `POSTGR
 
 ## Run This Bot
 
-Now it's time to bring Charmie to life.
-These commands should only be used if this is your **first ever time** bringing Charmie to life.
+Now it's time to bring Charmie to life, and you need to run 2 simple commands to do that:
 
-1. Build the database deployment image
+1. Push the prisma schema to the database
 
 ```bash
-sudo docker build -t charmie-db-deployment /prisma/docker/db-push
+npx prisma db push
 ```
 
-2. Start all services
+2. Start all services using docker compose
 
 ```bash
 sudo docker compose up -d
-```
-
-3. Run the deployment image
-
-❗ If for whatever reason you don't run the deployment image, Charmie will **not work at all**, and will continuously throw errors.
-
-```bash
-sudo docker run -d --name charmie-db-deployment --env-file .env --network charmie charmie-db-deployment
 ```
 
 If you did everything correctly, you should now have a running (and working) instance of Charmie!
