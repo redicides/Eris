@@ -1,5 +1,6 @@
 networks:
   ch_bridge:
+    name: ch_bridge
     driver: bridge
 
 services:
@@ -40,4 +41,5 @@ services:
 
 volumes:
   ch_psql:
+    name: ch_psql
     driver: local
