@@ -4,8 +4,7 @@ A Discord bot focused on providing strong moderation solutions while maintaining
 
 # Self-Hosting
 
-If you're looking at this repository, I'll assume that you want to self-host this bot. Great, it's an easy process thanks to docker & docker-compose.
-More details can be found in [`the self hosting guide`](/documentation/Self-Hosting.md).
+If you're looking at this repository, I'll assume that you want to self-host this bot. Great, more details can be found in [`the self hosting guide`](/documentation/Self-Hosting.md).
 
 # Licensing
 

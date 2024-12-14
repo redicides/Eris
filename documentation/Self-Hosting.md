@@ -1,10 +1,10 @@
 # Self Hosting
 
-So, you want to self-host Charmie? Alright then, get ready for a super streamlined process thanks to `docker` & `docker-compose`.
+So, you want to self-host Charmie? Alright then, get ready for a super streamlined process thanks to `docker` & `docker compose`.
 
 ## Prerequisites
 
-- `docker` & `docker-compose`
+- `docker` & `docker compose`
 - Sentry Project (for error logging)
 
 ## Configuration & Environment Variables
@@ -20,14 +20,32 @@ You can fill in the variables with values of your choice, except for the `POSTGR
 
 ## Run This Bot
 
-❗ Charmie's database uses port `5432` on your machine, so make sure no other services are running on that port before starting.
+Now it's time to bring Charmie to life.
+These commands should only be used if this is your **first ever time** bringing Charmie to life.
 
-All done? Great, now it's time to bring Charmie to life.
-If you did everything correctly, all you need to do is run this command and everything will magically take place:
+1. Build the database deployment image
 
 ```bash
-sudo docker-compose up -d
+sudo docker build -t charmie-db-deployment /prisma/docker/db-push
 ```
 
-Congrats, you should now have a running instance of Charmie!  
-If things wen't wrong somewhere, you can either cry or debug the issue.
+2. Start all services
+
+```bash
+sudo docker compose up -d
+```
+
+3. Run the deployment image
+
+❗ If for whatever reason you don't run the deployment image, Charmie will **not work at all**, and will continuously throw errors.
+
+```bash
+sudo docker run -d --name charmie-db-deployment --env-file .env --network charmie charmie-db-deployment
+```
+
+If you did everything correctly, you should now have a running (and working) instance of Charmie!
+If things went wrong somewhere, you can either cry or debug the issue.
+
+## Production
+
+For more information on how to maintain this bot for a production state, please read the [`production guide`](/documentation/Production.md).
