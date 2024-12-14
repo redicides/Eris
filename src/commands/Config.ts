@@ -1286,7 +1286,10 @@ export default class Config extends Command {
       if (webhook) {
         if (webhook.channelId === channel.id) {
           return {
-            error: `The log channel for ${Config._parseLogType(type)}s is already set to ${channel.toString()}.`,
+            error: `The log channel for ${Config._parseLogType(type).replaceAll(
+              'voices',
+              'voice related event'
+            )}s is already set to ${channel.toString()}.`,
             temporary: true
           };
         }
@@ -1333,7 +1336,10 @@ export default class Config extends Command {
       }
 
       return {
-        content: `The log channel for ${Config._parseLogType(type)}s has been set to ${channel.toString()}.`
+        content: `The log channel for ${Config._parseLogType(type).replaceAll(
+          'voices',
+          'voice related event'
+        )}s has been set to ${channel.toString()}.`
       };
     },
 
