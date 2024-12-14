@@ -10,7 +10,7 @@ Once you have a working instance of Charmie, it's important to understand how to
 ### Running All Services
 
 ```bash
-sudo docker compose up -d
+sudo docker compose up -d -p ""
 ```
 
 ### Shutting Down All Services
@@ -73,7 +73,7 @@ sudo docker compose build
 4. Re-run the bot
 
 ```bash
-sudo docker compose up -d
+sudo docker compose up -d -p ""
 ```
 
 ## Database Updates
