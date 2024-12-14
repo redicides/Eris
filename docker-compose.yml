@@ -4,7 +4,7 @@ networks:
 
 services:
   bot:
-    container_name: bot-charmie
+    container_name: bot
     build: 
       context: .
       dockerfile: Dockerfile
@@ -19,7 +19,7 @@ services:
         condition: service_healthy
 
   database:
-    container_name: postgresql-charmie
+    container_name: psql
     image: postgres:latest
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -28,7 +28,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB} 
     volumes:
-      - postgresql-charmie:/var/lib/postgresql/data
+      - psql:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - charmie
@@ -39,5 +39,5 @@ services:
       retries: 5
 
 volumes:
-  postgresql-charmie:
+  psql:
     driver: local
