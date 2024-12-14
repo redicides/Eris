@@ -7,7 +7,7 @@ Once you have a working instance of Charmie, it's important to understand how to
 These are a few useful commands that will perform certain actions. I recommend you get familiar with them.
 
 > [!NOTE]
-> The provided commands must be ran in Charmie's **root directory**, aka where the `.env` and `charmie.cfg.yml` files are.
+> All of the mentioned commands in this file must be ran in Charmie's **root directory**, aka where the `.env` and `charmie.cfg.yml` files are.
 
 ### Running All Services
 
@@ -65,7 +65,9 @@ sudo docker compose up -d
 
 ## Database Updates
 
-In the event that I push an update that requires migrating data to a newer format, or pushing a new schema to the database, you'll need to know how to do this. Before you do anything though, you need to make sure the database service (postgresql-charmie) is running without problems.
+In the event that I push an update that requires migrating data to a newer format, or pushing a new schema to the database, you'll need to know how to do this.
+
+Before you do anything though, you need to make sure the database service (postgresql-charmie) is running without problems, and that `DATABASE_URL` is defined in your `.env` file.
 
 ### Migrating Data
 
@@ -75,16 +77,10 @@ In the event that I push an update that requires migrating data to a newer forma
 sudo docker stop bot-charmie
 ```
 
-2. Build the migration image
+2. Run the migration command
 
 ```bash
-sudo docker build -t charmie-db-migration /prisma/docker/db-migrate
-```
-
-3. Run the migration image
-
-```bash
-sudo docker run -d --name charmie-db-migration --env-file .env --network charmie charmie-db-migration
+npx prisma db push
 ```
 
 ### Pushing Schema Changes
@@ -95,14 +91,8 @@ sudo docker run -d --name charmie-db-migration --env-file .env --network charmie
 sudo docker stop bot-charmie
 ```
 
-2. Build the deployment image
+2. Run the push command
 
 ```bash
-sudo docker build -t charmie-db-deployment /prisma/docker/db-push
-```
-
-3. Run the deployment image
-
-```bash
-sudo docker run -d --name charmie-db-deployment --env-file .env --network charmie charmie-db-deployment
+npx prisma db push
 ```
