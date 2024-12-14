@@ -23,4 +23,4 @@ COPY --from=build /charmie/src ./src
 COPY --from=build /charmie/prisma ./prisma
 
 USER daemon
-ENTRYPOINT [ "npm", "run", "start-prod" ]
+ENTRYPOINT [ "npm", "run", "start" ]
