@@ -22,7 +22,7 @@ services:
     container_name: postgresql-charmie
     image: postgres:latest
     ports:
-      - "${POSTGRES_HOST}:5432"
+      - "${POSTGRES_PORT}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
