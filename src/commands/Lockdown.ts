@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 
 import { DefaultInfractionReason, InfractionColors } from '@managers/database/InfractionManager';
-import { elipsify, hasPermission, isEphemeralReply, pluralize, sleep } from '@/utils';
+import { elipsify, hasPermission, isEphemeralReply, pluralize, sleep } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { client, prisma } from '@/index';
 import { MessageKeys } from '@utils/Keys';
@@ -85,7 +85,7 @@ export default class Lockdown extends Command {
 
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannels = hasPermission(interaction.member, config, UserPermission.OverrideLockdownNotificatons)
-      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify
+      ? (interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify)
       : config.lockdown_notify;
 
     if (subcommand === LockdownSubcommand.Start) {

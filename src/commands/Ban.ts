@@ -21,7 +21,7 @@ export default class Ban extends Command {
     super({
       category: CommandCategory.Moderation,
       requiredPermissions: PermissionFlagsBits.BanMembers,
-      usage: '<target> [duration] [reason] [delete_previous_messages]',
+      usage: '<target> [duration] [reason] [delete-previous-messages]',
       data: {
         name: 'ban',
         description: 'Ban a member or user from the server.',
@@ -49,7 +49,7 @@ export default class Ban extends Command {
             max_length: 1024
           },
           {
-            name: 'delete_previous_messages',
+            name: 'delete-previous-messages',
             description: 'The amount of days to delete previous messages for.',
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -74,7 +74,7 @@ export default class Ban extends Command {
     const member = interaction.options.getMember('target');
     const rawDuration = interaction.options.getString('duration', false);
     const rawReason = interaction.options.getString('reason', false);
-    const rawDeleteMessages = interaction.options.getString('delete_previous_messages', false);
+    const rawDeleteMessages = interaction.options.getString('delete-previous-messages', false);
 
     const target = member?.user ?? interaction.options.getUser('target');
 
@@ -135,8 +135,8 @@ export default class Ban extends Command {
     const expiresAt = duration
       ? createdAt + duration
       : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_ban_duration !== 0n
-      ? createdAt + Number(config.default_ban_duration)
-      : null;
+        ? createdAt + Number(config.default_ban_duration)
+        : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),

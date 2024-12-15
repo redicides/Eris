@@ -26,6 +26,15 @@ export default class ShortcutManager extends Command {
   constructor() {
     super({
       category: CommandCategory.Management,
+      usage: [
+        'create <name> <description> <action> <reason> [duration] [message-delete-time] [additional-info]',
+        'delete <shortcut>',
+        'edit punishment <shortcut> <new-action>',
+        'edit duration <shortcut> <duration>',
+        'edit reason <shortcut> <new-reason>',
+        'edit additional-info <shortcut> <new-additional-info>',
+        'list'
+      ],
       data: {
         name: 'shortcut-manager',
         description: 'Manage the shortcut commands for this guild.',

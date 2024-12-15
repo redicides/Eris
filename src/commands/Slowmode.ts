@@ -18,7 +18,7 @@ export default class Slowmode extends Command {
   constructor() {
     super({
       category: CommandCategory.Utility,
-      usage: '[+|-time]',
+      usage: '[+|-time] [channel]',
       requiredPermissions: PermissionFlagsBits.ManageChannels,
       data: {
         name: 'slowmode',
