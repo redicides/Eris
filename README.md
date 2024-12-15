@@ -2,11 +2,11 @@
 
 Charmie is a Discord bot designed to provide powerful moderation tools with a focus on simplicity and reliability.
 
-# Self-Hosting
+## Self-Hosting
 
 Thinking of self-hosting this thing? Alright, you’ll find all the details you need in [`the self-hosting guide`](/documentation/Self-Hosting.md). Take your time, follow the steps, and best of luck setting everything up.
 
-# Contributing
+## Contributing
 
 Whether it’s fixing a bug, suggesting improvements, or adding new features, your help is always welcome. Let’s make the process as smooth as possible with a few friendly guidelines:
 
@@ -32,7 +32,7 @@ Whether it’s fixing a bug, suggesting improvements, or adding new features, yo
 
 Thanks!
 
-# Licensing
+## Licensing
 
 Charmie is licensed under the `GNU General Public License v3.0 only`. This means you’re free to use, share, and modify the bot, as long as it’s not used maliciously or for personal gain. While running Charmie, you’ll also need to follow [Discord's Terms of Service](https://discord.com/terms) and [Community Guidelines](https://discord.com/guidelines).
 
