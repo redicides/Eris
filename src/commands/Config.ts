@@ -1520,7 +1520,7 @@ export default class Config extends Command {
         };
       }
 
-      const channels = Promise.all(
+      const channels = await Promise.all(
         config[type].map(async id => {
           const channel = (await interaction.guild.channels
             .fetch(id)

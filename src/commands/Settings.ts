@@ -915,19 +915,21 @@ export default class Settings extends Command {
         };
       }
 
-      const map = Promise.all(
-        (config.permission_nodes as PermissionNode[]).map(async node => {
-          const roles = Promise.all(
-            node.roles.map(async id => {
-              const role = await interaction.guild.roles.fetch(id).catch(() => null);
-              return role ? role : { id: id, name: 'Unknown Role' };
-            })
-          );
+      const map = (
+        await Promise.all(
+          (config.permission_nodes as PermissionNode[]).map(async node => {
+            const roles = await Promise.all(
+              node.roles.map(async id => {
+                const role = await interaction.guild.roles.fetch(id).catch(() => null);
+                return role ? role : { id: id, name: 'Unknown Role' };
+              })
+            );
 
-          return `Name: ${node.name}\n└ Included Roles: ${
-            roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
-          }\n└ Allowed Permissions: ${node.allowed.join(', ').replaceAll('_', ' ')}\n`;
-        })
+            return `Name: ${node.name}\n└ Included Roles: ${
+              roles.length ? roles.map(r => `@${r.name} (${r.id})`).join(', ') : 'None'
+            }\n└ Allowed Permissions: ${node.allowed.join(', ').replaceAll('_', ' ')}\n`;
+          })
+        )
       ).join('\n\n');
 
       const dataUrl = await uploadData(map, 'txt');
@@ -1415,16 +1417,16 @@ export default class Settings extends Command {
         };
       }
 
-      const map = Promise.all(
+      const map = await Promise.all(
         (config.ephemeral_scopes as EphemeralScope[]).map(async scope => {
-          const includedChannels = Promise.all(
+          const includedChannels = await Promise.all(
             scope.included_channels.map(id => {
               const channel = interaction.guild.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
             })
           );
 
-          const excludedChannels = Promise.all(
+          const excludedChannels = await Promise.all(
             scope.excluded_channels.map(id => {
               const channel = interaction.guild.channels.cache.get(id);
               return channel ? `#${channel.name} (${id})` : `<#${id}>`;
@@ -1707,7 +1709,7 @@ export default class Settings extends Command {
         };
       }
 
-      const channels = Promise.all(
+      const channels = await Promise.all(
         config.lockdown_channels.map(id => {
           const channel = interaction.guild.channels.cache.get(id);
           return channel ? `#${channel.name} (${id})` : `<#${id}>`;
