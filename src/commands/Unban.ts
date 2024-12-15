@@ -112,7 +112,7 @@ export default class Unban extends Command {
       };
     }
 
-    await Promise.all([
+    Promise.all([
       TaskManager.deleteTask({
         target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
       }),

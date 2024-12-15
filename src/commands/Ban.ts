@@ -191,7 +191,7 @@ export default class Ban extends Command {
       );
     }
 
-    await Promise.all(promises);
+    Promise.all(promises);
 
     return {
       embeds: [

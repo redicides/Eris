@@ -352,7 +352,7 @@ export class RequestUtils {
           });
         }
 
-        await Promise.all([
+        Promise.all([
           InfractionManager.logInfraction(config, infraction),
 
           prisma.banRequest.update({
@@ -397,7 +397,7 @@ export class RequestUtils {
           }
         });
 
-        await Promise.all([
+        Promise.all([
           RequestUtils.sendLog({
             config,
             embed,
@@ -509,7 +509,7 @@ export class RequestUtils {
           request_id: request.id
         });
 
-        await Promise.all([
+        Promise.all([
           TaskManager.storeTask({
             guild_id: request.guild_id,
             target_id: request.target_id,
@@ -568,7 +568,7 @@ export class RequestUtils {
           }
         });
 
-        await Promise.all([
+        Promise.all([
           RequestUtils.sendLog({
             config,
             embed,

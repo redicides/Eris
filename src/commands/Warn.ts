@@ -128,7 +128,7 @@ export default class Warn extends Command {
       expires_at: expiresAt
     });
 
-    await Promise.all([
+    Promise.all([
       InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
       InfractionManager.logInfraction(config, infraction)
     ]);

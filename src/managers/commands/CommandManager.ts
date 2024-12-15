@@ -257,7 +257,7 @@ export default class CommandManager {
       );
     }
 
-    await Promise.all(promises);
+    Promise.all(promises);
 
     return {
       embeds: [

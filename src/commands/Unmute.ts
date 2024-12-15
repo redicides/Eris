@@ -102,7 +102,7 @@ export default class Unmute extends Command {
       created_at: Date.now()
     });
 
-    await Promise.all([
+    Promise.all([
       TaskManager.deleteTask({
         target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guild.id, type: 'Mute' }
       }),

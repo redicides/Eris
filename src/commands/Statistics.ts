@@ -58,7 +58,7 @@ export default class Statistics extends Command {
 
     // Concurrently count "important" entries on the database
 
-    await Promise.all([
+    Promise.all([
       this.prisma.guild.count().then(count => (counts.guilds = count)),
       this.prisma.infraction.count().then(count => (counts.infractions = count)),
       this.prisma.message.count().then(count => (counts.messages = count))

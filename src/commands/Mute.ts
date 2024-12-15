@@ -139,7 +139,7 @@ export default class Mute extends Command {
       reason
     });
 
-    await Promise.all([
+    Promise.all([
       TaskManager.storeTask({
         guild_id: interaction.guildId,
         target_id: target.id,
