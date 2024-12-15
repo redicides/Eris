@@ -148,14 +148,14 @@ export default class Mute extends Command {
         type: 'Mute'
       }),
       InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
-      InfractionManager.logInfraction({ config, infraction })
+      InfractionManager.logInfraction(config, infraction)
     ]);
 
     return {
       embeds: [
         {
-          description: InfractionManager.getSuccessMessage({ target, infraction }),
-          color: InfractionManager.mapActionToColor({ infraction })
+          description: InfractionManager.getSuccessMessage(infraction, target),
+          color: InfractionManager.mapActionToColor('Mute')
         }
       ]
     };

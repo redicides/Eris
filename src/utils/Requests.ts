@@ -352,32 +352,34 @@ export class RequestUtils {
           });
         }
 
-        await InfractionManager.logInfraction({ config, infraction });
+        await Promise.all([
+          InfractionManager.logInfraction(config, infraction),
 
-        await prisma.banRequest.update({
-          where: { id: request.id },
-          data: {
-            status: 'Accepted',
-            resolved_by: interaction.user.id,
-            resolved_at: Date.now(),
-            infraction_id: infraction.id
-          }
-        });
+          prisma.banRequest.update({
+            where: { id: request.id },
+            data: {
+              status: 'Accepted',
+              resolved_by: interaction.user.id,
+              resolved_at: Date.now(),
+              infraction_id: infraction.id
+            }
+          }),
 
-        await RequestUtils.sendLog({
-          config,
-          embed,
-          action: 'Accepted',
-          userId: interaction.user.id,
-          reason: reason ?? DefaultInfractionReason
-        });
+          RequestUtils.sendLog({
+            config,
+            embed,
+            action: 'Accepted',
+            userId: interaction.user.id,
+            reason: reason ?? DefaultInfractionReason
+          }),
 
-        await sendNotification({
-          config,
-          options: { content, allowedMentions: { parse: [] } }
-        });
+          sendNotification({
+            config,
+            options: { content, allowedMentions: { parse: [] } }
+          }),
 
-        await interaction.message?.delete().catch(() => null);
+          interaction.message?.delete().catch(() => null)
+        ]);
 
         return {
           content: `Successfully accepted the ban request for ${target} - ID \`#${request.id}\``,
@@ -395,23 +397,25 @@ export class RequestUtils {
           }
         });
 
-        await RequestUtils.sendLog({
-          config,
-          embed,
-          action: 'Denied',
-          userId: interaction.user.id,
-          reason: reason ?? DefaultInfractionReason
-        });
+        await Promise.all([
+          RequestUtils.sendLog({
+            config,
+            embed,
+            action: 'Denied',
+            userId: interaction.user.id,
+            reason: reason ?? DefaultInfractionReason
+          }),
 
-        await sendNotification({
-          config,
-          options: {
-            content,
-            allowedMentions: { parse: ['users'] }
-          }
-        });
+          sendNotification({
+            config,
+            options: {
+              content,
+              allowedMentions: { parse: ['users'] }
+            }
+          }),
 
-        await interaction.message?.delete().catch(() => null);
+          await interaction.message?.delete().catch(() => null)
+        ]);
 
         return {
           content: `Successfully denied the ban request for ${userMention(request.target_id)} - ID \`#${request.id}\``,
@@ -505,46 +509,48 @@ export class RequestUtils {
           request_id: request.id
         });
 
-        await TaskManager.storeTask({
-          guild_id: request.guild_id,
-          target_id: request.target_id,
-          infraction_id: infraction.id,
-          expires_at: expiresAt,
-          type: 'Mute'
-        });
+        await Promise.all([
+          TaskManager.storeTask({
+            guild_id: request.guild_id,
+            target_id: request.target_id,
+            infraction_id: infraction.id,
+            expires_at: expiresAt,
+            type: 'Mute'
+          }),
 
-        await InfractionManager.logInfraction({ config, infraction });
-        await InfractionManager.sendNotificationDM({
-          config,
-          infraction,
-          guild: interaction.guild,
-          target: targetMember
-        });
+          InfractionManager.logInfraction(config, infraction),
+          InfractionManager.sendNotificationDM({
+            config,
+            infraction,
+            guild: interaction.guild,
+            target: targetMember
+          }),
 
-        await prisma.muteRequest.update({
-          where: { id: request.id },
-          data: {
-            status: 'Accepted',
-            resolved_by: interaction.user.id,
-            resolved_at: createdAt,
-            infraction_id: infraction.id
-          }
-        });
+          prisma.muteRequest.update({
+            where: { id: request.id },
+            data: {
+              status: 'Accepted',
+              resolved_by: interaction.user.id,
+              resolved_at: createdAt,
+              infraction_id: infraction.id
+            }
+          }),
 
-        await RequestUtils.sendLog({
-          config,
-          embed,
-          action: 'Accepted',
-          userId: interaction.user.id,
-          reason: reason ?? DefaultInfractionReason
-        });
+          RequestUtils.sendLog({
+            config,
+            embed,
+            action: 'Accepted',
+            userId: interaction.user.id,
+            reason: reason ?? DefaultInfractionReason
+          }),
 
-        await sendNotification({
-          config,
-          options: { content, allowedMentions: { parse: [] } }
-        });
+          sendNotification({
+            config,
+            options: { content, allowedMentions: { parse: [] } }
+          }),
 
-        await interaction.message?.delete().catch(() => null);
+          interaction.message?.delete().catch(() => null)
+        ]);
 
         return {
           content: `Successfully accepted the mute request for ${targetMember} - ID \`#${request.id}\``,
@@ -562,23 +568,25 @@ export class RequestUtils {
           }
         });
 
-        await RequestUtils.sendLog({
-          config,
-          embed,
-          action: 'Denied',
-          userId: interaction.user.id,
-          reason: reason ?? DefaultInfractionReason
-        });
+        await Promise.all([
+          RequestUtils.sendLog({
+            config,
+            embed,
+            action: 'Denied',
+            userId: interaction.user.id,
+            reason: reason ?? DefaultInfractionReason
+          }),
 
-        await sendNotification({
-          config,
-          options: {
-            content,
-            allowedMentions: { parse: ['users'] }
-          }
-        });
+          sendNotification({
+            config,
+            options: {
+              content,
+              allowedMentions: { parse: ['users'] }
+            }
+          }),
 
-        await interaction.message?.delete().catch(() => null);
+          interaction.message?.delete().catch(() => null)
+        ]);
 
         return {
           content: `Successfully denied the mute request for ${userMention(request.target_id)} - ID \`#${request.id}\``,

@@ -167,7 +167,7 @@ export class CronUtils {
             created_at: Date.now()
           });
 
-          await InfractionManager.logInfraction({ config, infraction });
+          await InfractionManager.logInfraction(config, infraction);
         }
       }
     });

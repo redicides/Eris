@@ -153,10 +153,9 @@ export default class InfractionManager {
    * @returns The sent message, if successful
    */
 
-  static async logInfraction(data: { config: GuildConfig; infraction: Infraction }): Promise<APIMessage | null> {
-    const { config, infraction } = data;
-
+  static async logInfraction(config: GuildConfig, infraction: Infraction): Promise<APIMessage | null> {
     if (!config.infraction_logging_enabled || !config.infraction_logging_webhook) return null;
+
     const webhook = new WebhookClient({ url: config.infraction_logging_webhook });
 
     const embed = new EmbedBuilder()
@@ -174,7 +173,7 @@ export default class InfractionManager {
     if (infraction.expires_at) {
       embed.addFields({
         name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expires_at)
+        value: InfractionManager._formatExpiration(infraction.expires_at, ExpirationFormatStyle.RelativeAndAbsolute)
       });
     }
 
@@ -229,7 +228,7 @@ export default class InfractionManager {
     if (infraction.expires_at) {
       embed.addFields({
         name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expires_at)
+        value: InfractionManager._formatExpiration(infraction.expires_at, ExpirationFormatStyle.RelativeAndAbsolute)
       });
     }
 
@@ -298,19 +297,6 @@ export default class InfractionManager {
   }
 
   /**
-   * Format an expiration date.
-   *
-   * @param expiration The expiration date
-   * @returns The formatted expiration date
-   */
-
-  public static formatExpiration(expiration: bigint | number | null): string {
-    return expiration === null
-      ? 'Never'
-      : `${time(Math.floor(Number(expiration) / 1000))} (${time(Math.floor(Number(expiration) / 1000), 'R')})`;
-  }
-
-  /**
    * Get the success message when issuing an infraction.
    *
    * @param data.target The target user
@@ -318,18 +304,17 @@ export default class InfractionManager {
    * @returns The success message
    */
 
-  public static getSuccessMessage(data: { target: GuildMember | User; infraction: Infraction }): string {
-    const { target, infraction } = data;
+  public static getSuccessMessage(infraction: Infraction, target: User | GuildMember): string {
     const { type, id, expires_at } = infraction;
 
-    const relativeExpiration = expires_at ? `${time(Math.floor(Number(infraction.expires_at) / 1000), 'R')}` : '';
-    const expiration = expires_at ? `${time(Math.floor(Number(infraction.expires_at) / 1000))}` : '';
+    const relativeTimestamp = InfractionManager._formatExpiration(expires_at, ExpirationFormatStyle.Relative);
+    const timestamp = InfractionManager._formatExpiration(expires_at, ExpirationFormatStyle.Absolute);
 
-    const message: Record<Infraction['type'], string> = {
-      Warn: `Successfully added a warning for ${target}${expires_at ? ` that will expire ${relativeExpiration}` : ''}`,
-      Mute: `Successfully set ${target} on a timeout that will end ${relativeExpiration}`,
+    const message: Record<InfractionType, string> = {
+      Warn: `Successfully added a warning for ${target}${expires_at ? ` that will expire ${relativeTimestamp}` : ''}`,
+      Mute: `Successfully set ${target} on a timeout that will end ${relativeTimestamp}`,
       Kick: `Successfully kicked ${target}`,
-      Ban: `Successfully banned ${target}${expires_at ? ` until ${expiration}` : ''}`,
+      Ban: `Successfully banned ${target}${expires_at ? ` until ${timestamp}` : ''}`,
       Unmute: `Successfully unmuted ${target}`,
       Unban: `Successfully unbanned ${target}`
     };
@@ -344,8 +329,8 @@ export default class InfractionManager {
    * @returns The color
    */
 
-  public static mapActionToColor(data: { infraction: Infraction }): number {
-    return InfractionColors[data.infraction.type];
+  public static mapActionToColor(type: InfractionType): number {
+    return InfractionColors[type];
   }
 
   /**
@@ -440,7 +425,7 @@ export default class InfractionManager {
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: `${infraction.flag ? `${infraction.flag} ` : ''}${infraction.type} - ID #${infraction.id}` })
-      .setColor(InfractionManager.mapActionToColor({ infraction }))
+      .setColor(InfractionManager.mapActionToColor(infraction.type))
       .setFields([
         { name: 'Executor', value: userMentionWithId(infraction.executor_id) },
         { name: 'Target', value: userMentionWithId(infraction.target_id) },
@@ -451,7 +436,7 @@ export default class InfractionManager {
     if (infraction.expires_at) {
       embed.addFields({
         name: 'Expiration',
-        value: InfractionManager.formatExpiration(infraction.expires_at)
+        value: InfractionManager._formatExpiration(infraction.expires_at, ExpirationFormatStyle.RelativeAndAbsolute)
       });
     }
 
@@ -583,7 +568,7 @@ export default class InfractionManager {
         created_at: Date.now()
       });
 
-      InfractionManager.logInfraction({ config, infraction: newInfraction });
+      InfractionManager.logInfraction(config, newInfraction);
     }
 
     await InfractionManager.deleteInfraction({ id: infractionId, guild_id: guild.id }).catch(() => null);
@@ -607,7 +592,7 @@ export default class InfractionManager {
       await target.send({ embeds: [embed] }).catch(() => null);
     }
 
-    await InfractionManager.logInfractionDeletion({ infraction, executor, reason, config });
+    await InfractionManager._logInfractionDeletion({ infraction, executor, reason, config });
 
     return {
       content: `${infraction.type} with ID \`#${infractionId}\` for ${userMention(
@@ -684,7 +669,7 @@ export default class InfractionManager {
       }
     }
 
-    await InfractionManager.logInfractionReasonEdit({ infraction, executor, newReason, config });
+    await InfractionManager._logInfractionReasonEdit({ infraction, executor, newReason, config });
 
     return {
       content: `Successfully updated the reason of ${infraction.type.toLowerCase()} infraction with ID \`#${
@@ -812,7 +797,10 @@ export default class InfractionManager {
         .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
         .setTitle(`${infraction.type} Duration Updated`)
         .setFields([
-          { name: 'New Expiration', value: InfractionManager.formatExpiration(newExpiration) },
+          {
+            name: 'New Expiration',
+            value: InfractionManager._formatExpiration(newExpiration, ExpirationFormatStyle.RelativeAndAbsolute)
+          },
           { name: 'Moderator Reason', value: editReason }
         ])
         .setFooter({ text: `Infraction ID: ${infraction.id}` })
@@ -821,7 +809,7 @@ export default class InfractionManager {
       await targetMember.send({ embeds: [embed] }).catch(() => null);
     }
 
-    await InfractionManager.logInfractionDurationEdit({
+    await InfractionManager._logInfractionDurationEdit({
       infraction,
       executor,
       newExpiration,
@@ -834,7 +822,10 @@ export default class InfractionManager {
         infraction.id
       }\`. ${
         newExpiration
-          ? `It will now expire on ${InfractionManager.formatExpiration(newExpiration)}`
+          ? `It will now expire on ${InfractionManager._formatExpiration(
+              newExpiration,
+              ExpirationFormatStyle.RelativeAndAbsolute
+            )}.`
           : 'It is now permanent'
       }.`
     };
@@ -850,7 +841,7 @@ export default class InfractionManager {
    * @returns The sent message, if successful
    */
 
-  public static async logInfractionDeletion(data: {
+  private static async _logInfractionDeletion(data: {
     infraction: Infraction;
     executor: GuildMember;
     reason: string;
@@ -897,7 +888,7 @@ export default class InfractionManager {
    * @returns The sent message, if successful
    */
 
-  public static async logInfractionDurationEdit(data: {
+  private static async _logInfractionDurationEdit(data: {
     infraction: Infraction;
     executor: GuildMember;
     newExpiration: number | bigint | null;
@@ -908,8 +899,11 @@ export default class InfractionManager {
 
     if (!config.infraction_logging_enabled || !config.infraction_logging_webhook) return null;
 
-    const expiration = InfractionManager.formatExpiration(newExpiration);
-    const oldExpiration = InfractionManager.formatExpiration(infraction.expires_at);
+    const expiration = InfractionManager._formatExpiration(newExpiration, ExpirationFormatStyle.RelativeAndAbsolute);
+    const oldExpiration = InfractionManager._formatExpiration(
+      infraction.expires_at,
+      ExpirationFormatStyle.RelativeAndAbsolute
+    );
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: `${infraction.type} Updated - ID #${infraction.id}` })
@@ -947,7 +941,7 @@ export default class InfractionManager {
    * @returns
    */
 
-  public static async logInfractionReasonEdit(data: {
+  private static async _logInfractionReasonEdit(data: {
     infraction: Infraction;
     executor: GuildMember;
     newReason: string;
@@ -988,13 +982,41 @@ export default class InfractionManager {
     return generateSnowflakeId();
   }
 
+  /**
+   * Format an expiration date.
+   *
+   * @param expiration The expiration date
+   * @returns The formatted expiration date
+   */
+
+  private static _formatExpiration(expiration: bigint | number | null, style: ExpirationFormatStyle): string {
+    switch (style) {
+      case ExpirationFormatStyle.Absolute:
+        return expiration === null ? 'Never' : time(Math.floor(Number(expiration) / 1000));
+      case ExpirationFormatStyle.Relative:
+        return expiration === null ? 'Never' : time(Math.floor(Number(expiration) / 1000), 'R');
+
+      case ExpirationFormatStyle.RelativeAndAbsolute:
+        return expiration === null
+          ? 'Never'
+          : `${time(Math.floor(Number(expiration) / 1000))} (${time(Math.floor(Number(expiration) / 1000), 'R')})`;
+    }
+  }
+
+  /**
+   * Parse infraction data for logging.
+   *
+   * @param infraction The infraction to parse
+   * @returns The parsed infraction data, formatted for logging
+   */
+
   private static _parseInfractionData(infraction: Infraction): string {
     const isoDate = new Date(Number(infraction.created_at)).toLocaleString(undefined, LogDateFormat);
     const isoExpiration = infraction.expires_at
       ? new Date(Number(infraction.expires_at)).toLocaleString(undefined, LogDateFormat)
       : 'Never';
 
-    let infractionData = `${infraction.type} #${infraction.id}\n └── Target: ${infraction.target_id}\n └── Reason: ${infraction.reason}\n └── Created On: ${isoDate}\n └── Expires: ${isoExpiration}`;
+    let infractionData = `${infraction.type} #${infraction.id}\n └── Target: ${infraction.target_id}\n └── Executor: ${infraction.executor_id}\n └── Reason: ${infraction.reason}\n └── Created On: ${isoDate}\n └── Expires: ${isoExpiration}`;
 
     if (infraction.request_id) {
       infractionData += `\n └── Request ID: ${infraction.request_id}`;
@@ -1158,3 +1180,9 @@ type PunishmentData<T extends Exclude<InfractionType, 'Warn'>> = {
   action: T;
   reason: string;
 } & (T extends 'Mute' ? { duration: number | null } : T extends 'Ban' ? { deleteMessages?: number } : {});
+
+enum ExpirationFormatStyle {
+  Relative = 'R',
+  Absolute = 'A',
+  RelativeAndAbsolute = 'RA'
+}

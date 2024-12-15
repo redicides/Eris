@@ -130,14 +130,14 @@ export default class Warn extends Command {
 
     await Promise.all([
       InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
-      InfractionManager.logInfraction({ config, infraction })
+      InfractionManager.logInfraction(config, infraction)
     ]);
 
     return {
       embeds: [
         {
-          description: InfractionManager.getSuccessMessage({ target, infraction }),
-          color: InfractionManager.mapActionToColor({ infraction })
+          description: InfractionManager.getSuccessMessage(infraction, target),
+          color: InfractionManager.mapActionToColor('Warn')
         }
       ]
     };

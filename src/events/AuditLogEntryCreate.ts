@@ -15,11 +15,11 @@ export default class AuditLogEntryCreate extends EventListener {
 
   async execute(log: GuildAuditLogsEntry, guild: Guild) {
     const { executor, target, reason: rawReason, changes } = log;
-    const config = await DatabaseManager.getGuildEntry(guild.id);
 
     if (!executor || executor.id === this.client.user!.id) return;
     if (!(target instanceof User) && !(target instanceof GuildMember)) return;
 
+    const config = await DatabaseManager.getGuildEntry(guild.id);
     const reason = elipsify(rawReason ?? DefaultInfractionReason, 1024);
 
     let action: InfractionType | undefined;
@@ -77,7 +77,7 @@ export default class AuditLogEntryCreate extends EventListener {
                 expires_at: expiresAt
               });
 
-              await InfractionManager.logInfraction({ config, infraction });
+              await InfractionManager.logInfraction(config, infraction);
               return;
             }
 
@@ -108,6 +108,6 @@ export default class AuditLogEntryCreate extends EventListener {
       flag: InfractionFlag.Native
     });
 
-    return InfractionManager.logInfraction({ config, infraction });
+    return InfractionManager.logInfraction(config, infraction);
   }
 }

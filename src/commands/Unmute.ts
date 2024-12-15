@@ -107,14 +107,14 @@ export default class Unmute extends Command {
         target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guild.id, type: 'Mute' }
       }),
       InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
-      InfractionManager.logInfraction({ config, infraction })
+      InfractionManager.logInfraction(config, infraction)
     ]);
 
     return {
       embeds: [
         {
-          description: InfractionManager.getSuccessMessage({ target, infraction }),
-          color: InfractionManager.mapActionToColor({ infraction })
+          description: InfractionManager.getSuccessMessage(infraction, target),
+          color: InfractionManager.mapActionToColor('Unmute')
         }
       ]
     };

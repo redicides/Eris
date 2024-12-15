@@ -171,7 +171,7 @@ export default class Ban extends Command {
       };
     }
 
-    const promises: any[] = [InfractionManager.logInfraction({ config, infraction })];
+    const promises: any[] = [InfractionManager.logInfraction(config, infraction)];
 
     if (expiresAt) {
       promises.push(
@@ -196,8 +196,8 @@ export default class Ban extends Command {
     return {
       embeds: [
         {
-          description: InfractionManager.getSuccessMessage({ target, infraction }),
-          color: InfractionManager.mapActionToColor({ infraction })
+          description: InfractionManager.getSuccessMessage(infraction, target),
+          color: InfractionManager.mapActionToColor('Ban')
         }
       ]
     };

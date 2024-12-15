@@ -116,14 +116,14 @@ export default class Unban extends Command {
       TaskManager.deleteTask({
         target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
       }),
-      InfractionManager.logInfraction({ config, infraction })
+      InfractionManager.logInfraction(config, infraction)
     ]);
 
     return {
       embeds: [
         {
-          description: InfractionManager.getSuccessMessage({ target, infraction }),
-          color: InfractionManager.mapActionToColor({ infraction })
+          description: InfractionManager.getSuccessMessage(infraction, target),
+          color: InfractionManager.mapActionToColor('Unban')
         }
       ]
     };

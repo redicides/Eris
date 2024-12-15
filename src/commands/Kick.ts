@@ -105,13 +105,13 @@ export default class Kick extends Command {
       };
     }
 
-    await InfractionManager.logInfraction({ config, infraction });
+    await InfractionManager.logInfraction(config, infraction);
 
     return {
       embeds: [
         {
-          description: InfractionManager.getSuccessMessage({ target, infraction }),
-          color: InfractionManager.mapActionToColor({ infraction })
+          description: InfractionManager.getSuccessMessage(infraction, target),
+          color: InfractionManager.mapActionToColor('Kick')
         }
       ]
     };
