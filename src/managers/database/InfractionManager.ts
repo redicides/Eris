@@ -744,7 +744,7 @@ export default class InfractionManager {
 
       if (duration > ms('28d') || duration === 0) {
         return {
-          error: 'The new mute duration for mutes must be between 1 second and 28 days.',
+          error: 'The new duration for mutes must be between 1 second and 28 days.',
           temporary: true
         };
       }
