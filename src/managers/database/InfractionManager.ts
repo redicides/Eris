@@ -283,7 +283,6 @@ export default class InfractionManager {
             null,
             InfractionManager._formatAuditLogReason(executor, action, reason)
           );
-          (target as GuildMember).guild.id;
           break;
       }
 
