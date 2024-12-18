@@ -128,13 +128,13 @@ export default class MessageDeleteBulk extends EventListener {
 
   private static async _getDiscordEntries(messages: Collection<Snowflake, DiscordMessage<true>>) {
     const authorMentions: ReturnType<typeof userMention>[] = [];
-    const entries: { entry: string; createdAt: bigint | number }[] = [];
+    const entries: { entry: string; createdAt: Date }[] = [];
 
     for (const message of messages.values()) {
       const authorMention = userMention(message.author.id);
       const entry = await formatMessageBulkDeleteLogEntry({
         authorId: message.author.id,
-        createdAt: message.createdTimestamp,
+        createdAt: message.createdAt,
         stickerId: null,
         messageContent: message.content
       });
@@ -150,7 +150,7 @@ export default class MessageDeleteBulk extends EventListener {
         if (reference) {
           const referenceEntry = await formatMessageBulkDeleteLogEntry({
             authorId: reference.author.id,
-            createdAt: reference.createdTimestamp,
+            createdAt: reference.createdAt,
             stickerId: null,
             messageContent: reference.content
           });
@@ -174,13 +174,13 @@ export default class MessageDeleteBulk extends EventListener {
 
       entries.push({
         entry: subEntries.join('\n └── '),
-        createdAt: message.createdTimestamp
+        createdAt: message.createdAt
       });
     }
 
     // Sort entries by creation date (newest to oldest)
     entries.sort((a, b) => {
-      return new Date(Number(b.createdAt)).getTime() - new Date(Number(a.createdAt)).getTime();
+      return b.createdAt.getTime() - a.createdAt.getTime();
     });
 
     const mappedEntries = entries.map(({ entry }) => entry);
@@ -193,7 +193,7 @@ export default class MessageDeleteBulk extends EventListener {
     discordMessages: Collection<Snowflake, DiscordMessage<true>>
   ) {
     const authorMentions: ReturnType<typeof userMention>[] = [];
-    const entries: { entry: string; createdAt: bigint | number }[] = [];
+    const entries: { entry: string; createdAt: Date }[] = [];
 
     for (const message of messages.values()) {
       const authorMention = userMention(message.author_id);
@@ -227,7 +227,7 @@ export default class MessageDeleteBulk extends EventListener {
           if (discordReference) {
             const referenceEntry = await formatMessageBulkDeleteLogEntry({
               authorId: discordReference.author.id,
-              createdAt: discordReference.createdTimestamp,
+              createdAt: discordReference.createdAt,
               stickerId: null,
               messageContent: discordReference.content
             });
@@ -245,7 +245,7 @@ export default class MessageDeleteBulk extends EventListener {
 
     // Sort entries by creation date (newest to oldest)
     entries.sort((a, b) => {
-      return new Date(Number(b.createdAt)).getTime() - new Date(Number(a.createdAt)).getTime();
+      return b.createdAt.getTime() - a.createdAt.getTime();
     });
 
     const mappedEntries = entries.map(({ entry }) => entry);

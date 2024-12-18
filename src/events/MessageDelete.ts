@@ -70,7 +70,7 @@ export default class MessageDelete extends EventListener {
         author_id: message.author_id,
         channel_id: message.channel_id,
         sticker_id: message.sticker_id,
-        created_at: new Date(Number(message.created_at)),
+        created_at: message.created_at,
         content: message.content,
         attachments: message.attachments
       },
@@ -142,7 +142,7 @@ export default class MessageDelete extends EventListener {
             author_id: dbReference.author_id,
             channel_id: dbReference.channel_id,
             sticker_id: stickerId,
-            created_at: new Date(Number(dbReference.created_at)),
+            created_at: dbReference.created_at,
             content: dbReference.content,
             attachments: dbReference.attachments
           },

@@ -1,6 +1,6 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["tracing"]
+  provider = "prisma-client-js"
+  // previewFeatures = ["tracing"]
 }
 
 datasource db {
@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum InfractionType {
+enum InfractionAction {
   Warn
   Mute
   Kick
@@ -17,7 +17,7 @@ enum InfractionType {
   Unban
 }
 
-enum TaskType {
+enum TaskAction {
   Mute
   Ban
 }
@@ -163,45 +163,46 @@ model Guild {
   // Relations
   moderation_commands Shortcut[]
   infractions         Infraction[]
+  infraction_tasks    InfractionTask[]
   channel_locks       ChannelLock[]
   message_reports     MessageReport[]
   user_reports        UserReport[]
   ban_requests        BanRequest[]
   mute_requests       MuteRequest[]
   messages            Message[]
-  tasks               Task[]
 }
 
 model Infraction {
-  id          String          @id
-  guild_id    String
-  target_id   String
-  executor_id String
-  type        InfractionType  @default(Warn)
-  reason      String
-  created_at  BigInt
-  expires_at  BigInt?
-  flag        InfractionFlag?
-
+  id                String    @id
+  guild_id          String
+  target_id         String
+  executor_id       String
+  created_at        DateTime  @default(now())
+  expires_at        DateTime?
   request_id        String?
   request_author_id String?
 
-  task  Task?
-  guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
+  action InfractionAction @default(Warn)
+  flag   InfractionFlag?
+  reason String
+
+  task  InfractionTask?
+  guild Guild           @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 }
 
-model Task {
+model InfractionTask {
   id            String   @id
   guild_id      String
   target_id     String
   infraction_id String   @unique
-  type          TaskType
-  expires_at    BigInt
+  expires_at    DateTime
+
+  action TaskAction
 
   infraction Infraction? @relation(fields: [infraction_id], references: [id], onDelete: Cascade)
   guild      Guild       @relation(fields: [guild_id], references: [id], onDelete: Cascade)
 
-  @@unique([target_id, guild_id, type])
+  @@unique([target_id, guild_id, action])
 }
 
 model MessageReport {
@@ -214,13 +215,13 @@ model MessageReport {
   author_id    String
   content      String?
 
-  reported_at   BigInt
+  reported_at   DateTime
   reported_by   String
   report_reason String
 
   status ReportStatus @default(Pending)
 
-  resolved_at BigInt?
+  resolved_at DateTime?
   resolved_by String?
 
   guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
@@ -231,13 +232,13 @@ model UserReport {
   guild_id  String
   target_id String
 
-  reported_at   BigInt
+  reported_at   DateTime
   reported_by   String
   report_reason String
 
   status ReportStatus @default(Pending)
 
-  resolved_at BigInt?
+  resolved_at DateTime?
   resolved_by String?
 
   guild Guild @relation(fields: [guild_id], references: [id], onDelete: Cascade)
@@ -251,10 +252,10 @@ model BanRequest {
 
   status RequestStatus @default(Pending)
 
-  resolved_at BigInt?
+  resolved_at DateTime?
   resolved_by String?
 
-  requested_at BigInt
+  requested_at DateTime
   requested_by String
 
   duration BigInt?
@@ -271,10 +272,10 @@ model MuteRequest {
 
   status RequestStatus @default(Pending)
 
-  resolved_at BigInt?
+  resolved_at DateTime?
   resolved_by String?
 
-  requested_at BigInt
+  requested_at DateTime
   requested_by String
 
   duration Int
@@ -290,7 +291,7 @@ model Message {
   channel_id   String
   sticker_id   String?
   reference_id String?
-  created_at   BigInt
+  created_at   DateTime
   content      String?
   attachments  String[]
   deleted      Boolean  @default(false)
@@ -313,7 +314,7 @@ model Shortcut {
   name        String @id
   description String
 
-  action   InfractionType
+  action   InfractionAction
   reason   String
   duration BigInt?
 

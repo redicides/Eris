@@ -124,7 +124,7 @@ export class ReportUtils {
         guild_id: interaction.guildId,
         target_id: target.id,
         reported_by: interaction.user.id,
-        reported_at: Date.now(),
+        reported_at: new Date(),
         report_reason: reason
       }
     });
@@ -289,7 +289,7 @@ export class ReportUtils {
         author_id: message.author.id,
         content: content,
         reported_by: interaction.user.id,
-        reported_at: Date.now(),
+        reported_at: new Date(),
         report_reason: reason
       }
     });
@@ -345,7 +345,7 @@ export class ReportUtils {
         await prisma.messageReport.update({
           where: { id: report.id },
           data: {
-            resolved_at: Date.now(),
+            resolved_at: new Date(),
             resolved_by: interaction.user.id,
             status: 'Accepted'
           }
@@ -378,7 +378,7 @@ export class ReportUtils {
         await prisma.messageReport.update({
           where: { id: report.id },
           data: {
-            resolved_at: Date.now(),
+            resolved_at: new Date(),
             resolved_by: interaction.user.id,
             status: 'Denied'
           }
@@ -455,7 +455,7 @@ export class ReportUtils {
         await prisma.userReport.update({
           where: { id: report.id },
           data: {
-            resolved_at: Date.now(),
+            resolved_at: new Date(),
             resolved_by: interaction.user.id,
             status: 'Accepted'
           }
@@ -488,7 +488,7 @@ export class ReportUtils {
         await prisma.userReport.update({
           where: { id: report.id },
           data: {
-            resolved_at: Date.now(),
+            resolved_at: new Date(),
             resolved_by: interaction.user.id,
             status: 'Denied'
           }

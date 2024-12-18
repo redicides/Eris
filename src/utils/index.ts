@@ -551,8 +551,8 @@ export async function getReferenceMessage(
     message_id: reference.id,
     author_id: isDiscordMessage ? reference.author.id : reference.author_id,
     channel_id: isDiscordMessage ? reference.channelId : reference.channel_id,
-    sticker_id: isDiscordMessage ? (reference.stickers?.first()?.id ?? null) : reference.sticker_id,
-    created_at: isDiscordMessage ? reference.createdAt : new Date(Number(reference.created_at)),
+    sticker_id: isDiscordMessage ? reference.stickers?.first()?.id ?? null : reference.sticker_id,
+    created_at: isDiscordMessage ? reference.createdAt : reference.created_at,
     content: reference.content,
     attachments: isDiscordMessage ? Array.from(reference.attachments.values()).map(a => a.url) : reference.attachments
   };
@@ -569,12 +569,12 @@ export async function getReferenceMessage(
  */
 
 export async function formatMessageBulkDeleteLogEntry(data: {
-  createdAt: bigint | number;
+  createdAt: Date;
   stickerId: Snowflake | null;
   authorId: Snowflake;
   messageContent: string | null;
 }) {
-  const timestamp = new Date(Number(data.createdAt)).toLocaleString(undefined, LogDateFormat);
+  const timestamp = data.createdAt.toLocaleString(undefined, LogDateFormat);
   const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
 
   let content: string | undefined;

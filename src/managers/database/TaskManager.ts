@@ -1,5 +1,5 @@
 import { Snowflake } from 'discord.js';
-import { Prisma, Task, TaskType } from '@prisma/client';
+import { InfractionTask, Prisma, TaskAction } from '@prisma/client';
 
 import { prisma } from '@/index';
 import { generateSnowflakeId } from '@utils/index';
@@ -16,11 +16,11 @@ export default class TaskManager {
     guild_id: Snowflake;
     target_id: Snowflake;
     infraction_id: string;
-    expires_at: bigint | number;
-    type: TaskType;
-  }): Promise<Task> {
-    return prisma.task.upsert({
-      where: { target_id_guild_id_type: { guild_id: data.guild_id, target_id: data.target_id, type: data.type } },
+    expires_at: Date;
+    action: TaskAction;
+  }): Promise<InfractionTask> {
+    return prisma.infractionTask.upsert({
+      where: { target_id_guild_id_action: { guild_id: data.guild_id, target_id: data.target_id, action: data.action } },
       update: data,
       create: {
         id: generateSnowflakeId(),
@@ -36,8 +36,8 @@ export default class TaskManager {
    * @returns The task, if found
    */
 
-  public static async getTask(where: Prisma.TaskFindUniqueArgs['where']): Promise<Task | null> {
-    return prisma.task.findUnique({
+  public static async getTask(where: Prisma.InfractionTaskFindUniqueArgs['where']): Promise<InfractionTask | null> {
+    return prisma.infractionTask.findUnique({
       where
     });
   }
@@ -49,7 +49,7 @@ export default class TaskManager {
    * @returns The task that was deleted
    */
 
-  public static async deleteTask(where: Prisma.TaskDeleteArgs['where']): Promise<Task | null> {
-    return prisma.task.delete({ where }).catch(() => null);
+  public static async deleteTask(where: Prisma.InfractionTaskDeleteArgs['where']): Promise<InfractionTask | null> {
+    return prisma.infractionTask.delete({ where }).catch(() => null);
   }
 }

@@ -85,7 +85,7 @@ export default class Ban extends Command {
       };
     }
 
-    const vResult = InfractionManager.validateAction({
+    const validationResult = InfractionManager.validateAction({
       config,
       guild: interaction.guild,
       target: member ?? target,
@@ -94,9 +94,9 @@ export default class Ban extends Command {
       reason: rawReason
     });
 
-    if (!vResult.success) {
+    if (!validationResult.success) {
       return {
-        error: vResult.message,
+        error: validationResult.message,
         temporary: true
       };
     }
@@ -131,21 +131,20 @@ export default class Ban extends Command {
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    const createdAt = Date.now();
+    const currentDate = Date.now();
     const expiresAt = duration
-      ? createdAt + duration
+      ? new Date(currentDate + duration)
       : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_ban_duration !== 0n
-        ? createdAt + Number(config.default_ban_duration)
-        : null;
+      ? new Date(currentDate + Number(config.default_ban_duration))
+      : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
       guild_id: interaction.guildId,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: 'Ban',
+      action: 'Ban',
       reason,
-      created_at: createdAt,
       expires_at: expiresAt
     });
 
@@ -153,16 +152,16 @@ export default class Ban extends Command {
       await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target: member, infraction });
     }
 
-    const ban = await InfractionManager.resolvePunishment({
+    const banResult = await InfractionManager.resolvePunishment({
       guild: interaction.guild,
       target,
       executor: interaction.member,
       action: 'Ban',
       reason,
-      deleteMessages: deleteMessageSeconds
+      deleteMessageSeconds
     });
 
-    if (!ban.success) {
+    if (!banResult.success) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
 
       return {
@@ -180,13 +179,13 @@ export default class Ban extends Command {
           target_id: target.id,
           infraction_id: infraction.id,
           expires_at: expiresAt,
-          type: 'Ban'
+          action: 'Ban'
         })
       );
     } else {
       promises.push(
         TaskManager.deleteTask({
-          target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
+          target_id_guild_id_action: { guild_id: interaction.guildId, target_id: target.id, action: 'Ban' }
         })
       );
     }

@@ -54,8 +54,6 @@ export class RequestUtils {
   }): Promise<InteractionReplyData> {
     const { config, guild_id, target, requested_by, duration, reason } = data;
 
-    const requestedAt = Date.now();
-
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
       .setAuthor({ name: 'New Mute Request' })
@@ -122,7 +120,7 @@ export class RequestUtils {
         guild_id,
         target_id: target.id,
         requested_by,
-        requested_at: requestedAt,
+        requested_at: new Date(),
         duration,
         reason
       }
@@ -155,8 +153,6 @@ export class RequestUtils {
     reason: string;
   }) {
     const { config, guild_id, target, requested_by, duration, reason } = data;
-
-    const requestedAt = Date.now();
 
     const embed = new EmbedBuilder()
       .setColor(Colors.Blue)
@@ -227,7 +223,7 @@ export class RequestUtils {
         guild_id,
         target_id: target.id,
         requested_by,
-        requested_at: requestedAt,
+        requested_at: new Date(),
         duration,
         reason
       }
@@ -296,17 +292,16 @@ export class RequestUtils {
           };
         }
 
-        const createdAt = Date.now();
-        const expiresAt = request.duration ? createdAt + Number(request.duration) : null;
+        const currentDate = Date.now();
+        const expiresAt = request.duration ? new Date(currentDate + Number(request.duration)) : null;
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
           guild_id: request.guild_id,
           target_id: request.target_id,
           executor_id: interaction.user.id,
-          type: 'Ban',
+          action: 'Ban',
           reason: request.reason,
-          created_at: createdAt,
           expires_at: expiresAt,
           request_author_id: request.requested_by,
           request_id: request.id
@@ -344,11 +339,11 @@ export class RequestUtils {
             target_id: request.target_id,
             infraction_id: infraction.id,
             expires_at: expiresAt,
-            type: 'Ban'
+            action: 'Ban'
           });
         } else {
           await TaskManager.deleteTask({
-            target_id_guild_id_type: { target_id: request.target_id, guild_id: request.guild_id, type: 'Ban' }
+            target_id_guild_id_action: { target_id: request.target_id, guild_id: request.guild_id, action: 'Ban' }
           });
         }
 
@@ -360,7 +355,7 @@ export class RequestUtils {
             data: {
               status: 'Accepted',
               resolved_by: interaction.user.id,
-              resolved_at: Date.now(),
+              resolved_at: new Date(),
               infraction_id: infraction.id
             }
           }),
@@ -393,7 +388,7 @@ export class RequestUtils {
           data: {
             status: 'Denied',
             resolved_by: interaction.user.id,
-            resolved_at: Date.now()
+            resolved_at: new Date()
           }
         });
 
@@ -493,17 +488,16 @@ export class RequestUtils {
           };
         }
 
-        const createdAt = Date.now();
-        const expiresAt = createdAt + Number(request.duration);
+        const currentDate = Date.now();
+        const expiresAt = new Date(currentDate + Number(request.duration));
 
         const infraction = await InfractionManager.storeInfraction({
           id: InfractionManager.generateInfractionId(),
           guild_id: request.guild_id,
           target_id: request.target_id,
           executor_id: interaction.user.id,
-          type: 'Mute',
+          action: 'Mute',
           reason: request.reason,
-          created_at: createdAt,
           expires_at: expiresAt,
           request_author_id: request.requested_by,
           request_id: request.id
@@ -515,7 +509,7 @@ export class RequestUtils {
             target_id: request.target_id,
             infraction_id: infraction.id,
             expires_at: expiresAt,
-            type: 'Mute'
+            action: 'Mute'
           }),
 
           InfractionManager.logInfraction(config, infraction),
@@ -531,7 +525,7 @@ export class RequestUtils {
             data: {
               status: 'Accepted',
               resolved_by: interaction.user.id,
-              resolved_at: createdAt,
+              resolved_at: new Date(),
               infraction_id: infraction.id
             }
           }),
@@ -564,7 +558,7 @@ export class RequestUtils {
           data: {
             status: 'Denied',
             resolved_by: interaction.user.id,
-            resolved_at: Date.now()
+            resolved_at: new Date()
           }
         });
 

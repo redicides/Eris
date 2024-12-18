@@ -59,7 +59,7 @@ export default class MuteRequestButton extends Component {
     if (action === 'disregard') {
       await this.prisma.muteRequest.update({
         where: { id: request.id },
-        data: { resolved_by: interaction.user.id, resolved_at: Date.now(), status: 'Disregarded' }
+        data: { resolved_by: interaction.user.id, resolved_at: new Date(), status: 'Disregarded' }
       });
 
       const log = new EmbedBuilder(interaction.message.embeds[0] as EmbedData)

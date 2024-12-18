@@ -9,7 +9,7 @@ import {
   PermissionFlagsBits,
   Snowflake
 } from 'discord.js';
-import { InfractionType } from '@prisma/client';
+import { InfractionAction } from '@prisma/client';
 
 import ms from 'ms';
 
@@ -68,12 +68,12 @@ export default class ShortcutManager extends Command {
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
-                  { name: 'Warn', value: InfractionType.Warn },
-                  { name: 'Mute', value: InfractionType.Mute },
-                  { name: 'Unmute', value: InfractionType.Unmute },
-                  { name: 'Kick', value: InfractionType.Kick },
-                  { name: 'Ban', value: InfractionType.Ban },
-                  { name: 'Unban', value: InfractionType.Unban }
+                  { name: 'Warn', value: InfractionAction.Warn },
+                  { name: 'Mute', value: InfractionAction.Mute },
+                  { name: 'Unmute', value: InfractionAction.Unmute },
+                  { name: 'Kick', value: InfractionAction.Kick },
+                  { name: 'Ban', value: InfractionAction.Ban },
+                  { name: 'Unban', value: InfractionAction.Unban }
                 ]
               },
               {
@@ -157,12 +157,12 @@ export default class ShortcutManager extends Command {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                     choices: [
-                      { name: 'Warn', value: InfractionType.Warn },
-                      { name: 'Mute', value: InfractionType.Mute },
-                      { name: 'Unmute', value: InfractionType.Unmute },
-                      { name: 'Kick', value: InfractionType.Kick },
-                      { name: 'Ban', value: InfractionType.Ban },
-                      { name: 'Unban', value: InfractionType.Unban }
+                      { name: 'Warn', value: InfractionAction.Warn },
+                      { name: 'Mute', value: InfractionAction.Mute },
+                      { name: 'Unmute', value: InfractionAction.Unmute },
+                      { name: 'Kick', value: InfractionAction.Kick },
+                      { name: 'Ban', value: InfractionAction.Ban },
+                      { name: 'Unban', value: InfractionAction.Unban }
                     ]
                   }
                 ]
@@ -277,7 +277,7 @@ export default class ShortcutManager extends Command {
   ): Promise<InteractionReplyData> {
     const name = interaction.options.getString('name', true);
     const description = interaction.options.getString('description', true);
-    const action = interaction.options.getString('action', true) as InfractionType;
+    const action = interaction.options.getString('action', true) as InfractionAction;
     const reason = interaction.options.getString('reason', true);
     const rawDuration = interaction.options.getString('duration', false);
     const rawMsgDeleteTime = interaction.options.getString('message-delete-time', false);
@@ -488,7 +488,7 @@ export default class ShortcutManager extends Command {
     interaction: ChatInputCommandInteraction<'cached'>
   ): Promise<InteractionReplyData> {
     const name = interaction.options.getString('shortcut', true);
-    const newAction = interaction.options.getString('new-action', true) as InfractionType;
+    const newAction = interaction.options.getString('new-action', true) as InfractionAction;
 
     const shortcut = await prisma.shortcut.findUnique({
       where: { name, guild_id: interaction.guildId }

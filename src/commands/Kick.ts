@@ -56,7 +56,7 @@ export default class Kick extends Command {
       };
     }
 
-    const vResult = InfractionManager.validateAction({
+    const validationResult = InfractionManager.validateAction({
       config,
       guild: interaction.guild,
       target,
@@ -65,9 +65,9 @@ export default class Kick extends Command {
       reason: rawReason
     });
 
-    if (!vResult.success) {
+    if (!validationResult.success) {
       return {
-        error: vResult.message,
+        error: validationResult.message,
         temporary: true
       };
     }
@@ -81,14 +81,13 @@ export default class Kick extends Command {
       guild_id: interaction.guildId,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: 'Kick',
-      reason,
-      created_at: Date.now()
+      action: 'Kick',
+      reason
     });
 
     await InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction });
 
-    const kick = await InfractionManager.resolvePunishment({
+    const kickResult = await InfractionManager.resolvePunishment({
       guild: interaction.guild,
       target,
       executor: interaction.member,
@@ -96,7 +95,7 @@ export default class Kick extends Command {
       action: 'Kick'
     });
 
-    if (!kick.success) {
+    if (!kickResult.success) {
       await InfractionManager.deleteInfraction({ id: infraction.id });
 
       return {

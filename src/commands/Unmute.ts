@@ -97,14 +97,13 @@ export default class Unmute extends Command {
       guild_id: interaction.guild.id,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: 'Unmute',
-      reason,
-      created_at: Date.now()
+      action: 'Unmute',
+      reason
     });
 
     Promise.all([
       TaskManager.deleteTask({
-        target_id_guild_id_type: { target_id: target.id, guild_id: interaction.guild.id, type: 'Mute' }
+        target_id_guild_id_action: { target_id: target.id, guild_id: interaction.guild.id, action: 'Mute' }
       }),
       InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
       InfractionManager.logInfraction(config, infraction)

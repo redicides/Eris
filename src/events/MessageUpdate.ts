@@ -136,7 +136,7 @@ export default class MessageUpdate extends EventListener {
             author_id: dbReference.author_id,
             channel_id: dbReference.channel_id,
             sticker_id: stickerId,
-            created_at: new Date(Number(dbReference.created_at)),
+            created_at: dbReference.created_at,
             content: dbReference.content,
             attachments: dbReference.attachments
           },

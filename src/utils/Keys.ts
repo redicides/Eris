@@ -1,5 +1,5 @@
 import { GuildMember, PermissionsBitField, User } from 'discord.js';
-import { InfractionType } from '@prisma/client';
+import { InfractionAction } from '@prisma/client';
 
 import { UserPermission } from './Enums';
 
@@ -39,7 +39,7 @@ export const MessageKeys = {
       return `You must have the \`${permission.replaceAll(/([A-Z])/g, ' $1')}\` permission to ${action}.`;
     },
 
-    PunishmentFailed(action: Exclude<InfractionType, 'Warn'>, target: User | GuildMember) {
+    PunishmentFailed(action: Exclude<InfractionAction, 'Warn'>, target: User | GuildMember) {
       return `Failed to ${action.toLowerCase()} ${target}. The related infraction has been deleted.`;
     },
 

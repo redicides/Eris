@@ -261,7 +261,7 @@ export default class DatabaseManager {
       reference_id: referenceId,
       content: message.content,
       attachments: message.attachments.map(attachment => attachment.url),
-      created_at: BigInt(message.createdAt.getTime()),
+      created_at: message.createdAt,
       deleted: false
     };
   }

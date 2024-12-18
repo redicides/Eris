@@ -125,16 +125,17 @@ export default class Mute extends Command {
       };
     }
 
-    const createdAt = Date.now();
-    const expiresAt = duration ? createdAt + duration : createdAt + Number(config.default_mute_duration);
+    const currentDate = Date.now();
+    const expiresAt = duration
+      ? new Date(currentDate + duration)
+      : new Date(currentDate + Number(config.default_mute_duration));
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
       guild_id: interaction.guildId,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: 'Mute',
-      created_at: createdAt,
+      action: 'Mute',
       expires_at: expiresAt,
       reason
     });
@@ -145,7 +146,7 @@ export default class Mute extends Command {
         target_id: target.id,
         infraction_id: infraction.id,
         expires_at: expiresAt,
-        type: 'Mute'
+        action: 'Mute'
       }),
       InfractionManager.sendNotificationDM({ config, guild: interaction.guild, target, infraction }),
       InfractionManager.logInfraction(config, infraction)

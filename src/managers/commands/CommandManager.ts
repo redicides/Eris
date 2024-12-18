@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, Collection, GuildMember, Snowflake, User } from 'discord.js';
-import { Shortcut } from '@prisma/client';
+import { InfractionAction, Shortcut } from '@prisma/client';
 
 import path from 'path';
 import fs from 'fs';
@@ -186,17 +186,16 @@ export default class CommandManager {
 
     await interaction.deferReply({ ephemeral });
 
-    const createdAt = Date.now();
-    const expiresAt = duration ? createdAt + Number(duration) : null;
+    const currentDate = Date.now();
+    const expiresAt = duration ? new Date(currentDate + Number(duration)) : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
       guild_id: interaction.guildId,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: action,
+      action,
       reason,
-      created_at: createdAt,
       expires_at: expiresAt
     });
 
@@ -206,7 +205,7 @@ export default class CommandManager {
         guild: interaction.guild,
         target,
         infraction,
-        info: command.additional_info ?? undefined
+        customInfo: command.additional_info ?? undefined
       });
     }
 
@@ -218,7 +217,7 @@ export default class CommandManager {
         action,
         reason,
         duration: duration ? Number(duration) : null,
-        deleteMessages: message_delete_time ?? undefined
+        deleteMessageSeconds: message_delete_time ?? undefined
       });
 
       if (!punishment.success) {
@@ -231,33 +230,16 @@ export default class CommandManager {
       }
     }
 
-    const promises: any[] = [InfractionManager.logInfraction(config, infraction)];
-
-    if (expiresAt && ['Mute', 'Ban'].includes(action)) {
-      promises.push(
-        TaskManager.storeTask({
-          guild_id: interaction.guildId,
-          target_id: target.id,
-          infraction_id: infraction.id,
-          type: action as 'Mute' | 'Ban',
-          expires_at: expiresAt
-        })
-      );
-    } else if (['Ban', 'Unban', 'Unmute'].includes(action)) {
-      const taskType = action === 'Unmute' ? 'Mute' : 'Ban';
-
-      promises.push(
-        TaskManager.deleteTask({
-          target_id_guild_id_type: {
-            target_id: target.id,
-            guild_id: interaction.guildId,
-            type: taskType
-          }
-        })
-      );
-    }
-
-    Promise.all(promises);
+    Promise.all([
+      InfractionManager.logInfraction(config, infraction),
+      CommandManager._runInfractionTasks({
+        guildId: interaction.guildId,
+        targetId: target.id,
+        infractionId: infraction.id,
+        action,
+        expiresAt
+      })
+    ]);
 
     return {
       embeds: [
@@ -267,5 +249,31 @@ export default class CommandManager {
         }
       ]
     };
+  }
+
+  private static async _runInfractionTasks(data: {
+    guildId: Snowflake;
+    targetId: Snowflake;
+    infractionId: Snowflake;
+    action: InfractionAction;
+    expiresAt: Date | null;
+  }) {
+    const { guildId, targetId, infractionId, action, expiresAt } = data;
+
+    if (action === 'Warn' || action === 'Kick') return null;
+
+    const deleteType = action === 'Unmute' ? 'Mute' : 'Ban';
+
+    return expiresAt
+      ? TaskManager.storeTask({
+          guild_id: guildId,
+          target_id: targetId,
+          infraction_id: infractionId,
+          action: action as 'Mute' | 'Ban',
+          expires_at: expiresAt
+        })
+      : TaskManager.deleteTask({
+          target_id_guild_id_action: { target_id: targetId, guild_id: guildId, action: deleteType }
+        });
   }
 }

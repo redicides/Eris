@@ -57,7 +57,7 @@ export default class BanRequestButtonComponent extends Component {
     if (action === 'disregard') {
       await this.prisma.banRequest.update({
         where: { id: request.id },
-        data: { resolved_by: interaction.user.id, resolved_at: Date.now(), status: 'Disregarded' }
+        data: { resolved_by: interaction.user.id, resolved_at: new Date(), status: 'Disregarded' }
       });
 
       const log = new EmbedBuilder(interaction.message.embeds[0] as EmbedData)

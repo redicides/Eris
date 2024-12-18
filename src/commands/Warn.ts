@@ -110,21 +110,20 @@ export default class Warn extends Command {
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
 
-    const createdAt = Date.now();
+    const currentDate = Date.now();
     const expiresAt = duration
-      ? createdAt + duration
+      ? new Date(currentDate + duration)
       : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_warn_duration !== 0n
-        ? createdAt + Number(config.default_warn_duration)
-        : null;
+      ? new Date(currentDate + Number(config.default_warn_duration))
+      : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
       guild_id: interaction.guildId,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: 'Warn',
+      action: 'Warn',
       reason,
-      created_at: createdAt,
       expires_at: expiresAt
     });
 

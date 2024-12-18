@@ -24,7 +24,7 @@ export default class GuildBanAdd extends EventListener {
         guild_id
       },
       data: {
-        resolved_at: Date.now(),
+        resolved_at: new Date(),
         resolved_by: client.user!.id,
         status: 'AutoResolved'
       }
@@ -38,7 +38,7 @@ export default class GuildBanAdd extends EventListener {
         guild_id
       },
       data: {
-        resolved_at: Date.now(),
+        resolved_at: new Date(),
         resolved_by: client.user!.id,
         status: 'AutoResolved'
       }
@@ -52,7 +52,7 @@ export default class GuildBanAdd extends EventListener {
         guild_id
       },
       data: {
-        resolved_at: Date.now(),
+        resolved_at: new Date(),
         resolved_by: client.user!.id,
         status: 'AutoResolved'
       }

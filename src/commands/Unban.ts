@@ -80,7 +80,6 @@ export default class Unban extends Command {
       };
     }
 
-    const createdAt = Date.now();
     const reason = rawReason ?? DefaultInfractionReason;
 
     await interaction.deferReply({ ephemeral: isEphemeralReply(interaction, config) });
@@ -90,9 +89,8 @@ export default class Unban extends Command {
       guild_id: interaction.guildId,
       target_id: target.id,
       executor_id: interaction.user.id,
-      type: 'Unban',
-      reason,
-      created_at: createdAt
+      action: 'Unban',
+      reason
     });
 
     const unban = await InfractionManager.resolvePunishment({
@@ -114,7 +112,7 @@ export default class Unban extends Command {
 
     Promise.all([
       TaskManager.deleteTask({
-        target_id_guild_id_type: { guild_id: interaction.guildId, target_id: target.id, type: 'Ban' }
+        target_id_guild_id_action: { guild_id: interaction.guildId, target_id: target.id, action: 'Ban' }
       }),
       InfractionManager.logInfraction(config, infraction)
     ]);

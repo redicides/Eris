@@ -1,5 +1,5 @@
 import { AuditLogEvent, Events, Guild, GuildAuditLogsEntry, GuildMember, User } from 'discord.js';
-import { InfractionFlag, InfractionType } from '@prisma/client';
+import { InfractionFlag, InfractionAction } from '@prisma/client';
 
 import { elipsify } from '@utils/index';
 
@@ -22,27 +22,27 @@ export default class AuditLogEntryCreate extends EventListener {
     const config = await DatabaseManager.getGuildEntry(guild.id);
     const reason = elipsify(rawReason ?? DefaultInfractionReason, 1024);
 
-    let action: InfractionType | undefined;
+    let action: InfractionAction | undefined;
 
     switch (log.action) {
       case AuditLogEvent.MemberKick:
-        action = InfractionType.Kick;
+        action = InfractionAction.Kick;
         break;
       case AuditLogEvent.MemberBanAdd:
-        action = InfractionType.Ban;
+        action = InfractionAction.Ban;
 
         // Delete mute task upon ban (if it exists)
         await TaskManager.deleteTask({
-          target_id_guild_id_type: { target_id: target.id, guild_id: guild.id, type: 'Mute' }
+          target_id_guild_id_action: { target_id: target.id, guild_id: guild.id, action: 'Mute' }
         });
 
         break;
       case AuditLogEvent.MemberBanRemove:
-        action = InfractionType.Unban;
+        action = InfractionAction.Unban;
 
         // Delete ban task upon unban (if it exists)
         await TaskManager.deleteTask({
-          target_id_guild_id_type: { guild_id: guild.id, target_id: target.id, type: 'Ban' }
+          target_id_guild_id_action: { guild_id: guild.id, target_id: target.id, action: 'Ban' }
         });
 
         break;
@@ -54,18 +54,18 @@ export default class AuditLogEntryCreate extends EventListener {
             if (mute.new) {
               if (!config.native_moderation_integration) return;
 
-              const expiresAt = Date.parse(mute.new as string);
-              action = InfractionType.Mute;
+              const expiresAt = new Date(Date.parse(mute.new as string));
+
+              action = InfractionAction.Mute;
 
               const infraction = await InfractionManager.storeInfraction({
                 id: InfractionManager.generateInfractionId(),
                 guild_id: guild.id,
                 target_id: target.id,
                 executor_id: executor.id,
-                type: action,
+                action,
                 reason,
                 expires_at: expiresAt,
-                created_at: Date.now(),
                 flag: InfractionFlag.Native
               });
 
@@ -73,7 +73,7 @@ export default class AuditLogEntryCreate extends EventListener {
                 guild_id: guild.id,
                 target_id: target.id,
                 infraction_id: infraction.id,
-                type: 'Mute',
+                action: 'Mute',
                 expires_at: expiresAt
               });
 
@@ -82,11 +82,11 @@ export default class AuditLogEntryCreate extends EventListener {
             }
 
             if (!mute.new) {
-              action = InfractionType.Unmute;
+              action = InfractionAction.Unmute;
 
               // Delete mute task upon unmute
               await TaskManager.deleteTask({
-                target_id_guild_id_type: { target_id: target.id, guild_id: guild.id, type: 'Mute' }
+                target_id_guild_id_action: { target_id: target.id, guild_id: guild.id, action: 'Mute' }
               });
             }
           }
@@ -102,9 +102,8 @@ export default class AuditLogEntryCreate extends EventListener {
       guild_id: guild.id,
       target_id: target.id,
       executor_id: executor.id,
-      type: action,
+      action,
       reason,
-      created_at: Date.now(),
       flag: InfractionFlag.Native
     });
 
