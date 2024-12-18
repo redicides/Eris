@@ -15,7 +15,8 @@ import {
   ActionRowBuilder,
   EmbedField,
   userMention,
-  PermissionFlagsBits
+  PermissionFlagsBits,
+  Collection
 } from 'discord.js';
 import { Infraction, InfractionAction, InfractionFlag, Prisma } from '@prisma/client';
 
@@ -1034,17 +1035,24 @@ export default class InfractionManager {
 
   private static async _getSearchFields(infractions: Infraction[]) {
     let fields: EmbedField[] = [];
+    let existingFetchedUsers: Collection<Snowflake, User> = new Collection();
 
     for (const infraction of infractions) {
-      const executor = await client.users.fetch(infraction.executor_id).catch(() => null);
+      const executor = existingFetchedUsers.has(infraction.executor_id)
+        ? existingFetchedUsers.get(infraction.executor_id)
+        : await client.users.fetch(infraction.executor_id).catch(() => null);
 
       fields.push({
         name: `${infraction.action} #${infraction.id}, by ${
-          executor ? `@${executor.username} (${executor.id})` : 'an unknown user'
+          executor ? `@${executor.username} (${executor.id})` : `an unknown user (${infraction.executor_id})`
         }`,
-        value: `${elipsify(infraction.reason, 256)} - ${time(Math.floor(Number(infraction.created_at) / 1000))}`,
+        value: `${elipsify(infraction.reason, 256)} - ${time(infraction.created_at)}`,
         inline: false
       });
+
+      if (executor && !existingFetchedUsers.has(infraction.executor_id)) {
+        existingFetchedUsers.set(infraction.executor_id, executor);
+      }
     }
 
     return fields;

@@ -9,7 +9,7 @@ export default class GuildBanAdd extends EventListener {
   }
 
   async execute(ban: GuildBan) {
-    // Clear all reports and mute requests for the banned user as they can no longer be resolved by staff
+    // Clear all reports and mute requests for the banned user as they can no longer be resolved
     return Promise.all([
       GuildBanAdd._clearMessageReports(ban.user.id, ban.guild.id),
       GuildBanAdd._clearUserReports(ban.user.id, ban.guild.id),

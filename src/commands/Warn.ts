@@ -114,8 +114,8 @@ export default class Warn extends Command {
     const expiresAt = duration
       ? new Date(currentDate + duration)
       : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_warn_duration !== 0n
-      ? new Date(currentDate + Number(config.default_warn_duration))
-      : null;
+        ? new Date(currentDate + Number(config.default_warn_duration))
+        : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),

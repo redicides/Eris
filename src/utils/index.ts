@@ -23,7 +23,8 @@ import {
   ApplicationCommandOptionType,
   WebhookClient,
   MessageCreateOptions,
-  APIMessage
+  APIMessage,
+  User
 } from 'discord.js';
 
 import { Message, Shortcut } from '@prisma/client';
@@ -551,7 +552,7 @@ export async function getReferenceMessage(
     message_id: reference.id,
     author_id: isDiscordMessage ? reference.author.id : reference.author_id,
     channel_id: isDiscordMessage ? reference.channelId : reference.channel_id,
-    sticker_id: isDiscordMessage ? reference.stickers?.first()?.id ?? null : reference.sticker_id,
+    sticker_id: isDiscordMessage ? (reference.stickers?.first()?.id ?? null) : reference.sticker_id,
     created_at: isDiscordMessage ? reference.createdAt : reference.created_at,
     content: reference.content,
     attachments: isDiscordMessage ? Array.from(reference.attachments.values()).map(a => a.url) : reference.attachments
@@ -571,11 +572,11 @@ export async function getReferenceMessage(
 export async function formatMessageBulkDeleteLogEntry(data: {
   createdAt: Date;
   stickerId: Snowflake | null;
-  authorId: Snowflake;
+  author: User | { username: string; id: Snowflake };
   messageContent: string | null;
 }) {
   const timestamp = data.createdAt.toLocaleString(undefined, LogDateFormat);
-  const author = await client.users.fetch(data.authorId).catch(() => ({ username: 'unknown.user' }));
+  const author = data.author;
 
   let content: string | undefined;
 
@@ -594,7 +595,7 @@ export async function formatMessageBulkDeleteLogEntry(data: {
   }
 
   content ??= data.messageContent ?? EmptyMessageContent;
-  return `[${timestamp}] @${author.username} (${data.authorId}) - ${content}`;
+  return `[${timestamp}] @${author.username} (${author.id}) - ${content}`;
 }
 
 /**

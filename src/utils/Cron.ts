@@ -181,7 +181,7 @@ export class CronUtils {
         WHERE "id" IN (
           SELECT M."id"
           FROM "MessageReport" M
-          INNER JOIN "guild" G ON M."guild_id" = G."id"
+          INNER JOIN "Guild" G ON M."guild_id" = G."id"
           WHERE M."reported_at" + (G."message_reports_disregard_after" * INTERVAL '1 millisecond') <= now()
         )
       `;
@@ -192,7 +192,7 @@ export class CronUtils {
         WHERE "id" IN (
           SELECT U."id"
           FROM "UserReport" U
-          INNER JOIN "guild" G ON U."guild_id" = G."id"
+          INNER JOIN "Guild" G ON U."guild_id" = G."id"
           WHERE U."reported_at" + (G."user_reports_disregard_after" * INTERVAL '1 millisecond') <= now()
           )`;
     });

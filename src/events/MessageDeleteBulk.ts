@@ -11,7 +11,8 @@ import {
   ActionRowBuilder,
   WebhookClient,
   userMention,
-  AttachmentBuilder
+  AttachmentBuilder,
+  User
 } from 'discord.js';
 import { type Message } from '@prisma/client';
 
@@ -26,6 +27,7 @@ import { GuildConfig } from '@utils/Types';
 
 import EventListener from '@managers/events/EventListener';
 import DatabaseManager from '@managers/database/DatabaseManager';
+import { client } from '..';
 
 export default class MessageDeleteBulk extends EventListener {
   constructor() {
@@ -126,18 +128,36 @@ export default class MessageDeleteBulk extends EventListener {
       .catch(() => null);
   }
 
-  private static async _getDiscordEntries(messages: Collection<Snowflake, DiscordMessage<true>>) {
+  private static async _getDiscordEntries(
+    messages: Collection<Snowflake, DiscordMessage<true>>
+  ): Promise<{ entries: string[]; authorMentions: ReturnType<typeof userMention>[] }> {
     const authorMentions: ReturnType<typeof userMention>[] = [];
+    const authorCache = new Map<Snowflake, User | { username: string; id: Snowflake }>();
     const entries: { entry: string; createdAt: Date }[] = [];
 
     for (const message of messages.values()) {
-      const authorMention = userMention(message.author.id);
+      const authorId = message.author.id;
+      const authorMention = userMention(authorId);
+
+      // Get author from cache or fetch if not cached
+      let author = authorCache.get(authorId);
+
+      if (!author) {
+        author = await client.users.fetch(authorId).catch(() => ({
+          username: 'unknown user',
+          id: authorId
+        }));
+
+        authorCache.set(authorId, author);
+      }
+
       const entry = await formatMessageBulkDeleteLogEntry({
-        authorId: message.author.id,
+        author,
         createdAt: message.createdAt,
         stickerId: null,
         messageContent: message.content
       });
+
       const subEntries = [entry];
 
       if (!authorMentions.includes(authorMention)) {
@@ -147,9 +167,20 @@ export default class MessageDeleteBulk extends EventListener {
       if (message.reference?.messageId) {
         const reference = message.reference && (await message.fetchReference().catch(() => null));
 
+        let referenceAuthor = authorCache.get(reference?.author.id!);
+
+        if (!referenceAuthor) {
+          referenceAuthor = await client.users.fetch(reference?.author.id!).catch(() => ({
+            username: 'unknown user',
+            id: reference?.author.id!
+          }));
+
+          authorCache.set(reference?.author.id!, referenceAuthor);
+        }
+
         if (reference) {
           const referenceEntry = await formatMessageBulkDeleteLogEntry({
-            authorId: reference.author.id,
+            author: reference.author,
             createdAt: reference.createdAt,
             stickerId: null,
             messageContent: reference.content
@@ -157,11 +188,11 @@ export default class MessageDeleteBulk extends EventListener {
 
           subEntries.unshift(`REF: ${referenceEntry}`);
         } else {
-          const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId).catch(() => null);
+          const dbReference = await DatabaseManager.getMessageEntry(message.reference.messageId);
 
           if (dbReference) {
             const referenceEntry = await formatMessageBulkDeleteLogEntry({
-              authorId: dbReference.author_id,
+              author: referenceAuthor,
               createdAt: dbReference.created_at,
               stickerId: null,
               messageContent: dbReference.content
@@ -179,30 +210,46 @@ export default class MessageDeleteBulk extends EventListener {
     }
 
     // Sort entries by creation date (newest to oldest)
-    entries.sort((a, b) => {
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
+    entries.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    const mappedEntries = entries.map(({ entry }) => entry);
+    // Map entries to their string representation
+    const mapped = entries.map(({ entry }) => entry);
 
-    return { entries: mappedEntries, authorMentions };
+    // Clear the cache to prevent unnecessary memory usage
+    authorCache.clear();
+
+    return { entries: mapped, authorMentions };
   }
 
   private static async _getDatabaseEntries(
     messages: Message[],
     discordMessages: Collection<Snowflake, DiscordMessage<true>>
-  ) {
+  ): Promise<{ entries: string[]; authorMentions: ReturnType<typeof userMention>[] }> {
     const authorMentions: ReturnType<typeof userMention>[] = [];
+    const authorCache = new Map<Snowflake, User | { username: string; id: Snowflake }>();
     const entries: { entry: string; createdAt: Date }[] = [];
 
     for (const message of messages.values()) {
       const authorMention = userMention(message.author_id);
+
+      let author = authorCache.get(message.author_id);
+
+      if (!author) {
+        author = await client.users.fetch(message.author_id).catch(() => ({
+          username: 'unknown user',
+          id: message.author_id
+        }));
+
+        authorCache.set(message.author_id, author);
+      }
+
       const entry = await formatMessageBulkDeleteLogEntry({
-        authorId: message.author_id,
+        author,
         createdAt: message.created_at,
         stickerId: null,
         messageContent: message.content
       });
+
       const subEntries = [entry];
 
       if (!authorMentions.includes(authorMention)) {
@@ -210,11 +257,22 @@ export default class MessageDeleteBulk extends EventListener {
       }
 
       if (message.reference_id) {
-        const reference = await DatabaseManager.getMessageEntry(message.reference_id).catch(() => null);
+        const reference = await DatabaseManager.getMessageEntry(message.reference_id);
+
+        let referenceAuthor = authorCache.get(reference?.author_id!);
+
+        if (!referenceAuthor) {
+          referenceAuthor = await client.users.fetch(reference?.author_id!).catch(() => ({
+            username: 'unknown user',
+            id: reference?.author_id!
+          }));
+
+          authorCache.set(reference?.author_id!, referenceAuthor);
+        }
 
         if (reference) {
           const referenceEntry = await formatMessageBulkDeleteLogEntry({
-            authorId: reference.author_id,
+            author: referenceAuthor,
             createdAt: reference.created_at,
             stickerId: null,
             messageContent: reference.content
@@ -226,7 +284,7 @@ export default class MessageDeleteBulk extends EventListener {
 
           if (discordReference) {
             const referenceEntry = await formatMessageBulkDeleteLogEntry({
-              authorId: discordReference.author.id,
+              author: referenceAuthor,
               createdAt: discordReference.createdAt,
               stickerId: null,
               messageContent: discordReference.content
@@ -248,9 +306,13 @@ export default class MessageDeleteBulk extends EventListener {
       return b.createdAt.getTime() - a.createdAt.getTime();
     });
 
-    const mappedEntries = entries.map(({ entry }) => entry);
+    // Map entries to their string representation
+    const mapped = entries.map(({ entry }) => entry);
 
-    return { entries: mappedEntries, authorMentions };
+    // Clear the cache to prevent unnecessary memory usage
+    authorCache.clear();
+
+    return { entries: mapped, authorMentions };
   }
 
   private static mapLogEntriesToFile(entries: string[]): AttachmentBuilder {

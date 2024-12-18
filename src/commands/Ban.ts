@@ -135,8 +135,8 @@ export default class Ban extends Command {
     const expiresAt = duration
       ? new Date(currentDate + duration)
       : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_ban_duration !== 0n
-      ? new Date(currentDate + Number(config.default_ban_duration))
-      : null;
+        ? new Date(currentDate + Number(config.default_ban_duration))
+        : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),
