@@ -36,7 +36,7 @@ export const MessageKeys = {
     },
 
     MissingUserPermission(permission: UserPermission, action: string) {
-      return `You must have the \`${permission.replaceAll(/([A-Z])/g, ' $1')}\` permission to ${action}.`;
+      return `You must have the \`${permission}\` permission to ${action}.`;
     },
 
     PunishmentFailed(action: Exclude<InfractionAction, 'Warn'>, target: User | GuildMember) {
