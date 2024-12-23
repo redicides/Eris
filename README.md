@@ -34,6 +34,6 @@ Thanks!
 
 ## Licensing
 
-terabyte is licensed under the `GNU General Public License v3.0 only`. This means you’re free to use, share, and modify the bot, as long as it’s not used maliciously or for personal gain. While running terabyte, you’ll also need to follow [Discord's Terms of Service](https://discord.com/terms) and [Community Guidelines](https://discord.com/guidelines).
+Terabyte is licensed under the `Creative Commons NonCommercial-ShareAlike 4.0 International`. 
 
 For more information, check out the LICENSE file in the project. It’s all there if you want to dive into the details.
