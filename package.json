@@ -1,5 +1,5 @@
 {
-  "name": "charmie",
+  "name": "terabyte",
   "version": "1.0.0",
   "description": "A discord moderation & utility bot built with reliability in mind.",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/charmie-dev/charmie.git"
+    "url": "git+https://github.com/terabyte-development/terabyte.git"
   },
   "keywords": [
     "Discord",
@@ -24,9 +24,9 @@
   },
   "license": "GPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/charmie-dev/charmie/issues"
+    "url": "https://github.com/terabyte-development/terabyte/issues"
   },
-  "homepage": "https://github.com/charmie-dev/charmie#readme",
+  "homepage": "https://github.com/terabyte-development/terabyte#readme",
   "dependencies": {
     "cron": "^3.2.1",
     "discord.js": "14.15.3",
