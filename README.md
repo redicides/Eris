@@ -1,14 +1,14 @@
-# terabyte
+# Terabyte
 
-terabyte is a Discord bot designed to provide powerful moderation tools with a focus on simplicity and reliability.
+Terabyte is a Discord bot designed to provide powerful moderation tools with a focus on simplicity and reliability.
 
 ## Self-Hosting
 
-Thinking of self-hosting this thing? Alright, you’ll find all the details you need in [`the self-hosting guide`](/documentation/Self-Hosting.md). Take your time, follow the steps, and best of luck setting everything up.
+Thinking of self-hosting this thing? Alright, you’ll find all the details you need in the [`self-hosting guide`](/documentation/Self-Hosting.md). Take your time, follow the steps, and best of luck setting everything up.
 
 ## Contributing
 
-Whether it’s fixing a bug, suggesting improvements, or adding new features, your help is always welcome. Let’s make the process as smooth as possible with a few friendly guidelines:
+Whether it’s fixing a bug, suggesting improvements, or adding new features, your help is always welcome. Let’s make the process as smooth as possible with a few simple guidelines:
 
 ### What You Can Contribute:
 
