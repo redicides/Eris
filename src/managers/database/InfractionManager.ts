@@ -179,7 +179,7 @@ export default class InfractionManager {
     }
 
     if (infraction.request_author_id) {
-      embed.spliceFields(1, 0, { name: 'Requested By', value: userMentionWithId(infraction.request_author_id) });
+      embed.spliceFields(0, 0, { name: 'Request Author', value: userMentionWithId(infraction.request_author_id) });
     }
 
     if (infraction.request_id) {
