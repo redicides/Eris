@@ -1,3 +1,13 @@
+/**
+ * Initialize the global terabyte declarations.
+ * Apparently these have to be at the very top or else NodeJS won't be happy.
+ */
+
+global.terabyte = {
+  maintenance: false,
+  commandRatelimits: new Set<string>(),
+};
+
 import 'dotenv/config';
 
 import { Client } from 'discord.js';
@@ -79,13 +89,6 @@ export const Sentry = SentryClient;
  */
 
 export const prisma = new PrismaClient();
-
-/**
- * Global terabyte object.
- */
-
-terabyte.maintenance = false;
-terabyte.commandRatelimits = new Set<string>();
 
 async function main() {
   // Check environment variables & construct prisma database URL
