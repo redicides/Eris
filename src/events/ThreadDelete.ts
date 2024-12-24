@@ -13,6 +13,8 @@ export default class ThreadDelete extends EventListener {
   }
 
   async execute(thread: ThreadChannel) {
+    if (terabyte.maintenance) return;
+
     const config = await DatabaseManager.getGuildEntry(thread.guildId);
     const channelIds = ThreadCreate._getChannelIds(thread);
 

@@ -20,6 +20,8 @@ export default class MessageDelete extends EventListener {
   }
 
   async execute(deletedMessage: DiscordMessage | PartialMessage) {
+    if (terabyte.maintenance) return;
+
     if (!deletedMessage.inGuild()) return;
     if (deletedMessage.partial) await deletedMessage.fetch().catch(() => null);
 

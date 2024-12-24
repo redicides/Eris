@@ -59,6 +59,13 @@ export default abstract class Command {
   public readonly usage: string | string[] | null;
 
   /**
+   * If rate limits apply to this command.
+   * This means 2 processes of the same command cannot run at the same time.
+   */
+
+  public readonly isRateLimitAffected: boolean;
+
+  /**
    * @param options The options for the command.
    * @param options.category The category of the command.
    * @param options.data The (application command) data for the command.
@@ -79,6 +86,7 @@ export default abstract class Command {
     this.allowInDms = options.allowInDms ?? false;
     this.usage = options.usage ?? null;
     this.isGuarded = options.guarded ?? false;
+    this.isRateLimitAffected = options.rateLimitAffected ?? false;
   }
 
   /**
@@ -93,6 +101,7 @@ export default abstract class Command {
 
 interface CommandOptions {
   guarded?: boolean;
+  rateLimitAffected?: boolean;
   category?: CommandCategory;
   allowInDms?: boolean;
   requiredPermissions?: bigint | bigint[];

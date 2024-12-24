@@ -33,6 +33,10 @@ export default class InteractionCreate extends EventListener {
   }
 
   async execute(interaction: Interaction) {
+    if (terabyte.maintenance && !developers.includes(interaction.user.id)) {
+      return;
+    }
+
     if (interaction.isAutocomplete()) {
       return InteractionCreate.handleAutocomplete(interaction as AutocompleteInteraction);
     }
@@ -66,20 +70,23 @@ export default class InteractionCreate extends EventListener {
     }
 
     if (data instanceof Command) {
-      const result = await InteractionCreate._handleCommandChecks(
+      const checkResult = await InteractionCreate._handleCommandChecks(
         interaction as CommandInteraction<'cached'>,
         data,
         guild
       );
 
-      if (!result.success) {
-        return handleInteractionErrorReply(interaction, result.message);
+      if (!checkResult.success) {
+        return handleInteractionErrorReply(interaction, checkResult.message);
       }
     }
 
     try {
       await InteractionCreate.executeInteraction(interaction, data, guild);
+      InteractionCreate._clearCommandRateLimit(interaction);
     } catch (error) {
+      InteractionCreate._clearCommandRateLimit(interaction);
+
       const sentryId = Sentry.captureException(error, {
         user: {
           id: interaction.user.id,
@@ -409,6 +416,11 @@ export default class InteractionCreate extends EventListener {
     }
   }
 
+  private static _clearCommandRateLimit(interaction: Interaction<'cached'>) {
+    if (!interaction.isCommand()) return;
+    return terabyte.commandRatelimits.delete(`${interaction.guildId} ${interaction.commandName}`);
+  }
+
   private static _handleUnknownInteraction(interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>) {
     const sentryId = Sentry.captureException(
       new Error(
@@ -455,6 +467,17 @@ export default class InteractionCreate extends EventListener {
           message: MessageKeys.Errors.MissingPermissions(command.requiredPermissions.bitfield)
         };
       }
+    }
+
+    if (command.isRateLimitAffected) {
+      if (terabyte.commandRatelimits.has(`${interaction.guildId} ${interaction.commandName}`)) {
+        return {
+          success: false,
+          message: MessageKeys.Errors.CommandRateLimited
+        };
+      }
+
+      terabyte.commandRatelimits.add(`${interaction.guildId} ${interaction.commandName}`);
     }
 
     return { success: true };

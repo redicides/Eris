@@ -31,6 +31,7 @@ export default class MessageUpdate extends EventListener {
   }
 
   async execute(_oldMessage: PartialMessage | DiscordMessage, _newMessage: PartialMessage | DiscordMessage) {
+    if (terabyte.maintenance) return;
     if (!_newMessage.inGuild()) return;
 
     const message = _newMessage.partial

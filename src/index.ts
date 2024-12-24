@@ -80,6 +80,13 @@ export const Sentry = SentryClient;
 
 export const prisma = new PrismaClient();
 
+/**
+ * Global terabyte object.
+ */
+
+terabyte.maintenance = false;
+terabyte.commandRatelimits = new Set<string>();
+
 async function main() {
   // Check environment variables & construct prisma database URL
 

@@ -38,6 +38,8 @@ export default class MessageDeleteBulk extends EventListener {
     deletedMessages: Collection<Snowflake, PartialMessage | DiscordMessage<true>>,
     channel: GuildTextBasedChannel
   ) {
+    if (terabyte.maintenance) return;
+
     const config = await DatabaseManager.getGuildEntry(channel.guild.id);
     const channelIds = extractChannelIds(channel);
 

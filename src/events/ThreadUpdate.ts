@@ -13,6 +13,8 @@ export default class ThreadUpdate extends EventListener {
   }
 
   async execute(oldThread: ThreadChannel, newThread: ThreadChannel) {
+    if (terabyte.maintenance) return;
+
     const config = await DatabaseManager.getGuildEntry(newThread.guildId);
     const channelIds = ThreadCreate._getChannelIds(newThread);
 

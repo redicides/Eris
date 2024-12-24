@@ -14,6 +14,8 @@ export default class AuditLogEntryCreate extends EventListener {
   }
 
   async execute(log: GuildAuditLogsEntry, guild: Guild) {
+    if (terabyte.maintenance) return;
+
     const { executor, target, reason: rawReason, changes } = log;
 
     if (!executor || executor.id === this.client.user!.id) return;

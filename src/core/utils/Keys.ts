@@ -10,6 +10,8 @@ export const MessageKeys = {
     MemberNotFound: 'The target member could not be found.',
     CommandNotFound: 'The provided command could not be found.',
     CommandDisabled: 'This command is disabled in this guild.',
+    CommandRateLimited:
+      'Another process of this command is already running. You must wait for it to finish before running this command again.',
     CantUnmuteUnmutedMember: `You cannot unmute someone who is not muted.`,
     CantMuteAdmin: `You cannot mute an Administrator.`,
 

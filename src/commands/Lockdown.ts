@@ -26,6 +26,7 @@ export default class Lockdown extends Command {
       category: CommandCategory.Utility,
       usage: ['start [reason] [notify-channels]', 'end [reason] [notify-channels]'],
       requiredPermissions: PermissionFlagsBits.ManageChannels,
+      rateLimitAffected: true,
       data: {
         name: 'lockdown',
         description: 'Start or end a server wide lock.',
@@ -85,7 +86,7 @@ export default class Lockdown extends Command {
 
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannels = hasPermission(interaction.member, config, UserPermission.OverrideLockdownNotificatons)
-      ? (interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify)
+      ? interaction.options.getBoolean('notify-channels', false) ?? config.lockdown_notify
       : config.lockdown_notify;
 
     if (subcommand === LockdownSubcommand.Start) {

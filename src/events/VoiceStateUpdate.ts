@@ -12,6 +12,8 @@ export default class VoiceStateUpdate extends EventListener {
   }
 
   async execute(oldState: VoiceState, newState: VoiceState) {
+    if (terabyte.maintenance) return;
+
     // Ignore if the channel ID remains the same (e.g. the user toggled their microphone)
     if (oldState.channelId === newState.channelId) return;
 
