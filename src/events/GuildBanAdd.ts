@@ -9,16 +9,22 @@ export default class GuildBanAdd extends EventListener {
   }
 
   async execute(ban: GuildBan) {
-    // Clear all reports and mute requests for the banned user as they can no longer be resolved
+    /**
+     * Automatically resolve all reports and mute requests for the banned user as they can no longer be acted upon.
+     *
+     * ❗ TODO: This is a very basic implementation and should be improved upon. Additionally, a config option should be added
+     *     in the server config to enable/disable this feature.
+     */
+
     return Promise.all([
-      GuildBanAdd._clearMessageReports(ban.user.id, ban.guild.id),
-      GuildBanAdd._clearUserReports(ban.user.id, ban.guild.id),
-      GuildBanAdd._clearMuteRequests(ban.user.id, ban.guild.id)
+      GuildBanAdd._updateMessageReports(ban.user.id, ban.guild.id),
+      GuildBanAdd._updateUserReports(ban.user.id, ban.guild.id),
+      GuildBanAdd._updateMuteRequests(ban.user.id, ban.guild.id)
     ]);
   }
 
-  private static async _clearMessageReports(author_id: string, guild_id: string) {
-    prisma.messageReport.updateMany({
+  private static async _updateMessageReports(author_id: string, guild_id: string) {
+    return prisma.messageReport.updateMany({
       where: {
         author_id,
         guild_id
@@ -31,8 +37,8 @@ export default class GuildBanAdd extends EventListener {
     });
   }
 
-  private static async _clearUserReports(target_id: string, guild_id: string) {
-    prisma.userReport.updateMany({
+  private static async _updateUserReports(target_id: string, guild_id: string) {
+    return prisma.userReport.updateMany({
       where: {
         target_id,
         guild_id
@@ -45,8 +51,8 @@ export default class GuildBanAdd extends EventListener {
     });
   }
 
-  private static async _clearMuteRequests(target_id: string, guild_id: string) {
-    prisma.muteRequest.updateMany({
+  private static async _updateMuteRequests(target_id: string, guild_id: string) {
+    return prisma.muteRequest.updateMany({
       where: {
         target_id,
         guild_id
