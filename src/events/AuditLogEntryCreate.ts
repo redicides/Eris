@@ -4,7 +4,7 @@ import { InfractionFlag, InfractionAction } from '@prisma/client';
 import { elipsify } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 

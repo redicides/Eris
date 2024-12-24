@@ -34,15 +34,15 @@ import fs from 'fs';
 import ms from 'ms';
 import _ from 'lodash';
 
-import { client } from '..';
+import { client } from '../..';
 import { UserPermission } from './Enums';
 import { EmptyMessageContent, LogDateFormat } from './Constants';
 import { EphemeralScope, GuildConfig, InteractionReplyData, MessageLog, ObjectDiff, PermissionNode } from './Types';
-import { ComponentInteraction } from '@managers/components/Component';
-import { CommandCategory } from '@managers/commands/Command';
+import { ComponentInteraction } from '@terabyte/Component';
+import { CommandCategory } from '@terabyte/Command';
 
 import ConfigManager from '@managers/config/ConfigManager';
-import CommandManager from '@managers/commands/CommandManager';
+import CommandManager from '@managers/terabyte/CommandManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 /**

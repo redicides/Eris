@@ -6,7 +6,7 @@ import fs from 'fs';
 import { pluralize } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import Component, { CustomID } from './Component';
+import Component, { CustomID } from '@terabyte/Component';
 
 export default class ComponentManager {
   /**
@@ -32,7 +32,7 @@ export default class ComponentManager {
 
     try {
       for (const file of files) {
-        const componentModule = require(`../../components/${file.slice(0, -3)}`);
+        const componentModule = require(`../../../components/${file.slice(0, -3)}`);
         const componentClass = componentModule.default;
         const component = new componentClass();
 

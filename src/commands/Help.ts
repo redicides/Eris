@@ -10,8 +10,8 @@ import { elipsify, generateHelpMenuFields } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
-import CommandManager from '@managers/commands/CommandManager';
+import Command, { CommandCategory } from '@terabyte/Command';
+import CommandManager from '@managers/terabyte/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ms from 'ms';
 
@@ -44,14 +44,8 @@ export default class Help extends Command {
     const cmd = interaction.options.getString('command', false);
 
     if (cmd) {
-      const command = CommandManager.commands.get(cmd) ?? CommandManager.commands.get(cmd.toLowerCase());
-      const shortcut =
-        (await this.prisma.shortcut.findUnique({
-          where: { name: cmd, guild_id: interaction.guildId }
-        })) ??
-        (await this.prisma.shortcut.findUnique({
-          where: { name: cmd.toLowerCase(), guild_id: interaction.guildId }
-        }));
+      const command = CommandManager.getCommandByName(cmd);
+      const shortcut = await CommandManager.getShortcutByName(cmd, interaction.guildId);
 
       if (!command) {
         if (shortcut) {

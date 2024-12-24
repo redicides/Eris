@@ -16,7 +16,7 @@ import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { capitalize, elipsify, hasPermission, isEphemeralReply } from '@utils/index';
 import { DefaultInfractionReason, InfractionColors } from '@managers/database/InfractionManager';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class Lock extends Command {

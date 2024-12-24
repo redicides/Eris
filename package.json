@@ -40,12 +40,12 @@
     "@sentry/cli": "^2.39.1",
     "@sentry/node": "^8.41.0",
     "@sentry/profiling-node": "^8.42.0",
-    "@types/bun": "^1.1.14",
     "@types/lodash": "^4.17.13",
     "@types/ms": "^0.7.34",
     "dotenv": "^16.4.5",
     "lodash": "^4.17.21",
     "prisma": "^5.22.0",
+    "prisma-json-types-generator": "^3.2.2",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.7.2"
   },

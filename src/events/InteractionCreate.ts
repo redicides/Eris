@@ -15,14 +15,14 @@ import { UserPermission } from '@utils/Enums';
 import { EphemeralScope, GuildConfig, InteractionReplyData, PermissionNode, Result } from '@utils/Types';
 import { CommonDurations, DurationUnits, LockdownOverrides } from '@utils/Constants';
 
-import CommandManager from '@managers/commands/CommandManager';
-import EventListener from '@managers/events/EventListener';
+import CommandManager from '@managers/terabyte/CommandManager';
+import EventListener from '@terabyte/EventListener';
 import ConfigManager from '@managers/config/ConfigManager';
 import Logger from '@utils/Logger';
 import DatabaseManager from '@managers/database/DatabaseManager';
-import ComponentManager from '@managers/components/ComponentManager';
-import Command from '@managers/commands/Command';
-import Component from '@managers/components/Component';
+import ComponentManager from '@managers/terabyte/ComponentManager';
+import Command from '@terabyte/Command';
+import Component from '@terabyte/Component';
 
 const { emojis } = ConfigManager.global_config;
 const { developers } = ConfigManager.global_config.bot;
@@ -53,14 +53,12 @@ export default class InteractionCreate extends EventListener {
 
     if (!data) {
       if (interaction.isChatInputCommand()) {
-        const shortcut = await prisma.shortcut.findUnique({
-          where: { name: interaction.commandName, guild_id: interaction.guildId }
-        });
+        const shortcut = await CommandManager.getShortcutByName(interaction.commandName, interaction.guildId);
 
         if (!shortcut) {
           return InteractionCreate._handleUnknownInteraction(interaction);
         } else {
-          return InteractionCreate.handleCustomCommandInteraction(interaction, guild, shortcut);
+          return InteractionCreate.handleCustomCommand(interaction, guild, shortcut);
         }
       }
 
@@ -80,7 +78,7 @@ export default class InteractionCreate extends EventListener {
     }
 
     try {
-      await InteractionCreate.handleInteraction(interaction, data, guild);
+      await InteractionCreate.executeInteraction(interaction, data, guild);
     } catch (error) {
       const sentryId = Sentry.captureException(error, {
         user: {
@@ -112,15 +110,15 @@ export default class InteractionCreate extends EventListener {
   }
 
   /**
-   * Handle command and component interactions
+   * Execute command and component interactions
    *
-   * @param interaction The interaction to handle
+   * @param interaction The interaction
    * @param data The command or component to execute
    * @param config The guild configuration
    * @returns void
    */
 
-  private static async handleInteraction(
+  private static async executeInteraction(
     interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>,
     data: Command | Component,
     config: GuildConfig
@@ -179,15 +177,15 @@ export default class InteractionCreate extends EventListener {
   }
 
   /**
-   * Handle custom moderation command interactions
+   * Execute custom moderation command interactions
    *
-   * @param interaction The interaction to handle
+   * @param interaction The interaction
    * @param config The guild configuration
    * @param command The moderation command to execute
    * @returns void
    */
 
-  private static async handleCustomCommandInteraction(
+  private static async executeCustomCommand(
     interaction: ChatInputCommandInteraction<'cached'>,
     config: GuildConfig,
     command: Shortcut
@@ -230,6 +228,46 @@ export default class InteractionCreate extends EventListener {
     setTimeout(async () => {
       await interaction.deleteReply().catch(() => null);
     }, ttl);
+  }
+
+  /**
+   * Handle custom moderation command interactions (shortcuts)
+   * We utilize another method to keep things cleaner and track errors better
+   *
+   * @param interaction The command interaction
+   * @param config The guild configuration
+   * @param command The shortcut
+   * @returns void
+   */
+
+  private static async handleCustomCommand(
+    interaction: ChatInputCommandInteraction<'cached'>,
+    config: GuildConfig,
+    command: Shortcut
+  ): Promise<unknown> {
+    try {
+      await InteractionCreate.executeCustomCommand(interaction, config, command);
+    } catch (error) {
+      const sentryId = Sentry.captureException(error, {
+        user: {
+          id: interaction.user.id,
+          name: interaction.user.displayName,
+          username: interaction.user.username
+        },
+        extra: {
+          guild: interaction.guild.id,
+          channel: interaction.channel?.id,
+          commandOrComponent: interaction.commandName
+        }
+      });
+
+      Logger.error(`Error executing custom moderation command "${interaction.commandName}" (${sentryId})`, error);
+
+      return handleInteractionErrorReply(
+        interaction,
+        `An error occured while executing this custom moderation command, please include this ID when reporting the bug: \`${sentryId}\`.`
+      );
+    }
   }
 
   /**

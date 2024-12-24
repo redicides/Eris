@@ -11,7 +11,7 @@ import { ReportStatus } from '@prisma/client';
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 
 export default class ReportUserCtx extends Command {
   constructor() {

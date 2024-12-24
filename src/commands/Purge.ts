@@ -9,7 +9,7 @@ import {
 
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 
 export default class Purge extends Command {
   constructor() {

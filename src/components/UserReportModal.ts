@@ -6,7 +6,7 @@ import { hasPermission } from '@utils/index';
 import { ReportUtils } from '@utils/Reports';
 import { MessageKeys } from '@utils/Keys';
 
-import Component from '@managers/components/Component';
+import Component from '@terabyte/Component';
 
 export default class UserReportModalComponent extends Component {
   constructor() {

@@ -14,7 +14,7 @@ import ms from 'ms';
 import { uploadData } from '@utils/index';
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 
 // @ts-ignore
 let _;

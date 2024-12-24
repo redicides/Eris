@@ -38,13 +38,14 @@
   
       // Library and Types
       "lib": ["ESNext"],
-      "types": ["bun-types"],
   
       // Path Mapping
       "paths": {
         "@/*": ["./src/*"],
-        "@utils/*": ["./src/utils/*"],
-        "@managers/*": ["./src/managers/*"],
+        "@core/*": ["./src/core/*"],
+        "@terabyte/*": ["./src/core/terabyte/*"],
+        "@utils/*": ["./src/core/utils/*"],
+        "@managers/*": ["./src/core/managers/*"],
       }
     },
     "include": ["src"],

@@ -1,7 +1,7 @@
 import { Events, Message } from 'discord.js';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 
 export default class MessageCreate extends EventListener {
   constructor() {

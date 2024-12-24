@@ -23,7 +23,7 @@ import { GuildConfig } from '@utils/Types';
 import { EmptyMessageContent } from '@utils/Constants';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 
 export default class MessageUpdate extends EventListener {
   constructor() {

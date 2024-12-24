@@ -25,7 +25,7 @@ import {
 } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 import DatabaseManager from '@managers/database/DatabaseManager';
 import { client } from '..';
 

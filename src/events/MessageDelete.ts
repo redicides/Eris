@@ -12,7 +12,7 @@ import { ReportUtils } from '@utils/Reports';
 import { extractChannelIds, getMessageLogEmbed, getReferenceMessage } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 
 export default class MessageDelete extends EventListener {
   constructor() {

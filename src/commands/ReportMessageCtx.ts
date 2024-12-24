@@ -10,7 +10,7 @@ import { ReportStatus } from '@prisma/client';
 
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 
 export default class ReportMessageCtx extends Command {
   constructor() {

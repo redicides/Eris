@@ -24,8 +24,8 @@ import { UserPermission } from '@utils/Enums';
 import { EphemeralScope, GuildConfig, InteractionReplyData, PermissionNode } from '@utils/Types';
 import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
-import CommandManager from '@managers/commands/CommandManager';
+import Command, { CommandCategory } from '@terabyte/Command';
+import CommandManager from '@managers/terabyte/CommandManager';
 
 export default class Settings extends Command {
   constructor() {
@@ -676,6 +676,13 @@ export default class Settings extends Command {
       const role = interaction.options.getRole('role', true);
       const permission = interaction.options.getString('permission', true) as UserPermission;
 
+      if (role.id === interaction.guildId) {
+        return {
+          error: 'You cannot create a permission node with the @everyone role.',
+          temporary: true
+        };
+      }
+
       if ((config.permission_nodes as PermissionNode[]).find(permission => permission.name === name)) {
         return {
           error: `A permission node with that name already exists.`,
@@ -742,6 +749,13 @@ export default class Settings extends Command {
       if (!permission) {
         return {
           error: `A permission node with that name does not exist.`,
+          temporary: true
+        };
+      }
+
+      if (role.id === interaction.guildId) {
+        return {
+          error: 'You cannot add the @everyone role to a permission node.',
           temporary: true
         };
       }
@@ -962,28 +976,20 @@ export default class Settings extends Command {
 
       let toggle = false;
 
-      const command =
-        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
-
-      const shortcut =
-        (await prisma.shortcut.findUnique({
-          where: { name: commandName, guild_id: interaction.guildId }
-        })) ??
-        (await prisma.shortcut.findUnique({
-          where: { name: commandName.toLowerCase(), guild_id: interaction.guildId }
-        }));
+      const command = CommandManager.getCommandByName(commandName);
+      const shortcut = await CommandManager.getShortcutByName(commandName, interaction.guildId);
 
       if (!command) {
         if (shortcut) {
           if (!shortcut.enabled) toggle = true;
 
           await prisma.shortcut.update({
-            where: { name: commandName, guild_id: interaction.guildId },
+            where: { name: shortcut.name, guild_id: interaction.guildId },
             data: { enabled: toggle }
           });
 
           return {
-            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${commandName}\`.`
+            content: `Successfully ${toggle ? 're-enabled' : 'disabled'} command \`${shortcut.name}\`.`
           };
         }
 
@@ -1084,16 +1090,8 @@ export default class Settings extends Command {
         | CategoryChannel
         | null;
 
-      const command =
-        CommandManager.commands.get(commandName) ?? CommandManager.commands.get(commandName.toLowerCase());
-
-      const shortcut =
-        (await prisma.shortcut.findUnique({
-          where: { name: commandName, guild_id: interaction.guildId }
-        })) ??
-        (await prisma.shortcut.findUnique({
-          where: { name: commandName.toLowerCase(), guild_id: interaction.guildId }
-        }));
+      const command = CommandManager.getCommandByName(commandName);
+      const shortcut = await CommandManager.getShortcutByName(commandName, interaction.guildId);
 
       if (!command && !shortcut) {
         return {

@@ -8,9 +8,9 @@ import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ShortcutPermissionFlags } from '@utils/Constants';
 import { MessageKeys } from '@utils/Keys';
 import { pluralize } from '@utils/index';
-import { client } from '@/index';
+import { client, prisma } from '@/index';
 
-import Command from './Command';
+import Command from '@terabyte/Command';
 import InfractionManager from '../database/InfractionManager';
 import TaskManager from '../database/TaskManager';
 import Logger, { AnsiColor } from '@utils/Logger';
@@ -39,7 +39,7 @@ export default class CommandManager {
 
     try {
       for (const file of files) {
-        const commandModule = require(`../../commands/${file.slice(0, -3)}`);
+        const commandModule = require(`../../../commands/${file.slice(0, -3)}`);
         const commandClass = commandModule.default;
         const command = new commandClass();
 
@@ -105,6 +105,34 @@ export default class CommandManager {
     }
 
     return null;
+  }
+
+  /**
+   * Retrieves a command by its name. Checks both lowercased and capitalized names.
+   *
+   * @param commandName The name of the command to search for
+   */
+
+  static getCommandByName(commandName: string): Command | null {
+    return (
+      CommandManager.commands.find(
+        command => command.data.name === commandName || command.data.name.toLowerCase() === commandName
+      ) ?? null
+    );
+  }
+
+  /**
+   * Retrieves a shortcut by its name.
+   *
+   * @param shortcutName The name of the shortcut to search for
+   * @param guild_id The guild ID to search in
+   * @returns The shortcut, if found
+   */
+
+  static async getShortcutByName(shortcutName: string, guild_id: Snowflake): Promise<Shortcut | null> {
+    return prisma.shortcut.findUnique({
+      where: { name: shortcutName.toLowerCase(), guild_id }
+    });
   }
 
   /**

@@ -8,7 +8,7 @@ import { UserPermission } from '@utils/Enums';
 import { userMentionWithId } from '@utils/index';
 import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
-import Component from '@managers/components/Component';
+import Component from '@terabyte/Component';
 
 export default class UserReportButtonsComponent extends Component {
   constructor() {

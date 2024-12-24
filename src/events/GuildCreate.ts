@@ -1,6 +1,6 @@
 import { Events, Guild } from 'discord.js';
 
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class GuildCreate extends EventListener {

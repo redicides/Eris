@@ -12,7 +12,7 @@ import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MaxDurationStr } from '@utils/Constants';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 export default class Warn extends Command {

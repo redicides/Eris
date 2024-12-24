@@ -19,7 +19,7 @@ import { client, prisma } from '..';
 import { capitalize, isEphemeralReply, parseDuration, uploadData } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 
 export default class Config extends Command {
   constructor() {
@@ -793,6 +793,13 @@ export default class Config extends Command {
       const role = interaction.options.getRole('role', true);
       const type = interaction.options.getString('report-type', true) as keyof typeof config;
 
+      if (role.id === interaction.guildId) {
+        return {
+          error: 'You cannot add the @everyone role to the immune roles list.',
+          temporary: true
+        };
+      }
+
       if (config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is already in the immune roles list for ${
@@ -862,6 +869,13 @@ export default class Config extends Command {
 
       const role = interaction.options.getRole('role', true);
       const type = interaction.options.getString('report-type', true) as keyof typeof config;
+
+      if (role.id === interaction.guildId) {
+        return {
+          error: 'You cannot add the @everyone role to the ping roles list.',
+          temporary: true
+        };
+      }
 
       if (config[type].includes(role.id)) {
         return {
@@ -1125,6 +1139,13 @@ export default class Config extends Command {
       const role = interaction.options.getRole('role', true);
       const type = interaction.options.getString('request-type', true) as keyof typeof config;
 
+      if (role.id === interaction.guildId) {
+        return {
+          error: 'You cannot add the @everyone role to the immune roles list.',
+          temporary: true
+        };
+      }
+
       if (config[type].includes(role.id)) {
         return {
           error: `The role ${role.toString()} is already in the immune roles list for ${
@@ -1194,6 +1215,13 @@ export default class Config extends Command {
 
       const role = interaction.options.getRole('role', true);
       const type = interaction.options.getString('request-type', true) as keyof typeof config;
+
+      if (role.id === interaction.guildId) {
+        return {
+          error: 'You cannot add the @everyone role to the ping roles list.',
+          temporary: true
+        };
+      }
 
       if (config[type].includes(role.id)) {
         return {
@@ -1448,7 +1476,11 @@ export default class Config extends Command {
     async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { message_logging_ignored_channels: true, thread_logging_ignored_channels: true, voice_logging_ignored_channels: true }
+        select: {
+          message_logging_ignored_channels: true,
+          thread_logging_ignored_channels: true,
+          voice_logging_ignored_channels: true
+        }
       }))!;
 
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
@@ -1478,7 +1510,11 @@ export default class Config extends Command {
     async removeIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { message_logging_ignored_channels: true, thread_logging_ignored_channels: true, voice_logging_ignored_channels: true }
+        select: {
+          message_logging_ignored_channels: true,
+          thread_logging_ignored_channels: true,
+          voice_logging_ignored_channels: true
+        }
       }))!;
 
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
@@ -1508,7 +1544,11 @@ export default class Config extends Command {
     async listIgnoredChannels(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { message_logging_ignored_channels: true, thread_logging_ignored_channels: true, voice_logging_ignored_channels: true }
+        select: {
+          message_logging_ignored_channels: true,
+          thread_logging_ignored_channels: true,
+          voice_logging_ignored_channels: true
+        }
       }))!;
 
       const type = interaction.options.getString('log-type', true) as keyof typeof config;

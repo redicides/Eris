@@ -7,7 +7,7 @@ import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 
-import Component from '@managers/components/Component';
+import Component from '@terabyte/Component';
 
 export default class BanRequestButtonComponent extends Component {
   constructor() {

@@ -6,7 +6,7 @@ import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { client } from '..';
 
-import Component from '@managers/components/Component';
+import Component from '@terabyte/Component';
 import InfractionManager from '@managers/database/InfractionManager';
 
 export default class InfractionSearchPaginationComponent extends Component {

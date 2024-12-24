@@ -4,7 +4,7 @@ import { channelMentionWithId, getObjectDiff, userMentionWithId, capitalize } fr
 import { GuildConfig } from '@utils/Types';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 import ThreadCreate from './ThreadCreate';
 
 export default class ThreadUpdate extends EventListener {

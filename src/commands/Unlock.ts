@@ -17,7 +17,7 @@ import { elipsify, hasPermission, isEphemeralReply } from '@utils/index';
 import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 
 export default class Unlock extends Command {
   constructor() {

@@ -23,7 +23,7 @@ import ms from 'ms';
 
 import { GuildConfig, InteractionReplyData } from './Types';
 import { capitalize, sendNotification, userMentionWithId } from '.';
-import { client, prisma } from '..';
+import { client, prisma } from '../..';
 
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';

@@ -3,6 +3,10 @@ generator client {
   // previewFeatures = ["tracing"]
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

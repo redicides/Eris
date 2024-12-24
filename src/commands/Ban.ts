@@ -12,7 +12,7 @@ import { MaxDurationStr } from '@utils/Constants';
 import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MessageKeys, DurationKeys } from '@utils/Keys';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 

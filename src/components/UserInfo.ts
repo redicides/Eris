@@ -3,7 +3,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Colors
 import { InteractionReplyData } from '@utils/Types';
 
 import UserInfo from '@/commands/UserInfo';
-import Component from '@managers/components/Component';
+import Component from '@terabyte/Component';
 
 export default class UserInfoComponent extends Component {
   constructor() {

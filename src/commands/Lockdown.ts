@@ -17,7 +17,7 @@ import { client, prisma } from '@/index';
 import { MessageKeys } from '@utils/Keys';
 import { UserPermission } from '@utils/Enums';
 
-import Command, { CommandCategory } from '@managers/commands/Command';
+import Command, { CommandCategory } from '@terabyte/Command';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class Lockdown extends Command {

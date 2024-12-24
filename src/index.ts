@@ -12,10 +12,10 @@ import { checkEnvironmentVariables, constructDatabaseUrl, sleep } from '@utils/i
 import Logger, { AnsiColor } from '@utils/Logger';
 import { ClientCacheOptions, ClientIntents, ClientPartials, ClientSweeperOptions, ExitEvents } from '@utils/Constants';
 
-import EventListenerManager from '@managers/events/EventListenerManager';
-import CommandManager from '@managers/commands/CommandManager';
+import EventListenerManager from '@managers/terabyte/EventListenerManager';
+import CommandManager from '@managers/terabyte/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
-import ComponentManager from '@managers/components/ComponentManager';
+import ComponentManager from '@managers/terabyte/ComponentManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 /**

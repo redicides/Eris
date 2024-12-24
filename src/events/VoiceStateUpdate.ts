@@ -3,7 +3,7 @@ import { APIMessage, Colors, EmbedBuilder, Events, VoiceBasedChannel, VoiceState
 import { GuildConfig } from '@utils/Types';
 import { channelMentionWithId, userMentionWithId } from '@utils/index';
 
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class VoiceStateUpdate extends EventListener {

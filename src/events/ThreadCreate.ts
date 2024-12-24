@@ -4,7 +4,7 @@ import { channelMentionWithId, userMentionWithId } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@managers/events/EventListener';
+import EventListener from '@terabyte/EventListener';
 
 export default class ThreadCreate extends EventListener {
   constructor() {

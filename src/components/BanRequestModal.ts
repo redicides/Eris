@@ -6,7 +6,7 @@ import { RequestUtils } from '@utils/Requests';
 import { GuildConfig } from '@utils/Types';
 import { UserPermission } from '@utils/Enums';
 
-import Component from '@managers/components/Component';
+import Component from '@terabyte/Component';
 
 export default class BanRequestModalComponent extends Component {
   constructor() {

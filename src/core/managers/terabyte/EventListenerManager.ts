@@ -6,7 +6,7 @@ import fs from 'fs';
 import { pluralize } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import EventListener from './EventListener';
+import EventListener from '@terabyte/EventListener';
 
 export default class EventListenerManager {
   /**
@@ -27,7 +27,7 @@ export default class EventListenerManager {
 
     try {
       for (const file of files) {
-        const listenerModule = require(`../../events/${file.slice(0, -3)}`);
+        const listenerModule = require(`../../../events/${file.slice(0, -3)}`);
         const listenerClass = listenerModule.default;
         const listener = new listenerClass();
 
