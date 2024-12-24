@@ -1448,7 +1448,7 @@ export default class Config extends Command {
     async addIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { message_logging_ignored_channels: true }
+        select: { message_logging_ignored_channels: true, thread_logging_ignored_channels: true, voice_logging_ignored_channels: true }
       }))!;
 
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
@@ -1478,7 +1478,7 @@ export default class Config extends Command {
     async removeIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { message_logging_ignored_channels: true }
+        select: { message_logging_ignored_channels: true, thread_logging_ignored_channels: true, voice_logging_ignored_channels: true }
       }))!;
 
       const channel = interaction.options.getChannel('channel', true) as GuildTextBasedChannel | CategoryChannel;
@@ -1508,7 +1508,7 @@ export default class Config extends Command {
     async listIgnoredChannels(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
       const config = (await prisma.guild.findUnique({
         where: { id: interaction.guildId },
-        select: { message_logging_ignored_channels: true }
+        select: { message_logging_ignored_channels: true, thread_logging_ignored_channels: true, voice_logging_ignored_channels: true }
       }))!;
 
       const type = interaction.options.getString('log-type', true) as keyof typeof config;
