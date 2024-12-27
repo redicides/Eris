@@ -66,7 +66,7 @@ export default class DebugCommand extends Command {
 
       case DebugSubcommand.DumpGuildInfractions: {
         const id = interaction.options.getString('id', true);
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: false });
 
         return DebugCommand.dumpGuildInfractions(id);
       }
@@ -102,8 +102,7 @@ export default class DebugCommand extends Command {
 
     if (!infractions.length) {
       return {
-        error: `No infractions found for guild \`${id}\`.`,
-        ephemeral: false
+        error: `No infractions found for guild \`${id}\`.`
       };
     }
 
@@ -118,8 +117,7 @@ export default class DebugCommand extends Command {
 
     return {
       content: `Dumped ${infractions.length} ${pluralize(infractions.length, 'infraction')} for guild \`${id}\`.`,
-      files: [attachment],
-      ephemeral: false
+      files: [attachment]
     };
   }
 }
