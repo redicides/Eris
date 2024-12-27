@@ -983,31 +983,13 @@ export default class InfractionManager {
   }
 
   /**
-   * Format an expiration date.
-   *
-   * @param expiration The expiration date
-   * @returns The formatted expiration date
-   */
-
-  private static _formatExpiration(expiration: Date | null, style: ExpirationFormatStyle): string {
-    switch (style) {
-      case ExpirationFormatStyle.Absolute:
-        return expiration === null ? 'Never' : time(expiration);
-      case ExpirationFormatStyle.Relative:
-        return expiration === null ? 'Never' : time(expiration, 'R');
-      case ExpirationFormatStyle.RelativeAndAbsolute:
-        return expiration === null ? 'Never' : `${time(expiration)} (${time(expiration, 'R')})`;
-    }
-  }
-
-  /**
    * Parse infraction data for logging.
    *
    * @param infraction The infraction to parse
    * @returns The parsed infraction data, formatted for logging
    */
 
-  private static _parseInfractionData(infraction: Infraction): string {
+  public static _parseInfractionData(infraction: Infraction): string {
     const isoDate = new Date(Number(infraction.created_at)).toLocaleString(undefined, LogDateFormat);
     const isoExpiration = infraction.expires_at
       ? new Date(Number(infraction.expires_at)).toLocaleString(undefined, LogDateFormat)
@@ -1024,6 +1006,24 @@ export default class InfractionManager {
     }
 
     return infractionData;
+  }
+
+  /**
+   * Format an expiration date.
+   *
+   * @param expiration The expiration date
+   * @returns The formatted expiration date
+   */
+
+  private static _formatExpiration(expiration: Date | null, style: ExpirationFormatStyle): string {
+    switch (style) {
+      case ExpirationFormatStyle.Absolute:
+        return expiration === null ? 'Never' : time(expiration);
+      case ExpirationFormatStyle.Relative:
+        return expiration === null ? 'Never' : time(expiration, 'R');
+      case ExpirationFormatStyle.RelativeAndAbsolute:
+        return expiration === null ? 'Never' : `${time(expiration)} (${time(expiration, 'R')})`;
+    }
   }
 
   /**

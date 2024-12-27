@@ -1,7 +1,17 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js';
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  AttachmentBuilder,
+  ChatInputCommandInteraction,
+  Snowflake
+} from 'discord.js';
+
 import { InteractionReplyData } from '@utils/Types';
+import { pluralize } from '@utils/index';
+import { prisma } from '..';
 
 import Command, { CommandCategory } from '@terabyte/Command';
+import InfractionManager from '@managers/database/InfractionManager';
 
 export default class DebugCommand extends Command {
   constructor() {
@@ -14,7 +24,7 @@ export default class DebugCommand extends Command {
         type: ApplicationCommandType.ChatInput,
         options: [
           {
-            name: 'toggle-maintenance',
+            name: DebugSubcommand.ToggleMaintenance,
             description: 'Toggle maintenance mode.',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
@@ -25,6 +35,19 @@ export default class DebugCommand extends Command {
                 required: true
               }
             ]
+          },
+          {
+            name: DebugSubcommand.DumpGuildInfractions,
+            description: 'Dump guild infractions to a file.',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'id',
+                description: "The guild's ID.",
+                type: ApplicationCommandOptionType.String,
+                required: true
+              }
+            ]
           }
         ]
       }
@@ -32,8 +55,31 @@ export default class DebugCommand extends Command {
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    const value = interaction.options.getBoolean('value', true);
+    const subcommand = interaction.options.getSubcommand() as DebugSubcommand;
 
+    switch (subcommand) {
+      case DebugSubcommand.ToggleMaintenance: {
+        const value = interaction.options.getBoolean('value', true);
+
+        return DebugCommand.toggleMaintenance(value);
+      }
+
+      case DebugSubcommand.DumpGuildInfractions: {
+        const id = interaction.options.getString('id', true);
+        await interaction.deferReply({ ephemeral: true });
+
+        return DebugCommand.dumpGuildInfractions(id);
+      }
+
+      default:
+        return {
+          error: 'Unknown subcommand.',
+          ephemeral: true
+        };
+    }
+  }
+
+  private static toggleMaintenance(value: boolean): InteractionReplyData {
     if (terabyte.maintenance === value) {
       return {
         error: `Maintenance mode is already ${value ? 'enabled' : 'disabled'}.`,
@@ -50,4 +96,34 @@ export default class DebugCommand extends Command {
       ephemeral: true
     };
   }
+
+  private static async dumpGuildInfractions(id: Snowflake) {
+    const infractions = await prisma.infraction.findMany({ where: { guild_id: id } });
+
+    if (!infractions.length) {
+      return {
+        error: `No infractions found for guild \`${id}\`.`,
+        ephemeral: true
+      };
+    }
+
+    const data = infractions
+      .map(infraction => {
+        return InfractionManager._parseInfractionData(infraction);
+      })
+      .join('\n\n');
+
+    const buffer = Buffer.from(data, 'utf-8');
+    const attachment = new AttachmentBuilder(buffer, { name: `infractions-${id}.txt` });
+
+    return {
+      content: `Dumped ${infractions.length} ${pluralize(infractions.length, 'infraction')} for guild \`${id}\`.`,
+      files: [attachment]
+    };
+  }
+}
+
+enum DebugSubcommand {
+  ToggleMaintenance = 'toggle-maintenance',
+  DumpGuildInfractions = 'dump-guild-infractions'
 }
