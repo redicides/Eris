@@ -83,7 +83,7 @@ export default class DebugCommand extends Command {
     if (terabyte.maintenance === value) {
       return {
         error: `Maintenance mode is already ${value ? 'enabled' : 'disabled'}.`,
-        ephemeral: true
+        ephemeral: false
       };
     }
 
@@ -93,7 +93,7 @@ export default class DebugCommand extends Command {
       content: `Maintenance mode has been ${
         value ? 'enabled. Commands and logging have been paused. Cron jobs are not affected' : 'disabled'
       }.`,
-      ephemeral: true
+      ephemeral: false
     };
   }
 
@@ -103,7 +103,7 @@ export default class DebugCommand extends Command {
     if (!infractions.length) {
       return {
         error: `No infractions found for guild \`${id}\`.`,
-        ephemeral: true
+        ephemeral: false
       };
     }
 
@@ -118,7 +118,8 @@ export default class DebugCommand extends Command {
 
     return {
       content: `Dumped ${infractions.length} ${pluralize(infractions.length, 'infraction')} for guild \`${id}\`.`,
-      files: [attachment]
+      files: [attachment],
+      ephemeral: false
     };
   }
 }
