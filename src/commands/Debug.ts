@@ -83,6 +83,7 @@ export default class DebugCommand extends Command {
     if (terabyte.maintenance === value) {
       return {
         error: `Maintenance mode is already ${value ? 'enabled' : 'disabled'}.`,
+        temporary: true,
         ephemeral: false
       };
     }
@@ -97,12 +98,13 @@ export default class DebugCommand extends Command {
     };
   }
 
-  private static async dumpGuildInfractions(id: Snowflake) {
+  private static async dumpGuildInfractions(id: Snowflake): Promise<InteractionReplyData> {
     const infractions = await prisma.infraction.findMany({ where: { guild_id: id } });
 
     if (!infractions.length) {
       return {
-        error: `No infractions found for guild \`${id}\`.`
+        error: `No infractions found for guild \`${id}\`.`,
+        temporary: true
       };
     }
 
