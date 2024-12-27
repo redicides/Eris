@@ -3,23 +3,23 @@ import { InteractionReplyData } from '@utils/Types';
 
 import Command, { CommandCategory } from '@terabyte/Command';
 
-export default class TerabyeCommand extends Command {
+export default class DebugCommand extends Command {
   constructor() {
     super({
       category: CommandCategory.Developer,
       guarded: true,
       data: {
-        name: 'terabyte',
-        description: 'Manage Terabyte.',
+        name: 'debug',
+        description: 'Manage the bot.',
         type: ApplicationCommandType.ChatInput,
         options: [
           {
-            name: 'maintenance',
+            name: 'toggle-maintenance',
             description: 'Toggle maintenance mode.',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
-                name: 'toggle',
+                name: 'value',
                 description: 'The value to set.',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true
@@ -32,7 +32,7 @@ export default class TerabyeCommand extends Command {
   }
 
   async execute(interaction: ChatInputCommandInteraction<'cached'>): Promise<InteractionReplyData> {
-    const value = interaction.options.getBoolean('toggle', true);
+    const value = interaction.options.getBoolean('value', true);
 
     if (terabyte.maintenance === value) {
       return {
