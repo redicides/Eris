@@ -1,7 +1,7 @@
 import { Events, GuildBan } from 'discord.js';
 import { client, prisma } from '..';
 
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 
 export default class GuildBanAdd extends EventListener {
   constructor() {

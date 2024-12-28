@@ -3,7 +3,7 @@ import { ModalSubmitInteraction } from 'discord.js';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { ReportUtils } from '@utils/Reports';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 
 export default class ReportUserComponent extends Component {
   constructor() {

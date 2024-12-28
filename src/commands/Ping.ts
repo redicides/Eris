@@ -3,7 +3,7 @@ import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { isEphemeralReply } from '@utils/index';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class Ping extends Command {
   constructor() {

@@ -1,6 +1,6 @@
-# Terabyte
+# Eris
 
-Terabyte is a Discord bot designed to provide powerful moderation tools with a focus on simplicity and reliability.
+Eris is a Discord bot designed to provide powerful moderation tools with a focus on simplicity and reliability.
 
 ## Self-Hosting
 
@@ -15,7 +15,7 @@ Whether it’s fixing a bug, suggesting improvements, or adding new features, yo
 - Fix bugs or address reported issues.
 - Enhance existing features or improve code quality.
 - Add new features that align with the bot's goals (smaller, focused additions are best).
-- Improve documentation to help others understand and use terabyte more effectively.
+- Improve documentation to help others understand and use eris more effectively.
 
 ### Things to Avoid:
 
@@ -28,12 +28,11 @@ Whether it’s fixing a bug, suggesting improvements, or adding new features, yo
 1. **Write Quality Code:** Keep it clean, readable, and in line with the project’s conventions. Clear comments are always appreciated!
 2. **Use Prettier:** Format your code with the provided settings in the `.prettierrc.yml` file.
 3. **Test Thoroughly:** Make sure your changes work well and don’t break existing functionality.
-4. **Stay On Track:** Keep your contributions aligned with terabyte’s purpose and goals to maintain focus.
+4. **Stay On Track:** Keep your contributions aligned with eris's purpose and goals to maintain focus.
 
 Thanks!
 
 ## Licensing
 
-Terabyte is licensed under the `Creative Commons NonCommercial-ShareAlike 4.0 International`. 
-
+Eris is licensed under the `Creative Commons NonCommercial-ShareAlike 4.0 International`.
 For more information, check out the LICENSE file in the project. It’s all there if you want to dive into the details.

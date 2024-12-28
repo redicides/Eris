@@ -19,7 +19,7 @@ import { client, prisma } from '..';
 import { capitalize, isEphemeralReply, parseDuration, uploadData } from '@utils/index';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class Config extends Command {
   constructor() {

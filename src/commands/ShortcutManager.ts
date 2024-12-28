@@ -19,8 +19,8 @@ import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
 import { MaxDurationStr, ShortcutPermissionFlags } from '@utils/Constants';
 
-import Command, { CommandCategory } from '@terabyte/Command';
-import CommandManager from '@managers/terabyte/CommandManager';
+import Command, { CommandCategory } from '@eris/Command';
+import CommandManager from '@managers/eris/CommandManager';
 
 export default class ShortcutManager extends Command {
   constructor() {

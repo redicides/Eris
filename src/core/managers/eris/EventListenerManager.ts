@@ -6,7 +6,7 @@ import fs from 'fs';
 import { pluralize } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 
 export default class EventListenerManager {
   /**

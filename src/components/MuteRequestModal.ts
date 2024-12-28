@@ -6,7 +6,7 @@ import { hasPermission } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 
 export default class MuteRequestModalComponent extends Component {
   constructor() {

@@ -14,7 +14,7 @@ import {
 
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class UserInfo extends Command {
   constructor() {

@@ -10,10 +10,11 @@ import { MessageKeys } from '@utils/Keys';
 import { pluralize } from '@utils/index';
 import { client, prisma } from '@/index';
 
-import Command from '@terabyte/Command';
+import Command from '@eris/Command';
 import InfractionManager from '../database/InfractionManager';
 import TaskManager from '../database/TaskManager';
 import Logger, { AnsiColor } from '@utils/Logger';
+import ConfigManager from '../config/ConfigManager';
 
 export default class CommandManager {
   /**
@@ -75,36 +76,58 @@ export default class CommandManager {
     const logMessage = (commandCount: number): string =>
       `Published ${commandCount} ${pluralize(commandCount, 'command')}.`;
 
-    const globalCommands = CommandManager.commands.map(command => command.data);
+    const globalCommands = CommandManager.commands
+      .filter(command => !command.isDevGuildOnly)
+      .map(command => command.data);
 
-    if (!globalCommands.length) {
+    const guildCommands = CommandManager.commands
+      .filter(command => command.isDevGuildOnly)
+      .map(command => command.data);
+
+    if (globalCommands.length) {
+      const publishedCommands = await client.application?.commands.set(globalCommands).catch(error => {
+        Logger.error('Failed to publish global commands:', error);
+        return null;
+      });
+
+      if (!publishedCommands) {
+        Logger.warn('No global commands were published. Aborting...');
+        process.exit(1);
+      }
+
+      Logger.log('GLOBAL', logMessage(publishedCommands.size), {
+        color: AnsiColor.Purple
+      });
+    } else {
       Logger.warn('No global commands to publish.');
-      return;
     }
 
-    const publishedCommands = await client.application?.commands.set(globalCommands).catch(error => {
-      Logger.error('Failed to publish global commands:', error);
-      return null;
-    });
+    if (guildCommands.length) {
+      const guildIds = ConfigManager.global_config.bot.developer_guilds;
 
-    if (!publishedCommands) {
-      Logger.warn('No global commands were published. Aborting...');
-      process.exit(1);
+      for (const guildId of guildIds) {
+        const guild = await client.guilds.fetch(guildId).catch(() => null);
+
+        if (!guild) {
+          Logger.warn(`Failed to fetch developer guild ${guildId}. Skipping guild command registration...`);
+          continue;
+        }
+
+        const publishedCommands = await guild.commands.set(guildCommands).catch(error => {
+          Logger.error(`Failed to publish guild commands for ${guild.name}:`, error);
+          return null;
+        });
+
+        if (!publishedCommands) {
+          Logger.warn(`No guild commands were published for ${guild.name}. Skipping...`);
+          continue;
+        }
+
+        Logger.log(`GUILD:${guildId}`, logMessage(publishedCommands.size), {
+          color: AnsiColor.Purple
+        });
+      }
     }
-
-    Logger.log('GLOBAL', logMessage(publishedCommands.size), {
-      color: AnsiColor.Purple
-    });
-  }
-
-  static getCommand(commandId: Snowflake, commandName: string): Command | null {
-    const isGlobalCommand = client.application?.commands.cache.has(commandId);
-
-    if (isGlobalCommand) {
-      return CommandManager.commands.get(commandName) ?? null;
-    }
-
-    return null;
   }
 
   /**
@@ -113,12 +136,8 @@ export default class CommandManager {
    * @param commandName The name of the command to search for
    */
 
-  static getCommandByName(commandName: string): Command | null {
-    return (
-      CommandManager.commands.find(
-        command => command.data.name === commandName || command.data.name.toLowerCase() === commandName
-      ) ?? null
-    );
+  static getCommand(commandName: string): Command | null {
+    return CommandManager.commands.get(commandName || commandName.toLowerCase()) ?? null;
   }
 
   /**

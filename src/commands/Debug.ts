@@ -10,7 +10,7 @@ import { InteractionReplyData } from '@utils/Types';
 import { pluralize } from '@utils/index';
 import { prisma } from '..';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import InfractionManager from '@managers/database/InfractionManager';
 
 export default class DebugCommand extends Command {
@@ -18,6 +18,7 @@ export default class DebugCommand extends Command {
     super({
       category: CommandCategory.Developer,
       guarded: true,
+      devGuildOnly: true,
       data: {
         name: 'debug',
         description: 'Manage the bot.',
@@ -80,7 +81,7 @@ export default class DebugCommand extends Command {
   }
 
   private static toggleMaintenance(value: boolean): InteractionReplyData {
-    if (terabyte.maintenance === value) {
+    if (eris.maintenance === value) {
       return {
         error: `Maintenance mode is already ${value ? 'enabled' : 'disabled'}.`,
         temporary: true,
@@ -88,7 +89,7 @@ export default class DebugCommand extends Command {
       };
     }
 
-    terabyte.maintenance = value;
+    eris.maintenance = value;
 
     return {
       content: `Maintenance mode has been ${

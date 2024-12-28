@@ -2,7 +2,7 @@ import { ButtonInteraction, PermissionFlagsBits, TextChannel } from 'discord.js'
 
 import { InteractionReplyData } from '@utils/Types';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 
 export default class DeleteMessageComponent extends Component {
   constructor() {

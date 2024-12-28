@@ -1,7 +1,7 @@
 // Global type definitions
 
 declare global {
-  var terabyte: {
+  var eris: {
     maintenance: boolean;
     commandRatelimits: Set<string>;
   };

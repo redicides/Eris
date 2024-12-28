@@ -44,6 +44,7 @@ const zCron = z
 export const globalConfigSchema = z.object({
   bot: z.object({
     developers: z.array(zSnowflake).default([]),
+    developer_guilds: z.array(zSnowflake).default([]),
     activity: z
       .object({
         name: z.string().default('Watching messages zoom by'),

@@ -1,11 +1,11 @@
 /**
- * Initialize the global terabyte declarations.
+ * Initialize the global eris declarations.
  * Apparently these have to be at the very top or else NodeJS won't be happy.
  */
 
-global.terabyte = {
+global.eris = {
   maintenance: false,
-  commandRatelimits: new Set<string>(),
+  commandRatelimits: new Set<string>()
 };
 
 import 'dotenv/config';
@@ -22,10 +22,10 @@ import { checkEnvironmentVariables, constructDatabaseUrl, sleep } from '@utils/i
 import Logger, { AnsiColor } from '@utils/Logger';
 import { ClientCacheOptions, ClientIntents, ClientPartials, ClientSweeperOptions, ExitEvents } from '@utils/Constants';
 
-import EventListenerManager from '@managers/terabyte/EventListenerManager';
-import CommandManager from '@managers/terabyte/CommandManager';
+import EventListenerManager from '@managers/eris/EventListenerManager';
+import CommandManager from '@managers/eris/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
-import ComponentManager from '@managers/terabyte/ComponentManager';
+import ComponentManager from '@managers/eris/ComponentManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 /**

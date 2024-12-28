@@ -2,7 +2,7 @@ import { Events } from 'discord.js';
 
 import { CronUtils } from '@utils/Cron';
 
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 import ConfigManager from '@managers/config/ConfigManager';
 import Logger, { AnsiColor } from '@utils/Logger';
 

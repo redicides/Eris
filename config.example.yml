@@ -1,5 +1,6 @@
 bot:
   developers: ['1234', '4321'] # A list of user IDs the bot will recognize as developers
+  developer_guilds: ['1234', '4321'] # A list of guild IDs the bot will recognize as developer guilds and register commands in
   activity: # Optional activity config for the client
     name: 'some name' # The activity message
     type: 1 # The activity type (see https://discord.com/developers/docs/events/gateway-events#activity-object-activity-types)

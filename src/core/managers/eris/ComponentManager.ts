@@ -6,7 +6,7 @@ import fs from 'fs';
 import { pluralize } from '@utils/index';
 
 import Logger, { AnsiColor } from '@utils/Logger';
-import Component, { CustomID } from '@terabyte/Component';
+import Component, { CustomID } from '@eris/Component';
 
 export default class ComponentManager {
   /**

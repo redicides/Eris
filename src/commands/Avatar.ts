@@ -8,7 +8,7 @@ import {
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class Avatar extends Command {
   constructor() {

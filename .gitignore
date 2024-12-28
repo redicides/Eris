@@ -14,7 +14,7 @@ node_modules
 sourcemaps.bat
 
 # Config
-terabyte.cfg.yml
+eris.cfg.yml
 
 # Webstorm stuff
 

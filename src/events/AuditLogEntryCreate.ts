@@ -4,7 +4,7 @@ import { InfractionFlag, InfractionAction } from '@prisma/client';
 import { elipsify } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 
@@ -14,7 +14,7 @@ export default class AuditLogEntryCreate extends EventListener {
   }
 
   async execute(log: GuildAuditLogsEntry, guild: Guild) {
-    if (terabyte.maintenance) return;
+    if (eris.maintenance) return;
 
     const { executor, target, reason: rawReason, changes } = log;
 

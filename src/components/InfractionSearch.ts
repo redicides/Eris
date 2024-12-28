@@ -5,7 +5,7 @@ import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 import InfractionManager from '@managers/database/InfractionManager';
 
 export default class InfractionSearchComponent extends Component {

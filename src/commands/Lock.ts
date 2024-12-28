@@ -16,7 +16,7 @@ import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { capitalize, elipsify, hasPermission, isEphemeralReply } from '@utils/index';
 import { DefaultInfractionReason, InfractionColors } from '@managers/database/InfractionManager';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class Lock extends Command {
@@ -62,7 +62,7 @@ export default class Lock extends Command {
   ): Promise<InteractionReplyData> {
     const rawReason = interaction.options.getString('reason', false);
     const notifyChannel = hasPermission(interaction.member, config, UserPermission.OverrideLockdownNotificatons)
-      ? (interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify)
+      ? interaction.options.getBoolean('send-channel-notification', false) ?? config.lockdown_notify
       : config.lockdown_notify;
 
     if (!hasPermission(interaction.member, config, UserPermission.LockChannels)) {

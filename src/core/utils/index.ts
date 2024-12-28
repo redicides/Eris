@@ -38,11 +38,11 @@ import { client } from '../..';
 import { UserPermission } from './Enums';
 import { EmptyMessageContent, LogDateFormat } from './Constants';
 import { EphemeralScope, GuildConfig, InteractionReplyData, MessageLog, ObjectDiff, PermissionNode } from './Types';
-import { ComponentInteraction } from '@terabyte/Component';
-import { CommandCategory } from '@terabyte/Command';
+import { ComponentInteraction } from '@eris/Component';
+import { CommandCategory } from '@eris/Command';
 
 import ConfigManager from '@managers/config/ConfigManager';
-import CommandManager from '@managers/terabyte/CommandManager';
+import CommandManager from '@managers/eris/CommandManager';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 /**
@@ -552,7 +552,7 @@ export async function getReferenceMessage(
     message_id: reference.id,
     author_id: isDiscordMessage ? reference.author.id : reference.author_id,
     channel_id: isDiscordMessage ? reference.channelId : reference.channel_id,
-    sticker_id: isDiscordMessage ? (reference.stickers?.first()?.id ?? null) : reference.sticker_id,
+    sticker_id: isDiscordMessage ? reference.stickers?.first()?.id ?? null : reference.sticker_id,
     created_at: isDiscordMessage ? reference.createdAt : reference.created_at,
     content: reference.content,
     attachments: isDiscordMessage ? Array.from(reference.attachments.values()).map(a => a.url) : reference.attachments

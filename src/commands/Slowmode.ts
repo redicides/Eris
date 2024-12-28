@@ -12,7 +12,7 @@ import ms from 'ms';
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class Slowmode extends Command {
   constructor() {
@@ -57,10 +57,10 @@ export default class Slowmode extends Command {
     const time = interaction.options.getString('time', false);
     const current = channel.rateLimitPerUser;
     const parsedSlowmode = current ? ms(current * 1000, { long: true }).replace(/(\d+)/g, '**$1**') : '**0** seconds';
-    const parsedChannel = channel === interaction.channel ? '' : `in ${channel}`;
+    const parsedChannel = channel === interaction.channel ? ' ' : ` in ${channel} `;
 
     if (!time) {
-      return { content: `The current slowmode ${parsedChannel} is set to ${parsedSlowmode}.` };
+      return { content: `The current slowmode${parsedChannel}is set to ${parsedSlowmode}.` };
     }
 
     const method = time.startsWith('+') ? 'add' : time.startsWith('-') ? 'remove' : 'set';
@@ -77,7 +77,7 @@ export default class Slowmode extends Command {
 
     if (slowmode === current) {
       return {
-        error: `The slowmode ${parsedChannel} is already set to ${parsedSlowmode}.`,
+        error: `The slowmode${parsedChannel}is already set to ${parsedSlowmode}.`,
         temporary: true
       };
     }
@@ -88,15 +88,15 @@ export default class Slowmode extends Command {
 
     if (!set) {
       return {
-        error: `I could not update the slowmode. Please check my permissions and try again.`,
+        error: `The slowmode${parsedChannel}couldn't be updated. Please check my permissions and try again.`,
         temporary: true
       };
     }
 
     return slowmode === 0
-      ? { content: `Slowmode ${parsedChannel} has been turned off.`, temporary: true }
+      ? { content: `Slowmode${parsedChannel}has been turned off.`, temporary: true }
       : {
-          content: `Slowmode ${parsedChannel} has been set to ${ms(slowmode * 1000, { long: true })
+          content: `Slowmode${parsedChannel}has been set to ${ms(slowmode * 1000, { long: true })
             .replace(/(\d+)/g, '`$1`')
             .replace('ms', 'seconds')}.`,
           temporary: true

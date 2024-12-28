@@ -12,7 +12,7 @@ import { isEphemeralReply, parseDuration } from '@utils/index';
 import { MaxDurationStr } from '@utils/Constants';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 export default class Warn extends Command {
@@ -114,8 +114,8 @@ export default class Warn extends Command {
     const expiresAt = duration
       ? new Date(currentDate + duration)
       : !DurationKeys.Permanent.includes(rawDuration?.toLowerCase() ?? '') && config.default_warn_duration !== 0n
-        ? new Date(currentDate + Number(config.default_warn_duration))
-        : null;
+      ? new Date(currentDate + Number(config.default_warn_duration))
+      : null;
 
     const infraction = await InfractionManager.storeInfraction({
       id: InfractionManager.generateInfractionId(),

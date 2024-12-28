@@ -66,6 +66,13 @@ export default abstract class Command {
   public readonly isRateLimitAffected: boolean;
 
   /**
+   * If this command must only be registerd in specific developer guilds specified in the global config.
+   * This means the command will only be available in the specified guilds and nowhere else.
+   */
+
+  public readonly isDevGuildOnly: boolean;
+
+  /**
    * @param options The options for the command.
    * @param options.category The category of the command.
    * @param options.data The (application command) data for the command.
@@ -87,6 +94,7 @@ export default abstract class Command {
     this.usage = options.usage ?? null;
     this.isGuarded = options.guarded ?? false;
     this.isRateLimitAffected = options.rateLimitAffected ?? false;
+    this.isDevGuildOnly = options.devGuildOnly ?? false;
   }
 
   /**
@@ -101,6 +109,7 @@ export default abstract class Command {
 
 interface CommandOptions {
   guarded?: boolean;
+  devGuildOnly?: boolean;
   rateLimitAffected?: boolean;
   category?: CommandCategory;
   allowInDms?: boolean;

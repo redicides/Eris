@@ -21,13 +21,13 @@ export default class ConfigManager {
   static async cacheGlobalConfig(): Promise<void> {
     Logger.info('Caching global configuration...');
 
-    if (!fs.existsSync('terabyte.cfg.yml')) {
+    if (!fs.existsSync('eris.cfg.yml')) {
       Logger.error('Unable to find global configuration file. Exiting process...');
       process.exit(1);
     }
 
     // Load and parse the global config from the .yml file
-    const rawConfig = readYamlFile<GlobalConfig>('terabyte.cfg.yml');
+    const rawConfig = readYamlFile<GlobalConfig>('eris.cfg.yml');
     ConfigManager.global_config = ConfigManager.parseGlobalConfig(rawConfig);
 
     Logger.log('CONFIG', 'Successfully cached global configuration.', { color: AnsiColor.Green, full: true });

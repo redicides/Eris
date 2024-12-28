@@ -4,7 +4,7 @@ import { channelMentionWithId, getObjectDiff, userMentionWithId, capitalize } fr
 import { GuildConfig } from '@utils/Types';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 import ThreadCreate from './ThreadCreate';
 
 export default class ThreadUpdate extends EventListener {
@@ -13,7 +13,7 @@ export default class ThreadUpdate extends EventListener {
   }
 
   async execute(oldThread: ThreadChannel, newThread: ThreadChannel) {
-    if (terabyte.maintenance) return;
+    if (eris.maintenance) return;
 
     const config = await DatabaseManager.getGuildEntry(newThread.guildId);
     const channelIds = ThreadCreate._getChannelIds(newThread);

@@ -9,7 +9,7 @@ import { isEphemeralReply } from '@utils/index';
 import { MessageKeys } from '@utils/Keys';
 import { InteractionReplyData, GuildConfig } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 import TaskManager from '@managers/database/TaskManager';
 

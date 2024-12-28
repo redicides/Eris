@@ -15,14 +15,14 @@ import { UserPermission } from '@utils/Enums';
 import { EphemeralScope, GuildConfig, InteractionReplyData, PermissionNode, Result } from '@utils/Types';
 import { CommonDurations, DurationUnits, LockdownOverrides } from '@utils/Constants';
 
-import CommandManager from '@managers/terabyte/CommandManager';
-import EventListener from '@terabyte/EventListener';
+import CommandManager from '@managers/eris/CommandManager';
+import EventListener from '@eris/EventListener';
 import ConfigManager from '@managers/config/ConfigManager';
 import Logger from '@utils/Logger';
 import DatabaseManager from '@managers/database/DatabaseManager';
-import ComponentManager from '@managers/terabyte/ComponentManager';
-import Command from '@terabyte/Command';
-import Component from '@terabyte/Component';
+import ComponentManager from '@managers/eris/ComponentManager';
+import Command from '@eris/Command';
+import Component from '@eris/Component';
 
 const { emojis } = ConfigManager.global_config;
 const { developers } = ConfigManager.global_config.bot;
@@ -33,7 +33,7 @@ export default class InteractionCreate extends EventListener {
   }
 
   async execute(interaction: Interaction) {
-    if (terabyte.maintenance && !developers.includes(interaction.user.id)) {
+    if (eris.maintenance && !developers.includes(interaction.user.id)) {
       return;
     }
 
@@ -52,7 +52,7 @@ export default class InteractionCreate extends EventListener {
     const guild = await DatabaseManager.getGuildEntry(interaction.guildId);
 
     let data = interaction.isCommand()
-      ? CommandManager.getCommand(interaction.commandId, interaction.commandName)
+      ? CommandManager.getCommand(interaction.commandName)
       : ComponentManager.getComponent(interaction.customId);
 
     if (!data) {
@@ -418,7 +418,7 @@ export default class InteractionCreate extends EventListener {
 
   private static _clearCommandRateLimit(interaction: Interaction<'cached'>) {
     if (!interaction.isCommand()) return;
-    return terabyte.commandRatelimits.delete(`${interaction.guildId} ${interaction.commandName}`);
+    return eris.commandRatelimits.delete(`${interaction.guildId} ${interaction.commandName}`);
   }
 
   private static _handleUnknownInteraction(interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction>) {
@@ -470,14 +470,14 @@ export default class InteractionCreate extends EventListener {
     }
 
     if (command.isRateLimitAffected) {
-      if (terabyte.commandRatelimits.has(`${interaction.guildId} ${interaction.commandName}`)) {
+      if (eris.commandRatelimits.has(`${interaction.guildId} ${interaction.commandName}`)) {
         return {
           success: false,
           message: MessageKeys.Errors.CommandRateLimited
         };
       }
 
-      terabyte.commandRatelimits.add(`${interaction.guildId} ${interaction.commandName}`);
+      eris.commandRatelimits.add(`${interaction.guildId} ${interaction.commandName}`);
     }
 
     return { success: true };

@@ -7,7 +7,7 @@ import { RequestUtils } from '@utils/Requests';
 import { UserPermission } from '@utils/Enums';
 import { MessageKeys } from '@utils/Keys';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 
 export default class MuteRequestButton extends Component {
   constructor() {

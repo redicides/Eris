@@ -25,7 +25,7 @@ import {
 } from '@utils/index';
 import { GuildConfig } from '@utils/Types';
 
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 import DatabaseManager from '@managers/database/DatabaseManager';
 import { client } from '..';
 
@@ -38,7 +38,7 @@ export default class MessageDeleteBulk extends EventListener {
     deletedMessages: Collection<Snowflake, PartialMessage | DiscordMessage<true>>,
     channel: GuildTextBasedChannel
   ) {
-    if (terabyte.maintenance) return;
+    if (eris.maintenance) return;
 
     const config = await DatabaseManager.getGuildEntry(channel.guild.id);
     const channelIds = extractChannelIds(channel);

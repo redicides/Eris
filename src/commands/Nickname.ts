@@ -9,7 +9,7 @@ import { MessageKeys } from '@utils/Keys';
 import { hierarchyCheck } from '@utils/index';
 import { CommonCharacters } from '@utils/Constants';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class Nickname extends Command {
   constructor() {

@@ -13,7 +13,7 @@ import { MaxDurationStr } from '@utils/Constants';
 import { RequestUtils } from '@utils/Requests';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import InfractionManager from '@managers/database/InfractionManager';
 
 export default class Request extends Command {

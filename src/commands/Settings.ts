@@ -24,8 +24,8 @@ import { UserPermission } from '@utils/Enums';
 import { EphemeralScope, GuildConfig, InteractionReplyData, PermissionNode } from '@utils/Types';
 import { isEphemeralReply, parseDuration, pluralize, uploadData } from '@utils/index';
 
-import Command, { CommandCategory } from '@terabyte/Command';
-import CommandManager from '@managers/terabyte/CommandManager';
+import Command, { CommandCategory } from '@eris/Command';
+import CommandManager from '@managers/eris/CommandManager';
 
 export default class Settings extends Command {
   constructor() {
@@ -976,7 +976,7 @@ export default class Settings extends Command {
 
       let toggle = false;
 
-      const command = CommandManager.getCommandByName(commandName);
+      const command = CommandManager.getCommand(commandName);
       const shortcut = await CommandManager.getShortcutByName(commandName, interaction.guildId);
 
       if (!command) {
@@ -1090,7 +1090,7 @@ export default class Settings extends Command {
         | CategoryChannel
         | null;
 
-      const command = CommandManager.getCommandByName(commandName);
+      const command = CommandManager.getCommand(commandName);
       const shortcut = await CommandManager.getShortcutByName(commandName, interaction.guildId);
 
       if (!command && !shortcut) {

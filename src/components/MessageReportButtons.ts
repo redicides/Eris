@@ -8,7 +8,7 @@ import { ReportUtils } from '@utils/Reports';
 import { userMentionWithId } from '@utils/index';
 import { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 
 export default class MessageReportButtonsComponent extends Component {
   constructor() {

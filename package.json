@@ -1,5 +1,5 @@
 {
-  "name": "terabyte",
+  "name": "eris",
   "version": "1.0.0",
   "description": "A discord moderation & utility bot built with reliability in mind.",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terabyte-development/terabyte.git"
+    "url": "git+https://github.com/eris-development/eris.git"
   },
   "keywords": [
     "Discord",
@@ -23,9 +23,9 @@
     "url": "https://github.com/redicides"
   },
   "bugs": {
-    "url": "https://github.com/terabyte-development/terabyte/issues"
+    "url": "https://github.com/eris-development/eris/issues"
   },
-  "homepage": "https://github.com/terabyte-development/terabyte#readme",
+  "homepage": "https://github.com/eris-development/eris#readme",
   "dependencies": {
     "cron": "^3.2.1",
     "discord.js": "14.15.3",

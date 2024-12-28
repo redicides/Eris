@@ -3,7 +3,7 @@ import { APIMessage, Colors, EmbedBuilder, Events, VoiceBasedChannel, VoiceState
 import { GuildConfig } from '@utils/Types';
 import { channelMentionWithId, userMentionWithId } from '@utils/index';
 
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 import DatabaseManager from '@managers/database/DatabaseManager';
 
 export default class VoiceStateUpdate extends EventListener {
@@ -12,7 +12,7 @@ export default class VoiceStateUpdate extends EventListener {
   }
 
   async execute(oldState: VoiceState, newState: VoiceState) {
-    if (terabyte.maintenance) return;
+    if (eris.maintenance) return;
 
     // Ignore if the channel ID remains the same (e.g. the user toggled their microphone)
     if (oldState.channelId === newState.channelId) return;

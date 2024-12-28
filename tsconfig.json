@@ -43,7 +43,7 @@
       "paths": {
         "@/*": ["./src/*"],
         "@core/*": ["./src/core/*"],
-        "@terabyte/*": ["./src/core/terabyte/*"],
+        "@eris/*": ["./src/core/eris/*"],
         "@utils/*": ["./src/core/utils/*"],
         "@managers/*": ["./src/core/managers/*"],
       }

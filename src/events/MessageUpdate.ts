@@ -23,7 +23,7 @@ import { GuildConfig } from '@utils/Types';
 import { EmptyMessageContent } from '@utils/Constants';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 
 export default class MessageUpdate extends EventListener {
   constructor() {
@@ -31,7 +31,7 @@ export default class MessageUpdate extends EventListener {
   }
 
   async execute(_oldMessage: PartialMessage | DiscordMessage, _newMessage: PartialMessage | DiscordMessage) {
-    if (terabyte.maintenance) return;
+    if (eris.maintenance) return;
     if (!_newMessage.inGuild()) return;
 
     const message = _newMessage.partial

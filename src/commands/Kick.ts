@@ -9,7 +9,7 @@ import { InteractionReplyData, GuildConfig } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 import { isEphemeralReply } from '@utils/index';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import InfractionManager, { DefaultInfractionReason } from '@managers/database/InfractionManager';
 
 export default class Kick extends Command {

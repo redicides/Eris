@@ -12,7 +12,7 @@ import { ReportUtils } from '@utils/Reports';
 import { extractChannelIds, getMessageLogEmbed, getReferenceMessage } from '@utils/index';
 
 import DatabaseManager from '@managers/database/DatabaseManager';
-import EventListener from '@terabyte/EventListener';
+import EventListener from '@eris/EventListener';
 
 export default class MessageDelete extends EventListener {
   constructor() {
@@ -20,7 +20,7 @@ export default class MessageDelete extends EventListener {
   }
 
   async execute(deletedMessage: DiscordMessage | PartialMessage) {
-    if (terabyte.maintenance) return;
+    if (eris.maintenance) return;
 
     if (!deletedMessage.inGuild()) return;
     if (deletedMessage.partial) await deletedMessage.fetch().catch(() => null);

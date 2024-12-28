@@ -10,8 +10,8 @@ import { elipsify, generateHelpMenuFields } from '@utils/index';
 import { GuildConfig, InteractionReplyData } from '@utils/Types';
 import { MessageKeys } from '@utils/Keys';
 
-import Command, { CommandCategory } from '@terabyte/Command';
-import CommandManager from '@managers/terabyte/CommandManager';
+import Command, { CommandCategory } from '@eris/Command';
+import CommandManager from '@managers/eris/CommandManager';
 import ConfigManager from '@managers/config/ConfigManager';
 import ms from 'ms';
 
@@ -44,7 +44,7 @@ export default class Help extends Command {
     const cmd = interaction.options.getString('command', false);
 
     if (cmd) {
-      const command = CommandManager.getCommandByName(cmd);
+      const command = CommandManager.getCommand(cmd);
       const shortcut = await CommandManager.getShortcutByName(cmd, interaction.guildId);
 
       if (!command) {

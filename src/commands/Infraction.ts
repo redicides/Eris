@@ -11,7 +11,7 @@ import { hasPermission, isEphemeralReply } from '@utils/index';
 import { UserPermission } from '@utils/Enums';
 import { MessageKeys } from '@utils/Keys';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 import InfractionManager from '@managers/database/InfractionManager';
 
 export default class Infraction extends Command {

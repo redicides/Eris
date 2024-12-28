@@ -2,7 +2,7 @@ import { ApplicationCommandType, Colors, EmbedBuilder, UserContextMenuCommandInt
 
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class ViewServerAvatar extends Command {
   constructor() {

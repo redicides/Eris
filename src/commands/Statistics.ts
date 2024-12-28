@@ -13,7 +13,7 @@ import ms from 'ms';
 
 import { InteractionReplyData } from '@utils/Types';
 
-import Command, { CommandCategory } from '@terabyte/Command';
+import Command, { CommandCategory } from '@eris/Command';
 
 export default class Statistics extends Command {
   constructor() {

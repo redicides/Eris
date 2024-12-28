@@ -6,7 +6,7 @@ import { UserPermission } from '@utils/Enums';
 import { hasPermission } from '@utils/index';
 import { ReportUtils } from '@utils/Reports';
 
-import Component from '@terabyte/Component';
+import Component from '@eris/Component';
 
 export default class MessageReportModalComponent extends Component {
   constructor() {

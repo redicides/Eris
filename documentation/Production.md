@@ -1,11 +1,11 @@
 # Production Environment
 
-Once you have a working instance of terabyte, it's important to understand how to update and maintain it. Terabyte is suited for a production environment using Docker, so this guide focuses on that setup only.
+Once you have a working instance of Eris, it's important to understand how to update and maintain it. Eris is suited for a production environment using Docker, so this guide focuses on that setup only.
 
 ## Docker Commands
 
 > [!NOTE]
-> All of the commands mentioned in this file must be ran in terabyte's **root directory**, aka where the `.env` and `terabyte.cfg.yml` files are. They are rather useful and I recommend you get familiar with them.
+> All of the commands mentioned in this file must be ran in eris's **root directory**, aka where the `.env` and `eris.cfg.yml` files are. They are rather useful and I recommend you get familiar with them.
 
 ### Running All Services
 
@@ -80,14 +80,14 @@ sudo docker compose -p "" up -d
 
 In the event that I push an update that requires migrating data to a newer format, or pushing a new schema to the database, you'll need to know how to do this.
 
-Before you do anything though, you need to make sure the database service (terabyte_psql) is running without problems, and that `DATABASE_URL` is defined in your `.env` file.
+Before you do anything though, you need to make sure the database service (eris_psql) is running without problems, and that `DATABASE_URL` is defined in your `.env` file.
 
 ### Migrating Data
 
 1. Shut down the bot service
 
 ```bash
-sudo docker stop terabyte_bot
+sudo docker stop eris_bot
 ```
 
 2. Run the migration command
@@ -101,7 +101,7 @@ npx prisma migrate deploy
 1. Shut down the bot service
 
 ```bash
-sudo docker stop terabyte_bot
+sudo docker stop eris_bot
 ```
 
 2. Run the push command
