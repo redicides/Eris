@@ -50,6 +50,12 @@ export default class Config extends Command {
                       { name: 'User Report', value: 'user_reports_enabled' },
                       { name: 'Message Report', value: 'message_reports_enabled' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'True to enable, false to disable.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -67,6 +73,12 @@ export default class Config extends Command {
                       { name: 'User Report', value: 'user_reports_notify_status' },
                       { name: 'Message Report', value: 'message_reports_notify_status' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'True to enable, false to disable.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -84,6 +96,12 @@ export default class Config extends Command {
                       { name: 'User Report', value: 'user_reports_require_member' },
                       { name: 'Message Report', value: 'message_reports_require_member' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -243,6 +261,12 @@ export default class Config extends Command {
                       { name: 'Message Report Accept', value: 'message_reports_require_accept_reason' },
                       { name: 'Message Report Deny', value: 'message_reports_require_deny_reason' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'True to force a reason, false to not.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               }
@@ -267,6 +291,12 @@ export default class Config extends Command {
                       { name: 'Mute Request', value: 'mute_requests_enabled' },
                       { name: 'Ban Request', value: 'ban_requests_enabled' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'True to enable, false to disable.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -385,6 +415,31 @@ export default class Config extends Command {
                     ]
                   }
                 ]
+              },
+              {
+                name: ConfigSubcommand.ForceReviewReason,
+                description: 'Force reviewers to submit a reason when managing requests.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'action-type',
+                    description: 'The action to require a reason for.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Mute Request Accept', value: 'mute_requests_require_accept_reason' },
+                      { name: 'Mute Request Deny', value: 'mute_requests_require_deny_reason' },
+                      { name: 'Ban Request Accept', value: 'ban_requests_require_accept_reason' },
+                      { name: 'Ban Request Deny', value: 'ban_requests_require_deny_reason' }
+                    ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'True to force a reason, false to not.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
+                  }
+                ]
               }
             ]
           },
@@ -453,6 +508,12 @@ export default class Config extends Command {
                       { name: 'Threads', value: 'thread_logging_enabled' },
                       { name: 'Voice', value: 'voice_logging_enabled' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'True to enable, false to disable.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -574,6 +635,8 @@ export default class Config extends Command {
           switch (subcommand) {
             case ConfigSubcommand.Toggle:
               return Config.Requests.toggleRequest(interaction, config);
+            case ConfigSubcommand.ForceReviewReason:
+              return Config.Requests.forceReviewReason(interaction, config);
             case ConfigSubcommand.SetAlertChannel:
               return Config.Requests.setAlertChannel(interaction, config);
             case ConfigSubcommand.AddImmuneRole:
@@ -626,11 +689,15 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('report-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `${type === 'message_reports_require_member' ? 'Message authors' : 'Users'} are already ${
+            toggle ? 'required' : 'not required'
+          } to be in the guild to have a report submitted against them.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -650,11 +717,15 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('report-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `Report authors are already ${toggle ? 'receiving' : 'not receiving'} status notifications for ${
+            type === 'message_reports_notify_status' ? 'message reports' : 'user reports'
+          }.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -674,11 +745,15 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('report-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `${type === 'message_reports_enabled' ? 'Message reports' : 'User reports'} are already ${
+            toggle ? 'enabled' : 'disabled'
+          }.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -990,11 +1065,15 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('action-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `Reasons are already ${toggle ? 'required' : 'not required'} for ${
+            type.includes('accept') ? 'accepting' : 'denying'
+          } ${type.includes('user') ? 'user reports' : 'message reports'}.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -1020,11 +1099,15 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('request-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `Submissions for ${type === 'mute_requests_enabled' ? 'mute requests' : 'ban requests'} are already ${
+            toggle ? 'enabled' : 'disabled'
+          }.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -1277,6 +1360,34 @@ export default class Config extends Command {
           type === 'mute_requests_ping_roles' ? 'mute requests' : 'ban requests'
         }.`
       };
+    },
+
+    async forceReviewReason(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const type = interaction.options.getString('action-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
+
+      if (config[type] === toggle) {
+        return {
+          error: `Reasons are already ${toggle ? 'required' : 'not required'} for ${
+            type.includes('accept') ? 'accepting' : 'denying'
+          } ${type.includes('mute') ? 'mute requests' : 'ban requests'}.`,
+          temporary: true
+        };
+      }
+
+      await prisma.guild.update({
+        where: { id: interaction.guildId },
+        data: { [type]: toggle }
+      });
+
+      return {
+        content: `A reason is ${toggle ? 'now' : 'no longer'} required for ${
+          type.includes('accept') ? 'accepting' : 'denying'
+        } ${type.includes('mute') ? 'mute requests' : 'ban requests'}.`
+      };
     }
   };
 
@@ -1290,11 +1401,13 @@ export default class Config extends Command {
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('log-type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `${capitalize(Config._parseLogType(type))} logging is already ${toggle ? 'enabled' : 'disabled'}.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({

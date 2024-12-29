@@ -75,7 +75,7 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'permission-node',
+                    name: 'node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -89,7 +89,7 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'permission-node',
+                    name: 'node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -109,7 +109,7 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'permission-node',
+                    name: 'node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -129,7 +129,7 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'permission-node',
+                    name: 'node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -150,7 +150,7 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
-                    name: 'permission-node',
+                    name: 'node',
                     description: 'The name of the permission node.',
                     type: ApplicationCommandOptionType.String,
                     required: true,
@@ -192,12 +192,24 @@ export default class Settings extends Command {
                 ]
               },
               {
-                name: SettingsSubcommand.ToggleDefaultEphemeralReply,
-                description: 'Toggle default ephemeral replies.',
-                type: ApplicationCommandOptionType.Subcommand
+                name: SettingsSubcommand.SetDefaultReplyType,
+                description: 'Set the default reply type for commands.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'type',
+                    description: 'The default reply type.',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                    choices: [
+                      { name: 'Ephemeral', value: 'ephemeral' },
+                      { name: 'Non Ephemeral', value: 'non ephemeral' }
+                    ]
+                  }
+                ]
               },
               {
-                name: SettingsSubcommand.TimeToLive,
+                name: SettingsSubcommand.SetTimeToLive,
                 description: 'Set the time-to-live for interaction replies.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
@@ -378,6 +390,12 @@ export default class Settings extends Command {
                       { name: 'Unmute', value: 'require_unmute_reason' },
                       { name: 'Unban', value: 'require_unban_reason' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -407,8 +425,8 @@ export default class Settings extends Command {
                 ]
               },
               {
-                name: SettingsSubcommand.ToggleNotifications,
-                description: 'Toggle notification DMs when a user is punished.',
+                name: SettingsSubcommand.SendNotificationDms,
+                description: 'Notify users when they receive an infraction.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                   {
@@ -423,6 +441,12 @@ export default class Settings extends Command {
                       { name: 'Ban', value: 'notify_ban_action' },
                       { name: 'Unmute', value: 'notify_unmute_action' }
                     ]
+                  },
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
                   }
                 ]
               },
@@ -456,9 +480,17 @@ export default class Settings extends Command {
                 ]
               },
               {
-                name: SettingsSubcommand.ToggleNativeIntegration,
-                description: 'Toggle tracking of infractions from native moderation.',
-                type: ApplicationCommandOptionType.Subcommand
+                name: SettingsSubcommand.TrackNativeInfractions,
+                description: 'Track natively issued infractions.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
+                  }
+                ]
               }
             ]
           },
@@ -534,19 +566,43 @@ export default class Settings extends Command {
                 type: ApplicationCommandOptionType.Subcommand
               },
               {
-                name: SettingsSubcommand.ToggleNotifications,
-                description: `Toggle notifying all channels when a lock/unlock occurs.`,
-                type: ApplicationCommandOptionType.Subcommand
+                name: SettingsSubcommand.SendChannelNotification,
+                description: `Notify channels upon locking & unlocking.`,
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
+                  }
+                ]
               },
               {
                 name: SettingsSubcommand.DisplayExecutor,
-                description: 'Toggle displaying the executor when a lock/unlock completes.',
-                type: ApplicationCommandOptionType.Subcommand
+                description: 'Display the executor when locking & unlocking.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
+                  }
+                ]
               },
               {
                 name: SettingsSubcommand.ForceReason,
                 description: 'Force a reason for locking & unlocking.',
-                type: ApplicationCommandOptionType.Subcommand
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                  {
+                    name: 'toggle',
+                    description: 'Toggle for this setting.',
+                    type: ApplicationCommandOptionType.Boolean,
+                    required: true
+                  }
+                ]
               }
             ]
           }
@@ -592,9 +648,9 @@ export default class Settings extends Command {
           switch (subcommand) {
             case SettingsSubcommand.Toggle:
               return Settings.Commands.toggleCommand(interaction, config);
-            case SettingsSubcommand.ToggleDefaultEphemeralReply:
-              return Settings.Commands.toggleDefaultEphemeralReply(config);
-            case SettingsSubcommand.TimeToLive:
+            case SettingsSubcommand.SetDefaultReplyType:
+              return Settings.Commands.setDefaultReplyType(interaction, config);
+            case SettingsSubcommand.SetTimeToLive:
               return Settings.Commands.setTimeToLive(interaction, config);
             case SettingsSubcommand.CreateEphemeralScope:
               return Settings.Commands.createScope(interaction, config);
@@ -619,13 +675,13 @@ export default class Settings extends Command {
         {
           switch (subcommand) {
             case SettingsSubcommand.ForceReason:
-              return Settings.Infractions.requireReason(interaction, config);
+              return Settings.Infractions.forceReason(interaction, config);
             case SettingsSubcommand.SetDefaultDuration:
               return Settings.Infractions.setDefaultDuration(interaction, config);
-            case SettingsSubcommand.ToggleNotifications:
-              return Settings.Infractions.toggleNotifications(interaction, config);
-            case SettingsSubcommand.ToggleNativeIntegration:
-              return Settings.Infractions.toggleNativeIntegration(interaction, config);
+            case SettingsSubcommand.SendNotificationDms:
+              return Settings.Infractions.sendNotificationDms(interaction, config);
+            case SettingsSubcommand.TrackNativeInfractions:
+              return Settings.Infractions.trackNativeInfractions(interaction, config);
             case SettingsSubcommand.SetAdditionalInfo:
               return Settings.Infractions.setAdditionalInformation(interaction, config);
           }
@@ -647,12 +703,12 @@ export default class Settings extends Command {
             return Settings.Lockdown.removeOverride(interaction, config);
           case SettingsSubcommand.ListOverrides:
             return Settings.Lockdown.listOverrides(config);
-          case SettingsSubcommand.ToggleNotifications:
-            return Settings.Lockdown.toggleNotifications(config);
+          case SettingsSubcommand.SendChannelNotification:
+            return Settings.Lockdown.toggleNotifications(interaction, config);
           case SettingsSubcommand.DisplayExecutor:
-            return Settings.Lockdown.showExecutor(config);
+            return Settings.Lockdown.showExecutor(interaction, config);
           case SettingsSubcommand.ForceReason:
-            return Settings.Lockdown.requireReason(config);
+            return Settings.Lockdown.requireReason(interaction, config);
         }
       }
     }
@@ -713,7 +769,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
+      const name = interaction.options.getString('node', true);
       const permission = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
 
       if (!permission) {
@@ -741,7 +797,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
+      const name = interaction.options.getString('node', true);
       const role = interaction.options.getRole('role', true);
 
       const permission = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
@@ -787,7 +843,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
+      const name = interaction.options.getString('node', true);
       const role = interaction.options.getRole('role', true);
 
       const permission = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
@@ -826,7 +882,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
+      const name = interaction.options.getString('node', true);
       const permission = interaction.options.getString('permission', true) as UserPermission;
 
       const permissionNode = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
@@ -874,7 +930,7 @@ export default class Settings extends Command {
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
-      const name = interaction.options.getString('permission-node', true);
+      const name = interaction.options.getString('node', true);
       const permission = interaction.options.getString('permission', true) as UserPermission;
 
       const permissionNode = (config.permission_nodes as PermissionNode[]).find(permission => permission.name === name);
@@ -1454,20 +1510,29 @@ export default class Settings extends Command {
       };
     },
 
-    async toggleDefaultEphemeralReply(config: GuildConfig): Promise<InteractionReplyData> {
-      let toggle = true;
+    async setDefaultReplyType(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const type = interaction.options.getString('type', true) as 'ephemeral' | 'non ephemeral';
 
-      if (config.command_ephemeral_reply) {
-        toggle = false;
+      if (
+        (config.command_ephemeral_reply && type === 'ephemeral') ||
+        (!config.command_ephemeral_reply && type === 'non ephemeral')
+      ) {
+        return {
+          error: `The default reply type is already set to ${type}.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
-        where: { id: config.id },
-        data: { command_ephemeral_reply: toggle }
+        where: { id: interaction.guildId },
+        data: { command_ephemeral_reply: type === 'ephemeral' }
       });
 
       return {
-        content: `Command replies are now ${toggle ? 'ephemeral' : 'non-ephemeral'} by default.`
+        content: `The default reply type for commands has been set to ${type}.`
       };
     }
   };
@@ -1506,16 +1571,20 @@ export default class Settings extends Command {
       };
     },
 
-    async requireReason(
+    async forceReason(
       interaction: ChatInputCommandInteraction<'cached'>,
       config: GuildConfig
     ): Promise<InteractionReplyData> {
       const type = interaction.options.getString('type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `A reason is already ${
+            toggle ? 'required' : 'not required'
+          } for issuing \`${Settings._parseInfractionKeys(type)}\` infractions.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -1598,13 +1667,17 @@ export default class Settings extends Command {
       };
     },
 
-    async toggleNotifications(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
+    async sendNotificationDms(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
       const type = interaction.options.getString('type', true) as keyof typeof config;
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      let toggle = true;
-
-      if (config[type] === true) {
-        toggle = false;
+      if (config[type] === toggle) {
+        return {
+          error: `Users are already ${
+            toggle ? 'receiving' : 'not receiving'
+          } DM notifications for \`${Settings._parseInfractionKeys(type)}\` infractions.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -1619,22 +1692,26 @@ export default class Settings extends Command {
       };
     },
 
-    async toggleNativeIntegration(interaction: ChatInputCommandInteraction<'cached'>, config: GuildConfig) {
-      let toggle = true;
+    async trackNativeInfractions(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const value = interaction.options.getBoolean('toggle', true);
 
-      if (config.native_moderation_integration) {
-        toggle = false;
+      if (config.native_moderation_integration === value) {
+        return {
+          error: `Native infractions are already ${value ? 'being' : 'not being'} tracked.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
         where: { id: interaction.guildId },
-        data: { native_moderation_integration: toggle }
+        data: { native_moderation_integration: value }
       });
 
       return {
-        content: `Native moderation infractions will ${
-          toggle ? 'now' : 'no longer'
-        } be tracked by the infraction system.`
+        content: `Native infractions will now ${value ? 'be' : 'no longer be'} tracked.`
       };
     }
   };
@@ -1830,11 +1907,17 @@ export default class Settings extends Command {
       };
     },
 
-    async showExecutor(config: GuildConfig): Promise<InteractionReplyData> {
-      let toggle = true;
+    async showExecutor(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      if (config.lockdown_display_executor) {
-        toggle = false;
+      if (config.lockdown_display_executor === toggle) {
+        return {
+          error: `The executor display setting is already ${toggle ? 'enabled' : 'disabled'}.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -1843,36 +1926,48 @@ export default class Settings extends Command {
       });
 
       return {
-        content: `The executor responsible for locking channels will ${
+        content: `The executor responsible for locking or unlocking channels will ${
           toggle ? 'now' : 'no longer'
         } be displayed in the information embed.`
       };
     },
 
-    async toggleNotifications(config: GuildConfig): Promise<InteractionReplyData> {
-      let toggle = true;
+    async toggleNotifications(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const value = interaction.options.getBoolean('toggle', true);
 
-      if (config.lockdown_notify) {
-        toggle = false;
+      if (config.lockdown_notify === value) {
+        return {
+          error: `Channel notifications are already ${value ? 'enabled' : 'disabled'}.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
         where: { id: config.id },
-        data: { lockdown_notify: toggle }
+        data: { lockdown_notify: value }
       });
 
       return {
         content: `Channels in the lockdown list will ${
-          toggle ? 'now' : 'no longer'
+          value ? 'now' : 'no longer'
         } have a notification sent upon locking.`
       };
     },
 
-    async requireReason(config: GuildConfig): Promise<InteractionReplyData> {
-      let toggle = true;
+    async requireReason(
+      interaction: ChatInputCommandInteraction<'cached'>,
+      config: GuildConfig
+    ): Promise<InteractionReplyData> {
+      const toggle = interaction.options.getBoolean('toggle', true);
 
-      if (config.lockdown_require_reason) {
-        toggle = false;
+      if (config.lockdown_require_reason === toggle) {
+        return {
+          error: `A reason is already ${toggle ? 'required' : 'not required'} for locking/unlocking channels.`,
+          temporary: true
+        };
       }
 
       await prisma.guild.update({
@@ -1926,12 +2021,12 @@ enum SettingsSubcommandGroup {
 
 enum SettingsSubcommand {
   Toggle = 'toggle',
-  ToggleDefaultEphemeralReply = 'toggle-default-ephemeral-reply',
   ForceReason = 'force-reason',
   SetDefaultDuration = 'set-default-duration',
-  ToggleNotifications = 'toggle-notifications',
-  ToggleNativeIntegration = 'toggle-native-integration',
-  TimeToLive = 'time-to-live',
+  SendChannelNotification = 'send-channel-notification',
+  SendNotificationDms = 'send-notification-dms',
+  TrackNativeInfractions = 'track-native-infractions',
+  SetTimeToLive = 'set-time-to-live',
   CreateEphemeralScope = 'create-ephemeral-scope',
   DeleteEphemeralScope = 'delete-ephemeral-scope',
   AddIncludedChannel = 'add-included-channel',
@@ -1953,5 +2048,6 @@ enum SettingsSubcommand {
   RemoveOverride = 'remove-override',
   ListOverrides = 'list-overrides',
   DisplayExecutor = 'display-executor',
-  SetAdditionalInfo = 'set-additional-info'
+  SetAdditionalInfo = 'set-additional-info',
+  SetDefaultReplyType = 'set-default-reply-type'
 }

@@ -361,7 +361,7 @@ export default class InteractionCreate extends EventListener {
         );
       }
 
-      case 'permission-node': {
+      case 'node': {
         const rawPermissions = (await DatabaseManager.getGuildEntry(interaction.guildId))
           .permission_nodes as PermissionNode[];
 
