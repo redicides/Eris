@@ -12,7 +12,6 @@ import 'dotenv/config';
 
 import { Client } from 'discord.js';
 import { PrismaClient } from '@prisma/client';
-import { createPrismaRedisCache } from 'prisma-redis-middleware';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import * as SentryClient from '@sentry/node';
@@ -113,7 +112,12 @@ async function main() {
 
   await EventListenerManager.mount();
 
-  // Initialize Sentry
+  /**
+   * Initialize the Sentry client. As of Prisma 6.1.0, the prisma sentry integration is broken and will not work.
+   *
+   * ❗ TODO: Un comment the prisma integration once it is fixed.
+   */
+
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
@@ -121,32 +125,13 @@ async function main() {
     tracesSampleRate: 1,
     integrations: [
       Sentry.consoleIntegration(),
-      Sentry.prismaIntegration(),
       Sentry.nodeContextIntegration(),
+      // Sentry.prismaIntegration(),
       nodeProfilingIntegration()
     ]
   });
 
   Logger.log('SENTRY', 'Successfully initialized the Sentry client.', { color: AnsiColor.Green, full: true });
-
-  /**
-   * Initialize the prisma memory cache middleware.
-   * It technically is deprecated but it works for now.
-   *
-   * Query results are cached for 60 seconds.
-   */
-
-  prisma.$use(
-    createPrismaRedisCache({
-      storage: {
-        type: 'memory',
-        options: {
-          invalidation: true
-        }
-      },
-      cacheTime: 60000
-    })
-  );
 
   /**
    * Connect to the database.
