@@ -4,8 +4,9 @@
       "strict": true,
       "alwaysStrict": true,
   
-      // Module Resolution Options
-      "module": "Node16",
+      // Module And Library Options
+      "lib": ["ESNext"],
+      "module": "NodeNext",
       "moduleResolution": "NodeNext",
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
@@ -35,9 +36,6 @@
       "preserveConstEnums": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
-  
-      // Library and Types
-      "lib": ["ESNext"],
   
       // Path Mapping
       "paths": {
