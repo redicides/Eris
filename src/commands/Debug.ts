@@ -1,13 +1,16 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
   ApplicationCommandType,
   AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Snowflake
 } from 'discord.js';
 
 import { InteractionReplyData } from '@utils/Types';
-import { pluralize } from '@utils/index';
+import { pluralize, uploadData } from '@utils/index';
 import { prisma } from '..';
 
 import Command, { CommandCategory } from '@eris/Command';
@@ -46,7 +49,7 @@ export default class DebugCommand extends Command {
                 name: 'id',
                 description: "The guild's ID.",
                 type: ApplicationCommandOptionType.String,
-                required: true
+                required: false
               }
             ]
           }
@@ -66,7 +69,7 @@ export default class DebugCommand extends Command {
       }
 
       case DebugSubcommand.DumpGuildInfractions: {
-        const id = interaction.options.getString('id', true);
+        const id = interaction.options.getString('id', false) ?? interaction.guildId;
         await interaction.deferReply({ ephemeral: false });
 
         return DebugCommand.dumpGuildInfractions(id);
@@ -115,17 +118,20 @@ export default class DebugCommand extends Command {
       })
       .join('\n\n');
 
+    const dataUrl = await uploadData(data, `txt`);
     const buffer = Buffer.from(data, 'utf-8');
     const attachment = new AttachmentBuilder(buffer, { name: `infractions-${id}.txt` });
+    const urlButton = new ButtonBuilder().setURL(dataUrl).setLabel('Open In Browser').setStyle(ButtonStyle.Link);
 
     return {
       content: `Dumped ${infractions.length} ${pluralize(infractions.length, 'infraction')} for guild \`${id}\`.`,
-      files: [attachment]
+      files: [attachment],
+      components: [new ActionRowBuilder<ButtonBuilder>().setComponents(urlButton)]
     };
   }
 }
 
 enum DebugSubcommand {
   ToggleMaintenance = 'toggle-maintenance',
-  DumpGuildInfractions = 'dump-guild-infractions'
+  DumpGuildInfractions = 'dump-infractions'
 }
