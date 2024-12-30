@@ -20,6 +20,7 @@ export default class Statistics extends Command {
     super({
       category: CommandCategory.Developer,
       guarded: true,
+      devGuildOnly: true,
       usage: '[ephemeral]',
       data: {
         name: 'statistics',
